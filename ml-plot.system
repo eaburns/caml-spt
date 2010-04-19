@@ -1,0 +1,16 @@
+Systems:
+"wrutils"
+
+Files:
+"geometry"
+"drawing"
+
+Libraries:
+"cairo"
+
+CLibraries:
+"cairo"
+
+Result: "ml-plot-debug" bytedebug "ml_plot_main"
+Result: "ml-plot" native "ml_plot_main"
+
