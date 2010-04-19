@@ -53,59 +53,26 @@ object (self)
     Cairo.set_font_size ctx size
 
 
-  method private extents ctx =
-    (** [extents ctx] gets the extents of the text. *)
+  method display ?(angle=0.) x y ctx =
+    (** [display ?angle x y ctx] displays the text at the given center
+	point. *)
     self#set_style ctx;
-    Cairo.text_extents ctx string
+    let te = Cairo.text_extents ctx string in
+    let w = te.Cairo.text_width and h = te.Cairo.text_height in
+    let x_offs = te.Cairo.x_bearing and y_offs = te.Cairo.y_bearing in
+      Cairo.save ctx;
+      Cairo.move_to ctx 0. 0.;
+      Cairo.translate ctx x y;
+      Cairo.rotate ctx (angle *. (Math.pi /. 180.));
+      Cairo.move_to ctx ~-.((w /. 2.) +. x_offs) ~-.((h /. 2.) +. y_offs);
+      Cairo.show_text ctx string;
+      Cairo.restore ctx
 
 
-  method private centered_x x ctx =
-    (** [centered_x x ctx] gets the x coordinate that will center the
-	text on the x-axis. *)
-    let te = self#extents ctx in
-      x -. (te.Cairo.text_width /. 2.) -. te.Cairo.x_bearing
-
-  method private before_x x ctx =
-    (** [before_x x ctx] gets the x coordinate that will place the
-	text before the given x location. *)
-    let te = self#extents ctx in
-      x -. te.Cairo.text_width -. te.Cairo.x_bearing
-
-
-  method private after_x x ctx =
-    (** [after_x x ctx] gets the x coordinate that will place the
-	text after the given x location. *)
-    let te = self#extents ctx in
-      x -. te.Cairo.x_bearing
-
-  method private centered_y y ctx =
-    (** [centered_y y ctx] gets the y coordinate that will center the
-	text on the y-axis. *)
-    let te = self#extents ctx in
-      y -. (te.Cairo.text_height /. 2.) -. te.Cairo.y_bearing
-
-
-  method private above_y y ctx =
-    (** [above_y y ctx] gets the y coordinate that will place the text
-	above the y location. *)
-    let te = self#extents ctx in
-      y +. te.Cairo.y_bearing +. te.Cairo.text_height
-
-
-  method private below_y y ctx =
-    (** [below_y y ctx] gets the y coordinate that will place the text
-	below the y location. *)
-    let te = self#extents ctx in
-      y +. te.Cairo.y_bearing
-
-
-  method private display angle x y ctx =
-    (** [display angle x y ctx] displays the text. *)
-    Cairo.save ctx;
-    Cairo.move_to ctx x y;
-    Cairo.rotate ctx (angle *. (Math.pi /. 180.));
-    Cairo.show_text ctx string;
-    Cairo.restore ctx
-
+  method dimensions ctx =
+    (** [dimensions ctx] gets the dimensions of the text.  *)
+    self#set_style ctx;
+    let te = Cairo.text_extents ctx string in
+      te.Cairo.text_width, te.Cairo.text_height
 
 end
