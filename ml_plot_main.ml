@@ -37,17 +37,11 @@ let main () =
 
     (* Test drawing fixed-width text. *)
     let txt = "rectangle is a long word" in
-    let w, x, y = 0.2, 0.25, 0.25 in
+    let w, x, y = 0.12, 0.25, 0.25 in
     let h = fixed_width_text_height ctx w txt in
+    let r = rectangle (x -. w /. 2.) (x +. w /. 2.) y (y +. h) in
       draw_fixed_width_text ctx ~x ~y ~width:w txt;
-      draw_line ctx ~style:default_line_style
-	[ point (x -. w /. 2.) y;
-	  point (x -. w /. 2.) (y +. h);
-	  point (x -. w /. 2. +. w) (y +. h);
-	  point (x -. w /. 2. +. w) y;
-	  point (x -. w /. 2.) y
-	];
-      Cairo.stroke ctx;
+      draw_rectangle ctx r;
 
 
       (* Test clipped lines. *)
