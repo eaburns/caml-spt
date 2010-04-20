@@ -29,10 +29,6 @@ let point ~x ~y = { x = x; y = y }
 
 let rectangle ~x_min ~x_max ~y_min ~y_max =
   (** [rectangle ~x_min ~x_max ~y_min ~y_max] creates a new rectangle. *)
-  if x_max <= x_min
-  then invalid_arg "Rectangle.create: x_max must be greater than x_min";
-  if y_max <= y_min
-  then invalid_arg "Rectangle.create: y_max must be greater than y_min";
   {
     x_min = x_min;
     x_max = x_max;

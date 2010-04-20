@@ -219,11 +219,36 @@ let set_line_style_option ctx = function
   | Some style -> set_line_style ctx style
 
 
-let draw_line ctx ?style points =
-  (** [draw_line ctx ?style points] draws the given line. *)
+let draw_line ctx ?box ?style points =
+  (** [draw_line ctx ?box ?style points] draws the given line
+      optionally within the given bounding box. *)
   set_line_style_option ctx style;
-  match points with
-    | [] -> ()
-    | (x, y) :: tl ->
-	Cairo.move_to ctx x y;
-	List.iter (fun (x, y) -> Cairo.line_to ctx x y) tl
+  match box with
+    | None ->
+	begin match points with
+	  | [] -> ()
+	  | p :: tl ->
+	      Cairo.move_to ctx p.x p.y;
+	      List.iter (fun p -> Cairo.line_to ctx p.x p.y) tl;
+	      Cairo.stroke ctx
+	end
+    | Some box ->
+	let rec draw_points = function
+	  | _ :: []
+	  | [] -> ()
+	  | p0 :: ((p1 :: _) as tl) ->
+	      let p0', p1' = clip_line_segment box ~p0 ~p1 in
+		Cairo.move_to ctx p0'.x p0'.y;
+		Cairo.line_to ctx p1'.x p1'.y;
+		draw_points tl
+	in
+	  draw_points points;
+	  Cairo.stroke ctx
+
+
+let draw_rectangle ctx ?style r =
+  (** [draw_rectangle ctx ?style r] draws the given rectangle. *)
+  set_line_style_option ctx style;
+  Cairo.rectangle ctx
+    r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
+  Cairo.stroke ctx
