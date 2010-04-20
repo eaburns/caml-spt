@@ -120,7 +120,7 @@ let hypenate_word ctx width word =
       too long to fit across the given width. *)
   let partition word i =
     let fst = String.sub word 0 (i + 1) in
-    let snd = String.sub word i ((String.length word) - i) in
+    let snd = String.sub word (i + 1) ((String.length word) - i - 1) in
       fst, snd
   in
   let n = String.length word in
