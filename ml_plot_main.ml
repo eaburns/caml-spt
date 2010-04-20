@@ -8,6 +8,8 @@
     @since 2010-04-15
 *)
 
+open Drawing
+
 let main () =
 
   let size = 400 in
@@ -27,10 +29,9 @@ let main () =
     Cairo.scale ctx sizef sizef;
     Cairo.set_line_width ctx (1. /. sizef);
 
-    let txt = new Drawing.text "hello" in
-      txt#display ~angle:~-.90. 0.5 0.5 ctx;
-      txt#display 0.5 0.5 ctx;
+    displayf ~angle:~-.90. 0.5 0.5 ctx "hello";
+    displayf 0.5 0.5 ctx "hello";
 
-      Cairo_png.surface_write_to_file surface "test.png"
+    Cairo_png.surface_write_to_file surface "test.png"
 
 let _ = main ()
