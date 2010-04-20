@@ -46,9 +46,6 @@ let main () =
 
       (* Test clipped lines. *)
       let box = rectangle 0.6 0.7 0.6 0.8 in
-(*
-	Cairo.rectangle ctx 0.6 0.6 0.1 0.2;
-*)
 	draw_rectangle ctx box;
 	draw_line ctx ~style:default_line_style ~box
 	  [ point 0.0 0.75;
@@ -59,11 +56,12 @@ let main () =
 
 	(* Test drawing points. *)
 	let style = { point_color = black; } in
-	  draw_points ctx ~style (Cross_glyph 0.1) [ point 0.8 0.1 ];
-	  draw_points ctx ~style (Plus_glyph 0.1) [ point 0.8 0.1 ];
-	  draw_points ctx ~style (Char_glyph ('M', 0.1)) [ point 0.8 0.1 ];
-	  draw_points ctx ~style (Box_glyph 0.1) [ point 0.8 0.1 ];
-	  draw_points ctx ~style (Ring_glyph 0.1) [ point 0.8 0.1 ];
+	let radius = 0.05 in
+	  draw_points ctx ~style (Cross_glyph radius) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Plus_glyph radius) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Char_glyph ('M', radius)) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Box_glyph radius) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Ring_glyph radius) [ point 0.8 0.1 ];
 
 
 	Cairo_png.surface_write_to_file surface "test.png"
