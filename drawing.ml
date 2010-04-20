@@ -4,6 +4,10 @@
     @since 2010-04-19
 *)
 
+
+open Geometry
+
+
 (** {1 Color} ****************************************)
 
 type color = { r : float; g : float; b : float; a : float}
@@ -56,17 +60,15 @@ let set_text_style ctx style =
   Cairo.set_font_size ctx style.size
 
 
-let set_text_style_option ctx style =
-  (** [set_text_style_option ctx style] sets the style if there was
-      one specified. *)
-  begin match style with
-    | None -> ()
-    | Some style -> set_text_style ctx style;
-  end
+let set_text_style_option ctx = function
+    (** [set_text_style_option ctx style] sets the style if there was
+	one specified. *)
+  | None -> ()
+  | Some style -> set_text_style ctx style
 
 
-let display_string ctx ?style ?(angle=0.) x y str =
-  (** [display_string ctx ?style ?angle x y str] displays the text at
+let draw_string ctx ?style ?(angle=0.) x y str =
+  (** [draw_string ctx ?style ?angle x y str] displays the text at
       the given center point. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx str in
@@ -91,10 +93,10 @@ let string_dimensions ctx ?style str =
 
 (** {2 Formatted text} ****************************************)
 
-let displayf ctx ?style ?(angle=0.) x y fmt =
-  (** [displayf ctx ?style ?angle x y fmt] displays the formatted text
-      at the given center point. *)
-  Printf.kprintf (display_string ctx ?style ~angle x y) fmt
+let drawf ctx ?style ?(angle=0.) x y fmt =
+  (** [drawf ctx ?style ?angle x y fmt] displays the formatted text at
+      the given center point. *)
+  Printf.kprintf (draw_string ctx ?style ~angle x y) fmt
 
 
 let dimensionsf ctx ?style fmt =
@@ -169,18 +171,59 @@ let fixed_width_text_height ctx
     List.fold_left (fun sum line ->
 		      let _, h = string_dimensions ctx line in
 			h +. line_space +. sum)
-      0. lines
+      (~-.line_space) lines
 
 
-let fixed_width_text ctx
+let draw_fixed_width_text ctx
     ?(line_space=default_line_space) ?style ~x ~y ~width string =
-  (** [fixed_width_text ctx ?line_space ?style ~x ~y ~width string]
-      displays the given fixed-width text where [x], [y] is the
-      location of the top center. *)
+  (** [draw_fixed_width_text ctx ?line_space ?style ~x ~y ~width
+      string] displays the given fixed-width text where [x], [y] is
+      the location of the top center. *)
   set_text_style_option ctx style;
   let lines = fixed_width_lines ctx width string in
     ignore (List.fold_left (fun y line ->
 			      let w, h = string_dimensions ctx line in
-				display_string ctx x (y +. h /. 2.) line;
+				draw_string ctx x (y +. h /. 2.) line;
 				y +. h +. line_space)
 	      y lines)
+
+(** {1 Lines} ****************************************)
+
+
+type line_style = {
+  line_color : color;
+  line_dashes : float array;
+  line_width : float;
+}
+
+let default_line_style =
+  (** The default line style. *)
+  {
+    line_color = black;
+    line_width = 0.002;
+    line_dashes = [||];
+  }
+
+
+let set_line_style ctx style =
+  (** [set_line_style ctx style] sets the line style. *)
+  set_color ctx style.line_color;
+  Cairo.set_dash ctx style.line_dashes 0.;
+  Cairo.set_line_width ctx style.line_width
+
+
+let set_line_style_option ctx = function
+    (** [set_line_style_option ctx style] sets the line style if there
+	is one *)
+  | None -> ()
+  | Some style -> set_line_style ctx style
+
+
+let draw_line ctx ?style points =
+  (** [draw_line ctx ?style points] draws the given line. *)
+  set_line_style_option ctx style;
+  match points with
+    | [] -> ()
+    | (x, y) :: tl ->
+	Cairo.move_to ctx x y;
+	List.iter (fun (x, y) -> Cairo.line_to ctx x y) tl

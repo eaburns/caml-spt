@@ -30,14 +30,18 @@ let main () =
     Cairo.set_line_width ctx (1. /. sizef);
 
     set_text_style ctx default_text_style;
-    displayf ctx ~angle:~-.90. 0.5 0.5 "hello";
-    displayf ctx 0.5 0.5 "hello";
+    drawf ctx ~angle:~-.90. 0.5 0.5 "hello";
+    drawf ctx 0.5 0.5 "hello";
 
-    let txt = "aoeuaoeuaoeuaoeu hello there this   is some text" in
+    let txt = "rectangle is a long word" in
     let w, x, y = 0.2, 0.25, 0.25 in
     let h = fixed_width_text_height ctx w txt in
-      fixed_width_text ctx ~x ~y ~width:w txt;
-      Cairo.rectangle ctx (x -. w /. 2.) y w h;
+      draw_fixed_width_text ctx ~x ~y ~width:w txt;
+      draw_line ~style:default_line_style ctx [ (x -. w /. 2., y);
+						(x -. w /. 2., y +. h);
+						(x -. w /. 2. +. w, y +. h);
+						(x -. w /. 2. +. w, y);
+						(x -. w /. 2., y); ];
       Cairo.stroke ctx;
 
 
