@@ -252,3 +252,95 @@ let draw_rectangle ctx ?style r =
   Cairo.rectangle ctx
     r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
   Cairo.stroke ctx
+
+
+(** {1 Points} ****************************************)
+
+
+type point_style = {
+  point_color : color;
+}
+
+and glyph =
+  | Circle_glyph of float
+  | Ring_glyph of float
+  | Cross_glyph of float
+  | Plus_glyph of float
+  | Square_glyph of float
+  | Box_glyph of float
+  | Char_glyph of char * float
+      (* The character and 'radius' where the radius is really the
+	 radius if the character is an 'M' *)
+
+
+
+let default_glyph_line_width = 0.003
+  (** The default line width when drawing glyphs. *)
+
+
+let make_draw_glyph ctx = function
+    (** [make_draw_glyph ctx glyph] makes a function draws the given
+	glyph.  Assumes that the text width and line width won't
+	change between creating the draw_glyph function and its
+	use. *)
+  | Circle_glyph radius ->
+      Cairo.set_line_width ctx default_glyph_line_width;
+      (fun pt ->
+	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. Math.pi);
+	 Cairo.fill ctx)
+  | Ring_glyph radius ->
+      Cairo.set_line_width ctx default_glyph_line_width;
+      (fun pt ->
+	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. Math.pi);
+	 Cairo.stroke ctx)
+  | Cross_glyph radius ->
+      let r = radius *. (sin (Math.pi /. 4.)) in
+	Cairo.set_line_width ctx default_glyph_line_width;
+	(fun pt ->
+	   let x = pt.x and y = pt.y in
+	     Cairo.move_to ctx (x -. r) (y +. r);
+	     Cairo.line_to ctx (x +. r) (y -. r);
+	     Cairo.move_to ctx (x -. r) (y -. r);
+	     Cairo.line_to ctx (x +. r) (y +. r);
+	     Cairo.stroke ctx)
+  | Plus_glyph radius ->
+      (fun pt ->
+	 Cairo.set_line_width ctx default_glyph_line_width;
+	 let x = pt.x and y = pt.y in
+	   Cairo.move_to ctx (x -. radius) y;
+	   Cairo.line_to ctx (x +. radius) y;
+	   Cairo.move_to ctx x (y -. radius);
+	   Cairo.line_to ctx x (y +. radius);
+	   Cairo.stroke ctx)
+  | Box_glyph radius ->
+      let r = radius *. (sin (Math.pi /. 4.)) in
+      let r2 = r *. 2. in
+	Cairo.set_line_width ctx default_glyph_line_width;
+	(fun pt ->
+	   let x = pt.x and y = pt.y in
+	     Cairo.rectangle ctx (x -. r) (y -. r) r2 r2;
+	     Cairo.stroke ctx)
+  | Square_glyph radius ->
+      let r = radius *. (sin (Math.pi /. 4.)) in
+      let r2 = r *. 2. in
+	Cairo.set_line_width ctx default_glyph_line_width;
+	(fun pt ->
+	   let x = pt.x and y = pt.y in
+	     Cairo.rectangle ctx (x -. r) (y -. r) r2 r2;
+	     Cairo.fill ctx)
+  | Char_glyph (ch, radius) ->
+      let str = " " in
+	str.[0] <- ch;
+	Cairo.set_font_size ctx (radius *. 2.);
+	(fun pt -> draw_string ctx pt.x pt.y str)
+
+
+
+let draw_points ctx ?style glyph points =
+  (** [draw_points ctx ?style glyph points] draws a set of points. *)
+  begin match style with
+    | None -> ()
+    | Some style -> set_color ctx style.point_color;
+  end;
+  let draw_pt = make_draw_glyph ctx glyph in
+    List.iter draw_pt points

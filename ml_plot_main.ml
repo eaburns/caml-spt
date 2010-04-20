@@ -57,6 +57,14 @@ let main () =
 	    point 0.9 0.55;
 	  ];
 
+	(* Test drawing points. *)
+	let style = { point_color = black; } in
+	  draw_points ctx ~style (Cross_glyph 0.1) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Plus_glyph 0.1) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Char_glyph ('M', 0.1)) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Box_glyph 0.1) [ point 0.8 0.1 ];
+	  draw_points ctx ~style (Ring_glyph 0.1) [ point 0.8 0.1 ];
+
 
 	Cairo_png.surface_write_to_file surface "test.png"
 
