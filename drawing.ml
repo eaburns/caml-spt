@@ -109,6 +109,10 @@ let dimensionsf ctx ?style fmt =
 (** {2 Fixed width text} ****************************************)
 
 
+let default_line_space = 0.005
+  (** The default spacing between lines of text. *)
+
+
 let hypenate_word ctx width word =
   (** [hypenate_word ctx width word] hyphenates a word that is
       too long to fit across the given width. *)
@@ -140,48 +144,43 @@ let fixed_width_lines ctx width string =
     | [] -> List.rev (cur_line :: accum)
     | hd :: tl when cur_line = "" ->
 	let w, _ = string_dimensions ctx hd in
-	Printf.printf "hd=%s, w=%f\n" hd w;
 	  if w > width
 	  then begin
 	    let first, last = hypenate_word ctx width hd in
-	      Printf.printf "\thyphenated: %s %s\n" first last;
 	      get_line (first :: accum) "" (last :: tl)
 	  end else get_line accum hd tl
     | (hd :: tl) as words ->
-	let proposed_line = cur_line ^ hd in
+	let proposed_line = cur_line ^ " " ^ hd in
 	let w, h = string_dimensions ctx proposed_line in
 	  if w > width
 	  then get_line (cur_line :: accum) "" words
 	  else get_line accum proposed_line tl
   in
-  let words = Str.split (Str.regexp " \\|\t\\|\n\\|\r") string in
+  let words = Str.split (Str.regexp " +\\|\t+\\|\n+\\|\r+") string in
     get_line [] "" words
 
-let fixed_width_text_height ctx ?style width string =
-  (** [fixed_width_text_height ctx ?style width string] gets the
-      height of the fixed width text.  *)
+
+let fixed_width_text_height ctx
+    ?(line_space=default_line_space) ?style width string =
+  (** [fixed_width_text_height ctx ?line_space ?style width string] gets
+      the height of the fixed width text.  *)
   set_text_style_option ctx style;
   let lines = fixed_width_lines ctx width string in
-    List.fold_left (fun m line ->
-		      let w, h = string_dimensions ctx line in
-			if h > m then h else m)
+    List.fold_left (fun sum line ->
+		      let _, h = string_dimensions ctx line in
+			h +. line_space +. sum)
       0. lines
 
 
-let fixed_width_text ctx ?style x y width string =
-  (** [fixed_width_text ctx ?style x y width string] displays the
-      given fixed-width text where [x], [y] is the location of the top
-      center. *)
+let fixed_width_text ctx
+    ?(line_space=default_line_space) ?style ~x ~y ~width string =
+  (** [fixed_width_text ctx ?line_space ?style ~x ~y ~width string]
+      displays the given fixed-width text where [x], [y] is the
+      location of the top center. *)
   set_text_style_option ctx style;
   let lines = fixed_width_lines ctx width string in
     ignore (List.fold_left (fun y line ->
 			      let w, h = string_dimensions ctx line in
 				display_string ctx x (y +. h /. 2.) line;
-				y +. h)
+				y +. h +. line_space)
 	      y lines)
-
-(*
-let fixed_width_text ?style x y width ctx string =
-  set_text_style_option style ctx;
-  List.iter (Printf.printf "%s\n") (fixed_width_lines width ctx string)
-*)

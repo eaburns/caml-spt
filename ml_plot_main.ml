@@ -33,9 +33,14 @@ let main () =
     displayf ctx ~angle:~-.90. 0.5 0.5 "hello";
     displayf ctx 0.5 0.5 "hello";
 
-    fixed_width_text ctx 0.25 0.25 0.2
-      "aoeuaoeuaoeuaoeu hello there this   is some text";
+    let txt = "aoeuaoeuaoeuaoeu hello there this   is some text" in
+    let w, x, y = 0.2, 0.25, 0.25 in
+    let h = fixed_width_text_height ctx w txt in
+      fixed_width_text ctx ~x ~y ~width:w txt;
+      Cairo.rectangle ctx (x -. w /. 2.) y w h;
+      Cairo.stroke ctx;
 
-    Cairo_png.surface_write_to_file surface "test.png"
+
+      Cairo_png.surface_write_to_file surface "test.png"
 
 let _ = main ()
