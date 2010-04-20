@@ -38,8 +38,8 @@ type text_style = {
   color : color;
 }
 
-let default_font_style =
-  (** The default style for fonts. *)
+let default_text_style =
+  (** The default style for text. *)
   {
     font = "Palatino-Roman";
     size = 0.03;
@@ -48,17 +48,27 @@ let default_font_style =
     color = black;
   }
 
-let set_font_style style ctx =
-  (** [set_font_stlye style ctx] sets the text style. *)
+
+let set_text_style ctx style =
+  (** [set_text_stlye ctx style] sets the text style. *)
   set_color ctx style.color;
   Cairo.select_font_face ctx style.font style.slant style.weight;
   Cairo.set_font_size ctx style.size
 
 
-let display_string ?(style=default_font_style) ?(angle=0.) x y ctx str =
-  (** [display_string ?style ?angle x y ctx str] displays the text at
+let set_text_style_option ctx style =
+  (** [set_text_style_option ctx style] sets the style if there was
+      one specified. *)
+  begin match style with
+    | None -> ()
+    | Some style -> set_text_style ctx style;
+  end
+
+
+let display_string ctx ?style ?(angle=0.) x y str =
+  (** [display_string ctx ?style ?angle x y str] displays the text at
       the given center point. *)
-  set_font_style style ctx;
+  set_text_style_option ctx style;
   let te = Cairo.text_extents ctx str in
   let w = te.Cairo.text_width and h = te.Cairo.text_height in
   let x_offs = te.Cairo.x_bearing and y_offs = te.Cairo.y_bearing in
@@ -71,28 +81,107 @@ let display_string ?(style=default_font_style) ?(angle=0.) x y ctx str =
     Cairo.restore ctx
 
 
-let string_dimensions ?(style=default_font_style) ctx str =
-  (** [string_dimensions ?style ctx str] gets the dimensions of the
+let string_dimensions ctx ?style str =
+  (** [string_dimensions ctx ?style str] gets the dimensions of the
       text.  *)
-  set_font_style style ctx;
+  set_text_style_option ctx style;
   let te = Cairo.text_extents ctx str in
     te.Cairo.text_width, te.Cairo.text_height
 
 
 (** {2 Formatted text} ****************************************)
 
-let displayf ?(style=default_font_style) ?(angle=0.) x y ctx fmt =
-  (** [displayf ?style ?angle x y ctx fmt] displays the formatted text
+let displayf ctx ?style ?(angle=0.) x y fmt =
+  (** [displayf ctx ?style ?angle x y fmt] displays the formatted text
       at the given center point. *)
-  Printf.kprintf (display_string ~style ~angle x y ctx) fmt
+  Printf.kprintf (display_string ctx ?style ~angle x y) fmt
 
 
-let dimensionsf ?(style=default_font_style) ctx fmt =
-  (** [dimensionsf ?style ctx fmt] gets the dimensions of the
+let dimensionsf ctx ?style fmt =
+  (** [dimensionsf ctx ?style fmt] gets the dimensions of the
       formatted text and returns the string.  *)
   let str_and_dims str =
-    let w, h = string_dimensions ~style ctx str in
+    let w, h = string_dimensions ctx ?style str in
       str, w, h
   in Printf.kprintf str_and_dims fmt
 
 
+(** {2 Fixed width text} ****************************************)
+
+
+let hypenate_word ctx width word =
+  (** [hypenate_word ctx width word] hyphenates a word that is
+      too long to fit across the given width. *)
+  let partition word i =
+    let fst = String.sub word 0 (i + 1) in
+    let snd = String.sub word i ((String.length word) - i) in
+      fst, snd
+  in
+  let n = String.length word in
+  let rec do_hyphenate i =
+    if i < n
+    then begin
+      let proposed, _ = partition word i in
+      let w, h = string_dimensions ctx (proposed ^ "-") in
+	if w > width
+	then begin
+	  let fst, snd = partition word (i - 1) in
+	    fst ^ "-", snd
+	end else do_hyphenate (i + 1)
+    end else word, ""
+  in do_hyphenate 1
+
+
+let fixed_width_lines ctx width string =
+  (** [fixed_width_lines ctx width string] gets a list of lines that
+      that will display within the given width.  Assumes the given
+      style has already been set. *)
+  let rec get_line accum cur_line = function
+    | [] -> List.rev (cur_line :: accum)
+    | hd :: tl when cur_line = "" ->
+	let w, _ = string_dimensions ctx hd in
+	Printf.printf "hd=%s, w=%f\n" hd w;
+	  if w > width
+	  then begin
+	    let first, last = hypenate_word ctx width hd in
+	      Printf.printf "\thyphenated: %s %s\n" first last;
+	      get_line (first :: accum) "" (last :: tl)
+	  end else get_line accum hd tl
+    | (hd :: tl) as words ->
+	let proposed_line = cur_line ^ hd in
+	let w, h = string_dimensions ctx proposed_line in
+	  if w > width
+	  then get_line (cur_line :: accum) "" words
+	  else get_line accum proposed_line tl
+  in
+  let words = Str.split (Str.regexp " \\|\t\\|\n\\|\r") string in
+    get_line [] "" words
+
+let fixed_width_text_height ctx ?style width string =
+  (** [fixed_width_text_height ctx ?style width string] gets the
+      height of the fixed width text.  *)
+  set_text_style_option ctx style;
+  let lines = fixed_width_lines ctx width string in
+    List.fold_left (fun m line ->
+		      let w, h = string_dimensions ctx line in
+			if h > m then h else m)
+      0. lines
+
+
+let fixed_width_text ctx ?style x y width string =
+  (** [fixed_width_text ctx ?style x y width string] displays the
+      given fixed-width text where [x], [y] is the location of the top
+      center. *)
+  set_text_style_option ctx style;
+  let lines = fixed_width_lines ctx width string in
+    ignore (List.fold_left (fun y line ->
+			      let w, h = string_dimensions ctx line in
+				display_string ctx x (y +. h /. 2.) line;
+				y +. h)
+	      y lines)
+
+(*
+let fixed_width_text ?style x y width ctx string =
+  set_text_style_option style ctx;
+  List.iter (Printf.printf "%s\n") (fixed_width_lines width ctx string)
+*)

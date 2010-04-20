@@ -29,8 +29,12 @@ let main () =
     Cairo.scale ctx sizef sizef;
     Cairo.set_line_width ctx (1. /. sizef);
 
-    displayf ~angle:~-.90. 0.5 0.5 ctx "hello";
-    displayf 0.5 0.5 ctx "hello";
+    set_text_style ctx default_text_style;
+    displayf ctx ~angle:~-.90. 0.5 0.5 "hello";
+    displayf ctx 0.5 0.5 "hello";
+
+    fixed_width_text ctx 0.25 0.25 0.2
+      "aoeuaoeuaoeuaoeu hello there this   is some text";
 
     Cairo_png.surface_write_to_file surface "test.png"
 
