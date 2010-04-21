@@ -264,9 +264,6 @@ type glyph =
   | Square_glyph
   | Box_glyph
   | Char_glyph of char
-      (* The character and 'radius' where the radius is really the
-	 radius if the character is an 'M' *)
-
 
 
 let default_glyph_line_width = 0.003
