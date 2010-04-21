@@ -158,7 +158,7 @@ let fixed_width_lines ctx width string =
 	  then get_line (cur_line :: accum) "" words
 	  else get_line accum proposed_line tl
   in
-  let words = Str.split (Str.regexp " +\\|\t+\\|\n+\\|\r+") string in
+  let words = Str.split (Str.regexp "[ \t\n\r]+") string in
     get_line [] "" words
 
 
