@@ -56,10 +56,13 @@ let main () =
 
 	(* Test drawing points. *)
 	let radius = 0.05 in
+(*
 	  draw_points ctx radius Cross_glyph [ point 0.8 0.1 ];
 	  draw_points ctx radius Plus_glyph [ point 0.8 0.1 ];
 	  draw_points ctx radius (Char_glyph 'M') [ point 0.8 0.1 ];
 	  draw_points ctx radius Box_glyph [ point 0.8 0.1 ];
+*)
+	  draw_points ctx radius Triangle_glyph [ point 0.8 0.1 ];
 	  draw_points ctx radius Ring_glyph [ point 0.8 0.1 ];
 
 

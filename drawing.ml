@@ -263,6 +263,7 @@ type glyph =
   | Plus_glyph
   | Square_glyph
   | Box_glyph
+  | Triangle_glyph
   | Char_glyph of char
 
 
@@ -320,6 +321,17 @@ let make_draw_glyph ctx radius = function
 	   let x = pt.x and y = pt.y in
 	     Cairo.rectangle ctx (x -. r) (y -. r) r2 r2;
 	     Cairo.fill ctx)
+  | Triangle_glyph ->
+      Cairo.set_line_width ctx default_glyph_line_width;
+      let s = radius *. (sin (Math.pi /. 6.)) in
+      let c = radius *. (cos (Math.pi /. 6.)) in
+	(fun pt ->
+	   let x = pt.x and y = pt.y in
+	     Cairo.move_to ctx x (y -. radius);
+	     Cairo.line_to ctx (x +. c) (y +. s);
+	     Cairo.line_to ctx (x -. c) (y +. s);
+	     Cairo.line_to ctx x (y -. radius);
+	     Cairo.stroke ctx)
   | Char_glyph ch ->
       let str = " " in
 	str.[0] <- ch;
