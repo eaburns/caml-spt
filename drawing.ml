@@ -8,6 +8,9 @@
 open Geometry
 
 
+type context = Cairo.t
+
+
 (** {1 Color} ****************************************)
 
 type color = { r : float; g : float; b : float; a : float}
