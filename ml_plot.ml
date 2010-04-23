@@ -9,38 +9,53 @@ open Drawing
 
 (** {1 Plots} ****************************************)
 
-class virtual plot title = object val title = title end
+class virtual plot title =
   (** [plot title] makes a plot with the given title. *)
-
-
-and num_by_num_plot ~title ~xlabel ~ylabel (dss : num_by_num_dataset list) =
-  (** [num_by_num_plot ~title ~xlabel ~ylabel dss] a plot that has a
-      numeric x and y axis. *)
 object
-  inherit plot title
-  val data = dss
-  val xlabel = xlabel
-  val ylabel = ylabel
+  val title = (title : string option)
+
+  method virtual draw : context -> unit
+    (** [draw ctx] displays the plot to the given drawing
+	context. *)
 end
 
 
-and num_by_nom_plot ~title ~ylabel (dss : num_by_nom_dataset list) =
-  (** [num_by_nom_plot ~title ~ylabel dss] a plot that has a nominal x
+and num_by_num_plot ~title ~xlabel ~ylabel datasets =
+  (** [num_by_num_plot ~title ~xlabel ~ylabel datasets] a plot that has a
+      numeric x and y axis. *)
+object
+  inherit plot title
+
+  val datasets = (datasets : num_by_num_dataset list)
+  val xlabel = (xlabel : string option)
+  val ylabel = (ylabel : string option)
+
+  method draw ctx =
+    ()
+
+end
+
+
+and num_by_nom_plot ~title ~ylabel datasets =
+  (** [num_by_nom_plot ~title ~ylabel datasets] a plot that has a nominal x
       axis and a numeric y axis. *)
 object
   inherit plot title
-  val data = dss
-  val ylabel = ylabel
+
+  val datasets = (datasets : num_by_nom_dataset list)
+  val ylabel = (ylabel : string option)
+
+  method draw _ = failwith "Unimplemented"
 end
 
 
 (** {1 Datasets} ****************************************)
 
-and virtual num_by_num_dataset (name : string option) =
+and virtual num_by_num_dataset name =
   (** [num_by_num_dataset name] is a dataset that is plottable on a
       numeric x and y axis. *)
 object
-  val name = name
+  val name = (name : string option)
     (** The name of the dataset.  If there is no name then the dataset
 	doesn't appear in the legend. *)
 
@@ -68,7 +83,7 @@ and virtual num_by_nom_dataset name =
       nominal x axis and a numeric y axis. *)
 object
 
-  val name = name
+  val name = (name : string)
     (** The name of the dataset is what appears on the x-axis. *)
 
   method virtual x_label_height : float -> float
