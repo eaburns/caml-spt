@@ -20,15 +20,19 @@ object
 end
 
 
-and num_by_num_plot ~title ~xlabel ~ylabel datasets =
-  (** [num_by_num_plot ~title ~xlabel ~ylabel datasets] a plot that has a
-      numeric x and y axis. *)
-object
+and num_by_num_plot ~title ~xlabel ~ylabel ?dims datasets =
+  (** [num_by_num_plot ~title ~xlabel ~ylabel ?dims datasets] a plot
+      that has a numeric x and y axis. *)
+object (self)
   inherit plot title
 
   val datasets = (datasets : num_by_num_dataset list)
   val xlabel = (xlabel : string option)
   val ylabel = (ylabel : string option)
+
+  val dims = match dims with
+    | None -> failwith "Automatic dimensions is currently unimplemented"
+    | Some rect -> rect
 
   method draw ctx =
     ()
