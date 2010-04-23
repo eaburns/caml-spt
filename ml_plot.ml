@@ -20,22 +20,44 @@ object
 end
 
 
-and num_by_num_plot ~title ~xlabel ~ylabel ?dims datasets =
+and num_by_num_plot ?text_style ~title ~xlabel ~ylabel ?dims datasets =
   (** [num_by_num_plot ~title ~xlabel ~ylabel ?dims datasets] a plot
       that has a numeric x and y axis. *)
 object (self)
   inherit plot title
 
   val datasets = (datasets : num_by_num_dataset list)
+  val text_style = (text_style : text_style option)
   val xlabel = (xlabel : string option)
   val ylabel = (ylabel : string option)
+
+  val text_padding = 0.01
+    (** Padding around text *)
 
   val dims = match dims with
     | None -> failwith "Automatic dimensions is currently unimplemented"
     | Some rect -> rect
 
+
+  method private text_height ctx = function
+      (** [text_height ctx txt] gets the height of an optional piece
+	  of text. *)
+    | None -> 0.
+    | Some txt -> snd (text_dimensions ctx ?style:text_style txt)
+
+
   method draw ctx =
-    ()
+(*
+    let title_height = self#text_height ctx title
+    and xlabel_height = self#text_height ctx xlabel
+    and ylabel_height = self#text_height ctx ylabel in
+    let dst =
+      rectangle ~x_min:(ylabel_height +. text_padding) ~x_max:1.
+	~y_min:(1. -. (xlabel_height +. text_padding))
+	~y_max:(title_height +. text_padding)
+    in
+*)
+      ()
 
 end
 

@@ -70,8 +70,8 @@ let set_text_style_option ctx = function
   | Some style -> set_text_style ctx style
 
 
-let draw_string ctx ?style ?(angle=0.) x y str =
-  (** [draw_string ctx ?style ?angle x y str] displays the text at
+let draw_text ctx ?style ?(angle=0.) x y str =
+  (** [draw_text ctx ?style ?angle x y str] displays the text at
       the given center point. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx str in
@@ -86,8 +86,8 @@ let draw_string ctx ?style ?(angle=0.) x y str =
     Cairo.restore ctx
 
 
-let string_dimensions ctx ?style str =
-  (** [string_dimensions ctx ?style str] gets the dimensions of the
+let text_dimensions ctx ?style str =
+  (** [text_dimensions ctx ?style str] gets the dimensions of the
       text.  *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx str in
@@ -99,14 +99,14 @@ let string_dimensions ctx ?style str =
 let drawf ctx ?style ?(angle=0.) x y fmt =
   (** [drawf ctx ?style ?angle x y fmt] displays the formatted text at
       the given center point. *)
-  Printf.kprintf (draw_string ctx ?style ~angle x y) fmt
+  Printf.kprintf (draw_text ctx ?style ~angle x y) fmt
 
 
 let dimensionsf ctx ?style fmt =
   (** [dimensionsf ctx ?style fmt] gets the dimensions of the
       formatted text and returns the string.  *)
   let str_and_dims str =
-    let w, h = string_dimensions ctx ?style str in
+    let w, h = text_dimensions ctx ?style str in
       str, w, h
   in Printf.kprintf str_and_dims fmt
 
@@ -131,7 +131,7 @@ let hypenate_word ctx width word =
     if i < n
     then begin
       let proposed, _ = partition word i in
-      let w, h = string_dimensions ctx (proposed ^ "-") in
+      let w, h = text_dimensions ctx (proposed ^ "-") in
 	if w > width
 	then begin
 	  let fst, snd = partition word (i - 1) in
@@ -148,7 +148,7 @@ let fixed_width_lines ctx width string =
   let rec get_line accum cur_line = function
     | [] -> List.rev (cur_line :: accum)
     | hd :: tl when cur_line = "" ->
-	let w, _ = string_dimensions ctx hd in
+	let w, _ = text_dimensions ctx hd in
 	  if w > width
 	  then begin
 	    let first, last = hypenate_word ctx width hd in
@@ -156,7 +156,7 @@ let fixed_width_lines ctx width string =
 	  end else get_line accum hd tl
     | (hd :: tl) as words ->
 	let proposed_line = cur_line ^ " " ^ hd in
-	let w, h = string_dimensions ctx proposed_line in
+	let w, h = text_dimensions ctx proposed_line in
 	  if w > width
 	  then get_line (cur_line :: accum) "" words
 	  else get_line accum proposed_line tl
@@ -172,7 +172,7 @@ let fixed_width_text_height ctx
   set_text_style_option ctx style;
   let lines = fixed_width_lines ctx width string in
     List.fold_left (fun sum line ->
-		      let _, h = string_dimensions ctx line in
+		      let _, h = text_dimensions ctx line in
 			h +. line_space +. sum)
       (~-.line_space) lines
 
@@ -185,8 +185,8 @@ let draw_fixed_width_text ctx
   set_text_style_option ctx style;
   let lines = fixed_width_lines ctx width string in
     ignore (List.fold_left (fun y line ->
-			      let w, h = string_dimensions ctx line in
-				draw_string ctx x (y +. h /. 2.) line;
+			      let w, h = text_dimensions ctx line in
+				draw_text ctx x (y +. h /. 2.) line;
 				y +. h +. line_space)
 	      y lines)
 
@@ -339,7 +339,7 @@ let make_draw_glyph ctx radius = function
       let str = " " in
 	str.[0] <- ch;
 	Cairo.set_font_size ctx (radius *. 2.);
-	(fun pt -> draw_string ctx pt.x pt.y str)
+	(fun pt -> draw_text ctx pt.x pt.y str)
 
 
 let draw_point ctx ?color radius glyph pt =
