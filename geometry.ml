@@ -37,6 +37,14 @@ let rectangle ~x_min ~x_max ~y_min ~y_max =
   }
 
 
+let scale_value ~min ~max ~min' ~max' ~vl =
+  (** [scale_value ~min ~max ~min' ~max' ~vl] converts [vl] from the
+      initial scale to the new scale. *)
+  let diff = max -. min and diff' = max' -. min' in
+  let s = diff' /. diff in
+    ((vl -. min) *. s) +. min'
+
+
 let transform ~src ~dst =
   (** [transform ~src ~dst pt] transforms a point drawn on the [src]
       rectangle to a point on the [dst] rectangle. *)

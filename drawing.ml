@@ -38,29 +38,30 @@ let set_color ctx color =
 (** {1 Text} ****************************************)
 
 type text_style = {
-  font : string;
-  size : float;
-  slant : Cairo.font_slant;
-  weight : Cairo.font_weight;
-  color : color;
+  text_font : string;
+  text_size : float;
+  text_slant : Cairo.font_slant;
+  text_weight : Cairo.font_weight;
+  text_color : color;
 }
 
 let default_text_style =
   (** The default style for text. *)
   {
-    font = "Palatino-Roman";
-    size = 0.03;
-    slant = Cairo.FONT_SLANT_NORMAL;
-    weight = Cairo.FONT_WEIGHT_NORMAL;
-    color = black;
+    text_font = "Palatino-Roman";
+    text_size = 0.03;
+    text_slant = Cairo.FONT_SLANT_NORMAL;
+    text_weight = Cairo.FONT_WEIGHT_NORMAL;
+    text_color = black;
   }
 
 
 let set_text_style ctx style =
   (** [set_text_stlye ctx style] sets the text style. *)
-  set_color ctx style.color;
-  Cairo.select_font_face ctx style.font style.slant style.weight;
-  Cairo.set_font_size ctx style.size
+  set_color ctx style.text_color;
+  Cairo.select_font_face ctx
+    style.text_font style.text_slant style.text_weight;
+  Cairo.set_font_size ctx style.text_size
 
 
 let set_text_style_option ctx = function
@@ -94,12 +95,44 @@ let text_dimensions ctx ?style str =
     te.Cairo.text_width, te.Cairo.text_height
 
 
+let draw_text_centered_below ctx ?style ?(angle=0.) x y str =
+  (** [draw_text_centered_below ctx ?style ?angle x y str] draws the
+      given string centered below the given location. *)
+  set_text_style_option ctx style;
+  let te = Cairo.text_extents ctx str in
+    draw_text ctx ~angle x (y +. te.Cairo.text_height /. 2.) str
+
+
+let draw_text_centered_above ctx ?style ?(angle=0.) x y str =
+  (** [draw_text_centered_above ctx ?style ?angle x y str] draws the
+      given string centered above the given location. *)
+  set_text_style_option ctx style;
+  let te = Cairo.text_extents ctx str in
+    draw_text ctx ~angle x (y -. te.Cairo.text_height /. 2.) str
+
+
+let draw_text_centered_before ctx ?style ?(angle=0.) x y str =
+  (** [draw_text_centered_before ctx ?style ?angle x y str] draws the
+      given string centered before the given location. *)
+  set_text_style_option ctx style;
+  let te = Cairo.text_extents ctx str in
+    draw_text ctx ~angle (x -. te.Cairo.text_width /. 2.) y str
+
+
+let draw_text_centered_after ctx ?style ?(angle=0.) x y str =
+  (** [draw_text_centered_after ctx ?style ?angle x y str] draws the
+      given string centered after the given location. *)
+  set_text_style_option ctx style;
+  let te = Cairo.text_extents ctx str in
+    draw_text ctx ~angle (x +. te.Cairo.text_width /. 2.) y str
+
+
 (** {2 Formatted text} ****************************************)
 
 let drawf ctx ?style ?(angle=0.) x y fmt =
   (** [drawf ctx ?style ?angle x y fmt] displays the formatted text at
       the given center point. *)
-  Printf.kprintf (draw_text ctx ?style ~angle x y) fmt
+    Printf.kprintf (draw_text ctx ?style ~angle x y) fmt
 
 
 let dimensionsf ctx ?style fmt =
