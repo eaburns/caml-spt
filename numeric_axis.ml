@@ -116,9 +116,9 @@ let draw_x_tick ctx style ~pad ~y scale (vl, t_opt) =
 	  h
     | None -> 0.
   in
-  let y' = y -. ht in
+  let y' = y -. ht -. pad in
     draw_line ctx ~style:tick_style [ point x y'; point x (y' -. len) ];
-    ht +. len
+    ht +. len +. pad
 
 
 let draw_x_ticks ctx style ~pad ~y scale ticks =
