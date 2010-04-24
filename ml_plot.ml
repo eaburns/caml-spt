@@ -38,6 +38,7 @@ object
 	context. *)
 end
 
+(** {2 Numeric by numeric plot} ****************************************)
 
 and num_by_num_plot
   ?(label_style=default_label_style)
@@ -133,6 +134,8 @@ object (self)
 
 end
 
+
+(** {2 Numeric by nominal plot} ****************************************)
 
 and num_by_nom_plot ~title ~ylabel datasets =
   (** [num_by_nom_plot ~title ~ylabel datasets] a plot that has a nominal x
