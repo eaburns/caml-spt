@@ -7,7 +7,28 @@
 open Geometry
 open Drawing
 
-(** {1 Plots} ****************************************)
+let default_tick_style =
+  (** The default style for the text associated with tick marks on a
+      numeric axis. *)
+  {
+    text_font = "Palatino-Roman";
+    text_size = 0.03;
+    text_slant = Cairo.FONT_SLANT_NORMAL;
+    text_weight = Cairo.FONT_WEIGHT_NORMAL;
+    text_color = black;
+  }
+
+let default_label_style =
+  (** The default style for the x and y axis labels and the title
+      text. *)
+  {
+    text_font = "Palatino-Roman";
+    text_size = 0.04;
+    text_slant = Cairo.FONT_SLANT_NORMAL;
+    text_weight = Cairo.FONT_WEIGHT_NORMAL;
+    text_color = black;
+  }
+
 
 class virtual plot =
   (** [plot] a plot has a method for drawing. *)
@@ -19,36 +40,18 @@ end
 
 
 and num_by_num_plot
-  ?label_style ?tick_style ~title ~xlabel ~ylabel ?scale datasets =
+  ?(label_style=default_label_style)
+  ?(tick_style=default_tick_style)
+  ~title ~xlabel ~ylabel ?scale datasets =
   (** [num_by_num_plot ?label_style ?tick_style ~title ~xlabel ~ylabel
       ?scale datasets] a plot that has a numeric x and y axis. *)
-  let tick_style = match tick_style with
-    | None ->
-	{
-	  text_font = "Palatino-Roman";
-	  text_size = 0.03;
-	  text_slant = Cairo.FONT_SLANT_NORMAL;
-	  text_weight = Cairo.FONT_WEIGHT_NORMAL;
-	  text_color = black;
-	}
-    | Some s -> s
-  and label_style = match label_style with
-    | None ->
-	{
-	  text_font = "Palatino-Roman";
-	  text_size = 0.04;
-	  text_slant = Cairo.FONT_SLANT_NORMAL;
-	  text_weight = Cairo.FONT_WEIGHT_NORMAL;
-	  text_color = black;
-	}
-    | Some s -> s in
 object (self)
   inherit plot
 
   val text_padding = 0.01
     (** Padding around text *)
 
-  val datasets = (datasets : num_by_num_dataset list)
+  val datasets = datasets
     (** The list of datasets. *)
 
   method private scale =
@@ -92,26 +95,41 @@ object (self)
       rectangle x_min' x_max' y_min' (title_height +. text_padding)
 
 
+  method private draw_x_axis ctx ~src ~dst =
+    (** [draw_x_axis ctx ~src ~dst] draws the x-axis. *)
+    Numeric_axis.draw_x_axis ctx
+      ~tick_style ~label_style ~pad:text_padding
+      ~y:1.
+      ~x_min:src.x_min ~x_max:src.x_max
+      ~x_min':dst.x_min ~x_max':dst.x_max
+      xlabel self#xticks
+
+
+  method private draw_y_axis ctx ~src ~dst =
+    (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
+      Numeric_axis.draw_y_axis ctx
+	~tick_style ~label_style ~pad:text_padding
+	~x:0.
+	~y_min:src.y_min ~y_max:src.y_max
+	~y_min':dst.y_min ~y_max':dst.y_max
+	ylabel self#yticks
+
+
   method draw ctx =
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
     let src = self#scale in
     let dst = self#dest_rect ctx in
+    let tr = transform ~src ~dst in
+    let rank = ref 0 in
       begin match title with
 	| None -> ()
 	| Some txt ->
 	    draw_text_centered_below ~style:label_style ctx 0.5 0. txt
       end;
-      Numeric_axis.draw_x_axis ctx ~tick_style ~label_style ~pad:text_padding
-	~y:1.
-	~x_min:src.x_min ~x_max:src.x_max
-	~x_min':dst.x_min ~x_max':dst.x_max
-	xlabel self#xticks;
-      Numeric_axis.draw_y_axis ctx ~tick_style ~label_style ~pad:text_padding
-	~x:0.
-	~y_min:src.y_min ~y_max:src.y_max
-	~y_min':dst.y_min ~y_max':dst.y_max
-	ylabel self#yticks
+      self#draw_x_axis ctx ~src ~dst;
+      self#draw_y_axis ctx ~src ~dst;
+      List.iter (fun ds -> ds#draw ctx tr dst !rank; incr rank) datasets
 
 end
 
@@ -122,7 +140,7 @@ and num_by_nom_plot ~title ~ylabel datasets =
 object
   inherit plot
 
-  val datasets = (datasets : num_by_nom_dataset list)
+  val datasets = datasets
 
   method draw _ = failwith "Unimplemented"
 end
@@ -143,14 +161,10 @@ object
 	data-coordinates. *)
 
   method virtual draw :
-    context -> src:rectangle -> dst:rectangle -> int -> unit
-    (** [draw ctx ~src ~dst rank] draws the data to the plot given
-	[src], the data coordinate system and [dst] the destination
-	coordinate system and [rank] the number of datasets that were
-	plotted before this one. *)
+    context -> (point -> point) -> rectangle -> int -> unit
+    (** [draw ctx transform dst rank] draws the data to the plot *)
 
-  method virtual draw_legend_entry :
-    context -> x:float -> y:float -> float
+  method virtual draw_legend_entry : context -> x:float -> y:float -> float
     (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the
 	given location ([x] is the left-edge and [y] is top edge of the
 	destination) and the result is the y-coordinate of the bottom edge
@@ -175,7 +189,9 @@ object
 	the proper location. *)
 
   method virtual draw :
-    context -> src:float -> dst:float -> width:float -> int -> unit
-    (** [draw ctx src dst width rank] draws the dataset to the plot. *)
+    context -> (float -> float) -> y_min:float -> y_max:float
+    -> width:float -> int -> unit
+    (** [draw ctx scale ~y_min ~y_max ~width rank] draws the dataset
+	to the plot. *)
 
 end
