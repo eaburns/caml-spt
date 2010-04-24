@@ -157,18 +157,18 @@ let draw_x_axis
 
 (** {1 Drawing a y-axis} ****************************************)
 
-let resize_for_y_axis ctx ~label_style ~tick_style ~pad ~min label ticks =
-  (** [resize_for_y_axis ctx ~label_style ~tick_style ~pad ~min label
-      ticks] gets the new minimum and maximum x-values after making
-      room for the y-axis tick marks and label.  [pad] is the padding
-      between text. *)
+let resize_for_y_axis ctx ~label_style ~tick_style ~pad ~x_min label ticks =
+  (** [resize_for_y_axis ctx ~label_style ~tick_style ~pad ~x_min
+      label ticks] gets the new minimum and maximum x-values after
+      making room for the y-axis tick marks and label.  [pad] is the
+      padding between text. *)
   let label_room =
     match label with
       | None -> 0.
       | Some label -> snd (text_dimensions ctx ~style:label_style label)
   in
   let tick_text_width = max_tick_text_width ctx tick_style ticks in
-    min
+    x_min
     +. label_room +. pad
     +. tick_length +. pad +. tick_text_width
     +. axis_padding

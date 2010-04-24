@@ -87,7 +87,7 @@ object (self)
     in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:text_padding ~min:0. ylabel self#yticks
+	~pad:text_padding ~x_min:0. ylabel self#yticks
     in
       rectangle x_min' x_max' y_min' (title_height +. text_padding)
 
