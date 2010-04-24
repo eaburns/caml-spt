@@ -72,11 +72,15 @@ let max_tick_text_height ctx style ticks =
 
 (** {1 Drawing an x-axis} ****************************************)
 
-let resize_for_x_axis ctx ~label_style ~tick_style ~pad ~src ~dst label ticks =
-  (** [resize_for_x_axis ctx ~label_style ~tick_style ~pad ~src ~dst
-      label ticks] gets the new destination rectangle after making
-      room for the x-axis tick marks and label.  [pad] is the padding
-      between text. *)
+let resize_for_x_axis
+    ctx ~label_style ~tick_style ~pad
+    ~y_min ~x_min ~x_max ~x_min' ~x_max'
+    label ticks =
+  (** [resize_for_x_axis ctx ~label_style ~tick_style ~pad ~y_min
+      ~x_min ~x_max ~x_min' ~x_max' label ticks] gets the new scale
+      after making room for the x-axis tick marks and label.  [pad] is
+      the padding between text.  The result is a new (y_min * x_max)
+      that will have room for the x-axis and the x-tick label text. *)
   let label_room =
     match label with
       | None -> 0.
@@ -87,20 +91,21 @@ let resize_for_x_axis ctx ~label_style ~tick_style ~pad ~src ~dst label ticks =
     match ticks_with_text with
       | (_,  Some txt) :: tl -> snd (text_dimensions ctx ~style:tick_style txt)
       | _ -> 0. in
-  let dst' =
-    { dst with y_min = (dst.y_min
-			-. label_room -. pad
-			-. tick_length -. pad -. x_tick_txt_height
-			-. axis_padding) }
+  let y_min' =
+    y_min
+    -. label_room -. pad
+    -. tick_length -. pad -. x_tick_txt_height
+    -. axis_padding
   in
   let over (vl, txt_opt) =
     match txt_opt with
       | None -> 0.
       | Some txt ->
 	  let width, _ = text_dimensions ctx ~style:tick_style txt in
-	  let tr = transform ~src ~dst:dst' in
-	  let pt = tr (point vl 0.) in
-	  let over = (pt.x +. (width /. 2.)) -. dst.x_max in
+	  let scale =
+	    scale_value ~min:x_min ~max:x_max ~min':x_min' ~max':x_max' in
+	  let x = scale vl in
+	  let over = (x +. (width /. 2.)) -. x_max' in
 	    if over > 0. then over else 0.
   in
   let max_over =
@@ -112,7 +117,7 @@ let resize_for_x_axis ctx ~label_style ~tick_style ~pad ~src ~dst label ticks =
 			if o > max then o else max)
       0.ticks
   in
-    { dst' with x_max = dst.x_max -. max_over }
+    y_min', x_max' -. max_over
 
 
 let draw_x_tick ctx style ~pad ~y scale (vl, t_opt) =

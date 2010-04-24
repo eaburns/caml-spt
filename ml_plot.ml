@@ -77,18 +77,19 @@ object (self)
       match title with
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
-    let dst =
+    let src = self#scale in
+    let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
-	ctx ~label_style ~tick_style ~pad:text_padding ~src:self#scale
-	~dst:(rectangle ~x_min:0. ~x_max:1. ~y_min:1.
-		~y_max:(title_height +. text_padding))
+	ctx ~label_style ~tick_style ~pad:text_padding
+	~y_min:1.
+	~x_min:src.x_min ~x_max:src.x_max ~x_min':0. ~x_max':1.
 	xlabel self#xticks
     in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:text_padding ~min:dst.x_min ylabel self#yticks
+	~pad:text_padding ~min:0. ylabel self#yticks
     in
-      { dst with x_min = x_min'; }
+      rectangle x_min' x_max' y_min' (title_height +. text_padding)
 
 
   method draw ctx =
