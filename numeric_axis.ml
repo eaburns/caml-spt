@@ -58,6 +58,17 @@ let max_tick_text_width ctx style ticks =
 			    if w > m then w else m)
     0. ticks
 
+let max_tick_text_height ctx style ticks =
+  (** [max_tick_text_height ctx style ticks] gets the maximum height of
+      the text for the given ticks. *)
+  List.fold_left (fun m (_, txt_opt) ->
+		    match txt_opt with
+		      | None -> m
+		      | Some txt ->
+			  let h = snd (text_dimensions ctx ~style txt) in
+			    if h > m then h else m)
+    0. ticks
+
 
 (** {1 Drawing an x-axis} ****************************************)
 
@@ -106,29 +117,15 @@ let resize_for_x_axis ctx ~label_style ~tick_style ~pad ~src ~dst label ticks =
 
 let draw_x_tick ctx style ~pad ~y scale (vl, t_opt) =
   (** [draw_x_tick ctx style ~pad ~y scale t] draws an x-tick with the
-      bottom at the given [y] location.. *)
+      top at the given [y] location.. *)
   let x = scale ~vl in
   let len = if t_opt = None then tick_length /. 2. else tick_length in
-  let ht = match t_opt with
-    | Some txt ->
-	let _, h = text_dimensions ctx ~style txt in
-	  draw_text_centered_above ctx ~style x y txt;
-	  h
-    | None -> 0.
-  in
-  let y' = y -. ht -. pad in
-    draw_line ctx ~style:tick_style [ point x y'; point x (y' -. len) ];
-    ht +. len +. pad
-
-
-let draw_x_ticks ctx style ~pad ~y scale ticks =
-  (** [draw_x_ticks ctx ~style ~pad ~y scale ticks] draws the x-axis
-      ticks and returns the maximum height of the ticks and text. *)
-  List.fold_left
-    (fun m t ->
-       let h = draw_x_tick ctx style ~pad ~y scale t in
-	 if h > m then h else m)
-    0. ticks
+    draw_line ctx ~style:tick_style [ point x y; point x (y +. len) ];
+    begin match t_opt with
+      | Some txt ->
+	  draw_text_centered_below ctx ~style x (y +. len +. pad) txt;
+      | None -> ()
+    end
 
 
 let draw_x_axis
@@ -139,20 +136,18 @@ let draw_x_axis
       function that converts an x-value in the original data
       coordinates to the destination x-coordinate system.  [y] is the
       bottom y-coordinate of the axis label. *)
-  let h =
-    match label with
-      | None -> 0.
-      | Some label -> snd (text_dimensions ctx ~style:label_style label)
-  in
+  let tick_text_height = max_tick_text_height ctx tick_style ticks in
   let scale = scale_value ~min:x_min ~max:x_max ~min':x_min' ~max':x_max' in
-    begin match label with
-      | None -> ()
-      | Some label -> draw_text_centered_above ctx 0.5 y label
-    end;
-    let y' = y -. h -. pad in
-    let tick_h = draw_x_ticks ctx tick_style ~pad ~y:y' scale ticks in
-    let y'' = y' -. tick_h in
-      draw_line ctx ~style:axis_style [ point x_min' y''; point x_max' y''; ]
+  let h = match label with
+    | None -> 0.
+    | Some label ->
+	let h = snd (text_dimensions ctx ~style:label_style label) in
+	  draw_text_centered_above ctx 0.5 y label;
+	  h
+  in
+  let y' = y -. h -. pad -. tick_text_height -. pad -. tick_length in
+    List.iter (draw_x_tick ctx tick_style ~pad ~y:y' scale) ticks;
+    draw_line ctx ~style:axis_style [ point x_min' y'; point x_max' y'; ]
 
 
 (** {1 Drawing a y-axis} ****************************************)
