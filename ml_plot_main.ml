@@ -47,7 +47,7 @@ let main () =
 	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
       end;
       object
-	inherit num_by_nom_dataset "Dataset two"
+	inherit num_by_nom_dataset "This is example dataset two"
 	method y_min_and_max = 0., 0.
 	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
       end;

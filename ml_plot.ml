@@ -188,7 +188,7 @@ object (self)
     let title_height =
       match title with
 	| None -> 0.
-	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
+	| Some txt -> snd (text_dimensions ctx ~style:tick_style txt) in
     let data_label_height =
       List.fold_left (fun m ds ->
 			let h = ds#x_label_height ctx width in
@@ -210,12 +210,12 @@ object (self)
 
   method private draw_x_axis ctx ~y ~x_min ~x_max ~width =
     (** [draw_x_axis ctx ~y ~x_min ~x_max ~width] draws the x-axis. *)
+    set_text_style ctx tick_style;
     ignore (List.fold_left
 	      (fun x ds ->
 		 ds#draw_x_label ctx ~x ~y ~width;
 		 x +. width)
 	      (x_min +. (width /. 2.)) datasets)
-
 
 
   method draw ctx =
@@ -228,7 +228,7 @@ object (self)
 	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
       end;
       self#draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max';
-      self#draw_x_axis ctx ~y:y_min' ~x_min ~x_max ~width
+      self#draw_x_axis ctx ~y:(y_min' +. text_padding) ~x_min ~x_max ~width
 end
 
 
