@@ -22,6 +22,8 @@ type point = {
   y : float;
 }
 
+let pi = 3.1415926535
+  (** The constant pi. *)
 
 let point ~x ~y = { x = x; y = y }
   (** [point ~x ~y] makes a new point *)

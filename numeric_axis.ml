@@ -201,7 +201,7 @@ let draw_y_axis
     | None -> 0.
     | Some label ->
 	let h = snd (text_dimensions ctx ~style:label_style label) in
-	  draw_text ctx ~angle:(~-.90.) (x +. h /. 2.) 0.5 label;
+	  draw_text ctx ~angle:270. (x +. h /. 2.) 0.5 label;
 	  h
   in
   let x' = x +. h +. pad +. tick_text_width +. pad +. tick_length in

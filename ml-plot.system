@@ -1,5 +1,4 @@
 Systems:
-"wrutils"
 
 Files:
 "geometry"
@@ -9,6 +8,7 @@ Files:
 
 Libraries:
 "cairo"
+"str"
 
 CLibraries:
 "cairo"

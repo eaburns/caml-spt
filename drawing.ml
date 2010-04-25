@@ -81,7 +81,7 @@ let draw_text ctx ?style ?(angle=0.) x y str =
     Cairo.save ctx;
     Cairo.move_to ctx 0. 0.;
     Cairo.translate ctx x y;
-    Cairo.rotate ctx (angle *. (Math.pi /. 180.));
+    Cairo.rotate ctx (angle *. (pi /. 180.));
     Cairo.move_to ctx ~-.((w /. 2.) +. x_offs) ~-.((h /. 2.) +. y_offs);
     Cairo.show_text ctx str;
     Cairo.restore ctx
@@ -315,15 +315,15 @@ let make_draw_glyph ctx radius = function
   | Circle_glyph ->
       Cairo.set_line_width ctx default_glyph_line_width;
       (fun pt ->
-	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. Math.pi);
+	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. pi);
 	 Cairo.fill ctx)
   | Ring_glyph ->
       Cairo.set_line_width ctx default_glyph_line_width;
       (fun pt ->
-	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. Math.pi);
+	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. pi);
 	 Cairo.stroke ctx)
   | Cross_glyph ->
-      let r = radius *. (sin (Math.pi /. 4.)) in
+      let r = radius *. (sin (pi /. 4.)) in
 	Cairo.set_line_width ctx default_glyph_line_width;
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
@@ -342,7 +342,7 @@ let make_draw_glyph ctx radius = function
 	   Cairo.line_to ctx x (y +. radius);
 	   Cairo.stroke ctx)
   | Box_glyph ->
-      let r = radius *. (sin (Math.pi /. 4.)) in
+      let r = radius *. (sin (pi /. 4.)) in
       let r2 = r *. 2. in
 	Cairo.set_line_width ctx default_glyph_line_width;
 	(fun pt ->
@@ -350,7 +350,7 @@ let make_draw_glyph ctx radius = function
 	     Cairo.rectangle ctx (x -. r) (y -. r) r2 r2;
 	     Cairo.stroke ctx)
   | Square_glyph ->
-      let r = radius *. (sin (Math.pi /. 4.)) in
+      let r = radius *. (sin (pi /. 4.)) in
       let r2 = r *. 2. in
 	Cairo.set_line_width ctx default_glyph_line_width;
 	(fun pt ->
@@ -359,8 +359,8 @@ let make_draw_glyph ctx radius = function
 	     Cairo.fill ctx)
   | Triangle_glyph ->
       Cairo.set_line_width ctx default_glyph_line_width;
-      let s = radius *. (sin (Math.pi /. 6.)) in
-      let c = radius *. (cos (Math.pi /. 6.)) in
+      let s = radius *. (sin (pi /. 6.)) in
+      let c = radius *. (cos (pi /. 6.)) in
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
 	     Cairo.move_to ctx x (y -. radius);
