@@ -38,6 +38,15 @@ let main () =
 		   ~scale:(rectangle 0. 5. ~-.0.1 0.9)
 		   [])
     in
+(*
+    let plot =  (new num_by_nom_plot
+		   ~title:(Some "Title text")
+		   ~ylabel:(Some "Y label text")
+		   ~y_min:0.
+		   ~y_max:1.
+		   [])
+    in
+*)
       plot#draw ctx;
 
       Cairo_png.surface_write_to_file surface "test.png"

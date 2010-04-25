@@ -30,6 +30,10 @@ let default_label_style =
   }
 
 
+let text_padding = 0.01
+  (** Padding around text *)
+
+
 class virtual plot =
   (** [plot] a plot has a method for drawing. *)
 object
@@ -48,9 +52,6 @@ and num_by_num_plot
       ?scale datasets] a plot that has a numeric x and y axis. *)
 object (self)
   inherit plot
-
-  val text_padding = 0.01
-    (** Padding around text *)
 
   val datasets = datasets
     (** The list of datasets. *)
@@ -125,8 +126,7 @@ object (self)
     let rank = ref 0 in
       begin match title with
 	| None -> ()
-	| Some txt ->
-	    draw_text_centered_below ~style:label_style ctx 0.5 0. txt
+	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
       end;
       self#draw_x_axis ctx ~src ~dst;
       self#draw_y_axis ctx ~src ~dst;
@@ -137,15 +137,72 @@ end
 
 (** {2 Numeric by nominal plot} ****************************************)
 
-and num_by_nom_plot ~title ~ylabel datasets =
-  (** [num_by_nom_plot ~title ~ylabel datasets] a plot that has a nominal x
-      axis and a numeric y axis. *)
-object
+and num_by_nom_plot
+  ?(label_style=default_label_style)
+  ?(tick_style=default_tick_style)
+  ~title ~ylabel ?y_min ?y_max datasets =
+  (** [num_by_nom_plot ?label_style ?tick_style ~title ~ylabel ?y_min
+      ?y_max datasets] a plot that has a nominal x axis and a numeric
+      y axis. *)
+object (self)
   inherit plot
 
   val datasets = datasets
 
-  method draw _ = failwith "Unimplemented"
+  method private scale =
+    (** [scale] computes the scale of the y axis. *)
+    match y_min, y_max with
+      | Some min, Some max -> min, max
+      | _ ->
+	  List.fold_left (fun (min, max) ds ->
+			    let ds_min, ds_max = ds#y_min_and_max in
+			    let min' = if ds_min < min then ds_min else min
+			    and max' = if ds_max > max then ds_max else max
+			    in min', max')
+	    (infinity, neg_infinity) datasets
+
+
+  method private yticks =
+    (** [yticks] computes the location of the y-axis tick marks. *)
+    let y_min, y_max = self#scale in
+      Numeric_axis.tick_locations y_min y_max
+
+
+  method private draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max' =
+    (** [draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max'] draws the
+	y-axis. *)
+    Numeric_axis.draw_y_axis ctx
+      ~tick_style ~label_style ~pad:text_padding
+      ~x:0. ~y_min ~y_max ~y_min' ~y_max' ylabel self#yticks
+
+
+  method private dest_y_scale ctx ~y_min ~y_max =
+    (** [dest_y_scale ctx ~y_min ~y_max] get the scale on the
+	y-axis *)
+    let title_height =
+      match title with
+	| None -> 0.
+	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
+    let data_label_height =
+      List.fold_left (fun m ds ->
+			let h = ds#x_label_height in
+			  if h > m then h else m)
+	0. datasets
+    in
+      ((1. -. text_padding -. data_label_height),
+       (title_height +. text_padding))
+
+
+  method draw ctx =
+    (** [draw ctx] draws the plot. *)
+    let y_min, y_max = self#scale in
+    let y_min', y_max' = self#dest_y_scale ctx ~y_min ~y_max in
+      begin match title with
+	| None -> ()
+	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
+      end;
+      self#draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max'
+
 end
 
 
@@ -181,6 +238,10 @@ object
 
   val name = (name : string)
     (** The name of the dataset is what appears on the x-axis. *)
+
+  method virtual y_min_and_max : float * float
+    (** [y_min_and_max] gets the min and maximum value from the
+	dataset. *)
 
   method virtual x_label_height : float -> float
     (** [x_label_height width] is the height of the label on the
