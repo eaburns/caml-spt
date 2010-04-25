@@ -195,7 +195,7 @@ object (self)
 			  if h > m then h else m)
 	0. datasets
     in
-      ((1. -. text_padding -. data_label_height),
+      ((1. -. Numeric_axis.axis_padding -. data_label_height),
        (title_height +. text_padding))
 
 
@@ -228,7 +228,8 @@ object (self)
 	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
       end;
       self#draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max';
-      self#draw_x_axis ctx ~y:(y_min' +. text_padding) ~x_min ~x_max ~width
+      self#draw_x_axis ctx
+	~y:(y_min' +. Numeric_axis.axis_padding) ~x_min ~x_max ~width
 end
 
 
