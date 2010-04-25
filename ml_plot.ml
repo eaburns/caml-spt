@@ -168,6 +168,38 @@ object (self)
       Numeric_axis.tick_locations y_min y_max
 
 
+  method private x_axis_dimensions ctx =
+    (** [x_axis_dimensions ctx] computes the x_min, x_max and width
+	for each dataset to display its name on the x-axis. *)
+    let x_max = 1. in
+    let x_min =
+      Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
+	~pad:text_padding ~x_min:0. ylabel self#yticks
+    in
+    let n = List.length datasets in
+    let width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
+      x_min, x_max, width
+
+
+  method private dest_y_scale ctx ~y_min ~y_max ~width =
+    (** [dest_y_scale ctx ~y_min ~y_max ~width] get the scale on the
+	y-axis.  [width] is the amount of width afforded to each
+	dataset on the x-axis. *)
+    let title_height =
+      match title with
+	| None -> 0.
+	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
+    let data_label_height =
+      List.fold_left (fun m ds ->
+			let h = ds#x_label_height ctx width in
+			  if h > m then h else m)
+	0. datasets
+    in
+      ((1. -. text_padding -. data_label_height),
+       (title_height +. text_padding))
+
+
+
   method private draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max' =
     (** [draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max'] draws the
 	y-axis. *)
@@ -176,33 +208,27 @@ object (self)
       ~x:0. ~y_min ~y_max ~y_min' ~y_max' ylabel self#yticks
 
 
-  method private dest_y_scale ctx ~y_min ~y_max =
-    (** [dest_y_scale ctx ~y_min ~y_max] get the scale on the
-	y-axis *)
-    let title_height =
-      match title with
-	| None -> 0.
-	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
-    let data_label_height =
-      List.fold_left (fun m ds ->
-			let h = ds#x_label_height in
-			  if h > m then h else m)
-	0. datasets
-    in
-      ((1. -. text_padding -. data_label_height),
-       (title_height +. text_padding))
+  method private draw_x_axis ctx ~y ~x_min ~x_max ~width =
+    (** [draw_x_axis ctx ~y ~x_min ~x_max ~width] draws the x-axis. *)
+    ignore (List.fold_left
+	      (fun x ds ->
+		 ds#draw_x_label ctx ~x ~y ~width;
+		 x +. width)
+	      (x_min +. (width /. 2.)) datasets)
+
 
 
   method draw ctx =
     (** [draw ctx] draws the plot. *)
     let y_min, y_max = self#scale in
-    let y_min', y_max' = self#dest_y_scale ctx ~y_min ~y_max in
+    let x_min, x_max, width = self#x_axis_dimensions ctx in
+    let y_min', y_max' = self#dest_y_scale ctx ~y_min ~y_max ~width in
       begin match title with
 	| None -> ()
 	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
       end;
-      self#draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max'
-
+      self#draw_y_axis ctx ~y_min ~y_max ~y_min' ~y_max';
+      self#draw_x_axis ctx ~y:y_min' ~x_min ~x_max ~width
 end
 
 
@@ -243,19 +269,23 @@ object
     (** [y_min_and_max] gets the min and maximum value from the
 	dataset. *)
 
-  method virtual x_label_height : float -> float
-    (** [x_label_height width] is the height of the label on the
-	x-axis. *)
 
-  method virtual draw_x_label :
-    context -> x:float -> y:float -> width:float -> unit
+  method x_label_height : context -> float -> float =
+    (** [x_label_height context width] is the height of the label on the
+	x-axis. *)
+    (fun ctx width -> fixed_width_text_height ctx width name)
+
+
+  method draw_x_label :
+    context -> x:float -> y:float -> width:float -> unit =
     (** [draw_x_label context ~x ~y ~width] draws the x-axis label to
 	the proper location. *)
+    (fun ctx ~x ~y ~width -> draw_fixed_width_text ctx ~x ~y ~width name)
+
 
   method virtual draw :
     context -> (float -> float) -> y_min:float -> y_max:float
     -> width:float -> int -> unit
     (** [draw ctx scale ~y_min ~y_max ~width rank] draws the dataset
 	to the plot. *)
-
 end

@@ -31,6 +31,7 @@ let main () =
     Cairo.scale ctx sizef sizef;
     Cairo.set_line_width ctx (1. /. sizef);
 
+(*
     let plot =  (new num_by_num_plot
 		   ~title:(Some "Title text")
 		   ~xlabel:(Some "X label text")
@@ -38,15 +39,32 @@ let main () =
 		   ~scale:(rectangle 0. 5. ~-.0.1 0.9)
 		   [])
     in
-(*
+*)
+    let num_by_nom_datasets = [
+      object
+	inherit num_by_nom_dataset "Dataset one"
+	method y_min_and_max = 0., 0.
+	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
+      end;
+      object
+	inherit num_by_nom_dataset "Dataset two"
+	method y_min_and_max = 0., 0.
+	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
+      end;
+      object
+	inherit num_by_nom_dataset
+	  "Some third dataset that has a very long name"
+	method y_min_and_max = 0., 0.
+	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
+      end;
+    ] in
     let plot =  (new num_by_nom_plot
 		   ~title:(Some "Title text")
 		   ~ylabel:(Some "Y label text")
 		   ~y_min:0.
 		   ~y_max:1.
-		   [])
+		   num_by_nom_datasets)
     in
-*)
       plot#draw ctx;
 
       Cairo_png.surface_write_to_file surface "test.png"
