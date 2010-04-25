@@ -47,20 +47,36 @@ end
 class num_by_num_plot
   ?(label_style=default_label_style)
   ?(tick_style=default_tick_style)
-  ~title ~xlabel ~ylabel ?scale datasets =
+  ~title ~xlabel ~ylabel
+  ?x_min ?x_max ?y_min ?y_max datasets =
   (** [num_by_num_plot ?label_style ?tick_style ~title ~xlabel ~ylabel
-      ?scale datasets] a plot that has a numeric x and y axis. *)
+      ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a numeric
+      x and y axis. *)
 object (self)
   inherit plot
 
   val datasets = datasets
     (** The list of datasets. *)
 
+
   method private scale =
     (** [scale] computes the scale of the x and y axes. *)
-    match scale with
-      | None -> failwith "Automatic dimensions is currently unimplemented"
-      | Some rect -> rect
+    let r = match datasets with
+      | d :: [] -> d#dimensions
+      | d :: ds ->
+	  List.fold_left (fun r d -> rectangle_extremes r d#dimensions)
+	    d#dimensions ds
+      | [] ->
+	  rectangle ~x_min:infinity ~x_max:neg_infinity
+	    ~y_min:infinity ~y_max:neg_infinity
+    in
+    let x_pad = (r.x_max -. r.x_min) *. 0.01
+    and y_pad = (r.y_max -. r.y_min) *. 0.01 in
+    let x_min' = match x_min with None -> r.x_min -. x_pad | Some m -> m
+    and x_max' = match x_max with None -> r.x_max +. x_pad | Some m -> m
+    and y_min' = match y_min with None -> r.y_min -. y_pad | Some m -> m
+    and y_max' = match y_max with None -> r.y_max +. y_pad | Some m -> m
+    in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
 
 
   method private xticks =
@@ -109,12 +125,12 @@ object (self)
 
   method private draw_y_axis ctx ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
-      Numeric_axis.draw_y_axis ctx
-	~tick_style ~label_style ~pad:text_padding
-	~x:0.
-	~y_min:src.y_min ~y_max:src.y_max
-	~y_min':dst.y_min ~y_max':dst.y_max
-	ylabel self#yticks
+    Numeric_axis.draw_y_axis ctx
+      ~tick_style ~label_style ~pad:text_padding
+      ~x:0.
+      ~y_min:src.y_min ~y_max:src.y_max
+      ~y_min':dst.y_min ~y_max':dst.y_max
+      ylabel self#yticks
 
 
   method draw ctx =
@@ -235,7 +251,7 @@ end
 
 (** {1 Datasets} ****************************************)
 
-class virtual num_by_num_dataset name =
+class virtual num_by_num_dataset ?name () =
   (** [num_by_num_dataset name] is a dataset that is plottable on a
       numeric x and y axis. *)
 object
@@ -249,7 +265,7 @@ object
 
   method virtual draw :
     context -> (point -> point) -> rectangle -> int -> unit
-    (** [draw ctx transform dst rank] draws the data to the plot *)
+    (** [draw ctx transform dst rank] draws the data to the plot. *)
 
   method virtual draw_legend_entry : context -> x:float -> y:float -> float
     (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the

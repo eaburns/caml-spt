@@ -66,11 +66,52 @@ let transform ~src ~dst =
 	 (((pt.y -. src_y_min) *. y_scale) +. dst_y_min))
 
 
-let contains box p =
-  (** [contains box p] tests if the given point is within the
+let face_forward rect =
+  (** [face_forward rect] if the rectangle is facing the wrong
+      direction, it is faced forward. *)
+  if rect.x_min <= rect.x_max && rect.y_min <= rect.y_max
+  then rect
+  else
+    let x_min, x_max = (if rect.x_min > rect.x_max
+			then rect.x_max, rect.x_min
+			else rect.x_min, rect.x_max)
+    and y_min, y_max = (if rect.y_min > rect.y_max
+			then rect.y_max, rect.y_min
+			else rect.y_min, rect.y_max)
+    in rectangle ~x_min ~x_max ~y_min ~y_max
+
+
+let rectangle_extremes r0 r1 =
+  (** [rectangle_extremes r0 r1] get the rectangle that contains both
+      [r0] and [r1]. *)
+  let x_min = if r0.x_min < r1.x_min then r0.x_min else r1.x_min
+  and x_max = if r0.x_max > r1.x_max then r0.x_max else r1.x_max
+  and y_min = if r0.y_min < r1.y_min then r0.y_min else r1.y_min
+  and y_max = if r0.y_max > r1.y_max then r0.y_max else r1.y_max
+  in rectangle ~x_min ~x_max ~y_min ~y_max
+
+
+let rectangle_contains box p =
+  (** [rectangle_contains box p] tests if the given point is within the
       rectangle. *)
+  let box = face_forward box in
   let x = p.x and y = p.y in
     x >= box.x_min && x <= box.x_max && y >= box.y_min && y <= box.y_max
+
+
+let points_rectangle pts =
+  (** [points_rectangle pts] gets the rectangle enclosing a set of
+      points. *)
+  let x_min, x_max, y_min, y_max =
+    List.fold_left (fun (x_min, x_max, y_min, y_max) pt ->
+		      let x = pt.x and y = pt.y in
+		      let x_min' = if x < x_min then x else x_min
+		      and x_max' = if x > x_max then x else x_max
+		      and y_min' = if y < y_min then y else y_min
+		      and y_max' = if y > y_max then y else y_max
+		      in x_min', x_max', y_min', y_max')
+      (infinity, neg_infinity, infinity, neg_infinity) pts
+  in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
 let clip_point_on_line box f f_inv p =
@@ -97,7 +138,9 @@ let clip_point_on_line box f f_inv p =
 let clip_line_segment box ~p0 ~p1 =
   (** [clip_line_segment box ~p0 ~p1] clips a line segment to the
       given bounding box. *)
-  let p0_in = contains box p0 and p1_in = contains box p1 in
+  let box = face_forward box in
+  let p0_in = rectangle_contains box p0
+  and p1_in = rectangle_contains box p1 in
     if (not p0_in) || (not p1_in)
     then begin
       let x0 = p0.x

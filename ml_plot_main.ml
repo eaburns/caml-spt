@@ -11,6 +11,58 @@
 open Geometry
 open Drawing
 open Ml_plot
+open Num_by_num
+
+let nominal_plot () =
+  new num_by_nom_plot
+    ~title:(Some "Title text")
+    ~ylabel:(Some "Y label text")
+    ~y_min:0.
+    ~y_max:1.
+    [
+      (object
+	 inherit num_by_nom_dataset "Dataset one"
+	 method y_min_and_max = 0., 0.
+	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
+       end);
+      (object
+	 inherit num_by_nom_dataset "This is example dataset two"
+	 method y_min_and_max = 0., 0.
+	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
+       end);
+      (object
+	 inherit num_by_nom_dataset
+	   "Some third dataset that has a very long name"
+	 method y_min_and_max = 0., 0.
+	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
+       end);
+    ]
+
+
+let numeric_plot () =
+  new num_by_num_plot
+    ~title:(Some "Title text")
+    ~xlabel:(Some "X label text")
+    ~ylabel:(Some "Y label text")
+    (*
+      ~scale:(rectangle 0. 5. ~-.0.1 0.9)
+    *)
+    [
+      new line_points_dataset ~name:"ds0" [ point 0.5 6.0;
+					    point 1.3 2.0;
+					    point 7.3 8.1;
+					    point 3.8 0.05;
+					  ];
+      new scatter_dataset ~name:"ds1" [ point 8.0 1.117;
+					point 3.1415926535 1.7;
+					point 5.0 8.12;
+				      ];
+      new bubble_dataset ~name:"ds2" ~color:red [ (point 8.75 4.1), 5.;
+						  (point 5.7 8.1), 2.;
+						  (point 9.1 1.2), 1.;
+						];
+    ]
+
 
 let main () =
 
@@ -31,40 +83,7 @@ let main () =
     Cairo.scale ctx sizef sizef;
     Cairo.set_line_width ctx (1. /. sizef);
 
-(*
-    let plot =  (new num_by_num_plot
-		   ~title:(Some "Title text")
-		   ~xlabel:(Some "X label text")
-		   ~ylabel:(Some "Y label text")
-		   ~scale:(rectangle 0. 5. ~-.0.1 0.9)
-		   [])
-    in
-*)
-    let num_by_nom_datasets = [
-      object
-	inherit num_by_nom_dataset "Dataset one"
-	method y_min_and_max = 0., 0.
-	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
-      end;
-      object
-	inherit num_by_nom_dataset "This is example dataset two"
-	method y_min_and_max = 0., 0.
-	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
-      end;
-      object
-	inherit num_by_nom_dataset
-	  "Some third dataset that has a very long name"
-	method y_min_and_max = 0., 0.
-	method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
-      end;
-    ] in
-    let plot =  (new num_by_nom_plot
-		   ~title:(Some "Title text")
-		   ~ylabel:(Some "Y label text")
-		   ~y_min:0.
-		   ~y_max:1.
-		   num_by_nom_datasets)
-    in
+    let plot = numeric_plot () in
       plot#draw ctx;
 
       Cairo_png.surface_write_to_file surface "test.png"
