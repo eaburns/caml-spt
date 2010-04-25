@@ -44,7 +44,7 @@ end
 
 (** {2 Numeric by numeric plot} ****************************************)
 
-and num_by_num_plot
+class num_by_num_plot
   ?(label_style=default_label_style)
   ?(tick_style=default_tick_style)
   ~title ~xlabel ~ylabel ?scale datasets =
@@ -137,7 +137,7 @@ end
 
 (** {2 Numeric by nominal plot} ****************************************)
 
-and num_by_nom_plot
+class num_by_nom_plot
   ?(label_style=default_label_style)
   ?(tick_style=default_tick_style)
   ~title ~ylabel ?y_min ?y_max datasets =
@@ -208,7 +208,7 @@ end
 
 (** {1 Datasets} ****************************************)
 
-and virtual num_by_num_dataset name =
+class virtual num_by_num_dataset name =
   (** [num_by_num_dataset name] is a dataset that is plottable on a
       numeric x and y axis. *)
 object
@@ -231,7 +231,7 @@ object
 	of the entry that was just drawn. *)
 end
 
-and virtual num_by_nom_dataset name =
+class virtual num_by_nom_dataset name =
   (** [num_by_nom_dataset name] is a dataset that is plottable on a
       nominal x axis and a numeric y axis. *)
 object
