@@ -11,27 +11,26 @@
 open Geometry
 open Drawing
 open Ml_plot
-open Num_by_num
 
 let nominal_plot () =
-  new num_by_nom_plot
+  new Num_by_nom.plot
     ~title:"Title text"
     ~ylabel:"Y label text"
     ~y_min:0.
     ~y_max:1.
     [
       (object
-	 inherit num_by_nom_dataset "Dataset one"
+	 inherit Num_by_nom.dataset "Dataset one"
 	 method dimensions = 0., 0.
 	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
        end);
       (object
-	 inherit num_by_nom_dataset "This is example dataset two"
+	 inherit Num_by_nom.dataset "This is example dataset two"
 	 method dimensions = 0., 0.
 	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
        end);
       (object
-	 inherit num_by_nom_dataset
+	 inherit Num_by_nom.dataset
 	   "Some third dataset that has a very long name"
 	 method dimensions = 0., 0.
 	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
@@ -40,24 +39,27 @@ let nominal_plot () =
 
 
 let numeric_plot () =
-  new num_by_num_plot
+  new Num_by_num.plot
     ~title:"Title text"
     ~xlabel:"X label text"
     ~ylabel:"Y label text"
     [
-      new line_points_dataset ~name:"ds0" [ point 0.5 6.0;
-					    point 1.3 2.0;
-					    point 7.3 8.1;
-					    point 3.8 0.05;
-					  ];
-      new line_points_dataset ~name:"ds1" [ point 8.0 1.117;
-					    point 3.1415926535 1.7;
-					    point 5.0 8.12;
-					  ];
-      new bubble_dataset ~name:"ds2" ~color:red [ (point 8.75 4.1), 5.;
-						  (point 5.7 8.1), 2.;
-						  (point 9.1 1.2), 1.;
-						];
+      new Num_by_num.line_points_dataset ~name:"ds0"
+	[ point 0.5 6.0;
+	  point 1.3 2.0;
+	  point 7.3 8.1;
+	  point 3.8 0.05;
+	];
+      new Num_by_num.line_points_dataset ~name:"ds1"
+	[ point 8.0 1.117;
+	  point 3.1415926535 1.7;
+	  point 5.0 8.12;
+	];
+      new Num_by_num.bubble_dataset ~name:"ds2" ~color:red
+	[ (point 8.75 4.1), 5.;
+	  (point 5.7 8.1), 2.;
+	  (point 9.1 1.2), 1.;
+	];
     ]
 
 

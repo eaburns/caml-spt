@@ -5,6 +5,7 @@ Files:
 "src/drawing"
 "src/numeric_axis"
 "src/num_by_num"
+"src/num_by_nom"
 "src/ml_plot"
 
 Libraries:
