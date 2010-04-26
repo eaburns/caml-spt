@@ -102,16 +102,13 @@ object (self)
 	ctx ~label_style ~tick_style ~pad:text_padding
 	~y_min:1.
 	~x_min:src.x_min ~x_max:src.x_max ~x_min':0. ~x_max':1.
-	xlabel self#xticks
-    in
+	xlabel self#xticks in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:text_padding ~x_min:0. ylabel self#yticks
-    in
+	~pad:text_padding ~x_min:0. ylabel self#yticks in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
-	~y_max:(title_height +. text_padding)
-    in
+	~y_max:(title_height +. text_padding) in
     let over =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
@@ -152,15 +149,15 @@ object (self)
     let src = self#scale in
       Printf.printf "src.x_min=%f, src.x_max=%f, src.y_min=%f, src.y_max=%f\n"
 	src.x_min src.x_max src.y_min src.y_max;
-    let dst = self#dest_rectangle ctx in
-    let rank = ref 0 in
-      begin match title with
-	| None -> ()
-	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
-      end;
-      self#draw_x_axis ctx ~src ~dst;
-      self#draw_y_axis ctx ~src ~dst;
-      List.iter (fun ds -> ds#draw ctx ~src ~dst !rank; incr rank) datasets
+      let dst = self#dest_rectangle ctx in
+      let rank = ref 0 in
+	begin match title with
+	  | None -> ()
+	  | Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
+	end;
+	self#draw_x_axis ctx ~src ~dst;
+	self#draw_y_axis ctx ~src ~dst;
+	List.iter (fun ds -> ds#draw ctx ~src ~dst !rank; incr rank) datasets
 
 end
 
