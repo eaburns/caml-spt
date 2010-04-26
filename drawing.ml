@@ -279,7 +279,8 @@ let draw_line ctx ?box ?style points =
 		draw_points tl
 	in
 	  draw_points points;
-	  Cairo.stroke ctx
+	  Cairo.stroke ctx;
+	  Cairo.set_dash ctx [| |] 0.
 
 
 let draw_rectangle ctx ?style r =

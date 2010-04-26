@@ -96,7 +96,7 @@ end
 let dashes =
   (** The dash patterns for lines. *)
   [|
-    [| |]; [| 0.01; 0.01 |];
+    [| |];[| 0.01; 0.01 |];
   |]
 
 

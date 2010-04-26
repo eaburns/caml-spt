@@ -50,10 +50,10 @@ let numeric_plot () =
 					    point 7.3 8.1;
 					    point 3.8 0.05;
 					  ];
-      new scatter_dataset ~name:"ds1" [ point 8.0 1.117;
-					point 3.1415926535 1.7;
-					point 5.0 8.12;
-				      ];
+      new line_points_dataset ~name:"ds1" [ point 8.0 1.117;
+					    point 3.1415926535 1.7;
+					    point 5.0 8.12;
+					  ];
       new bubble_dataset ~name:"ds2" ~color:red [ (point 8.75 4.1), 5.;
 						  (point 5.7 8.1), 2.;
 						  (point 9.1 1.2), 1.;
