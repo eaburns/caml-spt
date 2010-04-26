@@ -91,6 +91,15 @@ let rectangle_extremes r0 r1 =
   in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
+let rectangle_max r0 r1 =
+  (** [rectangle_max r0 r1] takes the max of each dimension. *)
+  rectangle
+    ~x_min:(max r0.x_min r1.x_min)
+    ~x_max:(max r0.x_max r1.x_max)
+    ~y_min:(max r0.y_min r1.y_min)
+    ~y_max:(max r0.y_max r1.y_max)
+
+
 let rectangle_contains box p =
   (** [rectangle_contains box p] tests if the given point is within the
       rectangle. *)

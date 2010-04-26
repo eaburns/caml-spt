@@ -70,12 +70,10 @@ object (self)
 	  rectangle ~x_min:infinity ~x_max:neg_infinity
 	    ~y_min:infinity ~y_max:neg_infinity
     in
-    let x_pad = (r.x_max -. r.x_min) *. 0.01
-    and y_pad = (r.y_max -. r.y_min) *. 0.01 in
-    let x_min' = match x_min with None -> r.x_min -. x_pad | Some m -> m
-    and x_max' = match x_max with None -> r.x_max +. x_pad | Some m -> m
-    and y_min' = match y_min with None -> r.y_min -. y_pad | Some m -> m
-    and y_max' = match y_max with None -> r.y_max +. y_pad | Some m -> m
+    let x_min' = match x_min with None -> r.x_min | Some m -> m
+    and x_max' = match x_max with None -> r.x_max | Some m -> m
+    and y_min' = match y_min with None -> r.y_min | Some m -> m
+    and y_max' = match y_max with None -> r.y_max | Some m -> m
     in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
 
 
@@ -91,8 +89,8 @@ object (self)
       Numeric_axis.tick_locations s.y_min s.y_max
 
 
-  method private dest_rect ctx =
-    (** [dest_rect ctx] get the dimensions of the destination
+  method private dest_rectangle ctx =
+    (** [dest_rectangle ctx] get the dimensions of the destination
 	rectangle. *)
     let title_height =
       match title with
@@ -110,7 +108,22 @@ object (self)
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
 	~pad:text_padding ~x_min:0. ylabel self#yticks
     in
-      rectangle x_min' x_max' y_min' (title_height +. text_padding)
+    let dst =
+      rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
+	~y_max:(title_height +. text_padding)
+    in
+    let over =
+      (* Maximum distance over the edge of the [dst] rectangle that
+	 any dataset may need to draw. *)
+      List.fold_left
+	(fun r ds -> rectangle_max r (ds#max_over ctx ~src ~dst))
+	(rectangle 0. 0. 0. 0.) datasets
+    in
+      rectangle
+	~x_min:(dst.x_min +. over.x_min)
+	~x_max:(dst.x_max -. over.x_max)
+	~y_min:(dst.y_min -. over.y_min)
+	~y_max:(dst.y_max +. over.y_max)
 
 
   method private draw_x_axis ctx ~src ~dst =
@@ -137,8 +150,9 @@ object (self)
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
     let src = self#scale in
-    let dst = self#dest_rect ctx in
-    let tr = transform ~src ~dst in
+      Printf.printf "src.x_min=%f, src.x_max=%f, src.y_min=%f, src.y_max=%f\n"
+	src.x_min src.x_max src.y_min src.y_max;
+    let dst = self#dest_rectangle ctx in
     let rank = ref 0 in
       begin match title with
 	| None -> ()
@@ -146,7 +160,7 @@ object (self)
       end;
       self#draw_x_axis ctx ~src ~dst;
       self#draw_y_axis ctx ~src ~dst;
-      List.iter (fun ds -> ds#draw ctx tr dst !rank; incr rank) datasets
+      List.iter (fun ds -> ds#draw ctx ~src ~dst !rank; incr rank) datasets
 
 end
 
@@ -263,9 +277,15 @@ object
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
 
+  method virtual max_over :
+    context -> src:rectangle -> dst:rectangle -> rectangle
+    (** [max_over ctx src dst] get a rectangle containing the maximum
+	amount the dataset will draw off of the destination rectangle
+	in each direction. *)
+
   method virtual draw :
-    context -> (point -> point) -> rectangle -> int -> unit
-    (** [draw ctx transform dst rank] draws the data to the plot. *)
+    context -> src:rectangle -> dst:rectangle -> int -> unit
+    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
 
   method virtual draw_legend_entry : context -> x:float -> y:float -> float
     (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the

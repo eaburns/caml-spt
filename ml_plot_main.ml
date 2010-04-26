@@ -44,9 +44,6 @@ let numeric_plot () =
     ~title:(Some "Title text")
     ~xlabel:(Some "X label text")
     ~ylabel:(Some "Y label text")
-    (*
-      ~scale:(rectangle 0. 5. ~-.0.1 0.9)
-    *)
     [
       new line_points_dataset ~name:"ds0" [ point 0.5 6.0;
 					    point 1.3 2.0;
