@@ -1,1 +1,2 @@
+<src>: include
 <*.byte> or <*.native>: use_str, use_cairo

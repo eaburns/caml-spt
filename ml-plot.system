@@ -1,11 +1,11 @@
 Systems:
 
 Files:
-"geometry"
-"drawing"
-"numeric_axis"
-"num_by_num"
-"ml_plot"
+"src/geometry"
+"src/drawing"
+"src/numeric_axis"
+"src/num_by_num"
+"src/ml_plot"
 
 Libraries:
 "cairo"
