@@ -71,13 +71,15 @@ object
 
 
   method max_over ctx ~src ~dst =
+    (** [max_over ctx ~src ~dst] if we were to plot this right now
+	with the given [dst] rectangle, how far out-of-bounds will we
+	go in each direction. *)
     let tr = transform ~src ~dst in
-      List.fold_left
-	(fun r pt ->
-	   if rectangle_contains src pt
-	   then rectangle_max r (amount_over dst (tr pt) radius)
-	   else r)
-	(rectangle 0. 0. 0. 0.) points
+      List.fold_left (fun r pt ->
+			if rectangle_contains src pt
+			then rectangle_max r (amount_over dst (tr pt) radius)
+			else r)
+	zero_rectangle points
 
 
   method draw ctx ~src ~dst _ =
@@ -121,7 +123,7 @@ object
       line_width = width;
     }
 
-  method max_over _ ~src:_ ~dst = rectangle 0. 0. 0. 0.
+  method max_over _ ~src:_ ~dst = zero_rectangle
 
   method draw ctx ~src ~dst _ =
     let tr = transform ~src ~dst in
@@ -165,8 +167,10 @@ end
 
 class bubble_dataset
   ?(glyph=Circle_glyph) ?(color=black) ?(max_radius=0.1) ?name triples =
-  (** A line with points plot dataset. *)
-object
+  (** For plotting data with three values: x, y and z.  The result
+      plots points at their x, y location as a scatter plot would however
+      the z values are shown by changing the radius of the point. *)
+object (self)
   inherit num_by_num_dataset ?name ()
 
   val triples = (triples : (point * float) list)
@@ -176,31 +180,38 @@ object
       points_rectangle pts
 
 
+  method private max_z_value =
+    (** [max_z_value] is the maximum z value of all triples.  This is
+	used for determining the radius of a point. *)
+    List.fold_left (fun m (_, z) -> if z > m then z else m)
+      neg_infinity triples
+
+
+  method private compute_radius max_z z = max_radius *. (z /. max_z)
+    (** [compute_radius max_z z] gets the radius of the point. *)
+
+
   method max_over ctx ~src ~dst =
+    (** [max_over ctx ~src ~dst] if we were to plot this right now
+	with the given [dst] rectangle, how far out-of-bounds will we
+	go in each direction. *)
     let tr = transform ~src ~dst in
-    let max_z =
-      List.fold_left (fun m (_, z) -> if z > m then z else m)
-	neg_infinity triples
-    in
-      List.fold_left
-	(fun r (pt, z) ->
-	   let pt' = tr pt in
-	     if rectangle_contains dst pt'
-	     then begin
-	       let radius = max_radius *. (z /. max_z)
-	       in rectangle_max r (amount_over dst pt' radius)
-	     end else r)
-	(rectangle 0. 0. 0. 0.) triples
+    let max_z = self#max_z_value in
+      List.fold_left (fun r (pt, z) ->
+			let pt' = tr pt in
+			  if rectangle_contains dst pt'
+			  then begin
+			    let radius = self#compute_radius max_z z
+			    in rectangle_max r (amount_over dst pt' radius)
+			  end else r)
+	zero_rectangle triples
 
 
   method draw ctx ~src ~dst rank =
     let tr = transform ~src ~dst in
-    let max_z =
-      List.fold_left (fun m (_, z) -> if z > m then z else m)
-	neg_infinity triples
-    in
+    let max_z = self#max_z_value in
       List.iter (fun (pt, z) ->
-		   let radius = max_radius *. (z /. max_z) in
+		   let radius = self#compute_radius max_z z in
 		   let pt' = tr pt in
 		     if rectangle_contains src pt
 		     then draw_point ctx ~color radius glyph pt')

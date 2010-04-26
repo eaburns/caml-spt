@@ -117,7 +117,7 @@ object (self)
 	 any dataset may need to draw. *)
       List.fold_left
 	(fun r ds -> rectangle_max r (ds#max_over ctx ~src ~dst))
-	(rectangle 0. 0. 0. 0.) datasets
+	zero_rectangle datasets
     in
       rectangle
 	~x_min:(dst.x_min +. over.x_min)

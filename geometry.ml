@@ -39,6 +39,11 @@ let rectangle ~x_min ~x_max ~y_min ~y_max =
   }
 
 
+
+let zero_rectangle = rectangle 0. 0. 0. 0.
+  (** A rectangle with no dimensions. *)
+
+
 let scale_value ~min ~max ~min' ~max' ~vl =
   (** [scale_value ~min ~max ~min' ~max' ~vl] converts [vl] from the
       initial scale to the new scale. *)
