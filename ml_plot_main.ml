@@ -15,8 +15,8 @@ open Num_by_num
 
 let nominal_plot () =
   new num_by_nom_plot
-    ~title:(Some "Title text")
-    ~ylabel:(Some "Y label text")
+    ~title:"Title text"
+    ~ylabel:"Y label text"
     ~y_min:0.
     ~y_max:1.
     [
@@ -41,9 +41,9 @@ let nominal_plot () =
 
 let numeric_plot () =
   new num_by_num_plot
-    ~title:(Some "Title text")
-    ~xlabel:(Some "X label text")
-    ~ylabel:(Some "Y label text")
+    ~title:"Title text"
+    ~xlabel:"X label text"
+    ~ylabel:"Y label text"
     [
       new line_points_dataset ~name:"ds0" [ point 0.5 6.0;
 					    point 1.3 2.0;
@@ -81,6 +81,9 @@ let main () =
     Cairo.set_line_width ctx (1. /. sizef);
 
     let plot = numeric_plot () in
+(*
+    let plot = nominal_plot () in
+*)
       plot#draw ctx;
 
       Cairo_png.surface_write_to_file surface "test.png"

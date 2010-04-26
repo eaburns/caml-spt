@@ -47,9 +47,9 @@ end
 class num_by_num_plot
   ?(label_style=default_label_style)
   ?(tick_style=default_tick_style)
-  ~title ~xlabel ~ylabel
+  ?title ?xlabel ?ylabel
   ?x_min ?x_max ?y_min ?y_max datasets =
-  (** [num_by_num_plot ?label_style ?tick_style ~title ~xlabel ~ylabel
+  (** [num_by_num_plot ?label_style ?tick_style ?title ?xlabel ?ylabel
       ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a numeric
       x and y axis. *)
 object (self)
@@ -167,8 +167,8 @@ end
 class num_by_nom_plot
   ?(label_style=default_label_style)
   ?(tick_style=default_tick_style)
-  ~title ~ylabel ?y_min ?y_max datasets =
-  (** [num_by_nom_plot ?label_style ?tick_style ~title ~ylabel ?y_min
+  ?title ?ylabel ?y_min ?y_max datasets =
+  (** [num_by_nom_plot ?label_style ?tick_style ?title ?ylabel ?y_min
       ?y_max datasets] a plot that has a nominal x axis and a numeric
       y axis. *)
 object (self)
