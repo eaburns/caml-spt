@@ -70,10 +70,10 @@ object
       | Some g -> g
 
 
-  method max_over ctx ~src ~dst =
-    (** [max_over ctx ~src ~dst] if we were to plot this right now
-	with the given [dst] rectangle, how far out-of-bounds will we
-	go in each direction. *)
+  method residue ctx ~src ~dst =
+    (** [residue ctx ~src ~dst] if we were to plot this right now with
+	the given [dst] rectangle, how far out-of-bounds will we go in
+	each direction. *)
     let tr = transform ~src ~dst in
       List.fold_left (fun r pt ->
 			if rectangle_contains src pt
@@ -123,7 +123,7 @@ object
       line_width = width;
     }
 
-  method max_over _ ~src:_ ~dst = zero_rectangle
+  method residue _ ~src:_ ~dst = zero_rectangle
 
   method draw ctx ~src ~dst _ =
     let tr = transform ~src ~dst in
@@ -149,10 +149,10 @@ object
 
   method dimensions = rectangle_extremes scatter#dimensions line#dimensions
 
-  method max_over ctx ~src ~dst =
+  method residue ctx ~src ~dst =
     rectangle_extremes
-      (line#max_over ctx ~src ~dst)
-      (scatter#max_over ctx ~src ~dst)
+      (line#residue ctx ~src ~dst)
+      (scatter#residue ctx ~src ~dst)
 
   method draw ctx ~src ~dst rank =
     line#draw ctx ~src ~dst rank;
@@ -191,10 +191,10 @@ object (self)
     (** [compute_radius max_z z] gets the radius of the point. *)
 
 
-  method max_over ctx ~src ~dst =
-    (** [max_over ctx ~src ~dst] if we were to plot this right now
-	with the given [dst] rectangle, how far out-of-bounds will we
-	go in each direction. *)
+  method residue ctx ~src ~dst =
+    (** [residue ctx ~src ~dst] if we were to plot this right now with
+	the given [dst] rectangle, how far out-of-bounds will we go in
+	each direction. *)
     let tr = transform ~src ~dst in
     let max_z = self#max_z_value in
       List.fold_left (fun r (pt, z) ->

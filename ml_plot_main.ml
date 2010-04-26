@@ -22,18 +22,18 @@ let nominal_plot () =
     [
       (object
 	 inherit num_by_nom_dataset "Dataset one"
-	 method y_min_and_max = 0., 0.
+	 method dimensions = 0., 0.
 	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
        end);
       (object
 	 inherit num_by_nom_dataset "This is example dataset two"
-	 method y_min_and_max = 0., 0.
+	 method dimensions = 0., 0.
 	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
        end);
       (object
 	 inherit num_by_nom_dataset
 	   "Some third dataset that has a very long name"
-	 method y_min_and_max = 0., 0.
+	 method dimensions = 0., 0.
 	 method draw _ _ ~y_min:_ ~y_max:_ ~width:_ _ = ()
        end);
     ]

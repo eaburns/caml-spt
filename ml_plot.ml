@@ -109,18 +109,18 @@ object (self)
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
 	~y_max:(title_height +. text_padding) in
-    let over =
+    let residue =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
       List.fold_left
-	(fun r ds -> rectangle_max r (ds#max_over ctx ~src ~dst))
+	(fun r ds -> rectangle_max r (ds#residue ctx ~src ~dst))
 	zero_rectangle datasets
     in
       rectangle
-	~x_min:(dst.x_min +. over.x_min)
-	~x_max:(dst.x_max -. over.x_max)
-	~y_min:(dst.y_min -. over.y_min)
-	~y_max:(dst.y_max +. over.y_max)
+	~x_min:(dst.x_min +. residue.x_min)
+	~x_max:(dst.x_max -. residue.x_max)
+	~y_min:(dst.y_min -. residue.y_min)
+	~y_max:(dst.y_max +. residue.y_max)
 
 
   method private draw_x_axis ctx ~src ~dst =
@@ -182,7 +182,7 @@ object (self)
       | Some min, Some max -> min, max
       | _ ->
 	  List.fold_left (fun (min, max) ds ->
-			    let ds_min, ds_max = ds#y_min_and_max in
+			    let ds_min, ds_max = ds#dimensions in
 			    let min' = if ds_min < min then ds_min else min
 			    and max' = if ds_max > max then ds_max else max
 			    in min', max')
@@ -274,9 +274,9 @@ object
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
 
-  method virtual max_over :
+  method virtual residue :
     context -> src:rectangle -> dst:rectangle -> rectangle
-    (** [max_over ctx src dst] get a rectangle containing the maximum
+    (** [residue ctx src dst] get a rectangle containing the maximum
 	amount the dataset will draw off of the destination rectangle
 	in each direction. *)
 
@@ -299,8 +299,8 @@ object
   val name = (name : string)
     (** The name of the dataset is what appears on the x-axis. *)
 
-  method virtual y_min_and_max : float * float
-    (** [y_min_and_max] gets the min and maximum value from the
+  method virtual dimensions : float * float
+    (** [dimensions] gets the min and maximum value from the
 	dataset. *)
 
 
