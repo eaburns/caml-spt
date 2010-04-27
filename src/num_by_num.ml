@@ -115,15 +115,14 @@ object (self)
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
     let src = self#scale in
-      let dst = self#dest_rectangle ctx in
-      let rank = ref 0 in
-	begin match title with
-	  | None -> ()
-	  | Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
-	end;
-	self#draw_x_axis ctx ~src ~dst;
-	self#draw_y_axis ctx ~src ~dst;
-	List.iter (fun ds -> ds#draw ctx ~src ~dst !rank; incr rank) datasets
+    let dst = self#dest_rectangle ctx in
+      begin match title with
+	| None -> ()
+	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
+      end;
+      self#draw_x_axis ctx ~src ~dst;
+      self#draw_y_axis ctx ~src ~dst;
+      List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets
 
 end
 
@@ -144,13 +143,13 @@ object
 
   method virtual residue :
     context -> src:rectangle -> dst:rectangle -> rectangle
-    (** [residue ctx src dst] get a rectangle containing the maximum
+    (** [residue ctx ~src ~dst] get a rectangle containing the maximum
 	amount the dataset will draw off of the destination rectangle
 	in each direction. *)
 
   method virtual draw :
-    context -> src:rectangle -> dst:rectangle -> int -> unit
-    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
+    context -> src:rectangle -> dst:rectangle -> unit
+    (** [draw ctx ~src ~dst] draws the data to the plot. *)
 
   method virtual draw_legend_entry : context -> x:float -> y:float -> float
     (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the
@@ -220,9 +219,9 @@ object
 
 
   method residue ctx ~src ~dst =
-    (** [residue ctx ~src ~dst] if we were to plot this right now with
-	the given [dst] rectangle, how far out-of-bounds will we go in
-	each direction. *)
+    (** [residue ctx ~src ~dst] if we were to plot this right now
+	with the given [dst] rectangle, how far out-of-bounds will we
+	go in each direction. *)
     let tr = transform ~src ~dst in
       List.fold_left (fun r pt ->
 			if rectangle_contains src pt
@@ -231,7 +230,7 @@ object
 	zero_rectangle points
 
 
-  method draw ctx ~src ~dst _ =
+  method draw ctx ~src ~dst =
     let tr = transform ~src ~dst in
     let pts = List.map tr (List.filter (rectangle_contains src) points) in
       draw_points ctx ~color radius glyph pts
@@ -274,7 +273,7 @@ object
 
   method residue _ ~src:_ ~dst = zero_rectangle
 
-  method draw ctx ~src ~dst _ =
+  method draw ctx ~src ~dst =
     let tr = transform ~src ~dst in
     let pts = List.map tr points in
       draw_line ctx ~box:dst ~style pts
@@ -303,9 +302,9 @@ object
       (line#residue ctx ~src ~dst)
       (scatter#residue ctx ~src ~dst)
 
-  method draw ctx ~src ~dst rank =
-    line#draw ctx ~src ~dst rank;
-    scatter#draw ctx ~src ~dst rank
+  method draw ctx ~src ~dst =
+    line#draw ctx ~src ~dst;
+    scatter#draw ctx ~src ~dst
 
   method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
 end
@@ -356,7 +355,7 @@ object (self)
 	zero_rectangle triples
 
 
-  method draw ctx ~src ~dst rank =
+  method draw ctx ~src ~dst =
     let tr = transform ~src ~dst in
     let max_z = self#max_z_value in
       List.iter (fun (pt, z) ->

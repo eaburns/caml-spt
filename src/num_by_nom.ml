@@ -136,7 +136,7 @@ object
 
   method virtual draw :
     context -> (float -> float) -> y_min:float -> y_max:float
-    -> width:float -> int -> unit
-    (** [draw ctx scale ~y_min ~y_max ~width rank] draws the dataset
-	to the plot. *)
+    -> width:float -> unit
+    (** [draw ctx scale ~y_min ~y_max ~width] draws the dataset to the
+	plot. *)
 end
