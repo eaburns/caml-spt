@@ -16,11 +16,12 @@ dispatch begin function
 	 add -custom *)
       if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
 
-      flag ["link"; "ocaml"; "byte"; "use_cairo"]
-        (S[A "cairo.cma"; A"-cclib"; A"-lcairo"; ]);
+      ocaml_lib ~extern:true ~dir:"+cairo" "cairo";
+(*       flag ["link"; "ocaml"; "byte"; "use_cairo"] *)
+(*         (S[A "cairo.cma"; A"-cclib"; A"-lcairo"; ]); *)
 
-      flag ["link"; "ocaml"; "native"; "use_cairo"]
-        (S[A "cairo.cmxa"; A"-cclib"; A"-lcairo";]);
+(*       flag ["link"; "ocaml"; "native"; "use_cairo"] *)
+(*         (S[A "cairo.cmxa"; A"-cclib"; A"-lcairo";]); *)
 
   | _ -> ()
 end
