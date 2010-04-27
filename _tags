@@ -1,4 +1,5 @@
 <src>: include
 <src/drawing.ml>: use_cairo
 <src/ml_plot.ml>: use_cairo
+<ml_plot_main.ml>: use_cairo
 <*.byte> or <*.native>: use_str, use_cairo
