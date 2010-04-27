@@ -319,10 +319,11 @@ class bubble_dataset
 object (self)
   inherit dataset ?name ()
 
-  val triples = (triples : (point * float) array)
+  val triples = (triples : triple array)
+
 
   method dimensions =
-    let pts = Array.map fst triples in
+    let pts = Array.map (fun t -> point t.i t.j) triples in
       points_rectangle pts
 
 
@@ -330,11 +331,12 @@ object (self)
     (** [z_scale] is the minimum and maximum z value of all triples.
 	This is used for determining the radius of a point. *)
     let min, max =
-      Array.fold_left (fun (min, max) (_, z) ->
-		       let min' = if z < min then z else min
-		       and max' = if z > max then z else max
-		       in min', max')
-      (infinity, neg_infinity) triples
+      Array.fold_left (fun (min, max) t ->
+			 let z = t.k in
+			 let min' = if z < min then z else min
+			 and max' = if z > max then z else max
+			 in min', max')
+	(infinity, neg_infinity) triples
     in scale ~min ~max
 
 
@@ -351,11 +353,11 @@ object (self)
     let tr = transform ~src ~dst in
     let zscale = self#z_scale in
       Array.fold_left
-	(fun r (pt, z) ->
-	   let pt' = tr pt in
+	(fun r t ->
+	   let pt' = tr (point t.i t.j) in
 	     if rectangle_contains dst pt'
 	     then begin
-	       let radius = self#radius zscale z
+	       let radius = self#radius zscale t.k
 	       in rectangle_max r (point_residual dst pt' radius)
 	     end else r)
 	zero_rectangle triples
@@ -364,8 +366,9 @@ object (self)
   method draw ctx ~src ~dst _ =
     let tr = transform ~src ~dst in
     let zscale = self#z_scale in
-      Array.iter (fun (pt, z) ->
-		    let radius = self#radius zscale z in
+      Array.iter (fun t ->
+		    let radius = self#radius zscale t.k in
+		    let pt = point t.i t.j in
 		    let pt' = tr pt in
 		      if rectangle_contains src pt
 		      then draw_point ctx ~color radius glyph pt')

@@ -23,6 +23,13 @@ type point = {
 }
 
 
+type triple = {
+  i : float;
+  j : float;
+  k : float;
+}
+
+
 type scale = {
   min : float;
   max : float;
@@ -32,8 +39,13 @@ type scale = {
 let pi = 3.1415926535
   (** The constant pi. *)
 
+
 let point ~x ~y = { x = x; y = y }
   (** [point ~x ~y] makes a new point *)
+
+
+let triple ~i ~j ~k = { i = i; j = j; k = k }
+  (** [triple ~i ~j ~k] makes a 3-dimensional point. *)
 
 
 let scale ~min ~max = { min = min; max = max }

@@ -71,11 +71,11 @@ let numeric_plot () =
 	|];
       new Num_by_num.bubble_dataset ~name:"ds4"
 	~color:(color ~r:1. ~g:0. ~b:0. ~a:0.5)
-	[| (point 0.5 0.5), 0.5;
-	   (point 1.0 1.0), 1.0;
-	   (point 2.0 2.0), 2.0;
-	   (point 4.0 3.5), 4.0;
-	   (point 8.0 5.5), 8.0;
+	[| triple 0.5 0.5 0.5;
+	   triple 1.0 1.0 1.0;
+	   triple 2.0 2.0 2.0;
+	   triple 4.0 3.5 4.0;
+	   triple 8.0 5.5 8.0;
 	|];
     ]
 
