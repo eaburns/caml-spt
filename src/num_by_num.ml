@@ -454,14 +454,15 @@ object (self)
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
     let tr = transform ~src ~dst in
-    let scale =
-      scale_value ~src:(yscale src) ~dst:(yscale (face_forward dst))
-    in
       Array.iter (fun t ->
 		    let pt = point t.i t.j in
 		      if rectangle_contains src pt
 		      then begin
-			let pt' = tr pt and mag = scale t.k in
+			let mag =
+			  let d = abs_float (dst.y_max -. dst.y_min)
+			  and s = abs_float (src.y_max -. src.y_min) in
+			  t.k *. (d /. s) in
+			let pt' = tr pt in
 			let pt0 = { pt' with y = pt'.y -. mag }
 			and pt1 = { pt' with y = pt'.y +. mag } in
 			let pt0' = vertical_clip dst pt0
