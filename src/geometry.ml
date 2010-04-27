@@ -128,6 +128,20 @@ let points_rectangle pts =
   in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
+let point_residue dst pt radius =
+  (** [point_residue dst pt radius] gets the amount that the point will
+      draw over the edge of the destination rectangle in each
+      direction. *)
+  let x = pt.x and y = pt.y in
+  let x_min = x -. radius and x_max = x +. radius in
+  let y_min = y +. radius and y_max = y -. radius in
+  let x_min' = if x_min < dst.x_min then dst.x_min -. x_min else 0.
+  and x_max' = if x_max > dst.x_max then x_max -. dst.x_max else 0.
+  and y_min' = if y_min > dst.y_min then y_min -. dst.y_min else 0.
+  and y_max' = if y_max < dst.y_max then dst.y_max -. y_max else 0.
+  in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
+
+
 let clip_point_on_line box f f_inv p =
   (** [clip_point_on_line box f f_inv p] clips a point to the box
       given that it resides on the given line. *)

@@ -77,12 +77,13 @@ object (self)
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
 	~y_max:(title_height +. Ml_plot.text_padding) in
-    let residue =
+    let residue, _ =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
       List.fold_left
-	(fun r ds -> rectangle_max r (ds#residue ctx ~src ~dst))
-	zero_rectangle datasets
+	(fun (r, rank) ds ->
+	   rectangle_max r (ds#residue ctx ~src ~dst rank), rank + 1)
+	(zero_rectangle, 0) datasets
     in
       rectangle
 	~x_min:(dst.x_min +. residue.x_min)
@@ -122,7 +123,8 @@ object (self)
       end;
       self#draw_x_axis ctx ~src ~dst;
       self#draw_y_axis ctx ~src ~dst;
-      List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets
+      let rank = ref 0 in
+	List.iter (fun ds -> ds#draw ctx ~src ~dst !rank; incr rank) datasets
 
 end
 
@@ -142,20 +144,20 @@ object
 	data-coordinates. *)
 
   method virtual residue :
-    context -> src:rectangle -> dst:rectangle -> rectangle
-    (** [residue ctx ~src ~dst] get a rectangle containing the maximum
-	amount the dataset will draw off of the destination rectangle
-	in each direction. *)
+    context -> src:rectangle -> dst:rectangle -> int -> rectangle
+    (** [residue ctx ~src ~dst rank] get a rectangle containing the
+	maximum amount the dataset will draw off of the destination
+	rectangle in each direction. *)
 
   method virtual draw :
-    context -> src:rectangle -> dst:rectangle -> unit
-    (** [draw ctx ~src ~dst] draws the data to the plot. *)
+    context -> src:rectangle -> dst:rectangle -> int -> unit
+    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
 
   method virtual draw_legend_entry : context -> x:float -> y:float -> float
     (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the
-	given location ([x] is the left-edge and [y] is top edge of the
-	destination) and the result is the y-coordinate of the bottom edge
-	of the entry that was just drawn. *)
+	given location ([x] is the left-edge and [y] is top edge of
+	the destination) and the result is the y-coordinate of the
+	bottom edge of the entry that was just drawn. *)
 end
 
 
@@ -178,62 +180,59 @@ end
 (** {3 Scatter dataset} ****************************************)
 
 
-let amount_over dst pt radius =
-  (** [amount_over dst pt radius] gets the amount that the point will
-      draw over the edge of the destination rectangle in each
-      direction. *)
-  let x = pt.x and y = pt.y in
-  let x_min = x -. radius and x_max = x +. radius in
-  let y_min = y +. radius and y_max = y -. radius in
-  let x_min' = if x_min < dst.x_min then dst.x_min -. x_min else 0.
-  and x_max' = if x_max > dst.x_max then x_max -. dst.x_max else 0.
-  and y_min' = if y_min > dst.y_min then y_min -. dst.y_min else 0.
-  and y_max' = if y_max < dst.y_max then dst.y_max -. y_max else 0.
-  in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
-
-
 let glyphs =
   (** The default glyphs for scatter plots. *)
-  [| Circle_glyph; Ring_glyph; Cross_glyph; Plus_glyph;
-     Square_glyph; Box_glyph; Triangle_glyph |]
+  [| Circle_glyph;
+     Ring_glyph;
+     Plus_glyph;
+     Triangle_glyph;
+     Box_glyph;
+     Square_glyph;
+     Cross_glyph;
+  |]
 
 
-let cur_glyph = ref 0
-  (** The index into [glyphs] that the next scatter plot will use by
-      default. *)
+(*
+let glyphs =
+  (** The default glyphs for scatter plots. *)
+  [| Char_glyph '1';
+     Char_glyph '2';
+     Char_glyph '3';
+     Char_glyph '4';
+     Char_glyph '5';
+     Char_glyph '6';
+     Char_glyph '7';
+  |]
+*)
 
-
-class scatter_dataset ?glyph ?(color=black) ?(radius=0.01) ?name points =
+class scatter_dataset ?glyph ?(color=black) ?(radius=0.012) ?name points =
   (** A scatter plot dataset. *)
-object
+object (self)
   inherit points_dataset ?name points
 
-  val glyph =
-    (** The glyph to use for this dataset. *)
-    match glyph with
-      | None ->
-	  let i = !cur_glyph in
-	    cur_glyph := (!cur_glyph + 1) mod (Array.length glyphs);
-	    glyphs.(i)
-      | Some g -> g
+  method glyph rank = match glyph with
+      (** [glyph rank] the glyph to use for this dataset. *)
+    | None -> glyphs.(rank)
+    | Some g -> g
 
 
-  method residue ctx ~src ~dst =
-    (** [residue ctx ~src ~dst] if we were to plot this right now
+  method residue ctx ~src ~dst _ =
+    (** [residue ctx ~src ~dst rank] if we were to plot this right now
 	with the given [dst] rectangle, how far out-of-bounds will we
 	go in each direction. *)
     let tr = transform ~src ~dst in
-      List.fold_left (fun r pt ->
-			if rectangle_contains src pt
-			then rectangle_max r (amount_over dst (tr pt) radius)
-			else r)
+      List.fold_left
+	(fun r pt ->
+	   if rectangle_contains src pt
+	   then rectangle_max r (point_residue dst (tr pt) radius)
+	   else r)
 	zero_rectangle points
 
 
-  method draw ctx ~src ~dst =
+  method draw ctx ~src ~dst rank =
     let tr = transform ~src ~dst in
     let pts = List.map tr (List.filter (rectangle_contains src) points) in
-      draw_points ctx ~color radius glyph pts
+      draw_points ctx ~color radius (self#glyph rank) pts
 
   method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
 end
@@ -244,39 +243,38 @@ end
 let dashes =
   (** The dash patterns for lines. *)
   [|
-    [| |];[| 0.01; 0.01 |];
+    [| |];
+    [| 0.01; 0.01; |];
+    [| 0.02; 0.02; |];
+    [| 0.04; 0.01; |];
+    [| 0.03; 0.02; 0.01; 0.02; |];
+    [| 0.03; 0.01; 0.01; 0.01; 0.01; 0.01; |];
+    [| 0.04; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; |];
   |]
-
-
-let cur_dashes = ref 0
-  (** The current dash pattern will be assigned to the next line. *)
 
 
 class line_dataset ?dash_pattern ?(width=0.002) ?(color=black) ?name points =
   (** A line plot dataset. *)
-object
+object (self)
   inherit points_dataset ?name points
 
-  val style =
-    (** The style of the line *)
+  method style rank =
+    (** [style rank] get the style of the line *)
     {
       line_color = color;
       line_dashes = begin match dash_pattern with
-	| None ->
-	    let i = !cur_dashes in
-	      cur_dashes := (!cur_dashes + 1) mod (Array.length dashes);
-	      dashes.(i)
+	| None -> dashes.(rank mod (Array.length dashes))
 	| Some d -> d
       end;
       line_width = width;
     }
 
-  method residue _ ~src:_ ~dst = zero_rectangle
+  method residue _ ~src:_ ~dst _ = zero_rectangle
 
-  method draw ctx ~src ~dst =
+  method draw ctx ~src ~dst rank =
     let tr = transform ~src ~dst in
     let pts = List.map tr points in
-      draw_line ctx ~box:dst ~style pts
+      draw_line ctx ~box:dst ~style:(self#style rank) pts
 
   method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
 end
@@ -297,14 +295,14 @@ object
 
   method dimensions = rectangle_extremes scatter#dimensions line#dimensions
 
-  method residue ctx ~src ~dst =
+  method residue ctx ~src ~dst rank =
     rectangle_extremes
-      (line#residue ctx ~src ~dst)
-      (scatter#residue ctx ~src ~dst)
+      (line#residue ctx ~src ~dst rank)
+      (scatter#residue ctx ~src ~dst rank)
 
-  method draw ctx ~src ~dst =
-    line#draw ctx ~src ~dst;
-    scatter#draw ctx ~src ~dst
+  method draw ctx ~src ~dst rank =
+    line#draw ctx ~src ~dst rank;
+    scatter#draw ctx ~src ~dst rank
 
   method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
 end
@@ -314,7 +312,8 @@ end
 
 
 class bubble_dataset
-  ?(glyph=Circle_glyph) ?(color=black) ?(max_radius=0.1) ?name triples =
+  ?(glyph=Circle_glyph) ?(color=black)
+  ?(min_radius=0.01) ?(max_radius=0.1) ?name triples =
   (** For plotting data with three values: x, y and z.  The result
       plots points at their x, y location as a scatter plot would however
       the z values are shown by changing the radius of the point. *)
@@ -328,38 +327,45 @@ object (self)
       points_rectangle pts
 
 
-  method private max_z_value =
-    (** [max_z_value] is the maximum z value of all triples.  This is
-	used for determining the radius of a point. *)
-    List.fold_left (fun m (_, z) -> if z > m then z else m)
-      neg_infinity triples
+  method private z_value_range =
+    (** [z_value_range] is the minimum and maximum z value of all
+	triples.  This is used for determining the radius of a
+	point. *)
+    List.fold_left (fun (min, max) (_, z) ->
+		      let min' = if z < min then z else min
+		      and max' = if z > max then z else max
+		      in min', max')
+      (infinity, neg_infinity) triples
 
 
-  method private compute_radius max_z z = max_radius *. (z /. max_z)
-    (** [compute_radius max_z z] gets the radius of the point. *)
+  method private radius ~min_z ~max_z vl =
+    (** [compute_radius ~min_z ~max_z vl] gets the radius of the
+	point. *)
+    scale_value ~min:min_z ~max:max_z ~min':min_radius ~max':max_radius ~vl
 
 
-  method residue ctx ~src ~dst =
-    (** [residue ctx ~src ~dst] if we were to plot this right now with
-	the given [dst] rectangle, how far out-of-bounds will we go in
-	each direction. *)
+  method residue ctx ~src ~dst _ =
+    (** [residue ctx ~src ~dst rank] if we were to plot this right now
+	with the given [dst] rectangle, how far out-of-bounds will we
+	go in each direction. *)
     let tr = transform ~src ~dst in
-    let max_z = self#max_z_value in
-      List.fold_left (fun r (pt, z) ->
-			let pt' = tr pt in
-			  if rectangle_contains dst pt'
-			  then begin
-			    let radius = self#compute_radius max_z z
-			    in rectangle_max r (amount_over dst pt' radius)
-			  end else r)
+    let min_z, max_z = self#z_value_range in
+      List.fold_left
+	(fun r (pt, z) ->
+	   let pt' = tr pt in
+	     if rectangle_contains dst pt'
+	     then begin
+	       let radius = self#radius ~min_z ~max_z z
+	       in rectangle_max r (point_residue dst pt' radius)
+	     end else r)
 	zero_rectangle triples
 
 
-  method draw ctx ~src ~dst =
+  method draw ctx ~src ~dst _ =
     let tr = transform ~src ~dst in
-    let max_z = self#max_z_value in
+    let min_z, max_z = self#z_value_range in
       List.iter (fun (pt, z) ->
-		   let radius = self#compute_radius max_z z in
+		   let radius = self#radius ~min_z ~max_z z in
 		   let pt' = tr pt in
 		     if rectangle_contains src pt
 		     then draw_point ctx ~color radius glyph pt')
