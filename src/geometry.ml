@@ -207,10 +207,11 @@ let clip_line_segment box ~p0 ~p1 =
       and y0 = p0.y
       and x1 = p1.x
       and y1 = p1.y in
-      let m = (y1 -. y0) /. (x1 -. x0) in
+      let deltax = x1 -. x0 in
+      let m = if deltax = 0. then nan else (y1 -. y0) /. (x1 -. x0) in
       let b = ~-. m *. x0 +. y0 in
       let f x = x *. m +. b in
-      let f_inv y = (y -. b) /. m in
+      let f_inv y = if m <> m then x1 else (y -. b) /. m in
       let p0 = (if not p0_in
 		then clip_point_on_line box f f_inv p0
 		else p0)

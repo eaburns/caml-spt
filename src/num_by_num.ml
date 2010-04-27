@@ -377,3 +377,142 @@ object (self)
 
   method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
+
+(** {2 Errorbar dataset} ****************************************)
+
+
+let errorbar_cap_size = 0.015
+  (** The size of the cap on an error bar. *)
+
+
+let errorbar_line_style =
+  (** The line style for an error bar. *)
+  {
+    line_color = black;
+    line_width = 0.002;
+    line_dashes = [| |];
+  }
+
+
+class virtual errorbar_dataset triples =
+  (** A dataset that consists of a bunch of error bars. *)
+object
+  inherit dataset ()
+
+  val triples = (triples : triple array)
+    (* point and magnitude. *)
+end
+
+(** {3 Vertical error bars} ****************************************)
+
+let vertical_clip dst pt =
+  (** [vertical_clip dst pt] clip the point vertically. *)
+  if pt.y < dst.y_max
+  then { pt with y = dst.y_max }
+  else
+    if pt.y > dst.y_min
+    then { pt with y = dst.y_min }
+    else pt
+
+
+class vertical_errorbar_dataset triples =
+  (** A set of vertical error bars. *)
+object (self)
+  inherit errorbar_dataset triples
+
+  method dimensions =
+    (** [dimensions] is the dimensions of this dataset in
+	data-coordinates. *)
+    Array.fold_left (fun r t ->
+		       let low = t.j -. t.k
+		       and high = t.j +. t.k
+		       and x = t.i in
+			 Printf.printf "low=%f, high=%f\n" low high;
+		       let rect =
+			 rectangle ~x_min:x ~x_max:x ~y_min:low ~y_max:high
+		       in rectangle_extremes r rect)
+      (rectangle ~x_min:infinity ~x_max:neg_infinity
+	 ~y_min:infinity ~y_max:neg_infinity)
+      triples
+
+
+  method residual ctx ~src ~dst rank = zero_rectangle
+    (** [residual ctx ~src ~dst rank] get a rectangle containing the
+	maximum amount the dataset will draw off of the destination
+	rectangle in each direction. *)
+
+
+  method private draw_cap ctx dst pt =
+    (** [draw_cap ctx dst pt] draws a cap at the given point. *)
+    if rectangle_contains dst pt
+    then begin
+      draw_line ctx [ point (pt.x -. errorbar_cap_size) pt.y;
+		      point (pt.x +. errorbar_cap_size) pt.y; ]
+    end
+
+
+  method draw ctx ~src ~dst rank =
+    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
+    let tr = transform ~src ~dst in
+    let scale =
+      scale_value ~src:(yscale src) ~dst:(yscale (face_forward dst))
+    in
+      Array.iter (fun t ->
+		    let pt = point t.i t.j in
+		      if rectangle_contains src pt
+		      then begin
+			let pt' = tr pt and mag = scale t.k in
+			let pt0 = { pt' with y = pt'.y -. mag }
+			and pt1 = { pt' with y = pt'.y +. mag } in
+			let pt0' = vertical_clip dst pt0
+			and pt1' = vertical_clip dst pt1 in
+			  draw_line ctx ~style:errorbar_line_style
+			    [pt0'; pt1'];
+			  self#draw_cap ctx dst pt0;
+			  self#draw_cap ctx dst pt1
+		      end)
+	triples
+
+
+  method draw_legend_entry _ ~x ~y _ = failwith "Unimplemented"
+
+end
+
+
+(** {3 Horizontal error bars} ****************************************)
+
+class horizontal_errorbar_dataset triples =
+  (** A set of horizontal error bars. *)
+object
+  inherit errorbar_dataset triples
+
+  method dimensions =
+    (** [dimensions] is the dimensions of this dataset in
+	data-coordinates. *)
+    Array.fold_left (fun r t ->
+		       let low = t.i -. t.k
+		       and high = t.i +. t.k
+		       and y = t.j in
+		       let rect =
+			 rectangle ~x_min:low ~x_max:high ~y_min:y ~y_max:y
+		       in rectangle_extremes r rect)
+      (rectangle ~x_min:infinity ~x_max:neg_infinity
+	 ~y_min:infinity ~y_max:neg_infinity)
+      triples
+
+
+  method residual ctx ~src ~dst rank = zero_rectangle
+    (** [residual ctx ~src ~dst rank] get a rectangle containing the
+	maximum amount the dataset will draw off of the destination
+	rectangle in each direction. *)
+
+
+  method draw ctx ~src ~dst rank = ()
+    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
+
+
+  method draw_legend_entry _ ~x ~y _ = failwith "Unimplemented"
+
+end
+
+
