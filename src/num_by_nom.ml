@@ -142,6 +142,6 @@ object
 
   method virtual draw :
     context -> src:scale -> dst:scale -> float -> int -> unit
-    (** [draw ctx ~src_min ~src ~dst width rank] draws the dataset to
-	the plot. *)
+    (** [draw ctx ~src ~dst width rank] draws the dataset to the
+	plot. *)
 end
