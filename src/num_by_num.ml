@@ -153,10 +153,11 @@ object
     context -> src:rectangle -> dst:rectangle -> int -> unit
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
 
-  method virtual draw_legend_entry : context -> x:float -> y:float -> float
-    (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the
-	given location ([x] is the left-edge and [y] is top edge of
-	the destination) and the result is the y-coordinate of the
+  method virtual draw_legend_entry :
+    context -> x:float -> y:float -> int -> float
+    (** [draw_legend_entry ctx ~x ~y rank] draws the legend entry to
+	the given location ([x] is the left-edge and [y] is top edge
+	of the destination) and the result is the y-coordinate of the
 	bottom edge of the entry that was just drawn. *)
 end
 
@@ -234,7 +235,7 @@ object (self)
     let pts = List.map tr (List.filter (rectangle_contains src) points) in
       draw_points ctx ~color radius (self#glyph rank) pts
 
-  method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
+  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
 
 (** {3 Line dataset} ****************************************)
@@ -276,7 +277,7 @@ object (self)
     let pts = List.map tr points in
       draw_line ctx ~box:dst ~style:(self#style rank) pts
 
-  method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
+  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
 
 
@@ -304,7 +305,7 @@ object
     line#draw ctx ~src ~dst rank;
     scatter#draw ctx ~src ~dst rank
 
-  method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
+  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
 
 
@@ -312,7 +313,7 @@ end
 
 
 class bubble_dataset
-  ?(glyph=Circle_glyph) ?(color=black)
+  ?(glyph=Circle_glyph) ?(color=(color ~r:0.4 ~g:0.4 ~b:0.4 ~a:0.4))
   ?(min_radius=0.01) ?(max_radius=0.1) ?name triples =
   (** For plotting data with three values: x, y and z.  The result
       plots points at their x, y location as a scatter plot would however
@@ -372,5 +373,5 @@ object (self)
 	triples
 
 
-  method draw_legend_entry ctx ~x ~y = failwith "Unimplemented"
+  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end

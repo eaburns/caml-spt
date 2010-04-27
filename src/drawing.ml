@@ -30,6 +30,11 @@ let green = { r = 0.; g = 1.; b = 0.; a = 1.; }
 let blue = { r = 0.; g = 0.; b = 1.; a = 1.; }
   (** The color blue. *)
 
+
+let color ?(a=1.0) ~r ~g ~b = { r = r; g = g; b = b; a = a }
+  (** [color ?a ~r ~g ~b] makes a new color. *)
+
+
 let set_color ctx color =
   (** [set_color ctx color] sets the current color. *)
   Cairo.set_source_rgba ctx color.r color.g color.b color.a

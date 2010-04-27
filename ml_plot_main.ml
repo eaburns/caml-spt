@@ -66,13 +66,14 @@ let numeric_plot () =
 	  point 5.1415926535 1.7;
 	  point 9.0 8.12;
 	];
-(*
-      new Num_by_num.bubble_dataset ~name:"ds4" ~color:red
-	[ (point 8.75 4.1), 5.;
-	  (point 5.7 8.1), 2.;
-	  (point 9.1 1.2), 1.;
+      new Num_by_num.bubble_dataset ~name:"ds4"
+	~color:(color ~r:1. ~g:0. ~b:0. ~a:0.5)
+	[ (point 0.5 0.5), 0.5;
+	  (point 1.0 1.0), 1.0;
+	  (point 2.0 2.0), 2.0;
+	  (point 4.0 3.5), 4.0;
+	  (point 8.0 5.5), 8.0;
 	];
-*)
     ]
 
 
