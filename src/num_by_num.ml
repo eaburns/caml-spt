@@ -27,8 +27,8 @@ object (self)
     (** The list of datasets. *)
 
 
-  method private scale =
-    (** [scale] computes the scale of the x and y axes. *)
+  method private scales =
+    (** [scales] computes the scale of the x and y axes. *)
     let r = match datasets with
       | d :: [] -> d#dimensions
       | d :: ds ->
@@ -47,12 +47,12 @@ object (self)
 
   method private xticks =
     (** [xticks] computes the location of the x-axis tick marks. *)
-    Numeric_axis.tick_locations (xscale self#scale)
+    Numeric_axis.tick_locations (xscale self#scales)
 
 
   method private yticks =
     (** [yticks] computes the location of the y-axis tick marks. *)
-    Numeric_axis.tick_locations (yscale self#scale)
+    Numeric_axis.tick_locations (yscale self#scales)
 
 
   method private dest_rectangle ctx =
@@ -62,7 +62,7 @@ object (self)
       match title with
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
-    let src = self#scale in
+    let src = self#scales in
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
 	ctx ~label_style ~tick_style ~pad:Ml_plot.text_padding
@@ -105,7 +105,7 @@ object (self)
   method draw ctx =
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
-    let src = self#scale in
+    let src = self#scales in
     let dst = self#dest_rectangle ctx in
       begin match title with
 	| None -> ()
