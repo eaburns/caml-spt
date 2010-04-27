@@ -47,14 +47,12 @@ object (self)
 
   method private xticks =
     (** [xticks] computes the location of the x-axis tick marks. *)
-    let s = self#scale in
-      Numeric_axis.tick_locations s.x_min s.x_max
+    Numeric_axis.tick_locations (xscale self#scale)
 
 
   method private yticks =
     (** [yticks] computes the location of the y-axis tick marks. *)
-    let s = self#scale in
-      Numeric_axis.tick_locations s.y_min s.y_max
+    Numeric_axis.tick_locations (yscale self#scale)
 
 
   method private dest_rectangle ctx =
@@ -68,9 +66,7 @@ object (self)
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
 	ctx ~label_style ~tick_style ~pad:Ml_plot.text_padding
-	~y_min:1.
-	~x_min:src.x_min ~x_max:src.x_max ~x_min':0. ~x_max':1.
-	xlabel self#xticks in
+	~y_min:1. ~src:(xscale src) ~dst:(scale 0. 1.) xlabel self#xticks in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
 	~pad:Ml_plot.text_padding ~x_min:0. ylabel self#yticks in
@@ -96,20 +92,14 @@ object (self)
     (** [draw_x_axis ctx ~src ~dst] draws the x-axis. *)
     Numeric_axis.draw_x_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~y:1.
-      ~x_min:src.x_min ~x_max:src.x_max
-      ~x_min':dst.x_min ~x_max':dst.x_max
-      xlabel self#xticks
+      ~y:1. ~src:(xscale src) ~dst:(xscale dst) xlabel self#xticks
 
 
   method private draw_y_axis ctx ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~x:0.
-      ~y_min:src.y_min ~y_max:src.y_max
-      ~y_min':dst.y_min ~y_max':dst.y_max
-      ylabel self#yticks
+      ~x:0. ~src:(yscale src) ~dst:(yscale dst) ylabel self#yticks
 
 
   method draw ctx =
@@ -336,21 +326,22 @@ object (self)
       points_rectangle pts
 
 
-  method private z_value_range =
-    (** [z_value_range] is the minimum and maximum z value of all
-	triples.  This is used for determining the radius of a
-	point. *)
-    Array.fold_left (fun (min, max) (_, z) ->
+  method private z_scale =
+    (** [z_scale] is the minimum and maximum z value of all triples.
+	This is used for determining the radius of a point. *)
+    let min, max =
+      Array.fold_left (fun (min, max) (_, z) ->
 		       let min' = if z < min then z else min
 		       and max' = if z > max then z else max
 		       in min', max')
       (infinity, neg_infinity) triples
+    in scale ~min ~max
 
 
-  method private radius ~min_z ~max_z vl =
-    (** [compute_radius ~min_z ~max_z vl] gets the radius of the
-	point. *)
-    scale_value ~min:min_z ~max:max_z ~min':min_radius ~max':max_radius ~vl
+  method private radius zscale vl =
+    (** [compute_radius zscale vl] gets the radius of the point. *)
+    let rscale = scale min_radius max_radius in
+      scale_value ~src:zscale ~dst:rscale vl
 
 
   method residual ctx ~src ~dst _ =
@@ -358,13 +349,13 @@ object (self)
 	now with the given [dst] rectangle, how far out-of-bounds will
 	we go in each direction. *)
     let tr = transform ~src ~dst in
-    let min_z, max_z = self#z_value_range in
+    let zscale = self#z_scale in
       Array.fold_left
 	(fun r (pt, z) ->
 	   let pt' = tr pt in
 	     if rectangle_contains dst pt'
 	     then begin
-	       let radius = self#radius ~min_z ~max_z z
+	       let radius = self#radius zscale z
 	       in rectangle_max r (point_residual dst pt' radius)
 	     end else r)
 	zero_rectangle triples
@@ -372,9 +363,9 @@ object (self)
 
   method draw ctx ~src ~dst _ =
     let tr = transform ~src ~dst in
-    let min_z, max_z = self#z_value_range in
+    let zscale = self#z_scale in
       Array.iter (fun (pt, z) ->
-		    let radius = self#radius ~min_z ~max_z z in
+		    let radius = self#radius zscale z in
 		    let pt' = tr pt in
 		      if rectangle_contains src pt
 		      then draw_point ctx ~color radius glyph pt')

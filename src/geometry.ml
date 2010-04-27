@@ -22,11 +22,22 @@ type point = {
   y : float;
 }
 
+
+type scale = {
+  min : float;
+  max : float;
+}
+
+
 let pi = 3.1415926535
   (** The constant pi. *)
 
 let point ~x ~y = { x = x; y = y }
   (** [point ~x ~y] makes a new point *)
+
+
+let scale ~min ~max = { min = min; max = max }
+  (** [scale ~min ~max] creates a new scale. *)
 
 
 let rectangle ~x_min ~x_max ~y_min ~y_max =
@@ -44,12 +55,21 @@ let zero_rectangle = rectangle 0. 0. 0. 0.
   (** A rectangle with no dimensions. *)
 
 
-let scale_value ~min ~max ~min' ~max' ~vl =
-  (** [scale_value ~min ~max ~min' ~max' ~vl] converts [vl] from the
-      initial scale to the new scale. *)
-  let diff = max -. min and diff' = max' -. min' in
+let scale_value ~src ~dst vl =
+  (** [scale_value ~src ~dst vl] converts [vl] from the initial scale
+      to the new scale. *)
+  let min = src.min and min' = dst.min in
+  let diff = src.max -. min and diff' = dst.max -. min' in
   let s = diff' /. diff in
     ((vl -. min) *. s) +. min'
+
+
+let xscale rect = scale rect.x_min rect.x_max
+  (** [xscale rect] gets the scale of the x values from the rectangle. *)
+
+
+let yscale rect = scale rect.y_min rect.y_max
+  (** [yscale rect] gets the scale of the y values from the rectangle. *)
 
 
 let transform ~src ~dst =

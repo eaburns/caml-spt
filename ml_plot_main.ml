@@ -22,18 +22,21 @@ let nominal_plot () =
       (object
 	 inherit Num_by_nom.dataset "Dataset one"
 	 method dimensions = 0., 0.
-	 method draw _ ~src_min ~src_max ~dst_min ~dst_max ~width _ = ()
+	 method residual _ ~src ~dst _ _ = scale nan nan
+	 method draw _ ~src ~dst _ _ = ()
        end);
       (object
 	 inherit Num_by_nom.dataset "This is example dataset two"
 	 method dimensions = 0., 0.
-	 method draw _ ~src_min ~src_max ~dst_min ~dst_max ~width _ = ()
+	 method residual _ ~src ~dst _ _ = scale nan nan
+	 method draw _ ~src ~dst _ _ = ()
        end);
       (object
 	 inherit Num_by_nom.dataset
 	   "Some third dataset that has a very long name"
 	 method dimensions = 0., 0.
-	 method draw _ ~src_min ~src_max ~dst_min ~dst_max ~width _ = ()
+	 method residual _ ~src ~dst _ _ = scale nan nan
+	 method draw _ ~src ~dst _ _ = ()
        end);
     ]
 
@@ -96,10 +99,10 @@ let main () =
     Cairo.scale ctx sizef sizef;
     Cairo.set_line_width ctx (1. /. sizef);
 
-    let plot = numeric_plot () in
 (*
     let plot = nominal_plot () in
 *)
+    let plot = numeric_plot () in
       plot#draw ctx;
 
       Cairo_png.surface_write_to_file surface "test.png"
