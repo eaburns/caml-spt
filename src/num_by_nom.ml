@@ -136,7 +136,7 @@ object
 
   method virtual draw :
     context -> src_min:float -> src_max:float
-    -> dst_min:float -> dst_max:float -> width:float -> unit
-    (** [draw ctx ~src_min ~src_max ~dst_min ~dst_max ~width] draws
-	the dataset to the plot. *)
+    -> dst_min:float -> dst_max:float -> width:float -> int -> unit
+    (** [draw ctx ~src_min ~src_max ~dst_min ~dst_max ~width rank]
+	draws the dataset to the plot. *)
 end
