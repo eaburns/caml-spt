@@ -117,7 +117,7 @@ let points_rectangle pts =
   (** [points_rectangle pts] gets the rectangle enclosing a set of
       points. *)
   let x_min, x_max, y_min, y_max =
-    List.fold_left (fun (x_min, x_max, y_min, y_max) pt ->
+    Array.fold_left (fun (x_min, x_max, y_min, y_max) pt ->
 		      let x = pt.x and y = pt.y in
 		      let x_min' = if x < x_min then x else x_min
 		      and x_max' = if x > x_max then x else x_max

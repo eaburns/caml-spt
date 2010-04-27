@@ -45,35 +45,35 @@ let numeric_plot () =
     ~ylabel:"Y label text"
     [
       new Num_by_num.line_points_dataset ~name:"ds0"
-	[ point 0.5 6.0;
-	  point 1.3 2.0;
-	  point 7.3 8.1;
-	  point 3.8 0.05;
-	];
+	[| point 0.5 6.0;
+	   point 1.3 2.0;
+	   point 7.3 8.1;
+	   point 3.8 0.05;
+	|];
       new Num_by_num.line_points_dataset ~name:"ds1"
-	[ point 9.0 1.117;
-	  point 4.1415926535 1.7;
-	  point 6.0 8.12;
-	];
+	[| point 9.0 1.117;
+	   point 4.1415926535 1.7;
+	   point 6.0 8.12;
+	|];
       new Num_by_num.line_points_dataset ~name:"ds2"
-	[ point 10.5 6.0;
-	  point 3.3 2.0;
-	  point 2.3 8.1;
-	  point 9.8 0.05;
-	];
+	[| point 10.5 6.0;
+	   point 3.3 2.0;
+	   point 2.3 8.1;
+	   point 9.8 0.05;
+	|];
       new Num_by_num.line_points_dataset ~name:"ds3"
-	[ point 1.0 1.117;
-	  point 5.1415926535 1.7;
-	  point 9.0 8.12;
-	];
+	[| point 1.0 1.117;
+	   point 5.1415926535 1.7;
+	   point 9.0 8.12;
+	|];
       new Num_by_num.bubble_dataset ~name:"ds4"
 	~color:(color ~r:1. ~g:0. ~b:0. ~a:0.5)
-	[ (point 0.5 0.5), 0.5;
-	  (point 1.0 1.0), 1.0;
-	  (point 2.0 2.0), 2.0;
-	  (point 4.0 3.5), 4.0;
-	  (point 8.0 5.5), 8.0;
-	];
+	[| (point 0.5 0.5), 0.5;
+	   (point 1.0 1.0), 1.0;
+	   (point 2.0 2.0), 2.0;
+	   (point 4.0 3.5), 4.0;
+	   (point 8.0 5.5), 8.0;
+	|];
     ]
 
 

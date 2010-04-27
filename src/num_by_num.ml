@@ -170,7 +170,7 @@ class virtual points_dataset ?name points =
 object
   inherit dataset ?name ()
 
-  val points = (points : point list)
+  val points = (points : point array)
     (** The list of points. *)
 
   method dimensions = points_rectangle points
@@ -222,7 +222,7 @@ object (self)
 	with the given [dst] rectangle, how far out-of-bounds will we
 	go in each direction. *)
     let tr = transform ~src ~dst in
-      List.fold_left
+      Array.fold_left
 	(fun r pt ->
 	   if rectangle_contains src pt
 	   then rectangle_max r (point_residue dst (tr pt) radius)
@@ -232,10 +232,15 @@ object (self)
 
   method draw ctx ~src ~dst rank =
     let tr = transform ~src ~dst in
-    let pts = List.map tr (List.filter (rectangle_contains src) points) in
-      draw_points ctx ~color radius (self#glyph rank) pts
+    let pts = ref [] in
+      for i = (Array.length points) - 1 downto 0 do
+	let pt = points.(i) in
+	  if rectangle_contains src pt then pts := (tr pt) :: !pts;
+      done;
+      draw_points ctx ~color radius (self#glyph rank) !pts
 
   method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
+
 end
 
 (** {3 Line dataset} ****************************************)
@@ -274,8 +279,11 @@ object (self)
 
   method draw ctx ~src ~dst rank =
     let tr = transform ~src ~dst in
-    let pts = List.map tr points in
-      draw_line ctx ~box:dst ~style:(self#style rank) pts
+    let pts = ref [] in
+      for i = (Array.length points) - 1 downto 0 do
+	pts := (tr points.(i)) :: !pts
+      done;
+      draw_line ctx ~box:dst ~style:(self#style rank) !pts
 
   method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
@@ -321,10 +329,10 @@ class bubble_dataset
 object (self)
   inherit dataset ?name ()
 
-  val triples = (triples : (point * float) list)
+  val triples = (triples : (point * float) array)
 
   method dimensions =
-    let pts = List.map fst triples in
+    let pts = Array.map fst triples in
       points_rectangle pts
 
 
@@ -332,10 +340,10 @@ object (self)
     (** [z_value_range] is the minimum and maximum z value of all
 	triples.  This is used for determining the radius of a
 	point. *)
-    List.fold_left (fun (min, max) (_, z) ->
-		      let min' = if z < min then z else min
-		      and max' = if z > max then z else max
-		      in min', max')
+    Array.fold_left (fun (min, max) (_, z) ->
+		       let min' = if z < min then z else min
+		       and max' = if z > max then z else max
+		       in min', max')
       (infinity, neg_infinity) triples
 
 
@@ -351,7 +359,7 @@ object (self)
 	go in each direction. *)
     let tr = transform ~src ~dst in
     let min_z, max_z = self#z_value_range in
-      List.fold_left
+      Array.fold_left
 	(fun r (pt, z) ->
 	   let pt' = tr pt in
 	     if rectangle_contains dst pt'
@@ -365,11 +373,11 @@ object (self)
   method draw ctx ~src ~dst _ =
     let tr = transform ~src ~dst in
     let min_z, max_z = self#z_value_range in
-      List.iter (fun (pt, z) ->
-		   let radius = self#radius ~min_z ~max_z z in
-		   let pt' = tr pt in
-		     if rectangle_contains src pt
-		     then draw_point ctx ~color radius glyph pt')
+      Array.iter (fun (pt, z) ->
+		    let radius = self#radius ~min_z ~max_z z in
+		    let pt' = tr pt in
+		      if rectangle_contains src pt
+		      then draw_point ctx ~color radius glyph pt')
 	triples
 
 
