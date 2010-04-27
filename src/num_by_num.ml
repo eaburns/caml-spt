@@ -77,19 +77,19 @@ object (self)
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
 	~y_max:(title_height +. Ml_plot.text_padding) in
-    let residue, _ =
+    let residual, _ =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
       List.fold_left
 	(fun (r, rank) ds ->
-	   rectangle_max r (ds#residue ctx ~src ~dst rank), rank + 1)
+	   rectangle_max r (ds#residual ctx ~src ~dst rank), rank + 1)
 	(zero_rectangle, 0) datasets
     in
       rectangle
-	~x_min:(dst.x_min +. residue.x_min)
-	~x_max:(dst.x_max -. residue.x_max)
-	~y_min:(dst.y_min -. residue.y_min)
-	~y_max:(dst.y_max +. residue.y_max)
+	~x_min:(dst.x_min +. residual.x_min)
+	~x_max:(dst.x_max -. residual.x_max)
+	~y_min:(dst.y_min -. residual.y_min)
+	~y_max:(dst.y_max +. residual.y_max)
 
 
   method private draw_x_axis ctx ~src ~dst =
@@ -143,9 +143,9 @@ object
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
 
-  method virtual residue :
+  method virtual residual :
     context -> src:rectangle -> dst:rectangle -> int -> rectangle
-    (** [residue ctx ~src ~dst rank] get a rectangle containing the
+    (** [residual ctx ~src ~dst rank] get a rectangle containing the
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction. *)
 
@@ -217,15 +217,15 @@ object (self)
     | Some g -> g
 
 
-  method residue ctx ~src ~dst _ =
-    (** [residue ctx ~src ~dst rank] if we were to plot this right now
-	with the given [dst] rectangle, how far out-of-bounds will we
-	go in each direction. *)
+  method residual ctx ~src ~dst _ =
+    (** [residual ctx ~src ~dst rank] if we were to plot this right
+	now with the given [dst] rectangle, how far out-of-bounds will
+	we go in each direction. *)
     let tr = transform ~src ~dst in
       Array.fold_left
 	(fun r pt ->
 	   if rectangle_contains src pt
-	   then rectangle_max r (point_residue dst (tr pt) radius)
+	   then rectangle_max r (point_residual dst (tr pt) radius)
 	   else r)
 	zero_rectangle points
 
@@ -275,7 +275,7 @@ object (self)
       line_width = width;
     }
 
-  method residue _ ~src:_ ~dst _ = zero_rectangle
+  method residual _ ~src:_ ~dst _ = zero_rectangle
 
   method draw ctx ~src ~dst rank =
     let tr = transform ~src ~dst in
@@ -304,10 +304,10 @@ object
 
   method dimensions = rectangle_extremes scatter#dimensions line#dimensions
 
-  method residue ctx ~src ~dst rank =
+  method residual ctx ~src ~dst rank =
     rectangle_extremes
-      (line#residue ctx ~src ~dst rank)
-      (scatter#residue ctx ~src ~dst rank)
+      (line#residual ctx ~src ~dst rank)
+      (scatter#residual ctx ~src ~dst rank)
 
   method draw ctx ~src ~dst rank =
     line#draw ctx ~src ~dst rank;
@@ -353,10 +353,10 @@ object (self)
     scale_value ~min:min_z ~max:max_z ~min':min_radius ~max':max_radius ~vl
 
 
-  method residue ctx ~src ~dst _ =
-    (** [residue ctx ~src ~dst rank] if we were to plot this right now
-	with the given [dst] rectangle, how far out-of-bounds will we
-	go in each direction. *)
+  method residual ctx ~src ~dst _ =
+    (** [residual ctx ~src ~dst rank] if we were to plot this right
+	now with the given [dst] rectangle, how far out-of-bounds will
+	we go in each direction. *)
     let tr = transform ~src ~dst in
     let min_z, max_z = self#z_value_range in
       Array.fold_left
@@ -365,7 +365,7 @@ object (self)
 	     if rectangle_contains dst pt'
 	     then begin
 	       let radius = self#radius ~min_z ~max_z z
-	       in rectangle_max r (point_residue dst pt' radius)
+	       in rectangle_max r (point_residual dst pt' radius)
 	     end else r)
 	zero_rectangle triples
 

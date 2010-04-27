@@ -128,9 +128,9 @@ let points_rectangle pts =
   in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
-let point_residue dst pt radius =
-  (** [point_residue dst pt radius] gets the amount that the point will
-      draw over the edge of the destination rectangle in each
+let point_residual dst pt radius =
+  (** [point_residual dst pt radius] gets the amount that the point
+      will draw over the edge of the destination rectangle in each
       direction. *)
   let x = pt.x and y = pt.y in
   let x_min = x -. radius and x_max = x +. radius in
