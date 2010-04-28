@@ -4,6 +4,7 @@ Files:
 "src/geometry"
 "src/drawing"
 "src/numeric_axis"
+"src/statistics"
 "src/errbar"
 "src/num_by_num/num_by_num_dataset"
 "src/num_by_num/scatter_dataset"
