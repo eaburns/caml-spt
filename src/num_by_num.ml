@@ -201,7 +201,7 @@ class scatter_dataset ?glyph ?(color=black) ?(radius=0.012) ?name points =
 object (self)
   inherit points_dataset ?name points
 
-  method glyph rank = match glyph with
+  method private glyph rank = match glyph with
       (** [glyph rank] the glyph to use for this dataset. *)
     | None -> glyphs.(rank)
     | Some g -> g
@@ -457,7 +457,7 @@ object (self)
 		    let pt = point t.i t.j in
 		      if rectangle_contains src pt
 		      then begin
-			let mag = range_scale (xrange src) (xrange dst) t.k in
+			let mag = range_scale (yrange src) (yrange dst) t.k in
 			let pt' = tr pt in
 			let pt0 = { pt' with y = pt'.y -. mag }
 			and pt1 = { pt' with y = pt'.y +. mag } in
