@@ -182,20 +182,6 @@ let glyphs =
      Cross_glyph;
   |]
 
-
-(*
-let glyphs =
-  (** The default glyphs for scatter plots. *)
-  [| Char_glyph '1';
-     Char_glyph '2';
-     Char_glyph '3';
-     Char_glyph '4';
-     Char_glyph '5';
-     Char_glyph '6';
-     Char_glyph '7';
-  |]
-*)
-
 class scatter_dataset ?glyph ?(color=black) ?(radius=0.012) ?name points =
   (** A scatter plot dataset. *)
 object (self)
