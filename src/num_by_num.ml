@@ -383,8 +383,6 @@ object (self)
   inherit errorbar_dataset triples
 
   method dimensions =
-    (** [dimensions] is the dimensions of this dataset in
-	data-coordinates. *)
     Array.fold_left
       (fun r t ->
 	 let low = t.j -. t.k and high = t.j +. t.k in
@@ -398,10 +396,6 @@ object (self)
 
 
   method residual ctx ~src ~dst rank = zero_rectangle
-    (** [residual ctx ~src ~dst rank] get a rectangle containing the
-	maximum amount the dataset will draw off of the destination
-	rectangle in each direction. *)
-
 
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
@@ -430,8 +424,6 @@ object
   inherit errorbar_dataset triples
 
   method dimensions =
-    (** [dimensions] is the dimensions of this dataset in
-	data-coordinates. *)
     Array.fold_left
       (fun r t ->
 	 let low = t.i -. t.k and high = t.i +. t.k in
@@ -445,10 +437,6 @@ object
 
 
   method residual ctx ~src ~dst rank = zero_rectangle
-    (** [residual ctx ~src ~dst rank] get a rectangle containing the
-	maximum amount the dataset will draw off of the destination
-	rectangle in each direction. *)
-
 
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
