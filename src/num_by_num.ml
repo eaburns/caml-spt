@@ -381,7 +381,7 @@ end
 (** {2 Errorbar dataset} ****************************************)
 
 
-let errorbar_cap_size = 0.015
+let errorbar_cap_size = 0.008
   (** The size of the cap on an error bar. *)
 
 
@@ -405,13 +405,13 @@ end
 
 (** {3 Vertical error bars} ****************************************)
 
-let vertical_clip dst pt =
-  (** [vertical_clip dst pt] clip the point vertically. *)
-  if pt.y < dst.y_max
-  then { pt with y = dst.y_max }
+let vertical_clip src pt =
+  (** [vertical_clip src pt] clip the point vertically. *)
+  if pt.y > src.y_max
+  then { pt with y = src.y_max }
   else
-    if pt.y > dst.y_min
-    then { pt with y = dst.y_min }
+    if pt.y < src.y_min
+    then { pt with y = src.y_min }
     else pt
 
 
@@ -423,14 +423,14 @@ object (self)
   method dimensions =
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
-    Array.fold_left (fun r t ->
-		       let low = t.j -. t.k
-		       and high = t.j +. t.k
-		       and x = t.i in
-		       let rect =
-			 rectangle ~x_min:x ~x_max:x ~y_min:low ~y_max:high
-		       in rectangle_extremes r rect)
-      (rectangle ~x_min:infinity ~x_max:neg_infinity
+    Array.fold_left
+      (fun r t ->
+	 let low = t.j -. t.k and high = t.j +. t.k in
+	 let x = t.i in
+	 let rect = rectangle ~x_min:x ~x_max:x ~y_min:low ~y_max:high
+	 in rectangle_extremes r rect)
+      (rectangle
+	 ~x_min:infinity ~x_max:neg_infinity
 	 ~y_min:infinity ~y_max:neg_infinity)
       triples
 
@@ -441,33 +441,25 @@ object (self)
 	rectangle in each direction. *)
 
 
-  method private draw_cap ctx dst pt =
-    (** [draw_cap ctx dst pt] draws a cap at the given point. *)
-    if rectangle_contains dst pt
-    then begin
-      draw_line ctx [ point (pt.x -. errorbar_cap_size) pt.y;
-		      point (pt.x +. errorbar_cap_size) pt.y; ]
-    end
-
-
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
     let tr = rectangle_transform ~src ~dst in
-      Array.iter (fun t ->
-		    let pt = point t.i t.j in
-		      if rectangle_contains src pt
-		      then begin
-			let mag = range_scale (yrange src) (yrange dst) t.k in
-			let pt' = tr pt in
-			let pt0 = { pt' with y = pt'.y -. mag }
-			and pt1 = { pt' with y = pt'.y +. mag } in
-			let pt0' = vertical_clip dst pt0
-			and pt1' = vertical_clip dst pt1 in
-			  draw_line ctx ~style:errorbar_line_style
-			    [pt0'; pt1'];
-			  self#draw_cap ctx dst pt0;
-			  self#draw_cap ctx dst pt1
-		      end)
+      Array.iter (fun t -> let pt = point t.i t.j in
+		    if rectangle_contains src pt
+		    then begin
+		      let pt0 = { pt with y = t.j +. t.k }
+		      and pt1 = { pt with y = t.j -. t.k } in
+		      let pt0' = tr (vertical_clip src pt0)
+		      and pt1' = tr (vertical_clip src pt1) in
+		      let x0 = pt0'.x -. errorbar_cap_size
+		      and x1 = pt0'.x +. errorbar_cap_size in
+		      let y0 = pt0'.y and y1 = pt1'.y in
+			draw_line ctx ~style:errorbar_line_style [pt0'; pt1'];
+			if pt0.y <= src.y_max
+			then draw_line ctx [ point x0 y0; point x1 y0; ];
+			if pt1.y >= src.y_min
+			then draw_line ctx [ point x0 y1; point x1 y1; ];
+		    end)
 	triples
 
 
@@ -478,6 +470,16 @@ end
 
 (** {3 Horizontal error bars} ****************************************)
 
+let horizontal_clip src pt =
+  (** [horizontal_clip src pt] clip the point horizontally. *)
+  if pt.x > src.x_max
+  then { pt with x = src.x_max }
+  else
+    if pt.x < src.x_min
+    then { pt with x = src.x_min }
+    else pt
+
+
 class horizontal_errorbar_dataset triples =
   (** A set of horizontal error bars. *)
 object
@@ -486,14 +488,14 @@ object
   method dimensions =
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
-    Array.fold_left (fun r t ->
-		       let low = t.i -. t.k
-		       and high = t.i +. t.k
-		       and y = t.j in
-		       let rect =
-			 rectangle ~x_min:low ~x_max:high ~y_min:y ~y_max:y
-		       in rectangle_extremes r rect)
-      (rectangle ~x_min:infinity ~x_max:neg_infinity
+    Array.fold_left
+      (fun r t ->
+	 let low = t.i -. t.k and high = t.i +. t.k in
+	 let y = t.j in
+	 let rect = rectangle ~x_min:low ~x_max:high ~y_min:y ~y_max:y
+	 in rectangle_extremes r rect)
+      (rectangle
+	 ~x_min:infinity ~x_max:neg_infinity
 	 ~y_min:infinity ~y_max:neg_infinity)
       triples
 
@@ -504,8 +506,26 @@ object
 	rectangle in each direction. *)
 
 
-  method draw ctx ~src ~dst rank = ()
+  method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
+    let tr = rectangle_transform ~src ~dst in
+      Array.iter (fun t -> let pt = point t.i t.j in
+		    if rectangle_contains src pt
+		    then begin
+		      let pt0 = { pt with x = t.i +. t.k }
+		      and pt1 = { pt with x = t.i -. t.k } in
+		      let pt0' = tr (vertical_clip src pt0)
+		      and pt1' = tr (vertical_clip src pt1) in
+		      let y0 = pt0'.y -. errorbar_cap_size
+		      and y1 = pt0'.y +. errorbar_cap_size in
+		      let x0 = pt0'.x and x1 = pt1'.x in
+			draw_line ctx ~style:errorbar_line_style [pt0'; pt1'];
+			if pt0.x <= src.x_max
+			then draw_line ctx [ point x0 y0; point x0 y1; ];
+			if pt1.x >= src.x_min
+			then draw_line ctx [ point x1 y0; point x1 y1; ];
+		    end)
+	triples
 
 
   method draw_legend_entry _ ~x ~y _ = failwith "Unimplemented"
