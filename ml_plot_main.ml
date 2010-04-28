@@ -96,7 +96,7 @@ let numeric_plot () =
 
 let main () =
 
-  let size = 400 in
+  let size = 800 in
   let sizef = float size in
   let surface =
     Cairo.image_surface_create Cairo.FORMAT_ARGB32 ~width:size ~height:size
