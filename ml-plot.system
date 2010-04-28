@@ -4,6 +4,7 @@ Files:
 "src/geometry"
 "src/drawing"
 "src/numeric_axis"
+"src/errbar"
 "src/num_by_num"
 "src/num_by_nom"
 "src/ml_plot"

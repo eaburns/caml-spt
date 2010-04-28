@@ -380,20 +380,6 @@ end
 
 (** {2 Errorbar dataset} ****************************************)
 
-
-let errorbar_cap_size = 0.008
-  (** The size of the cap on an error bar. *)
-
-
-let errorbar_line_style =
-  (** The line style for an error bar. *)
-  {
-    line_color = black;
-    line_width = 0.002;
-    line_dashes = [| |];
-  }
-
-
 class virtual errorbar_dataset triples =
   (** A dataset that consists of a bunch of error bars. *)
 object
@@ -404,16 +390,6 @@ object
 end
 
 (** {3 Vertical error bars} ****************************************)
-
-let vertical_clip src pt =
-  (** [vertical_clip src pt] clip the point vertically. *)
-  if pt.y > src.y_max
-  then { pt with y = src.y_max }
-  else
-    if pt.y < src.y_min
-    then { pt with y = src.y_min }
-    else pt
-
 
 class vertical_errorbar_dataset triples =
   (** A set of vertical error bars. *)
@@ -443,22 +419,14 @@ object (self)
 
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
-    let tr = rectangle_transform ~src ~dst in
-      Array.iter (fun t -> let pt = point t.i t.j in
-		    if rectangle_contains src pt
+    let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
+      Array.iter (fun t ->
+		    if rectangle_contains src (point t.i t.j)
 		    then begin
-		      let pt0 = { pt with y = t.j +. t.k }
-		      and pt1 = { pt with y = t.j -. t.k } in
-		      let pt0' = tr (vertical_clip src pt0)
-		      and pt1' = tr (vertical_clip src pt1) in
-		      let x0 = pt0'.x -. errorbar_cap_size
-		      and x1 = pt0'.x +. errorbar_cap_size in
-		      let y0 = pt0'.y and y1 = pt1'.y in
-			draw_line ctx ~style:errorbar_line_style [pt0'; pt1'];
-			if pt0.y <= src.y_max
-			then draw_line ctx [ point x0 y0; point x1 y0; ];
-			if pt1.y >= src.y_min
-			then draw_line ctx [ point x0 y1; point x1 y1; ];
+		      let src = yrange src and dst = yrange dst in
+		      let x = tr t.i and y = t.j and mag = t.k in
+			Errbar.draw_up ctx ~src ~dst ~x ~y mag;
+			Errbar.draw_down ctx ~src ~dst ~x ~y mag;
 		    end)
 	triples
 
@@ -469,16 +437,6 @@ end
 
 
 (** {3 Horizontal error bars} ****************************************)
-
-let horizontal_clip src pt =
-  (** [horizontal_clip src pt] clip the point horizontally. *)
-  if pt.x > src.x_max
-  then { pt with x = src.x_max }
-  else
-    if pt.x < src.x_min
-    then { pt with x = src.x_min }
-    else pt
-
 
 class horizontal_errorbar_dataset triples =
   (** A set of horizontal error bars. *)
@@ -508,22 +466,14 @@ object
 
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
-    let tr = rectangle_transform ~src ~dst in
-      Array.iter (fun t -> let pt = point t.i t.j in
-		    if rectangle_contains src pt
+    let tr = range_transform ~src:(yrange src) ~dst:(yrange dst) in
+      Array.iter (fun t ->
+		    if rectangle_contains src (point t.i t.j)
 		    then begin
-		      let pt0 = { pt with x = t.i +. t.k }
-		      and pt1 = { pt with x = t.i -. t.k } in
-		      let pt0' = tr (vertical_clip src pt0)
-		      and pt1' = tr (vertical_clip src pt1) in
-		      let y0 = pt0'.y -. errorbar_cap_size
-		      and y1 = pt0'.y +. errorbar_cap_size in
-		      let x0 = pt0'.x and x1 = pt1'.x in
-			draw_line ctx ~style:errorbar_line_style [pt0'; pt1'];
-			if pt0.x <= src.x_max
-			then draw_line ctx [ point x0 y0; point x0 y1; ];
-			if pt1.x >= src.x_min
-			then draw_line ctx [ point x1 y0; point x1 y1; ];
+		      let src = xrange src and dst = xrange dst in
+		      let x = t.i and y = tr t.j and mag = t.k in
+			Errbar.draw_left ctx ~src ~dst ~x ~y mag;
+			Errbar.draw_right ctx ~src ~dst ~x ~y mag;
 		    end)
 	triples
 
