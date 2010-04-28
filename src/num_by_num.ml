@@ -366,7 +366,7 @@ end
 
 (** {2 Errorbar dataset} ****************************************)
 
-class virtual errorbar_dataset triples =
+class virtual errbar_dataset triples =
   (** A dataset that consists of a bunch of error bars. *)
 object
   inherit dataset ()
@@ -377,10 +377,10 @@ end
 
 (** {3 Vertical error bars} ****************************************)
 
-class vertical_errorbar_dataset triples =
+class vertical_errbar_dataset triples =
   (** A set of vertical error bars. *)
 object (self)
-  inherit errorbar_dataset triples
+  inherit errbar_dataset triples
 
   method dimensions =
     Array.fold_left
@@ -418,10 +418,10 @@ end
 
 (** {3 Horizontal error bars} ****************************************)
 
-class horizontal_errorbar_dataset triples =
+class horizontal_errbar_dataset triples =
   (** A set of horizontal error bars. *)
 object
-  inherit errorbar_dataset triples
+  inherit errbar_dataset triples
 
   method dimensions =
     Array.fold_left
