@@ -1,0 +1,7 @@
+To build:
+
+ocamlbuild ml_plot_main.byte
+or
+ocamlbuild ml_plot_main.native
+or
+ocm
