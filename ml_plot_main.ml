@@ -47,7 +47,6 @@ let numeric_plot () =
     ~xlabel:"X label text"
     ~ylabel:"Y label text"
     [
-(*
       new Num_by_num.line_points_dataset ~name:"ds0"
 	[| point 0.5 6.0;
 	   point 1.3 2.0;
@@ -70,7 +69,6 @@ let numeric_plot () =
 	   point 5.1415926535 1.7;
 	   point 9.0 8.12;
 	|];
-*)
       new Num_by_num.bubble_dataset ~name:"ds4"
 	~color:(color ~r:1. ~g:0. ~b:0. ~a:0.5)
 	[| triple 0.5 0.5 0.5;
@@ -79,7 +77,6 @@ let numeric_plot () =
 	   triple 4.0 3.5 4.0;
 	   triple 8.0 5.5 8.0;
 	|];
-
       new Num_by_num.vertical_errorbar_dataset
 	[| triple 0.5 0.5 (0.5 /. 2.);
 	   triple 1.0 1.0 (1.0 /. 2.);
