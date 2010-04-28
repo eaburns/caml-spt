@@ -118,6 +118,7 @@ object (self)
 
 end
 
+include Errbar_dataset
 include Scatter_dataset
 include Line_dataset
 include Bubble_dataset

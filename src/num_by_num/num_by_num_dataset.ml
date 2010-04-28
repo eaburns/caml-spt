@@ -52,5 +52,3 @@ object
   method dimensions = points_rectangle points
     (** [dimensions] gets the rectangle around the points. *)
 end
-
-

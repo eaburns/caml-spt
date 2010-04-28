@@ -77,14 +77,14 @@ let numeric_plot () =
 	   triple 4.0 3.5 4.0;
 	   triple 8.0 5.5 8.0;
 	|];
-      new Errbar.vertical_errbar_dataset
+      new Num_by_num.vertical_errbar_dataset
 	[| triple 0.5 0.5 (0.5 /. 2.);
 	   triple 1.0 1.0 (1.0 /. 2.);
 	   triple 2.0 2.0 (2.0 /. 2.);
 	   triple 4.0 3.5 (4.0 /. 2.);
 	   triple 8.0 5.5 (8.0 /. 2.);
 	|];
-      new Errbar.horizontal_errbar_dataset
+      new Num_by_num.horizontal_errbar_dataset
 	[| triple 0.5 0.5 (0.5 /. 3.);
 	   triple 1.0 1.0 (1.0 /. 3.);
 	   triple 2.0 2.0 (2.0 /. 3.);
