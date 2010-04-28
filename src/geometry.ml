@@ -30,7 +30,7 @@ type triple = {
 }
 
 
-type scale = {
+type range = {
   min : float;
   max : float;
 }
@@ -48,8 +48,8 @@ let triple ~i ~j ~k = { i = i; j = j; k = k }
   (** [triple ~i ~j ~k] makes a 3-dimensional point. *)
 
 
-let scale ~min ~max = { min = min; max = max }
-  (** [scale ~min ~max] creates a new scale. *)
+let range ~min ~max = { min = min; max = max }
+  (** [range ~min ~max] creates a new range. *)
 
 
 let rectangle ~x_min ~x_max ~y_min ~y_max =
@@ -67,8 +67,8 @@ let zero_rectangle = rectangle 0. 0. 0. 0.
   (** A rectangle with no dimensions. *)
 
 
-let scale_value ~src ~dst vl =
-  (** [scale_value ~src ~dst vl] converts [vl] from the initial scale
+let range_transform ~src ~dst vl =
+  (** [range_transform ~src ~dst vl] converts [vl] from the initial scale
       to the new scale. *)
   let min = src.min and min' = dst.min in
   let diff = src.max -. min and diff' = dst.max -. min' in
@@ -76,17 +76,24 @@ let scale_value ~src ~dst vl =
     ((vl -. min) *. s) +. min'
 
 
-let xscale rect = scale rect.x_min rect.x_max
-  (** [xscale rect] gets the scale of the x values from the rectangle. *)
+let range_scale ~src ~dst vl =
+  (** [range_scale ~src ~dst vl] scales the value to the new range. *)
+  let d = abs_float (dst.max -. dst.min)
+  and s = abs_float (src.max -. src.min)
+  in vl *. (d /. s)
 
 
-let yscale rect = scale rect.y_min rect.y_max
-  (** [yscale rect] gets the scale of the y values from the rectangle. *)
+let xrange rect = range rect.x_min rect.x_max
+  (** [xrange rect] gets the range of the x values from the rectangle. *)
 
 
-let transform ~src ~dst =
-  (** [transform ~src ~dst pt] transforms a point drawn on the [src]
-      rectangle to a point on the [dst] rectangle. *)
+let yrange rect = range rect.y_min rect.y_max
+  (** [yrange rect] gets the range of the y values from the rectangle. *)
+
+
+let rectangle_transform ~src ~dst =
+  (** [rectangle_transform ~src ~dst pt] transforms a point drawn on
+      the [src] rectangle to a point on the [dst] rectangle. *)
   let src_x_min = src.x_min
   and dst_x_min = dst.x_min
   and src_y_min = src.y_min

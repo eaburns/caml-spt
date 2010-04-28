@@ -36,10 +36,10 @@ let axis_padding = 0.05
 
 (** {1 Tick marks} ****************************************)
 
-let tick_locations scl =
-  (** [tick_locations scl] computes the location of tick marks on a
-      numeric axis with the given scale. *)
-  let min = scl.min and max = scl.max in
+let tick_locations rng =
+  (** [tick_locations rng] computes the location of tick marks on a
+      numeric axis with the given range. *)
+  let min = rng.min and max = rng.max in
   let tick major vl = vl, if major then Some (sprintf "%.2f" vl) else None in
     [ tick true min;
       tick false (min +. ((max -. min) *. 0.25));
@@ -101,8 +101,8 @@ let resize_for_x_axis
       | None -> 0.
       | Some txt ->
 	  let width, _ = text_dimensions ctx ~style:tick_style txt in
-	  let scale = scale_value ~src ~dst in
-	  let x = scale vl in
+	  let tr = range_transform ~src ~dst in
+	  let x = tr vl in
 	  let over = (x +. (width /. 2.)) -. dst.max in
 	    if over > 0. then over else 0.
   in
@@ -139,7 +139,7 @@ let draw_x_axis
       destination x-coordinate system.  [y] is the bottom y-coordinate
       of the axis label. *)
   let tick_text_height = max_tick_text_height ctx tick_style ticks in
-  let scale = scale_value ~src ~dst in
+  let tr = range_transform ~src ~dst in
   let h = match label with
     | None -> 0.
     | Some label ->
@@ -148,7 +148,7 @@ let draw_x_axis
 	  h
   in
   let y' = y -. h -. pad -. tick_text_height -. pad -. tick_length in
-    List.iter (draw_x_tick ctx tick_style ~pad ~y:y' scale) ticks;
+    List.iter (draw_x_tick ctx tick_style ~pad ~y:y' tr) ticks;
     draw_line ctx ~style:axis_style [ point dst.min y'; point dst.max y'; ]
 
 
@@ -171,10 +171,10 @@ let resize_for_y_axis ctx ~label_style ~tick_style ~pad ~x_min label ticks =
     +. axis_padding
 
 
-let draw_y_tick ctx style ~pad ~x scale (vl, t_opt) =
-  (** [draw_y_tick ctx style ~pad ~x scale t]
+let draw_y_tick ctx style ~pad ~x tr (vl, t_opt) =
+  (** [draw_y_tick ctx style ~pad ~x tr t]
       draws a y-tick with the left at the given [x] location.. *)
-  let y = scale vl in
+  let y = tr vl in
   let len = if t_opt = None then tick_length /. 2. else tick_length in
     draw_line ctx ~style:tick_style [ point x y; point (x -. len) y ];
     begin match t_opt with
@@ -187,12 +187,10 @@ let draw_y_tick ctx style ~pad ~x scale (vl, t_opt) =
 let draw_y_axis
     ctx ~tick_style ~label_style ~pad ~x ~src ~dst label ticks =
   (** [draw_y_axis ctx ~tick_style ~label_style ~pad ~x ~src ~dst
-      label ticks] draws a y-axis. [scale] is a function that converts
-      a y-value in the original data coordinates to the destination
-      y-coordinate system.  [x] is the left x-coordinate of the axis
-      label. *)
+      label ticks] draws a y-axis. [x] is the left x-coordinate of the
+      axis label. *)
   let tick_text_width = max_tick_text_width ctx tick_style ticks in
-  let scale = scale_value ~src ~dst in
+  let tr = range_transform ~src ~dst in
   let h = match label with
     | None -> 0.
     | Some label ->
@@ -201,5 +199,5 @@ let draw_y_axis
 	  h
   in
   let x' = x +. h +. pad +. tick_text_width +. pad +. tick_length in
-    List.iter (draw_y_tick ctx tick_style ~pad ~x:x' scale) ticks;
+    List.iter (draw_y_tick ctx tick_style ~pad ~x:x' tr) ticks;
     draw_line ctx ~style:axis_style [ point x' dst.min; point x' dst.max; ]

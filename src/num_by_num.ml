@@ -27,8 +27,8 @@ object (self)
     (** The list of datasets. *)
 
 
-  method private scales =
-    (** [scales] computes the scale of the x and y axes. *)
+  method private ranges =
+    (** [ranges] computes the range of the x and y axes. *)
     let r = match datasets with
       | d :: [] -> d#dimensions
       | d :: ds ->
@@ -47,12 +47,12 @@ object (self)
 
   method private xticks =
     (** [xticks] computes the location of the x-axis tick marks. *)
-    Numeric_axis.tick_locations (xscale self#scales)
+    Numeric_axis.tick_locations (xrange self#ranges)
 
 
   method private yticks =
     (** [yticks] computes the location of the y-axis tick marks. *)
-    Numeric_axis.tick_locations (yscale self#scales)
+    Numeric_axis.tick_locations (yrange self#ranges)
 
 
   method private dest_rectangle ctx =
@@ -62,11 +62,11 @@ object (self)
       match title with
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
-    let src = self#scales in
+    let src = self#ranges in
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
 	ctx ~label_style ~tick_style ~pad:Ml_plot.text_padding
-	~y_min:1. ~src:(xscale src) ~dst:(scale 0. 1.) xlabel self#xticks in
+	~y_min:1. ~src:(xrange src) ~dst:(range 0. 1.) xlabel self#xticks in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
 	~pad:Ml_plot.text_padding ~x_min:0. ylabel self#yticks in
@@ -92,20 +92,20 @@ object (self)
     (** [draw_x_axis ctx ~src ~dst] draws the x-axis. *)
     Numeric_axis.draw_x_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~y:1. ~src:(xscale src) ~dst:(xscale dst) xlabel self#xticks
+      ~y:1. ~src:(xrange src) ~dst:(xrange dst) xlabel self#xticks
 
 
   method private draw_y_axis ctx ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~x:0. ~src:(yscale src) ~dst:(yscale dst) ylabel self#yticks
+      ~x:0. ~src:(yrange src) ~dst:(yrange dst) ylabel self#yticks
 
 
   method draw ctx =
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
-    let src = self#scales in
+    let src = self#ranges in
     let dst = self#dest_rectangle ctx in
       begin match title with
 	| None -> ()
@@ -211,7 +211,7 @@ object (self)
     (** [residual ctx ~src ~dst rank] if we were to plot this right
 	now with the given [dst] rectangle, how far out-of-bounds will
 	we go in each direction. *)
-    let tr = transform ~src ~dst in
+    let tr = rectangle_transform ~src ~dst in
       Array.fold_left
 	(fun r pt ->
 	   if rectangle_contains src pt
@@ -221,7 +221,7 @@ object (self)
 
 
   method draw ctx ~src ~dst rank =
-    let tr = transform ~src ~dst in
+    let tr = rectangle_transform ~src ~dst in
     let pts = ref [] in
       for i = (Array.length points) - 1 downto 0 do
 	let pt = points.(i) in
@@ -268,7 +268,7 @@ object (self)
   method residual _ ~src:_ ~dst _ = zero_rectangle
 
   method draw ctx ~src ~dst rank =
-    let tr = transform ~src ~dst in
+    let tr = rectangle_transform ~src ~dst in
     let pts = ref [] in
       for i = (Array.length points) - 1 downto 0 do
 	pts := (tr points.(i)) :: !pts
@@ -327,8 +327,8 @@ object (self)
       points_rectangle pts
 
 
-  method private z_scale =
-    (** [z_scale] is the minimum and maximum z value of all triples.
+  method private z_range =
+    (** [z_range] is the minimum and maximum z value of all triples.
 	This is used for determining the radius of a point. *)
     let min, max =
       Array.fold_left (fun (min, max) t ->
@@ -337,37 +337,37 @@ object (self)
 			 and max' = if z > max then z else max
 			 in min', max')
 	(infinity, neg_infinity) triples
-    in scale ~min ~max
+    in range ~min ~max
 
 
-  method private radius zscale vl =
-    (** [compute_radius zscale vl] gets the radius of the point. *)
-    let rscale = scale min_radius max_radius in
-      scale_value ~src:zscale ~dst:rscale vl
+  method private radius zrange vl =
+    (** [compute_radius zrange vl] gets the radius of the point. *)
+    let rrange = range min_radius max_radius in
+      range_transform ~src:zrange ~dst:rrange vl
 
 
   method residual ctx ~src ~dst _ =
     (** [residual ctx ~src ~dst rank] if we were to plot this right
 	now with the given [dst] rectangle, how far out-of-bounds will
 	we go in each direction. *)
-    let tr = transform ~src ~dst in
-    let zscale = self#z_scale in
+    let tr = rectangle_transform ~src ~dst in
+    let zrange = self#z_range in
       Array.fold_left
 	(fun r t ->
 	   let pt' = tr (point t.i t.j) in
 	     if rectangle_contains dst pt'
 	     then begin
-	       let radius = self#radius zscale t.k
+	       let radius = self#radius zrange t.k
 	       in rectangle_max r (point_residual dst pt' radius)
 	     end else r)
 	zero_rectangle triples
 
 
   method draw ctx ~src ~dst _ =
-    let tr = transform ~src ~dst in
-    let zscale = self#z_scale in
+    let tr = rectangle_transform ~src ~dst in
+    let zrange = self#z_range in
       Array.iter (fun t ->
-		    let radius = self#radius zscale t.k in
+		    let radius = self#radius zrange t.k in
 		    let pt = point t.i t.j in
 		    let pt' = tr pt in
 		      if rectangle_contains src pt
@@ -427,7 +427,6 @@ object (self)
 		       let low = t.j -. t.k
 		       and high = t.j +. t.k
 		       and x = t.i in
-			 Printf.printf "low=%f, high=%f\n" low high;
 		       let rect =
 			 rectangle ~x_min:x ~x_max:x ~y_min:low ~y_max:high
 		       in rectangle_extremes r rect)
@@ -453,15 +452,12 @@ object (self)
 
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
-    let tr = transform ~src ~dst in
+    let tr = rectangle_transform ~src ~dst in
       Array.iter (fun t ->
 		    let pt = point t.i t.j in
 		      if rectangle_contains src pt
 		      then begin
-			let mag =
-			  let d = abs_float (dst.y_max -. dst.y_min)
-			  and s = abs_float (src.y_max -. src.y_min) in
-			  t.k *. (d /. s) in
+			let mag = range_scale (xrange src) (xrange dst) t.k in
 			let pt' = tr pt in
 			let pt0 = { pt' with y = pt'.y -. mag }
 			and pt1 = { pt' with y = pt'.y +. mag } in

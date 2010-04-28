@@ -22,20 +22,20 @@ let nominal_plot () =
       (object
 	 inherit Num_by_nom.dataset "Dataset one"
 	 method dimensions = 0., 0.
-	 method residual _ ~src ~dst _ _ = scale nan nan
+	 method residual _ ~src ~dst _ _ = range nan nan
 	 method draw _ ~src ~dst _ _ = ()
        end);
       (object
 	 inherit Num_by_nom.dataset "This is example dataset two"
 	 method dimensions = 0., 0.
-	 method residual _ ~src ~dst _ _ = scale nan nan
+	 method residual _ ~src ~dst _ _ = range nan nan
 	 method draw _ ~src ~dst _ _ = ()
        end);
       (object
 	 inherit Num_by_nom.dataset
 	   "Some third dataset that has a very long name"
 	 method dimensions = 0., 0.
-	 method residual _ ~src ~dst _ _ = scale nan nan
+	 method residual _ ~src ~dst _ _ = range nan nan
 	 method draw _ ~src ~dst _ _ = ()
        end);
     ]

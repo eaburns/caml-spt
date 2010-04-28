@@ -21,10 +21,10 @@ object (self)
 
   val datasets = datasets
 
-  method private scale =
-    (** [scale] computes the scale of the y axis. *)
+  method private range =
+    (** [range] computes the range of the y axis. *)
     match y_min, y_max with
-      | Some min, Some max -> scale ~min ~max
+      | Some min, Some max -> range ~min ~max
       | _ ->
 	  let min, max =
 	    List.fold_left (fun (min, max) ds ->
@@ -33,12 +33,12 @@ object (self)
 			      and max' = if ds_max > max then ds_max else max
 			      in min', max')
 	      (infinity, neg_infinity) datasets
-	  in scale ~min ~max
+	  in range ~min ~max
 
 
   method private yticks =
     (** [yticks] computes the location of the y-axis tick marks. *)
-    Numeric_axis.tick_locations self#scale
+    Numeric_axis.tick_locations self#range
 
 
   method private x_axis_dimensions ctx =
@@ -51,11 +51,11 @@ object (self)
     in
     let n = List.length datasets in
     let width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
-      scale x_min x_max, width
+      range x_min x_max, width
 
 
-  method private dest_y_scale ctx ~y_min ~y_max ~width =
-    (** [dest_y_scale ctx ~y_min ~y_max ~width] get the scale on the
+  method private dest_y_range ctx ~y_min ~y_max ~width =
+    (** [dest_y_range ctx ~y_min ~y_max ~width] get the range on the
 	y-axis.  [width] is the amount of width afforded to each
 	dataset on the x-axis. *)
     let title_height =
@@ -68,7 +68,7 @@ object (self)
 			  if h > m then h else m)
 	0. datasets
     in
-      scale
+      range
 	(1. -. Numeric_axis.axis_padding -. data_label_height)
 	(title_height +. Ml_plot.text_padding)
 
@@ -81,28 +81,28 @@ object (self)
       ~x:0. ~src ~dst ylabel self#yticks
 
 
-  method private draw_x_axis ctx ~y ~xscale ~width =
-    (** [draw_x_axis ctx ~y ~xscale ~width] draws the x-axis. *)
+  method private draw_x_axis ctx ~y ~xrange ~width =
+    (** [draw_x_axis ctx ~y ~xrange ~width] draws the x-axis. *)
     set_text_style ctx tick_style;
     ignore (List.fold_left
 	      (fun x ds ->
 		 ds#draw_x_label ctx ~x ~y ~width;
 		 x +. width)
-	      (xscale.min +. (width /. 2.)) datasets)
+	      (xrange.min +. (width /. 2.)) datasets)
 
 
   method draw ctx =
     (** [draw ctx] draws the plot. *)
-    let src = self#scale in
-    let xscale, width = self#x_axis_dimensions ctx in
-    let dst = self#dest_y_scale ctx ~y_min ~y_max ~width in
+    let src = self#range in
+    let xrange, width = self#x_axis_dimensions ctx in
+    let dst = self#dest_y_range ctx ~y_min ~y_max ~width in
     let y = dst.min +. Numeric_axis.axis_padding in
       begin match title with
 	| None -> ()
 	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
       end;
       self#draw_y_axis ctx ~src ~dst;
-      self#draw_x_axis ctx ~y ~xscale ~width
+      self#draw_x_axis ctx ~y ~xrange ~width
 end
 
 
@@ -135,13 +135,13 @@ object
     (fun ctx ~x ~y ~width -> draw_fixed_width_text ctx ~x ~y ~width name)
 
   method virtual residual :
-    context -> src:scale -> dst:scale -> float -> int -> scale
+    context -> src:range -> dst:range -> float -> int -> range
     (** [residual ctx ~src ~dst width rank] get a rectangle containing the
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction. *)
 
   method virtual draw :
-    context -> src:scale -> dst:scale -> float -> int -> unit
+    context -> src:range -> dst:range -> float -> int -> unit
     (** [draw ctx ~src ~dst width rank] draws the dataset to the
 	plot. *)
 end
