@@ -117,6 +117,7 @@ object (self)
 end
 
 include Num_by_num_dataset
+include Label_dataset
 include Errbar_dataset
 include Scatter_dataset
 include Line_dataset

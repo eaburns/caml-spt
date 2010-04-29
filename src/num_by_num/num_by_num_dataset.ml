@@ -71,7 +71,7 @@ object
 
   method residual ctx ~src ~dst =
     List.fold_left (fun r ds ->
-		      rectangle_extremes r (ds#residual ctx ~src ~dst))
+		      rectangle_max r (ds#residual ctx ~src ~dst))
       zero_rectangle datasets
 
   method draw ctx ~src ~dst =

@@ -65,6 +65,11 @@ let num_by_num_plot () =
 	new Num_by_num.composite_dataset ~name:"ds0" [
 	  new Num_by_num.line_dataset ~name:"ds0" (next_dash ()) pts0;
 	  new Num_by_num.scatter_dataset ~name:"ds0" (next_glyph ()) pts0;
+	  new Num_by_num.label_dataset ~name:"ds0"
+	    (Array.mapi
+	       (fun i pt -> { pt with y = pt.y +. 1. },
+		  Printf.sprintf "lable-%d" i)
+	       pts0);
 	];
 	new Num_by_num.composite_dataset ~name:"ds1" [
 	  new Num_by_num.line_dataset ~name:"ds1" (next_dash ()) pts1;
