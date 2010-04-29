@@ -1,0 +1,35 @@
+                       Developer's README File
+
+                             Ethan Burns
+                              2010-04-29
+
+
+1.0 Kinds of data
+
+ There are a variety of different kinds of data.  We are concerned
+ with a few kinds: 1) Numeric data consists of floating point numbers,
+ 2) Nominal data is names or strings with no numeric relation to each
+ other like "OCaml", "C" and "Java", 3) Ordinal data is like nominal
+ data but in this case order matters like in the months of the year.
+
+ Typically a plot has two axes each showing for a single kind of data.
+ Since the scales are different, each kind of data needs a different
+ kind of axis.  Because of this, ml-plot uses a few (currently 2)
+ different types of plots: 1) numeric by numeric plots have two
+ numeric axes and 2) numeric by nominal plots have a nominal
+ horizontal axis and a numeric vertical axis.  A numeric by numeric
+ plot is used for plotting things like lines or points on a Cartesian
+ coordinate system.  Numeric by nominal plots are used for plotting
+ things like box plots where there are a variety of sets of scalar
+ numeric (hence "numeric") data each with a distinct name (hence "by
+ nominal").  Currently there is no specific support for ordinal data
+ (although this could be *hacked* into a numeric by nominal plot).
+
+2.0 Separation of libs
+
+ I think that it is beneficial to keep the references to external
+ libraries in a small number of easily findable places.  The Cairo
+ library is currently used to do all of the 2D drawing.  Preferably
+ all of the calls to Cairo will take place in the Drawing module or
+ maybe one or two other places.  This way we can easily change the
+ backend or even add new ones in the future.
