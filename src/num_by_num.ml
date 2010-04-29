@@ -21,7 +21,7 @@ class plot
       ?x_max ?y_min ?y_max datasets] a plot that has a numeric x and y
       axis. *)
 object (self)
-  inherit Ml_plot.plot
+  inherit Ml_plot.plot title
 
   val datasets = datasets
     (** The list of datasets. *)

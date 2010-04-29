@@ -296,6 +296,14 @@ let draw_rectangle ctx ?style r =
   Cairo.stroke ctx
 
 
+let fill_rectangle ctx ?(color=black) r =
+  (** [draw_rectangle ctx color r] draws the given rectangle. *)
+  set_color ctx color;
+  Cairo.rectangle ctx
+    r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
+  Cairo.fill ctx
+
+
 (** {1 Points} ****************************************)
 
 type glyph =

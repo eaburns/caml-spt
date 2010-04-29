@@ -1,4 +1,5 @@
 Systems:
+(* Nothing should ever go here. *)
 
 Files:
 "src/geometry"
@@ -16,11 +17,10 @@ Files:
 "src/ml_plot"
 
 Libraries:
-"cairo"
 "str"
 "lablgtk"
+"cairo"
 "cairo_lablgtk"
-"unix"
 
 CLibraries:
 "cairo"
