@@ -8,32 +8,39 @@ open Num_by_num_dataset
 open Drawing
 open Geometry
 
-let dashes =
-  (** The dash patterns for lines. *)
-  [|
-    [| |];
-    [| 0.01; 0.01; |];
-    [| 0.02; 0.02; |];
-    [| 0.04; 0.01; |];
-    [| 0.03; 0.02; 0.01; 0.02; |];
-    [| 0.03; 0.01; 0.01; 0.01; 0.01; 0.01; |];
-    [| 0.04; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; |];
-  |]
+let make_dash_factory dash_set () =
+  (** [make_dash_factory dash_set ()] makes a dash pattern factory. *)
+  let next = ref 0 in
+  let n = Array.length dash_set in
+    (fun () ->
+       let d = dash_set.(!next) in
+	 next := (!next + 1) mod n;
+	 d)
+
+let default_dash_factory =
+  (** [default_dash_factory] gets the default dash factory builder. *)
+  let default_dash_set =
+    [|
+      [| |];
+      [| 0.01; 0.01; |];
+      [| 0.02; 0.02; |];
+      [| 0.04; 0.01; |];
+      [| 0.03; 0.02; 0.01; 0.02; |];
+      [| 0.03; 0.01; 0.01; 0.01; 0.01; 0.01; |];
+      [| 0.04; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; |];
+    |]
+  in make_dash_factory default_dash_set
 
 
-class line_dataset ?dash_pattern ?(width=0.002) ?(color=black) ?name points =
+class line_dataset dashes ?(width=0.002) ?(color=black) ?name points =
   (** A line plot dataset. *)
 object (self)
   inherit points_dataset ?name points
 
-  method style rank =
-    (** [style rank] get the style of the line *)
+  val style =
     {
       line_color = color;
-      line_dashes = begin match dash_pattern with
-	| None -> dashes.(rank mod (Array.length dashes))
-	| Some d -> d
-      end;
+      line_dashes = dashes;
       line_width = width;
     }
 
@@ -43,33 +50,5 @@ object (self)
       for i = (Array.length points) - 1 downto 0 do
 	pts := (tr points.(i)) :: !pts
       done;
-      draw_line ctx ~box:dst ~style:(self#style rank) !pts
+      draw_line ctx ~box:dst ~style:style !pts
 end
-
-
-(** {1 Line points dataset} ****************************************)
-
-
-class line_points_dataset
-  ?dash_pattern ?width ?glyph ?radius ?color
-  ?name points =
-  (** A line with points plot dataset. *)
-object
-  inherit dataset ?name ()
-
-  val line = new line_dataset ?dash_pattern ?width ?color points
-  val scatter =
-    new Scatter_dataset.scatter_dataset ?glyph ?radius ?color points
-
-  method dimensions = rectangle_extremes scatter#dimensions line#dimensions
-
-  method residual ctx ~src ~dst rank =
-    rectangle_extremes
-      (line#residual ctx ~src ~dst rank)
-      (scatter#residual ctx ~src ~dst rank)
-
-  method draw ctx ~src ~dst rank =
-    line#draw ctx ~src ~dst rank;
-    scatter#draw ctx ~src ~dst rank
-end
-

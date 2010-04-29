@@ -8,27 +8,37 @@ open Num_by_num_dataset
 open Geometry
 open Drawing
 
-let glyphs =
-  (** The default glyphs for scatter plots. *)
-  [| Circle_glyph;
-     Ring_glyph;
-     Plus_glyph;
-     Triangle_glyph;
-     Box_glyph;
-     Square_glyph;
-     Cross_glyph;
-  |]
+let make_glyph_factory glyph_set () =
+  (** [make_glyph_factory glyph_set ()] makes a glyph factory which
+      returns a new glyph at each call. *)
+  let next = ref 0 in
+  let n = Array.length glyph_set in
+    (fun () ->
+       let g = glyph_set.(!next) in
+	 next := (!next + 1) mod n;
+	 g)
 
-class scatter_dataset ?glyph ?(color=black) ?(radius=0.012) ?name points =
+
+let default_glyph_factory =
+  (** [default_glyph_factory] gets the default glyph factory
+      builder. *)
+  let default_glyph_set =
+    [| Circle_glyph;
+       Ring_glyph;
+       Plus_glyph;
+       Triangle_glyph;
+       Box_glyph;
+       Square_glyph;
+       Cross_glyph;
+    |]
+  in make_glyph_factory default_glyph_set
+
+
+
+class scatter_dataset glyph ?(color=black) ?(radius=0.012) ?name points =
   (** A scatter plot dataset. *)
 object (self)
   inherit points_dataset ?name points
-
-  method private glyph rank = match glyph with
-      (** [glyph rank] the glyph to use for this dataset. *)
-    | None -> glyphs.(rank)
-    | Some g -> g
-
 
   method residual ctx ~src ~dst _ =
     (** [residual ctx ~src ~dst rank] if we were to plot this right
@@ -50,7 +60,7 @@ object (self)
 	let pt = points.(i) in
 	  if rectangle_contains src pt then pts := (tr pt) :: !pts;
       done;
-      draw_points ctx ~color radius (self#glyph rank) !pts
+      draw_points ctx ~color radius glyph !pts
 
 end
 
