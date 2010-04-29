@@ -44,7 +44,7 @@ object (self)
       line_width = width;
     }
 
-  method draw ctx ~src ~dst rank =
+  method draw ctx ~src ~dst =
     let tr = rectangle_transform ~src ~dst in
     let pts = ref [] in
       for i = (Array.length points) - 1 downto 0 do

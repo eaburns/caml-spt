@@ -57,10 +57,10 @@ class scatter_dataset glyph ?(color=black) ?(radius=0.012) ?name points =
 object (self)
   inherit points_dataset ?name points
 
-  method residual ctx ~src ~dst _ =
-    (** [residual ctx ~src ~dst rank] if we were to plot this right
-	now with the given [dst] rectangle, how far out-of-bounds will
-	we go in each direction. *)
+  method residual ctx ~src ~dst =
+    (** [residual ctx ~src ~dst] if we were to plot this right now
+	with the given [dst] rectangle, how far out-of-bounds will we
+	go in each direction. *)
     let tr = rectangle_transform ~src ~dst in
       Array.fold_left
 	(fun r pt ->
@@ -70,7 +70,7 @@ object (self)
 	zero_rectangle points
 
 
-  method draw ctx ~src ~dst rank =
+  method draw ctx ~src ~dst =
     let tr = rectangle_transform ~src ~dst in
     let pts = ref [] in
       for i = (Array.length points) - 1 downto 0 do

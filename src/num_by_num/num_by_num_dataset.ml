@@ -20,21 +20,21 @@ object
 	data-coordinates. *)
 
   method residual
-    (_:context) ~(src:rectangle) ~(dst:rectangle) (_:int) = zero_rectangle
-    (** [residual ctx ~src ~dst rank] get a rectangle containing the
+    (_:context) ~(src:rectangle) ~(dst:rectangle) = zero_rectangle
+    (** [residual ctx ~src ~dst] get a rectangle containing the
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction. *)
 
 
   method virtual draw :
-    context -> src:rectangle -> dst:rectangle -> int -> unit
-    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
+    context -> src:rectangle -> dst:rectangle -> unit
+    (** [draw ctx ~src ~dst] draws the data to the plot. *)
 
 
-  method draw_legend_entry (_:context) ~(x:float) ~(y:float) (_:int) = y
-    (** [draw_legend_entry ctx ~x ~y rank] draws the legend entry to
-	the given location ([x] is the left-edge and [y] is top edge
-	of the destination) and the result is the y-coordinate of the
+  method draw_legend_entry (_:context) ~(x:float) ~(y:float) = y
+    (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the
+	given location ([x] is the left-edge and [y] is top edge of
+	the destination) and the result is the y-coordinate of the
 	bottom edge of the entry that was just drawn. *)
 end
 
@@ -69,12 +69,12 @@ object
      (rectangle ~x_min:infinity ~x_max:neg_infinity
 	~y_min:infinity ~y_max:neg_infinity) datasets
 
-  method residual ctx ~src ~dst rank =
+  method residual ctx ~src ~dst =
     List.fold_left (fun r ds ->
-		      rectangle_extremes r (ds#residual ctx ~src ~dst rank))
+		      rectangle_extremes r (ds#residual ctx ~src ~dst))
       zero_rectangle datasets
 
-  method draw ctx ~src ~dst rank =
-    List.iter (fun ds -> ds#draw ctx ~src ~dst rank) datasets
+  method draw ctx ~src ~dst =
+    List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets
 
 end

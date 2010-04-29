@@ -38,8 +38,8 @@ object (self)
       triples
 
 
-  method draw ctx ~src ~dst rank =
-    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
+  method draw ctx ~src ~dst =
+    (** [draw ctx ~src ~dst] draws the data to the plot. *)
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
       Array.iter (fun t ->
 		    if rectangle_contains src (point t.i t.j)
@@ -73,8 +73,8 @@ object
       triples
 
 
-  method draw ctx ~src ~dst rank =
-    (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
+  method draw ctx ~src ~dst =
+    (** [draw ctx ~src ~dst] draws the data to the plot. *)
     let tr = range_transform ~src:(yrange src) ~dst:(yrange dst) in
       Array.iter (fun t ->
 		    if rectangle_contains src (point t.i t.j)

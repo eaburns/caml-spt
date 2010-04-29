@@ -44,10 +44,7 @@ object (self)
       range_transform ~src:zrange ~dst:rrange vl
 
 
-  method residual ctx ~src ~dst _ =
-    (** [residual ctx ~src ~dst rank] if we were to plot this right
-	now with the given [dst] rectangle, how far out-of-bounds will
-	we go in each direction. *)
+  method residual ctx ~src ~dst =
     let tr = rectangle_transform ~src ~dst in
     let zrange = self#z_range in
       Array.fold_left
@@ -61,7 +58,7 @@ object (self)
 	zero_rectangle triples
 
 
-  method draw ctx ~src ~dst _ =
+  method draw ctx ~src ~dst =
     let tr = rectangle_transform ~src ~dst in
     let zrange = self#z_range in
       Array.iter (fun t ->

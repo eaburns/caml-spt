@@ -73,13 +73,12 @@ object (self)
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
 	~y_max:(title_height +. Ml_plot.text_padding) in
-    let residual, _ =
+    let residual =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
       List.fold_left
-	(fun (r, rank) ds ->
-	   rectangle_max r (ds#residual ctx ~src ~dst rank), rank + 1)
-	(zero_rectangle, 0) datasets
+	(fun r ds -> rectangle_max r (ds#residual ctx ~src ~dst))
+	zero_rectangle datasets
     in
       rectangle
 	~x_min:(dst.x_min +. residual.x_min)
@@ -113,8 +112,7 @@ object (self)
       end;
       self#draw_x_axis ctx ~src ~dst;
       self#draw_y_axis ctx ~src ~dst;
-      let rank = ref 0 in
-	List.iter (fun ds -> ds#draw ctx ~src ~dst !rank; incr rank) datasets
+      List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets
 
 end
 
