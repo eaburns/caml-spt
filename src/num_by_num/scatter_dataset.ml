@@ -22,7 +22,7 @@ let make_glyph_factory glyph_set () =
 let default_glyph_factory =
   (** [default_glyph_factory] gets the default glyph factory
       builder. *)
-  let default_glyph_set =
+  let glyph_set =
     [| Circle_glyph;
        Ring_glyph;
        Plus_glyph;
@@ -31,8 +31,25 @@ let default_glyph_factory =
        Square_glyph;
        Cross_glyph;
     |]
-  in make_glyph_factory default_glyph_set
+  in make_glyph_factory glyph_set
 
+
+let numbered_glyph_factory =
+  (** [numbered_glyph_factory] gets a glyph factory builder that
+      returns numbers as the glyphs. *)
+  let glyph_set =
+    [| Char_glyph '0';
+       Char_glyph '1';
+       Char_glyph '2';
+       Char_glyph '3';
+       Char_glyph '4';
+       Char_glyph '5';
+       Char_glyph '6';
+       Char_glyph '7';
+       Char_glyph '8';
+       Char_glyph '9';
+    |]
+  in make_glyph_factory glyph_set
 
 
 class scatter_dataset glyph ?(color=black) ?(radius=0.012) ?name points =
@@ -64,3 +81,27 @@ object (self)
 
 end
 
+
+(** {2 Scatter plot with error bars} ****************************************)
+
+class scatter_errbar_dataset glyph ?color ?radius ?name point_sets =
+  (** A scatter bar dataset with errorbars.  The [point_set] is an
+      array of points arrays. *)
+  let pts, x_errs, y_errs =
+    Array.fold_left (fun (pts, x_errs, y_errs) vls ->
+		       let xs = Array.map (fun p -> p.x) vls
+		       and ys = Array.map (fun p -> p.y) vls in
+		       let mu_x, int_x = Statistics.mean_and_interval xs
+		       and mu_y, int_y = Statistics.mean_and_interval ys in
+			 (point mu_x mu_y :: pts,
+			  triple mu_x mu_y int_x :: x_errs,
+			  triple mu_x mu_y int_y :: y_errs))
+      ([], [], []) point_sets in
+  let scatter = new scatter_dataset glyph ?color ?radius (Array.of_list pts)
+  and horiz_err =
+    new Errbar_dataset.horizontal_errbar_dataset (Array.of_list x_errs)
+  and vert_err =
+    new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs) in
+object (self)
+  inherit composite_dataset ?name [scatter; horiz_err; vert_err]
+end
