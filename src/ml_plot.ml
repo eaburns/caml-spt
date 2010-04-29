@@ -51,9 +51,11 @@ class virtual plot title =
   (** [plot title] a plot has a method for drawing. *)
 object (self)
 
+
   method private title = match title with
     | Some t -> t
     | None -> "<not title>"
+
 
   method display =
     (** [display] opens a lablgtk window showing the plot. *)
