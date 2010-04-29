@@ -11,6 +11,7 @@
 open Geometry
 open Drawing
 open Ml_plot
+open GMain
 
 let nominal_plot () =
   new Num_by_nom.plot
@@ -99,31 +100,40 @@ let numeric_plot () =
       ]
 
 
-let main () =
+let draw_plot ctx sizef =
+  Cairo.save ctx;
+  Drawing.set_color ctx Drawing.white;
+  Cairo.rectangle ctx 0. 0. sizef sizef;
+  Cairo.fill ctx;
+  Drawing.set_color ctx Drawing.black;
+  (* Scale so that drawing can take place between 0. and 1. *)
+  Cairo.scale ctx sizef sizef;
+  Cairo.set_line_width ctx (1. /. sizef);
+  (*    let plot = nominal_plot () in*)
+  let plot = numeric_plot () in
+    plot#draw ctx;
+    Cairo.restore ctx
 
+
+let main () =
+  ignore(GtkMain.Main.init());
   let size = 800 in
   let sizef = float size in
-  let surface =
-    Cairo.image_surface_create Cairo.FORMAT_ARGB32 ~width:size ~height:size
-  in
-  let ctx = Cairo.create surface in
-
-    (* White background *)
-    Drawing.set_color ctx Drawing.white;
-    Cairo.rectangle ctx 0. 0. sizef sizef;
-    Cairo.fill ctx;
-    Drawing.set_color ctx Drawing.black;
-
-    (* Scale so that drawing can take place between 0. and 1. *)
-    Cairo.scale ctx sizef sizef;
-    Cairo.set_line_width ctx (1. /. sizef);
+  let grid_window = GWindow.window ~title:"ML-Plot-Window" ~width:size ~height:size
+    ~border_width:0 () in
+  let q = GMisc.drawing_area ~width:size ~height:size ~packing:grid_window#add()
+    ~show:true in
+  let w = q#misc#realize(); q#misc#window in
+    grid_window#show();
+    (*let surface =
+      Cairo.image_surface_create Cairo.FORMAT_ARGB32 ~width:size ~height:size
+      let ctx = Cairo.create surface in*)
+    let ctx =   Cairo_lablgtk.create w in
+      ignore (grid_window#event#connect#any
+		~callback:(fun _ -> draw_plot ctx sizef; true));
+      Main.main()
 
 (*
-    let plot = nominal_plot () in
-*)
-    let plot = numeric_plot () in
-      plot#draw ctx;
-
       Cairo_png.surface_write_to_file surface "test.png"
-
+*)
 let _ = main ()

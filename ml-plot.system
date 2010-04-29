@@ -18,9 +18,13 @@ Files:
 Libraries:
 "cairo"
 "str"
+"lablgtk"
+"cairo_lablgtk"
+"unix"
 
 CLibraries:
 "cairo"
+
 
 Result: "ml-plot-debug" bytedebug "ml_plot_main"
 Result: "ml-plot" native "ml_plot_main"
