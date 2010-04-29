@@ -38,8 +38,6 @@ object (self)
       triples
 
 
-  method residual ctx ~src ~dst rank = zero_rectangle
-
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
@@ -52,10 +50,6 @@ object (self)
 			Errbar.draw_down ctx ~src ~dst ~x ~y mag;
 		    end)
 	triples
-
-
-  method draw_legend_entry _ ~x ~y _ = failwith "Unimplemented"
-
 end
 
 
@@ -79,8 +73,6 @@ object
       triples
 
 
-  method residual ctx ~src ~dst rank = zero_rectangle
-
   method draw ctx ~src ~dst rank =
     (** [draw ctx ~src ~dst rank] draws the data to the plot. *)
     let tr = range_transform ~src:(yrange src) ~dst:(yrange dst) in
@@ -93,8 +85,4 @@ object
 			Errbar.draw_right ctx ~src ~dst ~x ~y mag;
 		    end)
 	triples
-
-
-  method draw_legend_entry _ ~x ~y _ = failwith "Unimplemented"
-
 end

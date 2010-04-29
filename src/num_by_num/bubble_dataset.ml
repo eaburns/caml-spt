@@ -71,7 +71,4 @@ object (self)
 		      if rectangle_contains src pt
 		      then draw_point ctx ~color radius glyph pt')
 	triples
-
-
-  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end

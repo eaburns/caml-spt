@@ -37,8 +37,6 @@ object (self)
       line_width = width;
     }
 
-  method residual _ ~src:_ ~dst _ = zero_rectangle
-
   method draw ctx ~src ~dst rank =
     let tr = rectangle_transform ~src ~dst in
     let pts = ref [] in
@@ -46,8 +44,6 @@ object (self)
 	pts := (tr points.(i)) :: !pts
       done;
       draw_line ctx ~box:dst ~style:(self#style rank) !pts
-
-  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
 
 
@@ -75,7 +71,5 @@ object
   method draw ctx ~src ~dst rank =
     line#draw ctx ~src ~dst rank;
     scatter#draw ctx ~src ~dst rank
-
-  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
 

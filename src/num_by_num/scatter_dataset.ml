@@ -52,7 +52,5 @@ object (self)
       done;
       draw_points ctx ~color radius (self#glyph rank) !pts
 
-  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
-
 end
 

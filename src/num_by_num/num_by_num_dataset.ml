@@ -19,11 +19,13 @@ object
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
 
-  method virtual residual :
-    context -> src:rectangle -> dst:rectangle -> int -> rectangle
+  method residual :
+    context -> src:rectangle -> dst:rectangle -> int -> rectangle =
     (** [residual ctx ~src ~dst rank] get a rectangle containing the
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction. *)
+    (fun _ ~src:_ ~dst _ -> zero_rectangle)
+
 
   method virtual draw :
     context -> src:rectangle -> dst:rectangle -> int -> unit
@@ -35,6 +37,8 @@ object
 	the given location ([x] is the left-edge and [y] is top edge
 	of the destination) and the result is the y-coordinate of the
 	bottom edge of the entry that was just drawn. *)
+
+  method draw_legend_entry ctx ~x ~y rank = failwith "Unimplemented"
 end
 
 
