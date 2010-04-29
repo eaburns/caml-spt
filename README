@@ -5,3 +5,18 @@ or
 ocamlbuild ml_plot_main.native
 or
 ocm
+
+
+Notes:
+-------------------------------------------------
+
+Factories to decide style, giving a consistent feel to plots
+
+Try to avoid data sets which combine multiple data sets, use composite
+instead
+
+Composite datasets for representing multiple datasets in the same
+dataset, ensuring that the legends overlay properly
+
+Labels are probably their own thing, even though they are internal to
+one of the uml elements.
