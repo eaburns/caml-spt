@@ -20,8 +20,12 @@ end
 
 (** {1 Vertical error bars} ****************************************)
 
-class vertical_errbar_dataset triples =
+class vertical_errbar_dataset ?color triples =
   (** A set of vertical error bars. *)
+  let style = match color with
+    | None -> Errbar.errbar_line_style
+    | Some color -> { Errbar.errbar_line_style with line_color = color }
+  in
 object (self)
   inherit errbar_dataset triples
 
@@ -46,8 +50,8 @@ object (self)
 		    then begin
 		      let src = yrange src and dst = yrange dst in
 		      let x = tr t.i and y = t.j and mag = t.k in
-			Errbar.draw_up ctx ~src ~dst ~x ~y mag;
-			Errbar.draw_down ctx ~src ~dst ~x ~y mag;
+			Errbar.draw_up ctx ~style ~src ~dst ~x ~y mag;
+			Errbar.draw_down ctx ~style ~src ~dst ~x ~y mag;
 		    end)
 	triples
 end
@@ -55,8 +59,12 @@ end
 
 (** {1 Horizontal error bars} ****************************************)
 
-class horizontal_errbar_dataset triples =
+class horizontal_errbar_dataset ?color triples =
   (** A set of horizontal error bars. *)
+  let style = match color with
+    | None -> Errbar.errbar_line_style
+    | Some color -> { Errbar.errbar_line_style with line_color = color }
+  in
 object
   inherit errbar_dataset triples
 
@@ -81,8 +89,8 @@ object
 		    then begin
 		      let src = xrange src and dst = xrange dst in
 		      let x = t.i and y = tr t.j and mag = t.k in
-			Errbar.draw_left ctx ~src ~dst ~x ~y mag;
-			Errbar.draw_right ctx ~src ~dst ~x ~y mag;
+			Errbar.draw_left ctx ~style ~src ~dst ~x ~y mag;
+			Errbar.draw_right ctx ~style ~src ~dst ~x ~y mag;
 		    end)
 	triples
 end

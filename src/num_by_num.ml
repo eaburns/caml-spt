@@ -55,14 +55,13 @@ object (self)
     Numeric_axis.tick_locations (yrange self#ranges)
 
 
-  method private dest_rectangle ctx =
-    (** [dest_rectangle ctx] get the dimensions of the destination
+  method private dest_rectangle src ctx =
+    (** [dest_rectangle src ctx] get the dimensions of the destination
 	rectangle. *)
     let title_height =
       match title with
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
-    let src = self#ranges in
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
 	ctx ~label_style ~tick_style ~pad:Ml_plot.text_padding
@@ -105,7 +104,7 @@ object (self)
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
     let src = self#ranges in
-    let dst = self#dest_rectangle ctx in
+    let dst = self#dest_rectangle src ctx in
       begin match title with
 	| None -> ()
 	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
@@ -122,3 +121,4 @@ include Errbar_dataset
 include Scatter_dataset
 include Line_dataset
 include Bubble_dataset
+include Line_errbar_dataset
