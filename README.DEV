@@ -25,6 +25,45 @@
  nominal").  Currently there is no specific support for ordinal data
  (although this could be *hacked* into a numeric by nominal plot).
 
+1.1 Datasets
+
+  Datasets define the style of data and how the data will look when it
+  is drawn to the plot.  A scatter plot will use a scatter_plot
+  dataset which accepts a bunch of points and draws them as
+  point-glyphs on a numeric by numeric plot.  A line dataset will draw
+  lines between points and a box plot dataset will draw box plots,
+  etc.
+
+1.1.1 Composite datasets
+
+   It is often possible to create new datasets by composing current
+   datasets.  A simple example of this is a lines_points dataset that
+   has lines connecting points.  This type of dataset is a composition
+   of a lines dataset and a scatter plot dataset.  In cases like this,
+   attempt to generalize the composition: instead of writing single
+   classes for each pair of datasets, make one class that composes a
+   list of datasets.  See Num_by_num.composite_dataset for an example.
+
+1.1.2 Creating datasets
+
+   The creation of a new dataset depends on the type of plot that will
+   draw the dataset.  For numeric by numeric datasets, you need to
+   implement the virtual methods of the Num_by_num.dataset class.
+   Optionally, if the dataset consists of only points (x-y pairs) then
+   you can inherit from the Num_by_num.points_dataset class to use
+   some shared functionality.
+
+   A residual method may need to be implemented by a dataset that
+   draws things which may extend off of the axes of the plot.  The
+   residual method ensures that there is a sufficient amount of
+   padding between the end of an axis and the end of the image surface
+   or the surrounding axis text.  An example of this is the scatter
+   plot which draws a glyph with a given radius around a point.  To
+   ensure that the glyph is never clipped by the edge of the image
+   surface or that the glyph never draws over the title text or an
+   axis of the plot, the residual function will make sure that there
+   is sufficient padding.
+
 2.0 Separation of libs
 
  I think that it is beneficial to keep the references to external
