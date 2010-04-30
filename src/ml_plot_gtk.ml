@@ -1,5 +1,5 @@
 (** Ml_plot_gtk - Holds all of the gtk display functionality for easy
-    removal*)
+    removal - Jordan*)
 
 (* Need to set up gtk for use *)
 ignore (GtkMain.Main.init());
