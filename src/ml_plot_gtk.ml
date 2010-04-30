@@ -4,6 +4,8 @@
 (* Need to set up gtk for use *)
 ignore (GtkMain.Main.init())
 
+let init_size = 400 (* default window size *)
+
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
   let ctx = Cairo_lablgtk.create area#misc#window in
@@ -17,7 +19,8 @@ let draw_plot_to_gtk_area plot area =
 
 
 let create_display plot title =
-  let init_size = 400 in
+  (** [create_display plot title] spawns a window with the given title
+      showing the specified plot *)
   let width = init_size and height = init_size in
   let w = GWindow.window ~title ~width ~height () in
   let area = GMisc.drawing_area ~width ~height ~packing:w#add() in
