@@ -2,7 +2,7 @@
     removal - Jordan*)
 
 (* Need to set up gtk for use *)
-ignore (GtkMain.Main.init());
+ignore (GtkMain.Main.init())
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
