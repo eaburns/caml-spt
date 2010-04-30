@@ -17,6 +17,6 @@ dispatch begin function
 
       ocaml_lib ~extern:true ~dir:"+cairo" "cairo";
       ocaml_lib ~extern:true ~dir:"+cairo" "cairo_lablgtk";
-      ocaml_lib ~extern:true ~dir:"+lablgtk" "lablgtk";
+      ocaml_lib ~extern:true ~dir:"+lablgtk2" "lablgtk";
   | _ -> ()
 end
