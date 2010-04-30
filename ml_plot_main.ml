@@ -80,7 +80,6 @@ let num_by_num_plot () =
 
 
 let main () =
-  ignore (GtkMain.Main.init());
   let plot = num_by_num_plot () in
     plot#display
 

@@ -1,6 +1,9 @@
 (** Ml_plot_gtk - Holds all of the gtk display functionality for easy
     removal*)
 
+(* Need to set up gtk for use *)
+ignore (GtkMain.Main.init());
+
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
   let ctx = Cairo_lablgtk.create area#misc#window in
@@ -11,6 +14,7 @@ let draw_plot_to_gtk_area plot area =
     (* Scale so that drawing can take place between 0. and 1. *)
     Cairo.scale ctx sizef sizef;
     plot#draw ctx
+
 
 let create_display plot title =
   let init_size = 400 in
