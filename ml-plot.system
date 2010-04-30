@@ -13,6 +13,7 @@ Files:
 "src/num_by_num/bubble_dataset"
 "src/num_by_num/errbar_dataset"
 "src/num_by_num/label_dataset"
+"src/num_by_num/line_errbar_dataset"
 "src/num_by_num"
 "src/num_by_nom"
 "src/ml_plot"
