@@ -20,3 +20,8 @@ dataset, ensuring that the legends overlay properly
 
 Labels are probably their own thing, even though they are internal to
 one of the uml elements.
+
+
+Building cairo top level --
+
+You need to include a few c libraries
