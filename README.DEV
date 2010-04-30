@@ -4,6 +4,14 @@
                               2010-04-29
 
 
+0.0 Coding style
+
+ Use a style that is compatible with that of tuareg-mode in Emacs
+ (this means that you should probably be using omlet if you use VIM).
+
+ Wrap your lines at 80 characters.
+
+
 1.0 Kinds of data
 
  There are a variety of different kinds of data.  We are concerned
@@ -72,3 +80,22 @@
  all of the calls to Cairo will take place in the Drawing module or
  maybe one or two other places.  This way we can easily change the
  backend or even add new ones in the future.
+
+3.0 The Geometry module
+
+ The Geometry has some basic primitives in it for packing floats
+ together.  It is often more efficient to pack a bunch of floats in a
+ single record where they won't be individually boxed as opposed to
+ passing them separately.  This module is used a lot, so its functions
+ should be written under the assumption that the module will be
+ opened.
+
+ Geometry.point and Geometry.triple store 2 and 3 floats respectively.
+
+ Geometry.rectangles are used to specify an area in 2D space (for
+ example, on a plot with two numeric axes).  Rectangles can be used to
+ transform points between two different coordinate systems using the
+ Geometry.rectangle_transform function.
+
+ Geometry.ranges are used to specify an area in 1D space (for example,
+ a plot with a single numeric axis).
