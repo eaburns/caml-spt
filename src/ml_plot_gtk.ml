@@ -49,12 +49,13 @@ let create_display plot title =
   let file_menu = factory#add_submenu "File" in
   let factory = new GMenu.factory ~accel_path:"<MLPLOT File>///" file_menu
     ~accel_group in
-  let area = GMisc.drawing_area ~width ~height ~packing:vbox#pack() in
+  let area = GMisc.drawing_area ~width ~height
+    ~packing:(vbox#pack ~expand:true) () in
   let draw = draw_plot_to_gtk_area plot in
     ignore (factory#add_item "Save as..." ~key:_S ~callback:
 	      (fun _ -> (save_dialog plot)));
-    ignore (factory#add_item "Quit" ~key:_Q ~callback:w#destroy);
     area#misc#realize ();
+    ignore (factory#add_item "Quit" ~key:_Q ~callback:w#destroy);
     ignore (area#event#connect#expose (fun _ -> draw area; true));
     ignore (w#connect#destroy GMain.quit);
     ignore (draw area);

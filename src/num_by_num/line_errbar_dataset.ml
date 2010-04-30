@@ -4,6 +4,7 @@
     @since 2010-04-30
 *)
 
+open Num_by_num_dataset
 open Geometry
 
 type style = {
@@ -33,7 +34,7 @@ let line_errbar_factory next_dashes () =
 let next_location xrange ~num ~count cur =
   (** next_location xrange ~num ~count cur] gets the next error bar
       location after the value [cur]. *)
-  let ngroups = 10. in
+  let ngroups = 4. in
   let min = xrange.min and max = xrange.max in
   let numf = float num and countf = float count in
   let group_width = (max -. min) /. ngroups in
@@ -41,11 +42,16 @@ let next_location xrange ~num ~count cur =
   let group_start = delta /. 2. in
   let group_offs = (group_start +. (delta *. numf)) /. group_width in
   let cur_group_num = floor (cur /. group_width) in
+(*
   let cur_group_offs = (cur /. group_width) -. cur_group_num in
+*)
   let group =
+(*
     if cur_group_offs >= group_offs
     then cur_group_num +. 1.
     else cur_group_num
+*)
+    cur_group_num +. 1.
   in (group *. group_width) +. (group_width *. group_offs)
 
 
@@ -88,22 +94,106 @@ let mean_line domain lines =
 			 set l)
       Float_set.empty lines
   in
-    Float_set.fold
-      (fun x lst ->
-	 let ys = Array.map (fun l -> interpolate l x) lines in
-	 let mean = Statistics.mean ys in
-	   (x, mean) :: lst)
-      xs []
+    Array.of_list (Float_set.fold
+		     (fun x lst ->
+			let ys = Array.map (fun l -> interpolate l x) lines in
+			let mean = Statistics.mean ys in
+			  (point x mean) :: lst)
+		     xs [])
 
 
-(*
-let errbar_locations ~num ~total domain lines =
-  (** [errbar_locations ~num ~total domain lines] get the x-locations
-  of the error bars. *)
+let errbars ~xrange ~num ~count ~domain lines =
+  (** [errbars ~xrange ~num ~count ~domain lines] get the error
+  bars. *)
   let min = domain.min and max = domain.max in
-  let cur_x = ref min in
+  let x = ref min in
   let intervals = ref [] in
-    while !cur_x < max do
+    while !x < max do
+      let x' = next_location xrange ~num ~count !x in
+	if x' <= max
+	then begin
+	  let ys = Array.map (fun l -> interpolate l x') lines in
+	  let mean, ci = Statistics.mean_and_interval ys in
+	    intervals := (triple x' mean ci) :: !intervals;
+	end;
+	x := x';
     done;
-    !intervals
-*)
+    Array.of_list !intervals
+
+
+let mean_line_and_errbars ~num ~count lines =
+  (** [mean_line_and_errbars ~num ~count lines] gets the mean line and
+      the error bars. *)
+  let domain = common_domain lines in
+    mean_line domain lines, errbars ~xrange:domain ~num ~count ~domain lines
+
+
+type style_cache_entry =
+    {
+      n : int;
+      t : int;
+      comp : composite_dataset option;
+    }
+
+
+let cache_key ~n ~t = { n = n; t = t; comp = None }
+  (** [cache_key ~n ~t] builds a key for the cache. *)
+
+module Style_cache = Weak.Make(struct
+				 type t = style_cache_entry
+				 let equal a b = a.n = b.n && a.t = b.t
+				 let hash a = Hashtbl.hash (a.n, a.t)
+			       end)
+
+
+
+class line_errbar_dataset style ?color ?name lines =
+  (** [line_errbar_dataset style ?name lines] makes a line and error
+      bar dataset. *)
+object (self)
+  inherit dataset ?name ()
+
+  val style_cache = Style_cache.create 10
+    (** Caches the composite dataset based on the style. *)
+
+
+  method private build_composite =
+    (** [build_composite] builds the composite dataset. *)
+    let points, bars =
+      mean_line_and_errbars style.number !(style.count) lines
+    in
+      new composite_dataset ?name
+	[(new Line_dataset.line_dataset style.dashes ?color ?name points);
+	 (new Errbar_dataset.vertical_errbar_dataset ?color bars)]
+
+
+  method private composite =
+    (** [composite] either builds the composite or returns it from the
+	cache. *)
+    let key = cache_key style.number !(style.count) in
+    let entry =
+      try Style_cache.find style_cache key
+      with Not_found ->
+	let comp = self#build_composite in
+	let ent =
+	  { n = style.number; t = !(style.count); comp = Some comp; }
+	in
+	  Style_cache.add style_cache ent;
+	  ent
+    in match entry.comp with
+      | None ->
+	  let comp = self#build_composite in
+	  let ent =
+	    { n = style.number; t = !(style.count); comp = Some comp; }
+	  in
+	    Style_cache.add style_cache ent;
+	    comp
+      | Some comp -> comp
+
+
+  method dimensions = self#composite#dimensions
+
+  method residual ctx ~src ~dst = self#composite#residual ctx ~src ~dst
+
+  method draw ctx ~src ~dst = self#composite#draw ctx ~src ~dst
+end
