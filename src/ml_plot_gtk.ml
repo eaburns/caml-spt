@@ -53,11 +53,12 @@ let create_display plot title =
   let draw = draw_plot_to_gtk_area plot in
     ignore (factory#add_item "Save as..." ~key:_S ~callback:
 	      (fun _ -> (save_dialog plot)));
-      area#misc#realize ();
-      ignore (area#event#connect#expose (fun _ -> draw area; true));
-      ignore (w#connect#destroy GMain.quit);
-      ignore (draw area);
-      w#show();
-      GMain.main ()
+    ignore (factory#add_item "Quit" ~key:_Q ~callback:w#destroy);
+    area#misc#realize ();
+    ignore (area#event#connect#expose (fun _ -> draw area; true));
+    ignore (w#connect#destroy GMain.quit);
+    ignore (draw area);
+    w#show();
+    GMain.main ()
 
 (* EOF *)
