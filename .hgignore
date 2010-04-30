@@ -1,0 +1,6 @@
+syntax: glob
+_build*
+bytecode*
+depends*
+*.cmi
+ml-plot-debug
