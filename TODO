@@ -1,5 +1,3 @@
-* Multiple output formats.
-
 * Line and error bar plots
   (Including the style factory)
 
@@ -7,15 +5,11 @@
   - Drawing legends off of the plot.
   - Make a 'legend plot'?
 
-* Get a toplevel that works
-
 * Legacy module (in ps_plot)
 
 * Compute better 'tick' locations on numeric axes
 
 ----------------------------------------
-
-* ml_plot_gtk.ml
 
 * Lines points plots
 
