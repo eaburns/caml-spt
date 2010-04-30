@@ -11,6 +11,8 @@
 
 * Legacy module (in ps_plot)
 
+* Compute better 'tick' locations on numeric axes
+
 ----------------------------------------
 
 * ml_plot_gtk.ml
