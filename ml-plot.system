@@ -19,7 +19,7 @@ Files:
 "src/ml_plot_gtk"
 "src/ml_plot_gtk_stub"
 "src/ml_plot_cairo"
-"src/ml_plot_cairo_stub
+"src/ml_plot_cairo_stub"
 
 Libraries:
 "str"
