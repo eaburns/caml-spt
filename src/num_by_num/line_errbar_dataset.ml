@@ -76,14 +76,19 @@ let common_domain lines =
       (range neg_infinity infinity) domains
 
 
-let mean_line domain lines =
-  (** [mean_line lines] get a line that is the mean of all of the
-      given lines. *)
+let mean_line ?(xs=[||]) domain lines =
+  (** [mean_line ?xs domain lines] get a line that is the mean of all
+      of the given lines.  [xs] is an array of x-values to ensure are
+      on the line.  Each value in [xs] must already be in [domain]. *)
   let module Float_set = Set.Make(struct
 				    type t = float
 				    let compare (a:float) b = compare a b
 				  end) in
   let min = domain.min and max = domain.max in
+  let init_xset =
+      Array.fold_left (fun s x -> assert (x >= min); assert (x <= max);
+			  Float_set.add x s)
+	 Float_set.empty xs in
   let xs =
     Array.fold_left (fun set l ->
 		       Array.fold_left (fun set pt ->
@@ -92,7 +97,7 @@ let mean_line domain lines =
 					    then Float_set.add x set
 					    else set)
 			 set l)
-      Float_set.empty lines
+      init_xset lines
   in
     Array.of_list (Float_set.fold
 		     (fun x lst ->
@@ -104,7 +109,7 @@ let mean_line domain lines =
 
 let errbars ~xrange ~num ~count ~domain lines =
   (** [errbars ~xrange ~num ~count ~domain lines] get the error
-  bars. *)
+      bars. *)
   let min = domain.min and max = domain.max in
   let x = ref min in
   let intervals = ref [] in
@@ -125,7 +130,9 @@ let mean_line_and_errbars ~num ~count lines =
   (** [mean_line_and_errbars ~num ~count lines] gets the mean line and
       the error bars. *)
   let domain = common_domain lines in
-    mean_line domain lines, errbars ~xrange:domain ~num ~count ~domain lines
+  let errbars = errbars ~xrange:domain ~num ~count ~domain lines in
+  let bar_xs = Array.map (fun t -> t.i) errbars in
+    mean_line domain ~xs:bar_xs lines, errbars
 
 
 type style_cache_entry =
