@@ -16,6 +16,8 @@ Files:
 "src/num_by_num"
 "src/num_by_nom"
 "src/ml_plot"
+"src/ml_plot_gtk"
+"src/ml_plot_gtk_stub"
 
 Libraries:
 "str"
