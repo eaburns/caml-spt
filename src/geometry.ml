@@ -194,6 +194,38 @@ let point_residual dst pt radius =
   in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
 
 
+let interpolate line x =
+  (** [interpolate line x] interpolates a y-coordinate for the given
+      [x] coordinate on the given line.  [line] is an array of
+      points. *)
+  let rec do_interp line ~n ~x i =
+    let pt = line.(i) in
+    let pt_x = pt.x in
+      if pt_x = x
+      then pt.y
+      else
+	if pt_x > x || i = n - 1
+	then begin
+	  let pt0, pt1 =
+	    if i = 0
+	    then line.(i), line.(i + 1)
+	    else line.(i - 1), line.(i)
+	  in
+	  let x0 = pt0.x and y0 = pt0.y in
+	  let x1 = pt1.x and y1 = pt1.y in
+	  let deltax = x1 -. x0 in
+	  let m = if deltax = 0. then nan else (y1 -. y0) /. (x1 -. x0) in
+	  let b = ~-. m *. x0 +. y0 in
+	    x *. m +. b
+	end else do_interp line ~n ~x (i + 1)
+  in
+  let n = Array.length line in
+    if n < 2 then invalid_arg "Geometry.interpolate: need at least two points";
+    do_interp line ~n ~x 0
+
+
+(** {1 Clipping} ****************************************)
+
 let clip_point_on_line box f f_inv p =
   (** [clip_point_on_line box f f_inv p] clips a point to the box
       given that it resides on the given line. *)
