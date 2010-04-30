@@ -1,0 +1,32 @@
+Systems:
+(* Nothing should ever go here. *)
+
+Files:
+"src/geometry"
+"src/drawing"
+"src/numeric_axis"
+"src/statistics"
+"src/errbar"
+"src/num_by_num/num_by_num_dataset"
+"src/num_by_num/scatter_dataset"
+"src/num_by_num/line_dataset"
+"src/num_by_num/bubble_dataset"
+"src/num_by_num/errbar_dataset"
+"src/num_by_num/label_dataset"
+"src/num_by_num"
+"src/num_by_nom"
+"src/ml_plot"
+
+Libraries:
+"str"
+"lablgtk"
+"cairo"
+"cairo_lablgtk"
+
+CLibraries:
+"cairo"
+
+
+Result: "ml-plot-debug" bytedebug "ml_plot_main"
+Result: "ml-plot" native "ml_plot_main"
+
