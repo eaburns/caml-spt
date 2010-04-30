@@ -54,7 +54,7 @@ let as_pdf plot filename =
 
 
 let filetype file =
-  let file_split = Str.split (Str.regexp "\.") file in
+  let file_split = Str.split (Str.regexp "\\.") file in
     match (List.rev file_split) with
 	[] -> Unknown ""
       | ext::tl -> (match (String.lowercase ext) with

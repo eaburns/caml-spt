@@ -41,7 +41,7 @@ let create_display plot title =
   (** [create_display plot title] spawns a window with the given title
       showing the specified plot *)
   let width = init_size and height = init_size in
-  let w = GWindow.window ~title ~width ~height () in
+  let w = GWindow.window ~title ~width ~height:(height + 40) () in
   let vbox = GPack.vbox ~packing:w#add () in
   let menu_bar = GMenu.menu_bar ~packing:vbox#pack () in
   let factory = new GMenu.factory ~accel_path:"<MLPLOT>/" menu_bar in
