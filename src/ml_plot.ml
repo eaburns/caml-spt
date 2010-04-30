@@ -52,4 +52,10 @@ object (self)
   method virtual draw : context -> unit
     (** [draw ctx] displays the plot to the given drawing
 	context. *)
+
+  method output filename =
+    (** [output] saves the plot to a filename.  The type is pulled from
+	the name, so you must include an extension *)
+    Ml_plot_cairo.save self filename
+
 end

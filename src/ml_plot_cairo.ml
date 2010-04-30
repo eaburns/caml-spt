@@ -13,6 +13,8 @@ type files =
 
 
 let background_resize context width height =
+  (* Resizes the surface that we're drawing upon.  Also adds in a white
+      background *)
   let sizef = min width height in
     Drawing.fill_rectangle context ~color:Drawing.white
       (Geometry.rectangle 0. width 0. height);
