@@ -4,3 +4,4 @@ bytecode*
 depends*
 *.cmi
 ml-plot-debug
+use.ml
