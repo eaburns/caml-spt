@@ -28,10 +28,6 @@ Datasets
 
 * Errbars should compute a residual so their cap is not chopped off
 
-* Fix label datasets to offset the label in the plot coordinate
-  system. So when labeling scatter plots the label doesn't overwrite
-  the glyph.
-
 * Box plots
 
 * Bar charts (and with error bars)
