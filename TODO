@@ -1,3 +1,7 @@
+------------------------------------------------------------
+Things that we need before anyone can begin beta testing
+------------------------------------------------------------
+
 * Legends
   - Drawing legends off of the plot.
   - Make a 'legend plot'?
@@ -6,47 +10,65 @@
 
 * Compute better 'tick' locations on numeric axes
 
-----------------------------------------
+* Decide on a final API.
+
+------------------------------------------------------------
+GUI
+------------------------------------------------------------
 
 * Give a graphical error message when failing to save from the GUI
 
+* Fix keyboard shortcuts
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+
 * Lines points plots
+
+* Errbars should compute a residual so their cap is not chopped off
+
+* Fix label datasets to offset the label in the plot coordinate
+  system. So when labeling scatter plots the label doesn't overwrite
+  the glyph.
+
+* Box plots
+
+* Bar charts (and with error bars)
+
+* Waterfall charts
 
 * Montages: more complex than simple ps-montage style.
   - Make axis drawing optional.
   - Make room for non-drawn axes, but then don't draw them.
 
-* Fix label datasets to offset the label in the plot coordinate system
-  So when labeling scatter plots the label doesn't overwrite the
-  glyph.
-
 * A color factory
 
-* Make sure that everything is colored
+* Make sure that everything is colorable
 
-* Box plots
 
-* Bar charts?
-  With error bars?
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
 
 * Developer readme: each plot draws itself into a unit square.
 
-
-
-
-
-* An interface in the GTK interface
-  - keyboard support (q quits)
-  - Button to save to a file.
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
 
 * Read plots from files
   Involves parsing
 
-* C bindings
+* Bindings
+  - C
+  - Python
+  - Java?
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
 
 * Numeric by Ordinal (or Ranked) plots
   This includes run charts, etc. where you have a labeled x-axis where
   each value is something that I don't feel like describing here.
-
-* Waterfall charts?
-
