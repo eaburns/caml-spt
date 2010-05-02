@@ -53,6 +53,10 @@ Documentation
 
 * Developer readme: each plot draws itself into a unit square.
 
+* Write a real README file
+
+* Generate OCaml docs
+
 ------------------------------------------------------------
 Usability
 ------------------------------------------------------------
