@@ -18,9 +18,22 @@ let default_style =
     text_color = black;
   }
 
-class label_dataset ?(style=default_style) ?name label_points =
-  (** Add labels where the points are given data-coordinates. *)
-object
+
+type label_location =
+  | Label_at
+  | Label_above
+  | Label_below
+  | Label_before
+  | Label_after
+
+class label_dataset
+  ?(style=default_style) ?(loc=Label_at) ?(xoff=0.) ?(yoff=0.)
+  ?name label_points =
+  (** Add labels where the points are given data-coordinates.  [xoff]
+      and [yoff] are plot-coordinate offsets to apply to the label before
+      drawing it at its given location.  This can be used to place the
+      label outside of the radius of a scatter point. *)
+object (self)
 
   inherit dataset ?name ()
 
@@ -28,19 +41,28 @@ object
     let pts = Array.map fst label_points in
       points_rectangle pts
 
+
+  method private position ctx pt' txt =
+    (** [position ctx pt' txt] position the label in the plot
+	coordinate system. *)
+    let x = pt'.x +. xoff and y = pt'.y +. yoff in
+    let w, h = text_dimensions ctx ~style txt in
+      match loc with
+	| Label_at -> point x y
+	| Label_above -> point x (y -. (h /. 2.))
+	| Label_below -> point x (y +. (h /. 2.))
+	| Label_before -> point (x -. (w /. 2.)) y
+	| Label_after -> point (x +. (w /. 2.)) y
+
+
   method residual ctx ~src ~dst =
     let tr = rectangle_transform ~src ~dst in
       Array.fold_left
 	(fun r (pt, txt) ->
 	   if rectangle_contains src pt
 	   then begin
-	     let pt' = tr pt in
-	     let w, h = text_dimensions ctx ~style txt in
-	     let x_min = pt'.x -. (w /. 2.)
-	     and x_max = pt'.x +. (w /. 2.)
-	     and y_max = pt'.y -. (h /. 2.)
-	     and y_min = pt'.y +. (h /. 2.) in
-	     let dims = rectangle ~x_min ~x_max ~y_min ~y_max in
+	     let pt' = self#position ctx (tr pt) txt in
+	     let dims = text_rectangle ctx ~style ~pt:pt' txt in
 	     let residue = rectangle_residual dst dims
 	     in rectangle_max r residue
 	   end else r)
@@ -50,7 +72,7 @@ object
   method draw ctx ~src ~dst =
     let tr = rectangle_transform ~src ~dst in
       Array.iter (fun (pt, txt) ->
-		    let pt' = tr pt
-		    in draw_text ctx ~style pt'.x pt'.y txt)
+		    let pt' = self#position ctx (tr pt) txt in
+		      draw_text ctx ~style pt'.x pt'.y txt)
 	label_points
 end

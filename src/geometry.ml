@@ -150,7 +150,7 @@ let rectangle_residual dst r =
       (assumes the destination rectangle has a greater y_min than
       y_max.) *)
   let x_min = if r.x_min < dst.x_min then dst.x_min -. r.x_min else 0.
-  and x_max = if r.x_max > dst.x_max then r.x_min -. dst.x_max else 0.
+  and x_max = if r.x_max > dst.x_max then r.x_max -. dst.x_max else 0.
   and y_min = if r.y_min > dst.y_min then r.y_min -. dst.y_min else 0.
   and y_max = if r.y_max < dst.y_max then dst.y_max -. r.y_max else 0.
   in rectangle ~x_min ~x_max ~y_min ~y_max

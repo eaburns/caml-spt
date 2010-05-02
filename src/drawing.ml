@@ -100,6 +100,19 @@ let text_dimensions ctx ?style str =
     te.Cairo.text_width, te.Cairo.text_height
 
 
+let text_rectangle ctx ~style ?(pt=point 0. 0.) txt =
+  (** [text_rectangle ctx ~style ?pt txt] gets the bounding box around
+      the given text optionally given its location. *)
+  let w, h = text_dimensions ctx ~style txt in
+  let half_w = w /. 2. and half_h = h /. 2. in
+  let x = pt.x and y = pt.y in
+  let x_min = x -. half_w
+  and x_max = x +. half_w
+  and y_max = y -. half_h
+  and y_min = y +. half_h in
+    rectangle ~x_min ~x_max ~y_min ~y_max
+
+
 let draw_text_centered_below ctx ?style ?(angle=0.) x y str =
   (** [draw_text_centered_below ctx ?style ?angle x y str] draws the
       given string centered below the given location. *)
