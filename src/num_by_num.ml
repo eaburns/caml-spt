@@ -1,8 +1,5 @@
 (** Numeric by numeric plots.
 
-    TODO: The scatter dataset should make room for the glyph radius
-    when it says its dimensions.
-
     @author eaburns
     @since 2010-04-25
 *)
