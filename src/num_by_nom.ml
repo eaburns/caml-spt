@@ -101,7 +101,6 @@ object (self)
 
   method draw ctx =
     (** [draw ctx] draws the plot. *)
-    let box = rectangle 0. 1. 0. 1. in
     let src = self#src_y_range in
     let xrange, width = self#x_axis_dimensions ctx box in
     let dst = self#dst_y_range ctx box ~y_min ~y_max ~width in
