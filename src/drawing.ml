@@ -287,7 +287,8 @@ let draw_line ctx ?box ?style points =
 	  | p :: tl ->
 	      Cairo.move_to ctx p.x p.y;
 	      List.iter (fun p -> Cairo.line_to ctx p.x p.y) tl;
-	      Cairo.stroke ctx
+	      Cairo.stroke ctx;
+	      Cairo.set_dash ctx [| |] 0.
 	end
     | Some box ->
 	let rec draw_points = function
@@ -350,6 +351,7 @@ let make_draw_glyph ctx radius = function
   | Ring_glyph ->
       Cairo.set_line_width ctx default_glyph_line_width;
       (fun pt ->
+	 Cairo.new_path ctx;
 	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. pi);
 	 Cairo.stroke ctx)
   | Cross_glyph ->
@@ -357,6 +359,7 @@ let make_draw_glyph ctx radius = function
 	Cairo.set_line_width ctx default_glyph_line_width;
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
+	     Cairo.new_path ctx;
 	     Cairo.move_to ctx (x -. r) (y +. r);
 	     Cairo.line_to ctx (x +. r) (y -. r);
 	     Cairo.move_to ctx (x -. r) (y -. r);
@@ -366,6 +369,7 @@ let make_draw_glyph ctx radius = function
       (fun pt ->
 	 Cairo.set_line_width ctx default_glyph_line_width;
 	 let x = pt.x and y = pt.y in
+	   Cairo.new_path ctx;
 	   Cairo.move_to ctx (x -. radius) y;
 	   Cairo.line_to ctx (x +. radius) y;
 	   Cairo.move_to ctx x (y -. radius);
@@ -393,6 +397,7 @@ let make_draw_glyph ctx radius = function
       let c = radius *. (cos (pi /. 6.)) in
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
+	     Cairo.new_path ctx;
 	     Cairo.move_to ctx x (y -. radius);
 	     Cairo.line_to ctx (x +. c) (y +. s);
 	     Cairo.line_to ctx (x -. c) (y +. s);

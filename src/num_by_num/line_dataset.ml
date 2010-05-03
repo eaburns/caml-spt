@@ -58,3 +58,12 @@ object (self)
     draw_line ctx ~style [ point rect.x_min y; point rect.x_max y]
 
 end
+
+let lines_points_dataset dashes glyph ?radius ?width ?color ?name points =
+  (** [lines_points_dataset dashes glyph ?radius ?width ?color ?name
+      points] makes a dataset that is a line with glyphs at each
+      point. *)
+  new composite_dataset ?name [
+    new line_dataset dashes ?width ?color ?name points;
+    new Scatter_dataset.scatter_dataset glyph ?radius ?color ?name points;
+  ]
