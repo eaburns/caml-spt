@@ -41,7 +41,7 @@ let default_label_style =
   }
 
 
-let text_padding = 0.01
+let text_padding = 0.02
   (** Padding around text *)
 
 
