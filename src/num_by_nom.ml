@@ -7,6 +7,12 @@
 open Geometry
 open Drawing
 
+let y_axis_padding = 0.01
+  (** The amount of room to separate the y-axis from the data. *)
+
+let x_axis_padding = 0.05
+  (** The amount of room to separate the x-axis from the data. *)
+
 (** {1 Numeric by nomeric plot} ****************************************)
 
 class plot
@@ -22,8 +28,8 @@ object (self)
 
   val datasets = datasets
 
-  method private range =
-    (** [range] computes the range of the y axis. *)
+  method private src_y_range =
+    (** [src_y_range] computes the range of the y axis. *)
     match y_min, y_max with
       | Some min, Some max -> range ~min ~max
       | _ ->
@@ -39,7 +45,7 @@ object (self)
 
   method private yticks =
     (** [yticks] computes the location of the y-axis tick marks. *)
-    Numeric_axis.tick_locations self#range
+    Numeric_axis.tick_locations self#src_y_range
 
 
   method private x_axis_dimensions ctx =
@@ -48,15 +54,15 @@ object (self)
     let x_max = 1. in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Ml_plot.text_padding ~x_min:0. ylabel self#yticks
+	~pad:Ml_plot.text_padding ~x_min:y_axis_padding ylabel self#yticks
     in
     let n = List.length datasets in
     let width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
       range x_min x_max, width
 
 
-  method private dest_y_range ctx ~y_min ~y_max ~width =
-    (** [dest_y_range ctx ~y_min ~y_max ~width] get the range on the
+  method private dst_y_range ctx ~y_min ~y_max ~width =
+    (** [dst_y_range ctx ~y_min ~y_max ~width] get the range on the
 	y-axis.  [width] is the amount of width afforded to each
 	dataset on the x-axis. *)
     let title_height =
@@ -70,7 +76,7 @@ object (self)
 	0. datasets
     in
       range
-	(1. -. Numeric_axis.padding -. data_label_height)
+	(1. -. data_label_height -. x_axis_padding)
 	(title_height +. Ml_plot.text_padding)
 
 
@@ -94,16 +100,15 @@ object (self)
 
   method draw ctx =
     (** [draw ctx] draws the plot. *)
-    let src = self#range in
+    let src = self#src_y_range in
     let xrange, width = self#x_axis_dimensions ctx in
-    let dst = self#dest_y_range ctx ~y_min ~y_max ~width in
-    let y = dst.min +. Numeric_axis.padding in
+    let dst = self#dst_y_range ctx ~y_min ~y_max ~width in
       begin match title with
 	| None -> ()
 	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
       end;
       self#draw_y_axis ctx ~src ~dst;
-      self#draw_x_axis ctx ~y ~xrange ~width
+      self#draw_x_axis ctx ~y:(dst.min +. x_axis_padding) ~xrange ~width
 end
 
 

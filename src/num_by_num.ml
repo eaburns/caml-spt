@@ -7,6 +7,9 @@
 open Geometry
 open Drawing
 
+let axis_padding = 0.05
+  (** The padding between the axis and the data. *)
+
 (** {1 Numeric by numeric plot} ****************************************)
 
 class plot
@@ -65,10 +68,11 @@ object (self)
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
 	ctx ~label_style ~tick_style ~pad:Ml_plot.text_padding
-	~y_min:1. ~src:(xrange src) ~dst:(range 0. 1.) xlabel self#xticks in
+	~y_min:(1. -. axis_padding)
+	~src:(xrange src) ~dst:(range 0. 1.) xlabel self#xticks in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Ml_plot.text_padding ~x_min:0. ylabel self#yticks in
+	~pad:Ml_plot.text_padding ~x_min:axis_padding ylabel self#yticks in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
 	~y_max:(title_height +. Ml_plot.text_padding) in
@@ -98,6 +102,7 @@ object (self)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
       ~x:0. ~src:(yrange src) ~dst:(yrange dst) ylabel self#yticks
+
 
   method draw ctx =
     (** [draw ctx] draws the numeric by numeric plot to the given

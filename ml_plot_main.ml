@@ -90,8 +90,5 @@ let num_by_num_plot () =
 let main () =
   let plot = num_by_num_plot () in
     plot#display
-    (*Ml_plot_cairo.as_png plot "/var/tmp/test.png";
-    Ml_plot_cairo.as_ps plot "/var/tmp/test.ps";
-    Ml_plot_cairo.as_pdf plot "/var/tmp/test.pdf"*)
 
 let _ = main ()
