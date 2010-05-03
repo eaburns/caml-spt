@@ -60,9 +60,9 @@ object (self)
     Ml_plot_gtk.create_display self self#title
 
 
-  method virtual draw : context -> rectangle -> unit
-    (** [draw ctx box] displays the plot to the given drawing
-	context. *)
+  method virtual draw : context -> unit
+    (** [draw ctx] displays the plot to the given drawing context. *)
+
 
   method output filename =
     (** [output] saves the plot to a filename.  The type is pulled from

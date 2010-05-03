@@ -32,7 +32,7 @@ let draw_plot_to_gtk_area plot area =
       (Geometry.rectangle 0. (float width) 0. (float height));
     (* Scale so that drawing can take place between 0. and 1. *)
     Drawing.scale ctx sizef sizef;
-    plot#draw ctx (Geometry.rectangle 0. 1. 0. 1.)
+    plot#draw ctx
 
 
 open GdkKeysyms

@@ -105,9 +105,10 @@ object (self)
       ~box ~src:(yrange src) ~dst:(yrange dst) ylabel self#yticks
 
 
-  method draw ctx box =
-    (** [draw ctx box] draws the numeric by numeric plot to the given
+  method draw ctx =
+    (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
+    let box = rectangle 0. 1. 0. 1. in
     let src = self#src_ranges in
     let dst = self#dst_rectangle ~box ~src ctx in
     let legend_txt_loc, legend_x, legend_y =
@@ -121,7 +122,7 @@ object (self)
 	| None -> ()
 	| Some t ->
 	    let x = (box.x_max +. box.x_min) /. 2. and y = box.y_min in
-	    draw_text_centered_below ~style:label_style ctx x y t
+	      draw_text_centered_below ~style:label_style ctx x y t
       end;
       self#draw_x_axis ctx ~box ~src ~dst;
       self#draw_y_axis ctx ~box ~src ~dst;
