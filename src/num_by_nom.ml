@@ -48,23 +48,23 @@ object (self)
     Numeric_axis.tick_locations self#src_y_range
 
 
-  method private x_axis_dimensions ctx box =
-    (** [x_axis_dimensions ctx box] computes the x_min, x_max and width
+  method private x_axis_dimensions ctx =
+    (** [x_axis_dimensions ctx] computes the x_min, x_max and width
 	for each dataset to display its name on the x-axis. *)
-    let x_max = box.x_max in
+    let x_max = plot_width in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Ml_plot.text_padding ~x_min:(box.x_min +. y_axis_padding)
+	~pad:Ml_plot.text_padding ~x_min:y_axis_padding
 	ylabel self#yticks
     in
     let n = List.length datasets in
-    let width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
-      range x_min x_max, width
+    let text_width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
+      range x_min x_max, text_width
 
 
-  method private dst_y_range ctx box ~y_min ~y_max ~width =
-    (** [dst_y_range ctx box ~y_min ~y_max ~width] get the range on the
-	y-axis.  [width] is the amount of width afforded to each
+  method private dst_y_range ctx ~y_min ~y_max ~text_width =
+    (** [dst_y_range ctx ~y_min ~y_max ~text_width] get the range on the
+	y-axis.  [text_width] is the amount of width afforded to each
 	dataset on the x-axis. *)
     let title_height =
       match title with
@@ -72,46 +72,47 @@ object (self)
 	| Some txt -> snd (text_dimensions ctx ~style:tick_style txt) in
     let data_label_height =
       List.fold_left (fun m ds ->
-			let h = ds#x_label_height ctx width in
+			let h = ds#x_label_height ctx text_width in
 			  if h > m then h else m)
 	0. datasets
     in
       range
-	(box.y_max -. data_label_height -. x_axis_padding)
-	(box.y_min +. title_height +. Ml_plot.text_padding)
+	(plot_height -. data_label_height -. x_axis_padding)
+	(title_height +. Ml_plot.text_padding)
 
 
 
-  method private draw_y_axis ctx ~box ~src ~dst =
+  method private draw_y_axis ctx ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~box ~src ~dst ylabel self#yticks
+      ~width:plot_width ~height:plot_height ~src ~dst ylabel self#yticks
 
 
-  method private draw_x_axis ctx ~y ~xrange ~width =
-    (** [draw_x_axis ctx ~y ~xrange ~width] draws the x-axis. *)
+  method private draw_x_axis ctx ~y ~xrange ~text_width =
+    (** [draw_x_axis ctx ~y ~xrange ~text_width] draws the x-axis. *)
     set_text_style ctx legend_style;
     ignore (List.fold_left
 	      (fun x ds ->
-		 ds#draw_x_label ctx ~x ~y ~width;
-		 x +. width)
-	      (xrange.min +. (width /. 2.)) datasets)
+		 ds#draw_x_label ctx ~x ~y ~text_width;
+		 x +. text_width)
+	      (xrange.min +. (text_width /. 2.)) datasets)
 
 
   method draw ctx =
     (** [draw ctx] draws the plot. *)
     let src = self#src_y_range in
-    let xrange, width = self#x_axis_dimensions ctx box in
-    let dst = self#dst_y_range ctx box ~y_min ~y_max ~width in
+    let xrange, text_width = self#x_axis_dimensions ctx in
+    let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:text_width in
       begin match title with
 	| None -> ()
 	| Some t ->
-	    let x = (box.x_max +. box.x_min) /. 2. and y = box.y_min in
+	    let x = plot_width /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_style ctx x y t
       end;
-      self#draw_y_axis ctx ~box ~src ~dst;
-      self#draw_x_axis ctx ~y:(dst.min +. x_axis_padding) ~xrange ~width
+      self#draw_y_axis ctx ~src ~dst;
+      self#draw_x_axis ctx ~y:(dst.min +. x_axis_padding) ~xrange
+	~text_width:text_width
 end
 
 
@@ -138,10 +139,11 @@ object
 
 
   method draw_x_label :
-    context -> x:float -> y:float -> width:float -> unit =
-    (** [draw_x_label context ~x ~y ~width] draws the x-axis label to
+    context -> x:float -> y:float -> text_width:float -> unit =
+    (** [draw_x_label context ~x ~y ~text_width] draws the x-axis label to
 	the proper location. *)
-    (fun ctx ~x ~y ~width -> draw_fixed_width_text ctx ~x ~y ~width name)
+    (fun ctx ~x ~y ~text_width ->
+       draw_fixed_width_text ctx ~x ~y ~width:text_width name)
 
   method virtual residual :
     context -> src:range -> dst:range -> float -> int -> range

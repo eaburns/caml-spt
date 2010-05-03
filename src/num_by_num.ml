@@ -58,8 +58,8 @@ object (self)
     Numeric_axis.tick_locations (yrange self#src_ranges)
 
 
-  method private dst_rectangle ~box ~src ctx =
-    (** [dst_rectangle ~box ~src ctx] get the dimensions of the
+  method private dst_rectangle ~src ctx =
+    (** [dst_rectangle ~src ctx] get the dimensions of the
 	destination rectangle. *)
     let title_height =
       match title with
@@ -68,15 +68,16 @@ object (self)
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
 	ctx ~label_style ~tick_style ~pad:Ml_plot.text_padding
-	~y_min:(box.y_max -. axis_padding) ~src:(xrange src) ~dst:(xrange box)
+	~y_min:(plot_height -. axis_padding)
+	~src:(xrange src) ~dst:(range 0. plot_width)
 	xlabel self#xticks in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Ml_plot.text_padding ~x_min:(box.x_min +. axis_padding)
+	~pad:Ml_plot.text_padding ~x_min:axis_padding
 	ylabel self#yticks in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
-	~y_max:(box.y_min +. title_height +. Ml_plot.text_padding) in
+	~y_max:(title_height +. Ml_plot.text_padding) in
     let residual =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
@@ -91,25 +92,29 @@ object (self)
 	~y_max:(dst.y_max +. residual.y_max)
 
 
-  method private draw_x_axis ctx ~box ~src ~dst =
-    (** [draw_x_axis ctx ~box ~src ~dst] draws the x-axis. *)
+  method private draw_x_axis ctx ~src ~dst =
+    (** [draw_x_axis ctx ~src ~dst] draws the x-axis. *)
     Numeric_axis.draw_x_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~box ~src:(xrange src) ~dst:(xrange dst) xlabel self#xticks
+      ~width:plot_width ~height:plot_height
+      ~src:(xrange src) ~dst:(xrange dst)
+      xlabel self#xticks
 
 
-  method private draw_y_axis ctx ~box ~src ~dst =
+  method private draw_y_axis ctx ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~box ~src:(yrange src) ~dst:(yrange dst) ylabel self#yticks
+      ~width:plot_width ~height:plot_height
+      ~src:(yrange src) ~dst:(yrange dst)
+      ylabel self#yticks
 
 
   method draw ctx =
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
     let src = self#src_ranges in
-    let dst = self#dst_rectangle ~box ~src ctx in
+    let dst = self#dst_rectangle ~src ctx in
     let legend_txt_loc, legend_x, legend_y =
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
@@ -120,11 +125,11 @@ object (self)
       begin match title with
 	| None -> ()
 	| Some t ->
-	    let x = (box.x_max +. box.x_min) /. 2. and y = box.y_min in
+	    let x = plot_width /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_style ctx x y t
       end;
-      self#draw_x_axis ctx ~box ~src ~dst;
-      self#draw_y_axis ctx ~box ~src ~dst;
+      self#draw_x_axis ctx ~src ~dst;
+      self#draw_y_axis ctx ~src ~dst;
       List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets;
       save_transforms ctx;
       translate ctx legend_x legend_y;
