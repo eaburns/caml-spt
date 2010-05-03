@@ -19,7 +19,7 @@ let background_resize context width height =
     Drawing.fill_rectangle context ~color:Drawing.white
       (Geometry.rectangle 0. width 0. height);
     (* Scale so that drawing can take place between 0. and 1. *)
-    Cairo.scale context sizef sizef
+    Drawing.scale context sizef sizef
 
 
 let as_png plot filename =

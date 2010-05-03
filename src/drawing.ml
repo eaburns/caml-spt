@@ -18,10 +18,16 @@ let restore_transforms ctx = Cairo.restore ctx
 
 let translate ctx x y = Cairo.translate ctx x y
 
+let scale ctx x y = Cairo.scale ctx x y
+
 
 (** {1 Color} ****************************************)
 
 type color = { r : float; g : float; b : float; a : float}
+
+let font_slant_normal = Cairo.FONT_SLANT_NORMAL
+
+let font_weight_normal = Cairo.FONT_WEIGHT_NORMAL
 
 let black = { r = 0.; g = 0.; b = 0.; a = 1.; }
   (** The color black. *)
@@ -57,17 +63,6 @@ type text_style = {
   text_weight : Cairo.font_weight;
   text_color : color;
 }
-
-let default_text_style =
-  (** The default style for text. *)
-  {
-    text_font = "Palatino-Roman";
-    text_size = 0.03;
-    text_slant = Cairo.FONT_SLANT_NORMAL;
-    text_weight = Cairo.FONT_WEIGHT_NORMAL;
-    text_color = black;
-  }
-
 
 let set_text_style ctx style =
   (** [set_text_stlye ctx style] sets the text style. *)

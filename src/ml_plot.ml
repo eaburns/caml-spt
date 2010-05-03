@@ -13,8 +13,8 @@ let default_tick_style =
   {
     text_font = "Palatino-Roman";
     text_size = 0.03;
-    text_slant = Cairo.FONT_SLANT_NORMAL;
-    text_weight = Cairo.FONT_WEIGHT_NORMAL;
+    text_slant = font_slant_normal;
+    text_weight = font_weight_normal;
     text_color = black;
   }
 
@@ -24,8 +24,8 @@ let default_legend_style =
   {
     text_font = "Palatino-Roman";
     text_size = 0.03;
-    text_slant = Cairo.FONT_SLANT_NORMAL;
-    text_weight = Cairo.FONT_WEIGHT_NORMAL;
+    text_slant = font_slant_normal;
+    text_weight = font_weight_normal;
     text_color = black;
   }
 
@@ -35,8 +35,8 @@ let default_label_style =
   {
     text_font = "Palatino-Roman";
     text_size = 0.04;
-    text_slant = Cairo.FONT_SLANT_NORMAL;
-    text_weight = Cairo.FONT_WEIGHT_NORMAL;
+    text_slant = font_slant_normal;
+    text_weight = font_weight_normal;
     text_color = black;
   }
 

@@ -31,7 +31,7 @@ let draw_plot_to_gtk_area plot area =
     Drawing.fill_rectangle ctx ~color:Drawing.white
       (Geometry.rectangle 0. (float width) 0. (float height));
     (* Scale so that drawing can take place between 0. and 1. *)
-    Cairo.scale ctx sizef sizef;
+    Drawing.scale ctx sizef sizef;
     plot#draw ctx
 
 
