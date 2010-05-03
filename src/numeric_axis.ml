@@ -127,10 +127,10 @@ let draw_x_tick ctx style ~pad ~y scale (vl, t_opt) =
 
 
 let draw_x_axis
-    ctx ~tick_style ~label_style ~pad ~box ~src ~dst label ticks =
-  (** [draw_x_axis ctx ~tick_style ~label_style ~pad ~box ~src ~dst
-      label ticks] draws an x-axis. [scale] is a function that
-      converts an x-value in the original data coordinates to the
+    ctx ~tick_style ~label_style ~pad ~width ~height ~src ~dst label ticks =
+  (** [draw_x_axis ctx ~tick_style ~label_style ~pad ~width ~height
+      ~src ~dst label ticks] draws an x-axis. [scale] is a function
+      that converts an x-value in the original data coordinates to the
       destination x-coordinate system. *)
   let tick_text_height = max_tick_text_height ctx tick_style ticks in
   let tr = range_transform ~src ~dst in
@@ -138,11 +138,11 @@ let draw_x_axis
     | None -> 0.
     | Some label ->
 	let h = snd (text_dimensions ctx ~style:label_style label) in
-	let x = (box.x_max +. box.x_min) /. 2. in
-	  draw_text_centered_above ctx x box.y_max label;
+	let x = width /. 2. in
+	  draw_text_centered_above ctx x height label;
 	  h
   in
-  let y' = box.y_max -. h -. pad -. tick_text_height -. pad -. tick_length in
+  let y' = height -. h -. pad -. tick_text_height -. pad -. tick_length in
     List.iter (draw_x_tick ctx tick_style ~pad ~y:y' tr) ticks;
     draw_line ctx ~style:axis_style [ point dst.min y'; point dst.max y'; ]
 
@@ -179,19 +179,19 @@ let draw_y_tick ctx style ~pad ~x tr (vl, t_opt) =
 
 
 let draw_y_axis
-    ctx ~tick_style ~label_style ~pad ~box ~src ~dst label ticks =
-  (** [draw_y_axis ctx ~tick_style ~label_style ~pad ~box ~src ~dst
-      label ticks] draws a y-axis. *)
+    ctx ~tick_style ~label_style ~pad ~width ~height ~src ~dst label ticks =
+  (** [draw_y_axis ctx ~tick_style ~label_style ~pad ~width ~height
+      ~src ~dst label ticks] draws a y-axis. *)
   let tick_text_width = max_tick_text_width ctx tick_style ticks in
   let tr = range_transform ~src ~dst in
   let h = match label with
     | None -> 0.
     | Some label ->
 	let h = snd (text_dimensions ctx ~style:label_style label) in
-	let y = (box.y_max +. box.y_min) /. 2. in
-	  draw_text ctx ~angle:270. (box.x_min +. h /. 2.) y label;
+	let y = height /. 2. in
+	  draw_text ctx ~angle:270. (h /. 2.) y label;
 	  h
   in
-  let x' = box.x_min +. h +. pad +. tick_text_width +. pad +. tick_length in
+  let x' = h +. pad +. tick_text_width +. pad +. tick_length in
     List.iter (draw_y_tick ctx tick_style ~pad ~x:x' tr) ticks;
     draw_line ctx ~style:axis_style [ point x' dst.min; point x' dst.max; ]

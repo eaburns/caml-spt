@@ -50,7 +50,9 @@ class virtual plot title =
 object (self)
 
 
-  val box = rectangle 0. 1. 0. 1.
+  val plot_width = 1.0
+
+  val plot_height = 1.0
 
 
   method private title = match title with
