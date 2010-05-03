@@ -203,4 +203,7 @@ object (self)
   method residual ctx ~src ~dst = self#composite#residual ctx ~src ~dst
 
   method draw ctx ~src ~dst = self#composite#draw ctx ~src ~dst
+
+  method draw_legend_entry ctx rect =
+    self#composite#draw_legend_entry ctx rect
 end

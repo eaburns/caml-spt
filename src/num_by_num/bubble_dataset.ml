@@ -68,4 +68,8 @@ object (self)
 		      if rectangle_contains src pt
 		      then draw_point ctx ~color radius glyph pt')
 	triples
+
+
+  method draw_legend_entry _ _ =
+    failwith "bubble_dataset#draw_legend_entry: Unimplemented"
 end

@@ -11,11 +11,12 @@ open Drawing
 
 class plot
   ?(label_style=Ml_plot.default_label_style)
+  ?(legend_style=Ml_plot.default_legend_style)
   ?(tick_style=Ml_plot.default_tick_style)
   ?title ?ylabel ?y_min ?y_max datasets =
-  (** [plot ?label_style ?tick_style ?title ?ylabel ?y_min
-      ?y_max datasets] a plot that has a nominal x axis and a numeric
-      y axis. *)
+  (** [plot ?label_style ?legend_style ?tick_style ?title ?ylabel
+      ?y_min ?y_max datasets] a plot that has a nominal x axis and a
+      numeric y axis. *)
 object (self)
   inherit Ml_plot.plot title
 
@@ -83,7 +84,7 @@ object (self)
 
   method private draw_x_axis ctx ~y ~xrange ~width =
     (** [draw_x_axis ctx ~y ~xrange ~width] draws the x-axis. *)
-    set_text_style ctx tick_style;
+    set_text_style ctx legend_style;
     ignore (List.fold_left
 	      (fun x ds ->
 		 ds#draw_x_label ctx ~x ~y ~width;

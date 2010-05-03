@@ -54,6 +54,10 @@ object (self)
 			Errbar.draw_down ctx ~style ~src ~dst ~x ~y mag;
 		    end)
 	triples
+
+
+  method draw_legend_entry _ _ = ()
+
 end
 
 
@@ -93,4 +97,8 @@ object
 			Errbar.draw_right ctx ~style ~src ~dst ~x ~y mag;
 		    end)
 	triples
+
+
+  method draw_legend_entry _ _ = ()
+
 end

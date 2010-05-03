@@ -15,9 +15,9 @@ object
     (** The name of the dataset.  If there is no name then the dataset
 	doesn't appear in the legend. *)
 
-  method virtual dimensions : rectangle
-    (** [dimensions] is the dimensions of this dataset in
-	data-coordinates. *)
+  method name = name
+    (** [name] gets the (optional) name of the dataset. *)
+
 
   method residual
     (_:context) ~(src:rectangle) ~(dst:rectangle) = zero_rectangle
@@ -25,17 +25,19 @@ object
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction. *)
 
+  method virtual draw_legend_entry : context -> rectangle -> unit
+    (** [draw_legend_entry ctx box] draws the legend entry in the
+	given box. *)
 
   method virtual draw :
     context -> src:rectangle -> dst:rectangle -> unit
     (** [draw ctx ~src ~dst] draws the data to the plot. *)
 
 
-  method draw_legend_entry (_:context) ~(x:float) ~(y:float) = y
-    (** [draw_legend_entry ctx ~x ~y] draws the legend entry to the
-	given location ([x] is the left-edge and [y] is top edge of
-	the destination) and the result is the y-coordinate of the
-	bottom edge of the entry that was just drawn. *)
+  method virtual dimensions : rectangle
+    (** [dimensions] is the dimensions of this dataset in
+	data-coordinates. *)
+
 end
 
 
@@ -76,5 +78,9 @@ object
 
   method draw ctx ~src ~dst =
     List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets
+
+
+  method draw_legend_entry ctx rect =
+    List.iter (fun ds -> ds#draw_legend_entry ctx rect) datasets
 
 end

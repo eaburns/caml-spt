@@ -18,6 +18,17 @@ let default_tick_style =
     text_color = black;
   }
 
+
+let default_legend_style =
+  (** The default style for legend text. *)
+  {
+    text_font = "Palatino-Roman";
+    text_size = 0.03;
+    text_slant = Cairo.FONT_SLANT_NORMAL;
+    text_weight = Cairo.FONT_WEIGHT_NORMAL;
+    text_color = black;
+  }
+
 let default_label_style =
   (** The default style for the x and y axis labels and the title
       text. *)

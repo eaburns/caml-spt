@@ -10,6 +10,14 @@ open Geometry
 
 type context = Cairo.t
 
+(** {1 Transforms} ****************************************)
+
+let save_transforms ctx = Cairo.save ctx
+
+let restore_transforms ctx = Cairo.restore ctx
+
+let translate ctx x y = Cairo.translate ctx x y
+
 
 (** {1 Color} ****************************************)
 

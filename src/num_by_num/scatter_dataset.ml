@@ -8,6 +8,11 @@ open Num_by_num_dataset
 open Geometry
 open Drawing
 
+
+let default_radius = 0.012
+  (** The default radius of the scatter points. *)
+
+
 let make_glyph_factory glyph_set () =
   (** [make_glyph_factory glyph_set ()] makes a glyph factory which
       returns a new glyph at each call. *)
@@ -52,7 +57,8 @@ let numbered_glyph_factory =
   in make_glyph_factory glyph_set
 
 
-class scatter_dataset glyph ?(color=black) ?(radius=0.012) ?name points =
+class scatter_dataset
+  glyph ?(color=black) ?(radius=default_radius) ?name points =
   (** A scatter plot dataset. *)
 object (self)
   inherit points_dataset ?name points
@@ -79,29 +85,48 @@ object (self)
       done;
       draw_points ctx ~color radius glyph !pts
 
+  method draw_legend_entry ctx rect =
+    let r = (min (rect.x_max -. rect.x_min) (rect.y_max -. rect.y_min)) /. 2.
+    and x = (rect.x_max +. rect.x_min) /. 2.
+    and y = (rect.y_max +. rect.y_min) /. 2.
+    in draw_point ctx ~color r glyph (point x y)
+
 end
 
 
 (** {2 Scatter plot with error bars} ****************************************)
 
-class scatter_errbar_dataset glyph ?color ?radius ?name point_sets =
-  (** A scatter bar dataset with errorbars.  The [point_set] is an
-      array of points arrays. *)
-  let pts, x_errs, y_errs =
-    Array.fold_left (fun (pts, x_errs, y_errs) vls ->
+
+let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
+  (** [scatter_errbara_dataset glyph ?color ?radius ?name sets]
+      creates a new composite dataset that is as scatter plot with
+      error bars and optionally labels on each point. *)
+  let pts, lbls, x_errs, y_errs =
+    Array.fold_left (fun (pts, lbls, x_errs, y_errs) (vls, name) ->
 		       let xs = Array.map (fun p -> p.x) vls
 		       and ys = Array.map (fun p -> p.y) vls in
 		       let mu_x, int_x = Statistics.mean_and_interval xs
 		       and mu_y, int_y = Statistics.mean_and_interval ys in
-			 (point mu_x mu_y :: pts,
+		       let pt = point mu_x mu_y in
+		       let lbls' = match name with
+			 | Some txt -> (pt, txt) :: lbls
+			 | None -> lbls
+		       in
+			 (pt :: pts,
+			  lbls',
 			  triple mu_x mu_y int_x :: x_errs,
 			  triple mu_x mu_y int_y :: y_errs))
-      ([], [], []) point_sets in
-  let scatter = new scatter_dataset glyph ?color ?radius (Array.of_list pts)
+      ([], [], [], []) sets in
+  let scatter = new scatter_dataset glyph ?color ~radius (Array.of_list pts)
+  and labels =
+    new Label_dataset.label_dataset
+      ~yoff:~-.radius ~xoff:radius
+      ~xloc:Label_dataset.Label_after
+      ~yloc:Label_dataset.Label_above
+      (Array.of_list lbls)
   and horiz_err =
     new Errbar_dataset.horizontal_errbar_dataset (Array.of_list x_errs)
   and vert_err =
-    new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs) in
-object (self)
-  inherit composite_dataset ?name [scatter; horiz_err; vert_err]
-end
+    new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs)
+  in
+    new composite_dataset ?name [scatter; horiz_err; vert_err; labels;]
