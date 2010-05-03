@@ -108,7 +108,6 @@ object (self)
   method draw ctx =
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
-    let box = rectangle 0. 1. 0. 1. in
     let src = self#src_ranges in
     let dst = self#dst_rectangle ~box ~src ctx in
     let legend_txt_loc, legend_x, legend_y =

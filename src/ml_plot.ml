@@ -50,6 +50,9 @@ class virtual plot title =
 object (self)
 
 
+  val box = rectangle 0. 1. 0. 1.
+
+
   method private title = match title with
     | Some t -> t
     | None -> "<not title>"
