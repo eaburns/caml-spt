@@ -30,11 +30,11 @@ let default_glyph_factory =
   let glyph_set =
     [| Circle_glyph;
        Ring_glyph;
-       Plus_glyph;
        Triangle_glyph;
        Box_glyph;
        Square_glyph;
        Cross_glyph;
+       Plus_glyph;
     |]
   in make_glyph_factory glyph_set
 

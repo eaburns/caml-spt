@@ -20,7 +20,7 @@ type legend_location =
   | Legend_lower_right
 
 
-let legend_icon_width = 0.08
+let legend_icon_width = 0.065
   (** The width of a legend icon. *)
 
 
@@ -141,14 +141,13 @@ object (self)
 	Text_after, dst.x_min, dst.y_max
     | Legend_lower_left ->
 	let _, h = self#legend_dimensions ctx in
-	  Text_after, dst.x_min, dst.y_min -. h
+	  Text_after, dst.x_min, dst.y_min -. h +. Numeric_axis.padding
     | Legend_upper_right ->
 	let w, _ = self#legend_dimensions ctx in
 	  Text_before, dst.x_max -. w, dst.y_max
     | Legend_lower_right ->
 	let w, h = self#legend_dimensions ctx in
-	  Text_before, dst.x_max -. w, dst.y_min -. h
-
+	  Text_before, dst.x_max -. w, dst.y_min -. h +. Numeric_axis.padding
 
 
   method draw ctx =
@@ -185,11 +184,11 @@ object (self)
 		       let x', rect = match text_loc with
 			 | Text_before ->
 			     width -. legend_icon_width -. pad -. x,
-			       (rectangle
-				  ~x_min:(width -. legend_icon_width)
-				  ~x_max:width
-				  ~y_min:y
-				  ~y_max:(y +. h))
+			     (rectangle
+				~x_min:(width -. legend_icon_width)
+				~x_max:width
+				~y_min:y
+				~y_max:(y +. h))
 			 | Text_after ->
 			     let x' = x +. pad +. legend_icon_width in
 			       x',

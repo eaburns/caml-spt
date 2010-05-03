@@ -70,7 +70,7 @@ object (self)
 	0. datasets
     in
       range
-	(1. -. Numeric_axis.axis_padding -. data_label_height)
+	(1. -. Numeric_axis.padding -. data_label_height)
 	(title_height +. Ml_plot.text_padding)
 
 
@@ -97,7 +97,7 @@ object (self)
     let src = self#range in
     let xrange, width = self#x_axis_dimensions ctx in
     let dst = self#dest_y_range ctx ~y_min ~y_max ~width in
-    let y = dst.min +. Numeric_axis.axis_padding in
+    let y = dst.min +. Numeric_axis.padding in
       begin match title with
 	| None -> ()
 	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
