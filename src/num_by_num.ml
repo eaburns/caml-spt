@@ -118,8 +118,8 @@ object (self)
       ~x:0. ~src:(yrange src) ~dst:(yrange dst) ylabel self#yticks
 
 
-  method private legend_size ?(style=legend_style) ctx =
-    (** [legend_size ctx] computes the size of the legend. *)
+  method private legend_dimensions ?(style=legend_style) ctx =
+    (** [legend_dimensions ctx] computes the size of the legend. *)
     let pad = Ml_plot.text_padding in
       List.fold_left
 	(fun ((w, h) as dims) ds -> match ds#name with
@@ -128,10 +128,8 @@ object (self)
 	       let txt_w, txt_h = text_dimensions ctx ~style txt in
 	       let width = txt_w +. legend_icon_width +. pad in
 	       let height = txt_h +. pad in
-	       let w' = if width > w then width else w
-	       and h' = if height > h then height else h
-	       in w', h')
-	(0., 0.) datasets
+		 max width w, height +. h)
+	(0., ~-.pad) datasets
 
 
   method private locate_legend ctx dst = match legend_loc with
@@ -142,13 +140,13 @@ object (self)
     | Legend_upper_left ->
 	Text_after, dst.x_min, dst.y_max
     | Legend_lower_left ->
-	let _, h = self#legend_size ctx in
+	let _, h = self#legend_dimensions ctx in
 	  Text_after, dst.x_min, dst.y_min -. h
     | Legend_upper_right ->
-	let w, _ = self#legend_size ctx in
+	let w, _ = self#legend_dimensions ctx in
 	  Text_before, dst.x_max -. w, dst.y_max
     | Legend_lower_right ->
-	let w, h = self#legend_size ctx in
+	let w, h = self#legend_dimensions ctx in
 	  Text_before, dst.x_max -. w, dst.y_min -. h
 
 
@@ -177,6 +175,7 @@ object (self)
     (** [draw_legend ?text_loc ?style ctx] draws the legend into the
 	upper right corner of the unit square. *)
     let pad = Ml_plot.text_padding in
+    let width, _ = self#legend_dimensions ~style ctx in
       ignore (List.fold_left
 		(fun y ds -> match ds#name with
 		   | None -> y
@@ -185,13 +184,15 @@ object (self)
 		       let x = w /. 2. and y' = y +. (h /. 2.) in
 		       let x', rect = match text_loc with
 			 | Text_before ->
-			     x, (rectangle
-				   ~x_min:(w +. pad)
-				   ~x_max:(w +. pad +. legend_icon_width)
-				   ~y_min:y
-				   ~y_max:(y +. h))
+			     width -. legend_icon_width -. pad -. x,
+			       (rectangle
+				  ~x_min:(width -. legend_icon_width)
+				  ~x_max:width
+				  ~y_min:y
+				  ~y_max:(y +. h))
 			 | Text_after ->
-			     x +. pad +. legend_icon_width,
+			     let x' = x +. pad +. legend_icon_width in
+			       x',
 			     (rectangle
 				~x_min:0. ~x_max:legend_icon_width
 				~y_min:y ~y_max:(y +. h))
