@@ -32,6 +32,10 @@ let default_dash_factory =
   in make_dash_factory default_dash_set
 
 
+let line_legend_length = 0.065
+  (** The length of the line drawn in the legend. *)
+
+
 class line_dataset dashes ?(width=0.002) ?(color=black) ?name points =
   (** A line plot dataset. *)
 object (self)
@@ -53,9 +57,13 @@ object (self)
       draw_line ctx ~box:dst ~style !pts
 
 
-  method draw_legend_entry ctx rect =
-    let y = (rect.y_max +. rect.y_min) /. 2. in
-    draw_line ctx ~style [ point rect.x_min y; point rect.x_max y]
+  method draw_legend ctx ~x ~y =
+    let half_length = line_legend_length /. 2. in
+    let x0 = x -. half_length and x1 = x +. half_length in
+      draw_line ctx ~style [ point x0 y; point x1 y]
+
+
+  method legend_dimensions _ = line_legend_length, width
 
 end
 

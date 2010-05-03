@@ -87,6 +87,8 @@ object (self)
 	label_points
 
 
-  method draw_legend_entry _ _ = ()
+  method draw_legend _ ~x:_ ~y:_ = ()
+
+  method legend_dimensions _ = 0., 0.
 
 end

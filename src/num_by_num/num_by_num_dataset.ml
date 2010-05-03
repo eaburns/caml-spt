@@ -25,9 +25,16 @@ object
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction. *)
 
-  method virtual draw_legend_entry : context -> rectangle -> unit
-    (** [draw_legend_entry ctx box] draws the legend entry in the
-	given box. *)
+
+  method virtual draw_legend : context -> x:float -> y:float -> unit
+    (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
+	given location. *)
+
+
+  method virtual legend_dimensions : context -> float * float
+    (** [legend_dimensions ctx] gets the dimensions of the legend
+	icon. *)
+
 
   method virtual draw :
     context -> src:rectangle -> dst:rectangle -> unit
@@ -68,8 +75,8 @@ object
 
   method dimensions =
     List.fold_left (fun r ds -> rectangle_extremes r ds#dimensions)
-     (rectangle ~x_min:infinity ~x_max:neg_infinity
-	~y_min:infinity ~y_max:neg_infinity) datasets
+      (rectangle ~x_min:infinity ~x_max:neg_infinity
+	 ~y_min:infinity ~y_max:neg_infinity) datasets
 
   method residual ctx ~src ~dst =
     List.fold_left (fun r ds ->
@@ -80,7 +87,15 @@ object
     List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets
 
 
-  method draw_legend_entry ctx rect =
-    List.iter (fun ds -> ds#draw_legend_entry ctx rect) datasets
+  method draw_legend ctx ~x ~y =
+    List.iter (fun ds -> ds#draw_legend ctx ~x ~y) datasets
+
+  method legend_dimensions ctx =
+    List.fold_left (fun (w, h) ds ->
+		      let width, height = ds#legend_dimensions ctx in
+		      let w' = if width > w then width else w
+		      and h' = if height > h then height else h
+		      in w', h')
+      (0., 0.) datasets
 
 end
