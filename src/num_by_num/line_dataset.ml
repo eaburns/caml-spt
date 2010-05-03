@@ -50,5 +50,11 @@ object (self)
       for i = (Array.length points) - 1 downto 0 do
 	pts := (tr points.(i)) :: !pts
       done;
-      draw_line ctx ~box:dst ~style:style !pts
+      draw_line ctx ~box:dst ~style !pts
+
+
+  method draw_legend_entry ctx rect =
+    let y = (rect.y_max +. rect.y_min) /. 2. in
+    draw_line ctx ~style [ point rect.x_min y; point rect.x_max y]
+
 end

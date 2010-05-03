@@ -7,16 +7,37 @@
 open Geometry
 open Drawing
 
+type legend_text_location =
+  | Text_before
+  | Text_after
+
+
+type legend_location =
+  | Legend_at of legend_text_location * float * float
+  | Legend_upper_left
+  | Legend_lower_left
+  | Legend_upper_right
+  | Legend_lower_right
+
+
+let legend_icon_width = 0.08
+  (** The width of a legend icon. *)
+
+
+
 (** {1 Numeric by numeric plot} ****************************************)
 
 class plot
   ?(label_style=Ml_plot.default_label_style)
+  ?(legend_style=Ml_plot.default_legend_style)
   ?(tick_style=Ml_plot.default_tick_style)
   ?title ?xlabel ?ylabel
-  ?x_min ?x_max ?y_min ?y_max datasets =
-  (** [plot ?label_style ?tick_style ?title ?xlabel ?ylabel ?x_min
-      ?x_max ?y_min ?y_max datasets] a plot that has a numeric x and y
-      axis. *)
+  ?(legend_loc=Legend_lower_right)
+  ?x_min ?x_max ?y_min ?y_max
+  datasets =
+  (** [plot ?label_style ?legend_style ?tick_style ?title ?xlabel
+      ?ylabel ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a
+      numeric x and y axis. *)
 object (self)
   inherit Ml_plot.plot title
 
@@ -97,18 +118,89 @@ object (self)
       ~x:0. ~src:(yrange src) ~dst:(yrange dst) ylabel self#yticks
 
 
+  method private legend_size ?(style=legend_style) ctx =
+    (** [legend_size ctx] computes the size of the legend. *)
+    let pad = Ml_plot.text_padding in
+      List.fold_left
+	(fun ((w, h) as dims) ds -> match ds#name with
+	   | None -> dims
+	   | Some txt ->
+	       let txt_w, txt_h = text_dimensions ctx ~style txt in
+	       let width = txt_w +. legend_icon_width +. pad in
+	       let height = txt_h +. pad in
+	       let w' = if width > w then width else w
+	       and h' = if height > h then height else h
+	       in w', h')
+	(0., 0.) datasets
+
+
+  method private locate_legend ctx dst = match legend_loc with
+      (** [locate_legend ctx dst] gets the location for drawing the
+	  plot legend. *)
+    | Legend_at (txt_loc, x, y) ->
+	txt_loc, x, y
+    | Legend_upper_left ->
+	Text_after, dst.x_min, dst.y_max
+    | Legend_lower_left ->
+	let _, h = self#legend_size ctx in
+	  Text_after, dst.x_min, dst.y_min -. h
+    | Legend_upper_right ->
+	let w, _ = self#legend_size ctx in
+	  Text_before, dst.x_max -. w, dst.y_max
+    | Legend_lower_right ->
+	let w, h = self#legend_size ctx in
+	  Text_before, dst.x_max -. w, dst.y_min -. h
+
+
+
   method draw ctx =
     (** [draw ctx] draws the numeric by numeric plot to the given
 	context. *)
     let src = self#ranges in
     let dst = self#dest_rectangle src ctx in
+    let legend_txt_loc, legend_x, legend_y = self#locate_legend ctx dst in
       begin match title with
 	| None -> ()
-	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
+	| Some t -> draw_text_centered_below ~style:legend_style ctx 0.5 0. t
       end;
       self#draw_x_axis ctx ~src ~dst;
       self#draw_y_axis ctx ~src ~dst;
-      List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets
+      List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets;
+      save_transforms ctx;
+      translate ctx legend_x legend_y;
+      self#draw_legend ctx ~text_loc:legend_txt_loc;
+      restore_transforms ctx
+
+
+  method draw_legend
+    ?(text_loc=Text_before) ?(style=legend_style) (ctx:context) =
+    (** [draw_legend ?text_loc ?style ctx] draws the legend into the
+	upper right corner of the unit square. *)
+    let pad = Ml_plot.text_padding in
+      ignore (List.fold_left
+		(fun y ds -> match ds#name with
+		   | None -> y
+		   | Some txt ->
+		       let w, h = text_dimensions ctx ~style txt in
+		       let x = w /. 2. and y' = y +. (h /. 2.) in
+		       let x', rect = match text_loc with
+			 | Text_before ->
+			     x, (rectangle
+				   ~x_min:(w +. pad)
+				   ~x_max:(w +. pad +. legend_icon_width)
+				   ~y_min:y
+				   ~y_max:(y +. h))
+			 | Text_after ->
+			     x +. pad +. legend_icon_width,
+			     (rectangle
+				~x_min:0. ~x_max:legend_icon_width
+				~y_min:y ~y_max:(y +. h))
+		       in
+			 draw_text ctx ~style x' y' txt;
+			 ds#draw_legend_entry ctx rect;
+			 y +. h +. pad;)
+		0. datasets)
+
 
 end
 

@@ -19,15 +19,22 @@ let default_style =
   }
 
 
-type label_location =
-  | Label_at
-  | Label_above
-  | Label_below
+type label_x_location =
+  | Label_xat
   | Label_before
   | Label_after
 
+
+type label_y_location =
+  | Label_yat
+  | Label_above
+  | Label_below
+
+
 class label_dataset
-  ?(style=default_style) ?(loc=Label_at) ?(xoff=0.) ?(yoff=0.)
+  ?(style=default_style)
+  ?(xloc=Label_xat) ?(yloc=Label_yat)
+  ?(xoff=0.) ?(yoff=0.)
   ?name label_points =
   (** Add labels where the points are given data-coordinates.  [xoff]
       and [yoff] are plot-coordinate offsets to apply to the label before
@@ -47,12 +54,15 @@ object (self)
 	coordinate system. *)
     let x = pt'.x +. xoff and y = pt'.y +. yoff in
     let w, h = text_dimensions ctx ~style txt in
-      match loc with
-	| Label_at -> point x y
-	| Label_above -> point x (y -. (h /. 2.))
-	| Label_below -> point x (y +. (h /. 2.))
-	| Label_before -> point (x -. (w /. 2.)) y
-	| Label_after -> point (x +. (w /. 2.)) y
+    let x' = match xloc with
+      | Label_xat -> x
+      | Label_before -> x -. (w /. 2.)
+      | Label_after -> x +. (w /. 2.)
+    and y' = match yloc with
+      | Label_yat -> y
+      | Label_above -> y -. (h /. 2.)
+      | Label_below -> y +. (h /. 2.)
+    in point x' y'
 
 
   method residual ctx ~src ~dst =
@@ -75,4 +85,8 @@ object (self)
 		    let pt' = self#position ctx (tr pt) txt in
 		      draw_text ctx ~style pt'.x pt'.y txt)
 	label_points
+
+
+  method draw_legend_entry _ _ = ()
+
 end
