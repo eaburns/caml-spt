@@ -48,21 +48,22 @@ object (self)
     Numeric_axis.tick_locations self#src_y_range
 
 
-  method private x_axis_dimensions ctx =
-    (** [x_axis_dimensions ctx] computes the x_min, x_max and width
+  method private x_axis_dimensions ctx box =
+    (** [x_axis_dimensions ctx box] computes the x_min, x_max and width
 	for each dataset to display its name on the x-axis. *)
-    let x_max = 1. in
+    let x_max = box.x_max in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Ml_plot.text_padding ~x_min:y_axis_padding ylabel self#yticks
+	~pad:Ml_plot.text_padding ~x_min:(box.x_min +. y_axis_padding)
+	ylabel self#yticks
     in
     let n = List.length datasets in
     let width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
       range x_min x_max, width
 
 
-  method private dst_y_range ctx ~y_min ~y_max ~width =
-    (** [dst_y_range ctx ~y_min ~y_max ~width] get the range on the
+  method private dst_y_range ctx box ~y_min ~y_max ~width =
+    (** [dst_y_range ctx box ~y_min ~y_max ~width] get the range on the
 	y-axis.  [width] is the amount of width afforded to each
 	dataset on the x-axis. *)
     let title_height =
@@ -76,16 +77,16 @@ object (self)
 	0. datasets
     in
       range
-	(1. -. data_label_height -. x_axis_padding)
-	(title_height +. Ml_plot.text_padding)
+	(box.y_max -. data_label_height -. x_axis_padding)
+	(box.y_min +. title_height +. Ml_plot.text_padding)
 
 
 
-  method private draw_y_axis ctx ~src ~dst =
+  method private draw_y_axis ctx ~box ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~x:0. ~src ~dst ylabel self#yticks
+      ~box ~src ~dst ylabel self#yticks
 
 
   method private draw_x_axis ctx ~y ~xrange ~width =
@@ -98,16 +99,18 @@ object (self)
 	      (xrange.min +. (width /. 2.)) datasets)
 
 
-  method draw ctx =
-    (** [draw ctx] draws the plot. *)
+  method draw ctx box =
+    (** [draw ctx box] draws the plot. *)
     let src = self#src_y_range in
-    let xrange, width = self#x_axis_dimensions ctx in
-    let dst = self#dst_y_range ctx ~y_min ~y_max ~width in
+    let xrange, width = self#x_axis_dimensions ctx box in
+    let dst = self#dst_y_range ctx box ~y_min ~y_max ~width in
       begin match title with
 	| None -> ()
-	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
+	| Some t ->
+	    let x = (box.x_max +. box.x_min) /. 2. and y = box.y_min in
+	      draw_text_centered_below ~style:label_style ctx x y t
       end;
-      self#draw_y_axis ctx ~src ~dst;
+      self#draw_y_axis ctx ~box ~src ~dst;
       self#draw_x_axis ctx ~y:(dst.min +. x_axis_padding) ~xrange ~width
 end
 
