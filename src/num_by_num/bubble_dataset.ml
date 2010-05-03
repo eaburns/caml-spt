@@ -70,6 +70,10 @@ object (self)
 	triples
 
 
-  method draw_legend_entry _ _ =
-    failwith "bubble_dataset#draw_legend_entry: Unimplemented"
+  method draw_legend_entry ctx rect =
+    let r = (min (rect.x_max -. rect.x_min) (rect.y_max -. rect.y_min)) /. 2.
+    and x = (rect.x_max +. rect.x_min) /. 2.
+    and y = (rect.y_max +. rect.y_min) /. 2.
+    in draw_point ctx ~color r glyph (point x y)
+
 end
