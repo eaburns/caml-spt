@@ -131,8 +131,7 @@ let mean_line_and_errbars ~num ~count lines =
       the error bars. *)
   let domain = common_domain lines in
   let errbars = errbars ~xrange:domain ~num ~count ~domain lines in
-  let bar_xs = Array.map (fun t -> t.i) errbars in
-    mean_line domain ~xs:bar_xs lines, errbars
+    mean_line domain lines, errbars
 
 
 type style_cache_entry =
@@ -204,6 +203,7 @@ object (self)
 
   method draw ctx ~src ~dst = self#composite#draw ctx ~src ~dst
 
-  method draw_legend_entry ctx rect =
-    self#composite#draw_legend_entry ctx rect
+  method draw_legend ctx ~x ~y = self#composite#draw_legend ctx ~x ~y
+
+  method legend_dimensions ctx = self#composite#legend_dimensions ctx
 end

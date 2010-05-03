@@ -46,8 +46,7 @@ let num_by_num_plot () =
   let next_dash = Num_by_num.default_dash_factory () in
   let next_glyph = Num_by_num.default_glyph_factory () in
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
-    ignore (next_dash ());
-    ignore (next_glyph ());
+    ignore (next_line_err ());
     new Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
