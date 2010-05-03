@@ -2,10 +2,6 @@
 Things that we need before anyone can begin beta testing
 ------------------------------------------------------------
 
-* Legends
-  - Drawing legends off of the plot.
-  - Make a 'legend plot'?
-
 * Legacy module (in ps_plot)
 
 * Compute better 'tick' locations on numeric axes
@@ -19,6 +15,12 @@ GUI
 * Give a graphical error message when failing to save from the GUI
 
 * Fix keyboard shortcuts
+
+------------------------------------------------------------
+Extra features
+------------------------------------------------------------
+
+* Drawing legends off of the plot.
 
 ------------------------------------------------------------
 Datasets
