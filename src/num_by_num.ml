@@ -161,7 +161,7 @@ object (self)
     let legend_txt_loc, legend_x, legend_y = self#locate_legend ctx dst in
       begin match title with
 	| None -> ()
-	| Some t -> draw_text_centered_below ~style:legend_style ctx 0.5 0. t
+	| Some t -> draw_text_centered_below ~style:label_style ctx 0.5 0. t
       end;
       self#draw_x_axis ctx ~src ~dst;
       self#draw_y_axis ctx ~src ~dst;
