@@ -53,17 +53,16 @@ let num_by_num_plot () =
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       [
-(*
 	Num_by_num.scatter_errbar_dataset
 	  ~name:"Scatter with error bars"
 	  ~color:green (next_glyph ())
 	  [|
 	    [| point 0.5 7.5; point 1.0 1.4;
-	       point 2.0 7.0; point 10.0 3.5; |], None;
-	    [| point 8.5 4.5; point 1.8 7.1;
-	       point 5.7 2.6; point 20.7 3.5; |], Some "two";
+	       point 2.0 7.0; point 10.0 3.5; |], Some "one";
+	    [| point 8.5 10.5; point 1.8 8.1;
+	       point 5.7 7.6; point 20.7 9.5; |], Some "two";
 	    [| point 3.2 2.6; point 4.7 2.1;
-	       point 3.6 7.7; point 10.0 3.7; |], None;
+	       point 3.6 7.7; point 10.0 3.7; |], Some "three";
 	    [| point 1.9 9.5; point 9.2 8.0;
 	       point 8.5 7.1; point 10.1 3.9; |], Some "four";
 	  |];
@@ -76,17 +75,15 @@ let num_by_num_plot () =
 	  ~name:"Lines with error bars"
 	  ~color:blue (next_line_err ())
 	  [|
-	    [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
-	    [| point 8.5 7.5; point 1.8 7.1; point 5.7 2.6; point 20.7 3.5; |];
-	    [| point 3.2 7.6; point 4.7 2.1; point 3.6 7.7; point 10.0 3.7; |];
-	    [| point 1.9 7.5; point 9.2 8.0; point 8.5 7.1; point 10.1 3.9; |];
+	    [| point 0.5 17.5; point 1.0 11.4;
+	       point 2.0 17.0; point 10.0 13.5; |];
+	    [| point 8.5 17.5; point 1.8 17.1;
+	       point 5.7 12.6; point 20.7 13.5; |];
+	    [| point 3.2 17.6; point 4.7 12.1;
+	       point 3.6 17.7; point 10.0 13.7; |];
+	    [| point 1.9 17.5; point 9.2 18.0;
+	       point 8.5 17.1; point 10.1 13.9; |];
 	  |];
-*)
-
-	Num_by_num.lines_points_dataset (next_dash ()) (next_glyph ())
-	  ~name:"Lines and points 2"
-	  [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
-
       ]
 
 

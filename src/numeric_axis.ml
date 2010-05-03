@@ -30,7 +30,7 @@ let tick_style =
   }
 
 
-let axis_padding = 0.05
+let padding = 0.05
   (** Padding between the axis and the data. *)
 
 
@@ -94,7 +94,7 @@ let resize_for_x_axis
     y_min
     -. label_room -. pad
     -. tick_length -. pad -. x_tick_txt_height
-    -. axis_padding
+    -. padding
   in
   let over (vl, txt_opt) =
     match txt_opt with
@@ -168,7 +168,7 @@ let resize_for_y_axis ctx ~label_style ~tick_style ~pad ~x_min label ticks =
     x_min
     +. label_room +. pad
     +. tick_length +. pad +. tick_text_width
-    +. axis_padding
+    +. padding
 
 
 let draw_y_tick ctx style ~pad ~x tr (vl, t_opt) =
