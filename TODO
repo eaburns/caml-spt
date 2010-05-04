@@ -24,6 +24,9 @@ Extra features
 
 * Drawing legends off of the plot.
 
+* Fixing the aspect ratio so that the mean slopes of lines in the plot
+  are ~45 deg.
+
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
