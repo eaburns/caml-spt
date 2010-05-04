@@ -110,7 +110,7 @@ object (self)
       ylabel self#yticks
 
 
-  method draw ctx ~width:_ ~height:_ =
+  method draw ctx =
     let src = self#src_ranges in
     let dst = self#dst_rectangle ~src ctx in
     let legend_txt_loc, legend_x, legend_y =
