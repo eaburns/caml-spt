@@ -65,7 +65,7 @@ object (self)
 
   method display =
     (** [display] opens a lablgtk window showing the plot. *)
-    Caml_spt_gtk.create_display self self#title
+    Spt_gtk.create_display self self#title
 
 
   method virtual draw : context -> unit
@@ -75,6 +75,6 @@ object (self)
   method output filename =
     (** [output] saves the plot to a filename.  The type is pulled from
 	the name, so you must include an extension *)
-    Caml_spt_cairo.save self filename
+    Spt_cairo.save self filename
 
 end

@@ -3,5 +3,5 @@ _build*
 bytecode*
 depends*
 *.cmi
-caml-spt-debug
+spt-debug
 use.ml

@@ -17,11 +17,11 @@ Files:
 "src/num_by_num/line_errbar_dataset"
 "src/num_by_num"
 "src/num_by_nom"
-"src/caml_spt"
-"src/caml_spt_gtk"
-"src/caml_spt_gtk_stubs"
-"src/caml_spt_cairo"
-"src/caml_spt_cairo_stubs"
+"src/spt"
+"src/spt_gtk"
+"src/spt_gtk_stubs"
+"src/spt_cairo"
+"src/spt_cairo_stubs"
 
 Libraries:
 "str"
@@ -33,6 +33,6 @@ CLibraries:
 "cairo"
 
 
-Result: "caml-spt-debug" bytedebug "caml_spt_main"
-Result: "caml-spt" native "caml_spt_main"
+Result: "spt-debug" bytedebug "spt_main"
+Result: "spt" native "spt_main"
 

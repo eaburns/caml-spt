@@ -13,9 +13,9 @@ let axis_padding = 0.05
 (** {1 Numeric by numeric plot} ****************************************)
 
 class plot
-  ?(label_style=Caml_spt.default_label_style)
-  ?(legend_style=Caml_spt.default_legend_style)
-  ?(tick_style=Caml_spt.default_tick_style)
+  ?(label_style=Spt.default_label_style)
+  ?(legend_style=Spt.default_legend_style)
+  ?(tick_style=Spt.default_tick_style)
   ?title ?xlabel ?ylabel
   ?(legend_loc=Legend.Lower_right)
   ?x_min ?x_max ?y_min ?y_max
@@ -24,7 +24,7 @@ class plot
       ?ylabel ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a
       numeric x and y axis. *)
 object (self)
-  inherit Caml_spt.plot title
+  inherit Spt.plot title
 
   val datasets = datasets
     (** The list of datasets. *)
@@ -67,17 +67,17 @@ object (self)
 	| Some txt -> snd (text_dimensions ctx ~style:label_style txt) in
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
-	ctx ~label_style ~tick_style ~pad:Caml_spt.text_padding
+	ctx ~label_style ~tick_style ~pad:Spt.text_padding
 	~y_min:(plot_height -. axis_padding)
 	~src:(xrange src) ~dst:(range 0. plot_width)
 	xlabel self#xticks in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Caml_spt.text_padding ~x_min:axis_padding
+	~pad:Spt.text_padding ~x_min:axis_padding
 	ylabel self#yticks in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
-	~y_max:(title_height +. Caml_spt.text_padding) in
+	~y_max:(title_height +. Spt.text_padding) in
     let residual =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
@@ -95,7 +95,7 @@ object (self)
   method private draw_x_axis ctx ~src ~dst =
     (** [draw_x_axis ctx ~src ~dst] draws the x-axis. *)
     Numeric_axis.draw_x_axis ctx
-      ~tick_style ~label_style ~pad:Caml_spt.text_padding
+      ~tick_style ~label_style ~pad:Spt.text_padding
       ~width:plot_width ~height:plot_height
       ~src:(xrange src) ~dst:(xrange dst)
       xlabel self#xticks
@@ -104,7 +104,7 @@ object (self)
   method private draw_y_axis ctx ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
-      ~tick_style ~label_style ~pad:Caml_spt.text_padding
+      ~tick_style ~label_style ~pad:Spt.text_padding
       ~width:plot_width ~height:plot_height
       ~src:(yrange src) ~dst:(yrange dst)
       ylabel self#yticks
@@ -119,7 +119,7 @@ object (self)
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
 			   x_min = (dst.x_min -. axis_padding
-				    +. Caml_spt.text_padding); }
+				    +. Spt.text_padding); }
       in Legend.locate ctx legend_style legend_dst datasets legend_loc
     in
       begin match title with
