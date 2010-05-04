@@ -1,0 +1,7 @@
+syntax: glob
+_build*
+bytecode*
+depends*
+*.cmi
+spt-debug
+use.ml
