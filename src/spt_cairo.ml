@@ -1,7 +1,7 @@
 (** A bunch of calls to cairo - Currently just for saving files *)
 
-let pixels_per_centimeter = (96. *. 2.54)
-and points_per_centimeter = (72. *. 2.54)
+let pixels_per_centimeter = (96. /. 2.54)
+and points_per_centimeter = (72. /. 2.54)
 
 
 type files =
@@ -61,8 +61,8 @@ let background_resize context width height =
 let as_png width height plot filename =
   (** [width] in centimeters, float
       [height] in centimeters, float *)
-  let width = cm_to_points width
-  and height = cm_to_points height in
+  let width = cm_to_pixels width
+  and height = cm_to_pixels height in
   let surface = (Cairo.image_surface_create
 		   Cairo.FORMAT_ARGB32 ~width:(int_of_float width)
 		   ~height:(int_of_float height)) in
