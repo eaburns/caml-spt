@@ -58,9 +58,9 @@ object (self)
 
 
   method aspect_ratio ~width ~height =
-    (** [aspect_ratio ~width ~height] gets the aspect ratio for the plot
-	given the sizes. *)
-     if width > height then 1., height /. width else width /. height, 1.
+    (** [aspect_ratio ~width ~height] gets the aspect ratio for the
+	plot given the sizes. *)
+    if width > height then 1., height /. width else width /. height, 1.
 
 
   method display =
