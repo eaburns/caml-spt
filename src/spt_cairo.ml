@@ -12,6 +12,16 @@ type files =
   | Unknown of string
 
 
+let points_to_cm pval =
+  (** converts a number of points into corresponding centimeters measure *)
+  ((float_of_int pval) /. 72.) *. 2.54
+
+
+let points_to_in pval =
+  (** converts a number of points into corresponding inches measure *)
+  (float_of_int pval) /. 72.
+
+
 let background_resize context width height =
   (* Resizes the surface that we're drawing upon.  Also adds in a white
       background *)
