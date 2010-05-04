@@ -32,8 +32,7 @@ let draw_plot_to_gtk_area plot area =
       ~color:(Drawing.color ~a:1. ~r:0.8 ~g:0.8 ~b:0.8)
       (Geometry.rectangle 0. (float width) 0. (float height));
     Drawing.fill_rectangle ctx ~color:Drawing.white
-      (Geometry.rectangle 0. (sizef *. plot#x_scale)
-	 0. (sizef *. plot#y_scale));
+      (Geometry.rectangle 0. (sizef *. plot#width) 0. (sizef *. plot#height));
     (* Scale so that drawing can take place between 0. and 1. *)
     Drawing.scale ctx sizef sizef;
     plot#draw ctx
