@@ -1,8 +1,8 @@
 To build:
 
-ocamlbuild caml_spt_main.byte
+ocamlbuild spt_main.byte
 or
-ocamlbuild caml_spt_main.native
+ocamlbuild spt_main.native
 or
 ocm
 
