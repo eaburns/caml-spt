@@ -19,7 +19,9 @@ let file_dialog ~title ~callback () =
   sel#show ()
 
 let save_dialog plot =
-    file_dialog ~title:"Save" ~callback:(fun file -> plot#output file) ()
+  let w = Display_size.default_output_centimeters
+  and h = Display_size.default_output_centimeters in
+    file_dialog ~title:"Save" ~callback:(fun file -> plot#output w h file) ()
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
