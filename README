@@ -1,3 +1,6 @@
+                      *S*imple *P*lotting *T*ool
+
+
 To build:
 
 ocamlbuild spt_main.byte
