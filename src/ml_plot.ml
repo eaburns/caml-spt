@@ -50,10 +50,13 @@ class virtual plot title =
 object (self)
 
 
-  val plot_width = 1.0
+  val plot_x_scale = 1.0
 
-  val plot_height = 1.0
+  val plot_y_scale = 1.0
 
+  method x_scale = plot_x_scale
+
+  method y_scale = plot_y_scale
 
   method private title = match title with
     | Some t -> t
