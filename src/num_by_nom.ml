@@ -48,8 +48,8 @@ object (self)
     Numeric_axis.tick_locations self#src_y_range
 
 
-  method private x_axis_dimensions ctx =
-    (** [x_axis_dimensions ctx] computes the x_min, x_max and width
+  method private x_axis_dimensions ctx ~plot_width =
+    (** [x_axis_dimensions ctx ~plot_width] computes the x_min, x_max and width
 	for each dataset to display its name on the x-axis. *)
     let x_max = plot_width in
     let x_min =
@@ -62,10 +62,10 @@ object (self)
       range x_min x_max, text_width
 
 
-  method private dst_y_range ctx ~y_min ~y_max ~text_width =
-    (** [dst_y_range ctx ~y_min ~y_max ~text_width] get the range on the
-	y-axis.  [text_width] is the amount of width afforded to each
-	dataset on the x-axis. *)
+  method private dst_y_range ctx ~plot_height ~y_min ~y_max ~text_width =
+    (** [dst_y_range ctx ~plot_height ~y_min ~y_max ~text_width] get
+	the range on the y-axis.  [text_width] is the amount of width
+	afforded to each dataset on the x-axis. *)
     let title_height =
       match title with
 	| None -> 0.
@@ -82,8 +82,9 @@ object (self)
 
 
 
-  method private draw_y_axis ctx ~src ~dst =
-    (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
+  method private draw_y_axis ctx ~plot_width ~plot_height ~src ~dst =
+    (** [draw_y_axis ctx ~plot_width ~plot_height ~src ~dst] draws the
+	y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Spt.text_padding
       ~width:plot_width ~height:plot_height ~src ~dst ylabel self#yticks
@@ -99,17 +100,20 @@ object (self)
 	      (xrange.min +. (text_width /. 2.)) datasets)
 
 
-  method draw ctx =
+  method draw ?suggested_size ctx =
+    let plot_width, plot_height = self#aspect_ratio suggested_size in
     let src = self#src_y_range in
-    let xrange, text_width = self#x_axis_dimensions ctx in
-    let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:text_width in
+    let xrange, text_width = self#x_axis_dimensions ctx plot_width in
+    let dst =
+      self#dst_y_range ctx ~plot_height ~y_min ~y_max ~text_width:text_width
+    in
       begin match title with
 	| None -> ()
 	| Some t ->
 	    let x = plot_width /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_style ctx x y t
       end;
-      self#draw_y_axis ctx ~src ~dst;
+      self#draw_y_axis ctx ~plot_width ~plot_height ~src ~dst;
       self#draw_x_axis ctx ~y:(dst.min +. x_axis_padding) ~xrange
 	~text_width:text_width
 end

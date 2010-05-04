@@ -58,9 +58,9 @@ object (self)
     Numeric_axis.tick_locations (yrange self#src_ranges)
 
 
-  method private dst_rectangle ~src ctx =
-    (** [dst_rectangle ~src ctx] get the dimensions of the
-	destination rectangle. *)
+  method private dst_rectangle ctx ~plot_width ~plot_height ~src =
+    (** [dst_rectangle ctx ~plot_width ~plot_height ~src] get the
+	dimensions of the destination rectangle. *)
     let title_height =
       match title with
 	| None -> 0.
@@ -92,8 +92,9 @@ object (self)
 	~y_max:(dst.y_max +. residual.y_max)
 
 
-  method private draw_x_axis ctx ~src ~dst =
-    (** [draw_x_axis ctx ~src ~dst] draws the x-axis. *)
+  method private draw_x_axis ctx ~plot_width ~plot_height ~src ~dst =
+    (** [draw_x_axis ctx ~plot_width ~plot_height ~src ~dst] draws the
+	x-axis. *)
     Numeric_axis.draw_x_axis ctx
       ~tick_style ~label_style ~pad:Spt.text_padding
       ~width:plot_width ~height:plot_height
@@ -101,8 +102,9 @@ object (self)
       xlabel self#xticks
 
 
-  method private draw_y_axis ctx ~src ~dst =
-    (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
+  method private draw_y_axis ctx ~plot_width ~plot_height ~src ~dst =
+    (** [draw_y_axis ctx ~plot_width ~plot_height ~src ~dst] draws the
+    y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Spt.text_padding
       ~width:plot_width ~height:plot_height
@@ -110,9 +112,10 @@ object (self)
       ylabel self#yticks
 
 
-  method draw ctx =
+  method draw ?suggested_size ctx =
+    let plot_width, plot_height = self#aspect_ratio suggested_size in
     let src = self#src_ranges in
-    let dst = self#dst_rectangle ~src ctx in
+    let dst = self#dst_rectangle ctx ~plot_width ~plot_height ~src in
     let legend_txt_loc, legend_x, legend_y =
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
@@ -126,8 +129,8 @@ object (self)
 	    let x = plot_width /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_style ctx x y t
       end;
-      self#draw_x_axis ctx ~src ~dst;
-      self#draw_y_axis ctx ~src ~dst;
+      self#draw_x_axis ctx ~plot_width ~plot_height ~src ~dst;
+      self#draw_y_axis ctx ~plot_width ~plot_height ~src ~dst;
       List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets;
       save_transforms ctx;
       translate ctx legend_x legend_y;
