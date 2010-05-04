@@ -3,11 +3,6 @@
 let pixels_per_centimeter = (96. *. 2.54)
 and points_per_centimeter = (72. *. 2.54)
 
-let width = 400
-and height = 400
-and width_in_points = (float (72 * 4))
-and height_in_points = (float (72 * 4))
-
 
 type files =
   | Postscript
@@ -38,44 +33,67 @@ let pixels_to_in pval =
   (float_of_int pval) /. (pixels_per_centimeter /. 2.54)
 
 
+let cm_to_points cms =
+  cms *. points_per_centimeter
+
+
+let in_to_points inches =
+  cm_to_points (inches *. 2.54)
+
+
+let cm_to_pixels cms =
+  cms *. pixels_per_centimeter
+
+
+let in_to_pixels inches =
+  cm_to_points (inches *. 2.54)
+
+
 let background_resize context width height =
-  (* Resizes the surface that we're drawing upon.  Also adds in a white
-      background *)
+  (* Scale so that drawing can take place between 0. and 1. *)
   let sizef = min width height in
     Drawing.fill_rectangle context ~color:Drawing.white
       (Geometry.rectangle 0. width 0. height);
-    (* Scale so that drawing can take place between 0. and 1. *)
     Drawing.scale context sizef sizef
 
 
 (* saving functionality *)
-
-let as_png plot filename =
+let as_png width height plot filename =
+  (** [width] in centimeters, float
+      [height] in centimeters, float *)
+  let width = cm_to_points width
+  and height = cm_to_points height in
   let surface = (Cairo.image_surface_create
-		   Cairo.FORMAT_ARGB32 ~width ~height) in
+		   Cairo.FORMAT_ARGB32 ~width:(int_of_float width)
+		   ~height:(int_of_float height)) in
   let context = Cairo.create surface in
-    background_resize context (float_of_int width) (float_of_int height);
+    background_resize context width height;
     plot#draw context;
     Cairo_png.surface_write_to_file surface filename
 
 
-let as_ps plot filename =
+let as_ps width height plot filename =
+  let width = cm_to_points width
+  and height = cm_to_points height in
   let chan = open_out filename in
   let surface = (Cairo_ps.surface_create_for_channel chan
-		   ~width_in_points ~height_in_points) in
+		   ~width_in_points:width
+		   ~height_in_points:height) in
   let context = Cairo.create surface in
-    background_resize context width_in_points height_in_points;
+    background_resize context width height;
     plot#draw context;
     Cairo.surface_finish surface;
     close_out chan
 
 
-let as_pdf plot filename =
+let as_pdf width height plot filename =
+  let width = cm_to_points width
+  and height = cm_to_points height in
   let chan = open_out filename in
   let surface = (Cairo_pdf.surface_create_for_channel chan
-		   ~width_in_points ~height_in_points) in
+		   ~width_in_points:width ~height_in_points:height) in
   let context = Cairo.create surface in
-    background_resize context width_in_points height_in_points;
+    background_resize context width height;
     plot#draw context;
     Cairo.surface_finish surface;
     close_out chan
@@ -95,11 +113,11 @@ let filetype file =
 		      | _ -> Unknown ext)
 
 
-let save plot filename =
+let save width height plot filename =
   match (filetype filename) with
-    | Postscript -> as_ps plot filename
-    | PNG -> as_png plot filename
-    | PDF -> as_pdf plot filename
+    | Postscript -> as_ps width height plot filename
+    | PNG -> as_png width height plot filename
+    | PDF -> as_pdf width height plot filename
     | Unknown ext -> failwith ("Cannot save unknown filetype " ^ ext)
 
 

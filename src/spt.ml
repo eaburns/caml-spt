@@ -77,6 +77,6 @@ object (self)
   method output filename =
     (** [output] saves the plot to a filename.  The type is pulled from
 	the name, so you must include an extension *)
-    Spt_cairo.save self filename
+    Spt_cairo.save 400. 400. self filename
 
 end
