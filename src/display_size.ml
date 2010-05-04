@@ -4,6 +4,10 @@
     @since 2010-05-04
 *)
 
+let default_output_centimeters = 8.
+  (** The default size of plot output centimeters. *)
+
+
 let normalize ~width ~height =
   (** [normalized ~width ~height] gets the normalized aspect ratio
       from the given width and height.  This is a width, height pair

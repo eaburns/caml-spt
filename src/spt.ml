@@ -45,10 +45,6 @@ let text_padding = 0.02
   (** Padding around text *)
 
 
-let output_centimeters = 8.
-  (** The default size of the output. *)
-
-
 class virtual plot title =
   (** [plot title] a plot has a method for drawing. *)
 object (self)
@@ -71,9 +67,10 @@ object (self)
 	it. *)
 
 
-  method output filename =
-    (** [output] saves the plot to a filename.  The type is pulled from
-	the name, so you must include an extension *)
-    Spt_cairo.save output_centimeters output_centimeters self filename
+  method output width height filename =
+    (** [output width height filename] saves the plot to a filename.
+	The type is pulled from the name, so you must include an
+	extension *)
+    Spt_cairo.save width height self filename
 
 end
