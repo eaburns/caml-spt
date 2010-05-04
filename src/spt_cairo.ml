@@ -1,15 +1,41 @@
 (** A bunch of calls to cairo - Currently just for saving files *)
 
+let pixels_per_centimeter = (96. *. 2.54)
+and points_per_centimeter = (72. *. 2.54)
+
 let width = 400
 and height = 400
 and width_in_points = (float (72 * 4))
 and height_in_points = (float (72 * 4))
+
 
 type files =
   | Postscript
   | PNG
   | PDF
   | Unknown of string
+
+
+(* resizing functionality and units conversion *)
+
+let points_to_cm pval =
+  (** converts a number of points into corresponding centimeters measure *)
+  (float_of_int pval) /. points_per_centimeter
+
+
+let points_to_in pval =
+  (** converts a number of points into corresponding inches measure *)
+  (float_of_int pval) /. (points_per_centimeter /. 2.54)
+
+
+let pixels_to_cm pval =
+  (** converts a number of points into corresponding centimeters measure *)
+  (float_of_int pval) /. pixels_per_centimeter
+
+
+let pixels_to_in pval =
+  (** converts a number of points into corresponding inches measure *)
+  (float_of_int pval) /. (pixels_per_centimeter /. 2.54)
 
 
 let background_resize context width height =
@@ -21,6 +47,8 @@ let background_resize context width height =
     (* Scale so that drawing can take place between 0. and 1. *)
     Drawing.scale context sizef sizef
 
+
+(* saving functionality *)
 
 let as_png plot filename =
   let surface = Cairo.image_surface_create Cairo.FORMAT_ARGB32 ~width ~height
@@ -52,6 +80,9 @@ let as_pdf plot filename =
     Cairo.surface_finish surface;
     close_out chan
 
+
+
+(* determining filetype and saving *)
 
 let filetype file =
   let file_split = Str.split (Str.regexp "\\.") file in
