@@ -68,7 +68,7 @@ let as_png width height plot filename =
 		   ~height:(int_of_float height_px)) in
   let context = Cairo.create surface in
     background_resize context width_px height_px;
-    plot#draw ?suggested_size:(Some (width, height)) context;
+    plot#draw ~suggested_width:width ~suggested_height:height context;
     Cairo_png.surface_write_to_file surface filename
 
 
@@ -81,7 +81,7 @@ let as_ps width height plot filename =
 		   ~height_in_points:height_pt) in
   let context = Cairo.create surface in
     background_resize context width_pt height_pt;
-    plot#draw ?suggested_size:(Some (width, height)) context;
+    plot#draw ~suggested_width:width ~suggested_height:height context;
     Cairo.surface_finish surface;
     close_out chan
 
@@ -95,7 +95,7 @@ let as_pdf width height plot filename =
 		   ~height_in_points:height_pt) in
   let context = Cairo.create surface in
     background_resize context width_pt height_pt;
-    plot#draw ?suggested_size:(Some (width, height)) context;
+    plot#draw ~suggested_width:width ~suggested_height:height context;
     Cairo.surface_finish surface;
     close_out chan
 

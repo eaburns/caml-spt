@@ -57,11 +57,10 @@ object (self)
     | None -> "<not title>"
 
 
-  method private aspect_ratio = function
-      (** [aspect_ratio suggested_size] gets the aspect ratio for the
-	  plot given the suggested size. *)
-    | None -> 1., 1.
-    | Some (w, h) -> failwith "aspect_ratio: Unsupported"
+  method aspect_ratio ~width ~height =
+    (** [aspect_ratio ~width ~height] gets the aspect ratio for the plot
+	given the sizes. *)
+     if width > height then 1., height /. width else width /. height, 1.
 
 
   method display =
@@ -69,10 +68,12 @@ object (self)
     Spt_gtk.create_display self self#title
 
 
-  method virtual draw : ?suggested_size:(float * float) -> context -> unit
-    (** [draw ?suggested_size ctx] displays the plot to the given
-	drawing context. [width] and [height] are the width and height
-	of the image after the caller scales it. *)
+  method virtual draw :
+    suggested_width:float -> suggested_height:float -> context -> unit
+    (** [draw ~suggested_width ~suggested_height ctx] displays the
+	plot to the given drawing context. [width] and [height] are
+	the width and height of the image after the caller scales
+	it. *)
 
 
   method output filename =

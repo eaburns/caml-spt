@@ -26,15 +26,14 @@ let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
   let ctx = Cairo_lablgtk.create area#misc#window in
   let { Gtk.width = width ; Gtk.height = height } = area#misc#allocation in
-  let sizef = float (min width height) in
-    Drawing.fill_rectangle ctx
-      ~color:(Drawing.color ~a:1. ~r:0.8 ~g:0.8 ~b:0.8)
-      (Geometry.rectangle 0. (float width) 0. (float height));
+  let widthf = float width and heightf = float height in
+  let x_ratio, y_ratio = plot#aspect_ratio ~width:widthf ~height:heightf in
     Drawing.fill_rectangle ctx ~color:Drawing.white
-      (Geometry.rectangle 0. sizef 0. sizef);
-    (* Scale so that drawing can take place between 0. and 1. *)
-    Drawing.scale ctx sizef sizef;
-    plot#draw ?suggested_size:None ctx
+      (Geometry.rectangle 0. widthf 0. heightf);
+    (* Scale so that drawing can take place in a normalized aspect
+       ratio. *)
+    Drawing.scale ctx (widthf /. x_ratio) (heightf /. y_ratio);
+    plot#draw ~suggested_width:widthf ~suggested_height:heightf ctx
 
 
 open GdkKeysyms
