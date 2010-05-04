@@ -51,7 +51,7 @@ let in_to_pixels inches =
 
 let background_resize context width height =
   (* Scale so that drawing can take place between 0. and 1. *)
-  let x_ratio, y_ratio = Aspect_ratio.normalize ~width ~height in
+  let x_ratio, y_ratio = Display_size.normalize ~width ~height in
     Drawing.fill_rectangle context ~color:Drawing.white
       (Geometry.rectangle 0. width 0. height);
     Drawing.scale context (width /. x_ratio) (height /. y_ratio)
