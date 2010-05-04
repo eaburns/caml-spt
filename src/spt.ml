@@ -68,10 +68,10 @@ object (self)
     Spt_gtk.create_display self self#title
 
 
-  method virtual draw : context -> width:float -> height:float -> unit
-    (** [draw ctx ~width ~height] displays the plot to the given
-	drawing context. [width] and [height] are the width and height
-	of the image after the caller scales it. *)
+  method virtual draw : context -> unit
+    (** [draw ctx] displays the plot to the given drawing
+	context. [width] and [height] are the width and height of the
+	image after the caller scales it. *)
 
 
   method output filename =
