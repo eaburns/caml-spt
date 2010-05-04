@@ -100,8 +100,9 @@ object (self)
 	      (xrange.min +. (text_width /. 2.)) datasets)
 
 
-  method draw ?suggested_size ctx =
-    let plot_width, plot_height = self#aspect_ratio suggested_size in
+  method draw ~suggested_width ~suggested_height ctx =
+    let plot_width, plot_height =
+      self#aspect_ratio ~width:suggested_width ~height:suggested_height in
     let src = self#src_y_range in
     let xrange, text_width = self#x_axis_dimensions ctx plot_width in
     let dst =
