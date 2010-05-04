@@ -22,7 +22,7 @@
 
  Typically a plot has two axes each showing for a single kind of data.
  Since the scales are different, each kind of data needs a different
- kind of axis.  Because of this, ml-plot uses a few (currently 2)
+ kind of axis.  Because of this, caml-spt uses a few (currently 2)
  different types of plots: 1) numeric by numeric plots have two
  numeric axes and 2) numeric by nominal plots have a nominal
  horizontal axis and a numeric vertical axis.  A numeric by numeric

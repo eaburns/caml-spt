@@ -3,5 +3,5 @@ _build*
 bytecode*
 depends*
 *.cmi
-ml-plot-debug
+caml-spt-debug
 use.ml

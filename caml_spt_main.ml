@@ -1,8 +1,8 @@
-(** The main function for the ml-plot program.
+(** The main function for the caml-spt program.
 
-    For now this is just for testing ml-plot, but eventually it should
-    be a full program that reads plots from a file (or stdin) and will
-    build the plot to the output.
+    For now this is just for testing caml-spt, but eventually it
+    should be a full program that reads plots from a file (or stdin)
+    and will build the plot to the output.
 
     @author eaburns
     @since 2010-04-15
@@ -10,7 +10,7 @@
 
 open Geometry
 open Drawing
-open Ml_plot
+open Caml_spt
 open GMain
 
 let num_by_nom_plot () =

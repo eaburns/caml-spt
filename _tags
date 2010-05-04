@@ -1,5 +1,5 @@
 <src>: include
 
-<ml_plot_main.ml>: use_lablgtk
+<caml_spt_main.ml>: use_lablgtk
 
 <*.byte> or <*.native>: use_str, use_lablgtk, use_cairo_lablgtk, use_cairo

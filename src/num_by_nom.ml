@@ -16,15 +16,15 @@ let x_axis_padding = 0.05
 (** {1 Numeric by nomeric plot} ****************************************)
 
 class plot
-  ?(label_style=Ml_plot.default_label_style)
-  ?(legend_style=Ml_plot.default_legend_style)
-  ?(tick_style=Ml_plot.default_tick_style)
+  ?(label_style=Caml_spt.default_label_style)
+  ?(legend_style=Caml_spt.default_legend_style)
+  ?(tick_style=Caml_spt.default_tick_style)
   ?title ?ylabel ?y_min ?y_max datasets =
   (** [plot ?label_style ?legend_style ?tick_style ?title ?ylabel
       ?y_min ?y_max datasets] a plot that has a nominal x axis and a
       numeric y axis. *)
 object (self)
-  inherit Ml_plot.plot title
+  inherit Caml_spt.plot title
 
   val datasets = datasets
 
@@ -54,7 +54,7 @@ object (self)
     let x_max = plot_width in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Ml_plot.text_padding ~x_min:y_axis_padding
+	~pad:Caml_spt.text_padding ~x_min:y_axis_padding
 	ylabel self#yticks
     in
     let n = List.length datasets in
@@ -78,14 +78,14 @@ object (self)
     in
       range
 	(plot_height -. data_label_height -. x_axis_padding)
-	(title_height +. Ml_plot.text_padding)
+	(title_height +. Caml_spt.text_padding)
 
 
 
   method private draw_y_axis ctx ~src ~dst =
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
-      ~tick_style ~label_style ~pad:Ml_plot.text_padding
+      ~tick_style ~label_style ~pad:Caml_spt.text_padding
       ~width:plot_width ~height:plot_height ~src ~dst ylabel self#yticks
 
 

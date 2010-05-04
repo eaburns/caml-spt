@@ -17,11 +17,11 @@ Files:
 "src/num_by_num/line_errbar_dataset"
 "src/num_by_num"
 "src/num_by_nom"
-"src/ml_plot"
-"src/ml_plot_gtk"
-"src/ml_plot_gtk_stub"
-"src/ml_plot_cairo"
-"src/ml_plot_cairo_stub"
+"src/caml_spt"
+"src/caml_spt_gtk"
+"src/caml_spt_gtk_stubs"
+"src/caml_spt_cairo"
+"src/caml_spt_cairo_stubs"
 
 Libraries:
 "str"
@@ -33,6 +33,6 @@ CLibraries:
 "cairo"
 
 
-Result: "ml-plot-debug" bytedebug "ml_plot_main"
-Result: "ml-plot" native "ml_plot_main"
+Result: "caml-spt-debug" bytedebug "caml_spt_main"
+Result: "caml-spt" native "caml_spt_main"
 
