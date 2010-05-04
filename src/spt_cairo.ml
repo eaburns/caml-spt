@@ -61,40 +61,41 @@ let background_resize context width height =
 let as_png width height plot filename =
   (** [width] in centimeters, float
       [height] in centimeters, float *)
-  let width = cm_to_pixels width
-  and height = cm_to_pixels height in
+  let width_px = cm_to_pixels width
+  and height_px = cm_to_pixels height in
   let surface = (Cairo.image_surface_create
-		   Cairo.FORMAT_ARGB32 ~width:(int_of_float width)
-		   ~height:(int_of_float height)) in
+		   Cairo.FORMAT_ARGB32 ~width:(int_of_float width_px)
+		   ~height:(int_of_float height_px)) in
   let context = Cairo.create surface in
-    background_resize context width height;
-    plot#draw context;
+    background_resize context width_px height_px;
+    plot#draw ?suggested_size:(Some (width, height)) context;
     Cairo_png.surface_write_to_file surface filename
 
 
 let as_ps width height plot filename =
-  let width = cm_to_points width
-  and height = cm_to_points height in
+  let width_pt = cm_to_points width
+  and height_pt = cm_to_points height in
   let chan = open_out filename in
   let surface = (Cairo_ps.surface_create_for_channel chan
-		   ~width_in_points:width
-		   ~height_in_points:height) in
+		   ~width_in_points:width_pt
+		   ~height_in_points:height_pt) in
   let context = Cairo.create surface in
-    background_resize context width height;
-    plot#draw context;
+    background_resize context width_pt height_pt;
+    plot#draw ?suggested_size:(Some (width, height)) context;
     Cairo.surface_finish surface;
     close_out chan
 
 
 let as_pdf width height plot filename =
-  let width = cm_to_points width
-  and height = cm_to_points height in
+  let width_pt = cm_to_points width
+  and height_pt = cm_to_points height in
   let chan = open_out filename in
   let surface = (Cairo_pdf.surface_create_for_channel chan
-		   ~width_in_points:width ~height_in_points:height) in
+		   ~width_in_points:width_pt
+		   ~height_in_points:height_pt) in
   let context = Cairo.create surface in
-    background_resize context width height;
-    plot#draw context;
+    background_resize context width_pt height_pt;
+    plot#draw ?suggested_size:(Some (width, height)) context;
     Cairo.surface_finish surface;
     close_out chan
 

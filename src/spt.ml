@@ -45,22 +45,23 @@ let text_padding = 0.02
   (** Padding around text *)
 
 
+let output_centimeters = 6.
+  (** The default size of the output. *)
+
 class virtual plot title =
   (** [plot title] a plot has a method for drawing. *)
 object (self)
 
-
-  val plot_width = 1.0
-
-  val plot_height = 1.0
-
-  method width = plot_width
-
-  method height = plot_height
-
   method private title = match title with
     | Some t -> t
     | None -> "<not title>"
+
+
+  method private aspect_ratio = function
+      (** [aspect_ratio suggested_size] gets the aspect ratio for the
+	  plot given the suggested size. *)
+    | None -> 1., 1.
+    | Some (w, h) -> failwith "aspect_ratio: Unsupported"
 
 
   method display =
@@ -68,15 +69,15 @@ object (self)
     Spt_gtk.create_display self self#title
 
 
-  method virtual draw : context -> unit
-    (** [draw ctx] displays the plot to the given drawing
-	context. [width] and [height] are the width and height of the
-	image after the caller scales it. *)
+  method virtual draw : ?suggested_size:(float * float) -> context -> unit
+    (** [draw ?suggested_size ctx] displays the plot to the given
+	drawing context. [width] and [height] are the width and height
+	of the image after the caller scales it. *)
 
 
   method output filename =
     (** [output] saves the plot to a filename.  The type is pulled from
 	the name, so you must include an extension *)
-    Spt_cairo.save 6. 6. self filename
+    Spt_cairo.save output_centimeters output_centimeters self filename
 
 end
