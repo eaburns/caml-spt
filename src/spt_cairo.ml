@@ -51,8 +51,8 @@ let background_resize context width height =
 (* saving functionality *)
 
 let as_png plot filename =
-  let surface = Cairo.image_surface_create Cairo.FORMAT_ARGB32 ~width ~height
-  in
+  let surface = (Cairo.image_surface_create
+		   Cairo.FORMAT_ARGB32 ~width ~height) in
   let context = Cairo.create surface in
     background_resize context (float_of_int width) (float_of_int height);
     plot#draw context;
@@ -61,8 +61,8 @@ let as_png plot filename =
 
 let as_ps plot filename =
   let chan = open_out filename in
-  let surface = Cairo_ps.surface_create_for_channel chan
-    ~width_in_points ~height_in_points in
+  let surface = (Cairo_ps.surface_create_for_channel chan
+		   ~width_in_points ~height_in_points) in
   let context = Cairo.create surface in
     background_resize context width_in_points height_in_points;
     plot#draw context;
@@ -72,8 +72,8 @@ let as_ps plot filename =
 
 let as_pdf plot filename =
   let chan = open_out filename in
-  let surface = Cairo_pdf.surface_create_for_channel chan
-    ~width_in_points ~height_in_points in
+  let surface = (Cairo_pdf.surface_create_for_channel chan
+		   ~width_in_points ~height_in_points) in
   let context = Cairo.create surface in
     background_resize context width_in_points height_in_points;
     plot#draw context;
