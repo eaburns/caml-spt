@@ -19,15 +19,16 @@ let file_dialog ~title ~callback () =
   sel#show ()
 
 let save_dialog plot =
-    file_dialog ~title:"Save"
-      ~callback:(fun file -> Spt_cairo.save 6. 6. plot file) ()
+    file_dialog ~title:"Save" ~callback:(fun file -> plot#output file) ()
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
   let ctx = Cairo_lablgtk.create area#misc#window in
   let { Gtk.width = width ; Gtk.height = height } = area#misc#allocation in
   let widthf = float width and heightf = float height in
-  let x_ratio, y_ratio = plot#aspect_ratio ~width:widthf ~height:heightf in
+  let x_ratio, y_ratio =
+    Aspect_ratio.normalize ~width:widthf ~height:heightf
+  in
     Drawing.fill_rectangle ctx ~color:Drawing.white
       (Geometry.rectangle 0. widthf 0. heightf);
     (* Scale so that drawing can take place in a normalized aspect

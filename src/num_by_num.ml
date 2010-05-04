@@ -104,7 +104,7 @@ object (self)
 
   method private draw_y_axis ctx ~plot_width ~plot_height ~src ~dst =
     (** [draw_y_axis ctx ~plot_width ~plot_height ~src ~dst] draws the
-    y-axis. *)
+	y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Spt.text_padding
       ~width:plot_width ~height:plot_height
@@ -114,7 +114,8 @@ object (self)
 
   method draw ~suggested_width ~suggested_height ctx =
     let plot_width, plot_height =
-      self#aspect_ratio ~width:suggested_width ~height:suggested_height in
+      Aspect_ratio.normalize ~width:suggested_width ~height:suggested_height
+    in
     let src = self#src_ranges in
     let dst = self#dst_rectangle ctx ~plot_width ~plot_height ~src in
     let legend_txt_loc, legend_x, legend_y =

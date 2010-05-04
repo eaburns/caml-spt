@@ -45,8 +45,9 @@ let text_padding = 0.02
   (** Padding around text *)
 
 
-let output_centimeters = 6.
+let output_centimeters = 8.
   (** The default size of the output. *)
+
 
 class virtual plot title =
   (** [plot title] a plot has a method for drawing. *)
@@ -55,12 +56,6 @@ object (self)
   method private title = match title with
     | Some t -> t
     | None -> "<not title>"
-
-
-  method aspect_ratio ~width ~height =
-    (** [aspect_ratio ~width ~height] gets the aspect ratio for the
-	plot given the sizes. *)
-    if width > height then 1., height /. width else width /. height, 1.
 
 
   method display =
