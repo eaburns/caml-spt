@@ -20,8 +20,7 @@ let file_dialog ~title ~callback () =
 
 let save_dialog plot =
     file_dialog ~title:"Save"
-      ~callback:(fun file ->
-		   Ml_plot_cairo.save plot file) ()
+      ~callback:(fun file -> Caml_spt_cairo.save plot file) ()
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
