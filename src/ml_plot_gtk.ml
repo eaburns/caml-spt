@@ -28,8 +28,12 @@ let draw_plot_to_gtk_area plot area =
   let ctx = Cairo_lablgtk.create area#misc#window in
   let { Gtk.width = width ; Gtk.height = height } = area#misc#allocation in
   let sizef = float (min width height) in
-    Drawing.fill_rectangle ctx ~color:Drawing.white
+    Drawing.fill_rectangle ctx
+      ~color:(Drawing.color ~a:1. ~r:0.8 ~g:0.8 ~b:0.8)
       (Geometry.rectangle 0. (float width) 0. (float height));
+    Drawing.fill_rectangle ctx ~color:Drawing.white
+      (Geometry.rectangle 0. (sizef *. plot#x_scale)
+	 0. (sizef *. plot#y_scale));
     (* Scale so that drawing can take place between 0. and 1. *)
     Drawing.scale ctx sizef sizef;
     plot#draw ctx

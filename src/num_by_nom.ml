@@ -51,7 +51,7 @@ object (self)
   method private x_axis_dimensions ctx =
     (** [x_axis_dimensions ctx] computes the x_min, x_max and width
 	for each dataset to display its name on the x-axis. *)
-    let x_max = plot_width in
+    let x_max = plot_x_scale in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
 	~pad:Ml_plot.text_padding ~x_min:y_axis_padding
@@ -77,7 +77,7 @@ object (self)
 	0. datasets
     in
       range
-	(plot_height -. data_label_height -. x_axis_padding)
+	(plot_y_scale -. data_label_height -. x_axis_padding)
 	(title_height +. Ml_plot.text_padding)
 
 
@@ -86,7 +86,7 @@ object (self)
     (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Ml_plot.text_padding
-      ~width:plot_width ~height:plot_height ~src ~dst ylabel self#yticks
+      ~width:plot_x_scale ~height:plot_y_scale ~src ~dst ylabel self#yticks
 
 
   method private draw_x_axis ctx ~y ~xrange ~text_width =
@@ -107,7 +107,7 @@ object (self)
       begin match title with
 	| None -> ()
 	| Some t ->
-	    let x = plot_width /. 2. and y = 0. in
+	    let x = plot_x_scale /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_style ctx x y t
       end;
       self#draw_y_axis ctx ~src ~dst;
