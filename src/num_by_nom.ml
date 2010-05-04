@@ -99,8 +99,7 @@ object (self)
 	      (xrange.min +. (text_width /. 2.)) datasets)
 
 
-  method draw ctx =
-    (** [draw ctx] draws the plot. *)
+  method draw ctx ~width:_ ~height:_ =
     let src = self#src_y_range in
     let xrange, text_width = self#x_axis_dimensions ctx in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:text_width in
