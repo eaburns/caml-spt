@@ -1,6 +1,6 @@
-(** The main function for the caml-spt program.
+(** The main function for the spt program.
 
-    For now this is just for testing caml-spt, but eventually it
+    For now this is just for testing spt, but eventually it
     should be a full program that reads plots from a file (or stdin)
     and will build the plot to the output.
 
@@ -10,7 +10,7 @@
 
 open Geometry
 open Drawing
-open Caml_spt
+open Spt
 open GMain
 
 let num_by_nom_plot () =
