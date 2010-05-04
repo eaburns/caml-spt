@@ -114,7 +114,7 @@ object (self)
 
   method draw ~suggested_width ~suggested_height ctx =
     let plot_width, plot_height =
-      Aspect_ratio.normalize ~width:suggested_width ~height:suggested_height
+      Display_size.normalize ~width:suggested_width ~height:suggested_height
     in
     let src = self#src_ranges in
     let dst = self#dst_rectangle ctx ~plot_width ~plot_height ~src in
