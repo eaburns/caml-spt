@@ -18,8 +18,20 @@ let file_dialog ~title ~callback () =
 	    end);
   sel#show ()
 
+
 let save_dialog plot =
-  file_dialog ~title:"Save" ~callback:(fun file -> plot#output file) ()
+  file_dialog ~title:"Save"
+    ~callback:(fun file ->
+		 try
+		   plot#output file
+		 with Failure str ->
+		   (let mwindow = GWindow.message_dialog
+		      ~message:str
+		      ~message_type:`ERROR
+		      ~buttons:GWindow.Buttons.ok () in
+		    ignore (mwindow#run ());
+		      mwindow#destroy ()))()
+
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)

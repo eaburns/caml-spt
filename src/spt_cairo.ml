@@ -61,7 +61,6 @@ let as_pdf width height plot filename =
 
 
 (* determining filetype and saving *)
-
 let filetype file =
   let file_split = Str.split (Str.regexp "\\.") file in
     match (List.rev file_split) with
