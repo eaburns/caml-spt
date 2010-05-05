@@ -12,6 +12,8 @@ let resize context plot width height =
   (* Scale so that drawing can take place between 0. and 1. *)
   plot#set_size ~w:width ~h:height;
   let x_ratio, y_ratio = plot#aspect_ratio in
+  let width = Sizing.measure_to_float width
+  and height = Sizing.measure_to_float height in
     Drawing.fill_rectangle context ~color:Drawing.white
       (Geometry.rectangle 0. width 0. height);
     Drawing.scale context (width /. x_ratio) (height /. y_ratio)
@@ -19,13 +21,14 @@ let resize context plot width height =
 
 (* saving functionality *)
 let as_png width height plot filename =
-  (** [width] in centimeters, float
-      [height] in centimeters, float *)
-  let width_px = Sizing.cm_to_pixels width
-  and height_px = Sizing.cm_to_pixels height in
+  let width_px = Sizing.convert width Sizing.Pixels
+  and height_px = Sizing.convert height Sizing.Pixels in
+  let width_int = Sizing.pixels_to_int width_px
+  and height_int = Sizing.pixels_to_int height_px in
   let surface = (Cairo.image_surface_create
-		   Cairo.FORMAT_ARGB32 ~width:(int_of_float width_px)
-		   ~height:(int_of_float height_px)) in
+		   Cairo.FORMAT_ARGB32
+		   ~width:width_int
+		   ~height:height_int) in
   let context = Cairo.create surface in
     resize context plot width_px height_px;
     plot#draw context;
@@ -33,12 +36,14 @@ let as_png width height plot filename =
 
 
 let as_ps width height plot filename =
-  let width_pt = Sizing.cm_to_points width
-  and height_pt = Sizing.cm_to_points height in
+  let width_pt = Sizing.convert width Sizing.Points
+  and height_pt = Sizing.convert height Sizing.Points in
+  let width_flt = Sizing.points_to_flt width_pt
+  and height_flt = Sizing.points_to_flt height_pt in
   let chan = open_out filename in
   let surface = (Cairo_ps.surface_create_for_channel chan
-		   ~width_in_points:width_pt
-		   ~height_in_points:height_pt) in
+		   ~width_in_points:width_flt
+		   ~height_in_points:height_flt) in
   let context = Cairo.create surface in
     resize context plot width_pt height_pt;
     plot#draw context;
@@ -47,12 +52,14 @@ let as_ps width height plot filename =
 
 
 let as_pdf width height plot filename =
-  let width_pt = Sizing.cm_to_points width
-  and height_pt = Sizing.cm_to_points height in
+  let width_pt = Sizing.convert width Sizing.Points
+  and height_pt = Sizing.convert height Sizing.Points in
+  let width_flt = Sizing.points_to_flt width_pt
+  and height_flt = Sizing.points_to_flt height_pt in
   let chan = open_out filename in
   let surface = (Cairo_pdf.surface_create_for_channel chan
-		   ~width_in_points:width_pt
-		   ~height_in_points:height_pt) in
+		   ~width_in_points:width_flt
+		   ~height_in_points:height_flt) in
   let context = Cairo.create surface in
     resize context plot width_pt height_pt;
     plot#draw context;
@@ -74,6 +81,7 @@ let filetype file =
 
 
 let save width height plot filename =
+  assert (Sizing.same_type width height);
   match (filetype filename) with
     | Postscript -> as_ps width height plot filename
     | PNG -> as_png width height plot filename

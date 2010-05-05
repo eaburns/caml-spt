@@ -11,12 +11,11 @@ type unit =
   | Centimeters
   | Pixels
   | Points
-  | Raw
 
 type measurement =
   | In of float
   | Cm of float
-  | Px of float
+  | Px of int
   | Pt of float
 
 
@@ -24,17 +23,17 @@ type measurement =
 
 let points_to_cm pval =
   (** converts a number of points into corresponding centimeters measure *)
-  (float_of_int pval) /. points_per_centimeter
+  pval /. points_per_centimeter
 
 let points_to_in pval =
   (** converts a number of points into corresponding inches measure *)
-  (float_of_int pval) /. (points_per_centimeter /. centimeters_per_inch)
+    pval /. (points_per_centimeter /. centimeters_per_inch)
 
 let points_to_pixels pval =
-  pval /. points_per_centimeter *. pixels_per_centimeter
+  truncate (pval /. points_per_centimeter *. pixels_per_centimeter)
 
 let pixels_to_points pval =
-  pval /. pixels_per_centimeter *. points_per_centimeter
+  (float_of_int pval) /. pixels_per_centimeter *. points_per_centimeter
 
 let pixels_to_cm pval =
   (** converts a number of points into corresponding centimeters measure *)
@@ -51,7 +50,7 @@ let cm_to_points cms =
   cms *. points_per_centimeter
 
 let cm_to_pixels cms =
-  cms *. pixels_per_centimeter
+  truncate (cms *. pixels_per_centimeter)
 
 let in_to_cm inches =
   inches *. centimeters_per_inch
@@ -60,10 +59,22 @@ let in_to_points inches =
   cm_to_points (in_to_cm inches)
 
 let in_to_pixels inches =
-  cm_to_points (in_to_cm inches)
+  cm_to_pixels (in_to_cm inches)
 
 
 (* exposed functionality *)
+
+let measure_to_type measure =
+  match measure with
+    | In _ -> Inches
+    | Cm _ -> Centimeters
+    | Px _ -> Pixels
+    | Pt _ -> Points
+
+
+let same_type measure1 measure2 =
+  (measure_to_type measure1) = (measure_to_type measure2)
+
 
 let convert src_val units =
   (** [src_val] a measurement in some unit
@@ -96,12 +107,35 @@ let convert src_val units =
 	   | Points -> Pt pt_val)
 
 
-let get_val measure =
-  (** Grabs the float value of a measurement *)
+let cm_to_flt cm =
+  match cm with
+    | Cm f -> f
+    | _ -> failwith "cm wasn't in centimeters"
+
+
+let in_to_flt inches =
+  match inches with
+    | In f -> f
+    | _ -> failwith "inches wasn't in centimeters"
+
+
+let pixels_to_int px =
+  match px with
+    | Px i -> i
+    | _ -> failwith "px wasn't in pixels"
+
+
+let points_to_flt pt =
+  match pt with
+    | Pt f -> f
+    | _ -> failwith "pt wasn't in pixels"
+
+
+let measure_to_float measure =
   match measure with
-    | In flt -> flt
-    | Cm flt -> flt
-    | Px flt -> flt
-    | Pt flt -> flt
+    | Cm f -> f
+    | In f -> f
+    | Px i -> (float_of_int i)
+    | Pt f -> f
 
 (* EOF *)
