@@ -58,9 +58,10 @@ object (self)
     Numeric_axis.tick_locations (yrange self#src_ranges)
 
 
-  method private dst_rectangle ~src ctx =
-    (** [dst_rectangle ~src ctx] get the dimensions of the
-	destination rectangle. *)
+  method private dst_rectangle ctx ~src =
+    (** [dst_rectangle ctx ~src] get the dimensions of the destination
+	rectangle. *)
+    let xaspect, yaspect = self#aspect_ratio in
     let title_height =
       match title with
 	| None -> 0.
@@ -68,8 +69,8 @@ object (self)
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
 	ctx ~label_style ~tick_style ~pad:Spt.text_padding
-	~y_min:(plot_height -. axis_padding)
-	~src:(xrange src) ~dst:(range 0. plot_width)
+	~y_min:(yaspect -. axis_padding)
+	~src:(xrange src) ~dst:(range 0. xaspect)
 	xlabel self#xticks in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
@@ -93,26 +94,30 @@ object (self)
 
 
   method private draw_x_axis ctx ~src ~dst =
-    (** [draw_x_axis ctx ~src ~dst] draws the x-axis. *)
+    (** [draw_x_axis ctx ~src ~dst] draws the
+	x-axis. *)
+    let xaspect, yaspect = self#aspect_ratio in
     Numeric_axis.draw_x_axis ctx
       ~tick_style ~label_style ~pad:Spt.text_padding
-      ~width:plot_width ~height:plot_height
+      ~width:xaspect ~height:yaspect
       ~src:(xrange src) ~dst:(xrange dst)
       xlabel self#xticks
 
 
   method private draw_y_axis ctx ~src ~dst =
-    (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
+    (** [draw_y_axis ctx ~src ~dst] draws the
+	y-axis. *)
+    let xaspect, yaspect = self#aspect_ratio in
     Numeric_axis.draw_y_axis ctx
       ~tick_style ~label_style ~pad:Spt.text_padding
-      ~width:plot_width ~height:plot_height
+      ~width:xaspect ~height:yaspect
       ~src:(yrange src) ~dst:(yrange dst)
       ylabel self#yticks
 
 
   method draw ctx =
     let src = self#src_ranges in
-    let dst = self#dst_rectangle ~src ctx in
+    let dst = self#dst_rectangle ctx ~src in
     let legend_txt_loc, legend_x, legend_y =
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
@@ -123,7 +128,7 @@ object (self)
       begin match title with
 	| None -> ()
 	| Some t ->
-	    let x = plot_width /. 2. and y = 0. in
+	    let x = (fst self#aspect_ratio) /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_style ctx x y t
       end;
       self#draw_x_axis ctx ~src ~dst;

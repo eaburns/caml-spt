@@ -62,7 +62,6 @@ let rectangle ~x_min ~x_max ~y_min ~y_max =
   }
 
 
-
 let zero_rectangle = rectangle 0. 0. 0. 0.
   (** A rectangle with no dimensions. *)
 
