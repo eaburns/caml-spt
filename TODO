@@ -47,11 +47,14 @@ Documentation
 
 * Write a real README file
 
+* Document the code
+
 * Generate OCaml docs
 
 ------------------------------------------------------------
 Usability
 ------------------------------------------------------------
+* Generate .mli files where possible / appropriate
 
 * Fix keyboard shortcuts
 

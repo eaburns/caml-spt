@@ -80,13 +80,19 @@ let filetype file =
 		      | _ -> Unknown ext)
 
 
-let save width height plot filename =
-  assert (Sizing.same_type width height);
-  match (filetype filename) with
-    | Postscript -> as_ps width height plot filename
-    | PNG -> as_png width height plot filename
-    | PDF -> as_pdf width height plot filename
-    | Unknown ext -> failwith ("Cannot save unknown filetype " ^ ext)
+let save ?width ?height plot filename =
+  let width = (match width with
+		 | None -> plot#width
+		 | Some w -> w)
+  and height = (match height with
+		  | None -> plot#height
+		  | Some h -> h) in
+    assert (Sizing.same_type width height);
+    match (filetype filename) with
+      | Postscript -> as_ps width height plot filename
+      | PNG -> as_png width height plot filename
+      | PDF -> as_pdf width height plot filename
+      | Unknown ext -> failwith ("Cannot save unknown filetype " ^ ext)
 
 
 
