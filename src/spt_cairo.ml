@@ -10,13 +10,15 @@ type files =
 
 let resize context plot width height =
   (* Scale so that drawing can take place between 0. and 1. *)
-  plot#set_size ~w:width ~h:height;
-  let x_ratio, y_ratio = plot#aspect_ratio in
-  let width = Sizing.measure_to_float width
-  and height = Sizing.measure_to_float height in
-    Drawing.fill_rectangle context ~color:Drawing.white
-      (Geometry.rectangle 0. width 0. height);
-    Drawing.scale context (width /. x_ratio) (height /. y_ratio)
+  let w,h = match width, height with
+      Sizing.Pt w, Sizing.Pt h -> w,h
+    | Sizing.Px w, Sizing.Px h -> (float w),(float h)
+    | _, _-> assert false in
+    (plot#set_size ~w:width ~h:height;
+     let x_ratio, y_ratio = plot#aspect_ratio in
+       Drawing.fill_rectangle context ~color:Drawing.white
+	 (Geometry.rectangle 0. w 0. h);
+       Drawing.scale context (w /. x_ratio) (h /. y_ratio))
 
 
 (* saving functionality *)
@@ -76,8 +78,13 @@ let filetype file =
 		      | _ -> Unknown ext)
 
 
-let save plot ?(width = plot#width) ?(height = plot#height) filename =
-    assert (Sizing.same_type width height);
+let save ?width ?height plot filename =
+  let width = (match width with
+		 | None -> plot#width
+		 | Some w -> w)
+  and height = (match height with
+		  | None -> plot#height
+		  | Some h -> h) in
     match (filetype filename) with
       | Postscript -> as_ps width height plot filename
       | PNG -> as_png width height plot filename

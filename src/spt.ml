@@ -61,21 +61,19 @@ object (self)
 
   val mutable height = default_height
 
-  method height = width
+  method height = height
 
   method aspect_ratio =
     (** [aspect_ratio] gets the current aspect ratio of the plot. *)
-    assert (Sizing.same_type width height);
-    (let w = Sizing.measure_to_float width
-     and h = Sizing.measure_to_float height in
+    (let w = Sizing.cm_to_flt (Sizing.convert width Sizing.Centimeters)
+     and h = Sizing.cm_to_flt (Sizing.convert height Sizing.Centimeters) in
        if w > h then 1., h /. w else w /. h, 1.)
 
 
   method set_size ~w ~h =
     (** [set_size ~w ~h] resizes the plot. *)
-    assert (Sizing.same_type w h);
-    width <- w;
-    height <- h
+    width <- Sizing.convert w Sizing.Centimeters;
+    height <- Sizing.convert h Sizing.Centimeters
 
 
   method private title = match title with
