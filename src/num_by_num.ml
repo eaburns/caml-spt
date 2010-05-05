@@ -48,18 +48,8 @@ object (self)
     in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
 
 
-  method private xticks =
-    (** [xticks] computes the location of the x-axis tick marks. *)
-    Numeric_axis.tick_locations (xrange self#src_rectangle)
-
-
-  method private yticks =
-    (** [yticks] computes the location of the y-axis tick marks. *)
-    Numeric_axis.tick_locations (yrange self#src_rectangle)
-
-
-  method private dst_rectangle ctx ~xaxis ~yaxis ~src =
-    (** [dst_rectangle ctx ~xaxis ~yaxis ~src] get the dimensions of
+  method private dst_rectangle ctx ~xaxis ~yaxis src =
+    (** [dst_rectangle ctx ~xaxis ~yaxis src] get the dimensions of
 	the destination rectangle. *)
     let xaspect, yaspect = self#aspect_ratio in
     let title_height =
@@ -90,6 +80,20 @@ object (self)
 	~y_max:(dst.y_max +. residual.y_max)
 
 
+  method private xaxis src =
+    (** [xaxis src] creates the x-axis for the plot. *)
+    let ticks = Numeric_axis.tick_locations (xrange self#src_rectangle) in
+      Numeric_axis.create ~label_text_style ~tick_text_style
+	~src:(xrange src) ticks xlabel
+
+
+  method private yaxis src =
+    (** [yaxis src] creates the y-axis for the plot. *)
+    let ticks = Numeric_axis.tick_locations (yrange self#src_rectangle) in
+      Numeric_axis.create ~label_text_style ~tick_text_style
+	~src:(yrange src) ticks ylabel
+
+
   method private draw_x_axis ctx ~dst xaxis =
     (** [draw_x_axis ctx ~dst xaxis] draws the
 	x-axis. *)
@@ -108,13 +112,8 @@ object (self)
 
   method draw ctx =
     let src = self#src_rectangle in
-    let xaxis =
-      Numeric_axis.create ~label_text_style ~tick_text_style
-	~src:(xrange src) self#xticks xlabel
-    and yaxis =
-      Numeric_axis.create ~label_text_style ~tick_text_style
-	~src:(yrange src) self#yticks ylabel in
-    let dst = self#dst_rectangle ctx ~xaxis ~yaxis ~src in
+    let xaxis = self#xaxis src and yaxis = self#yaxis src in
+    let dst = self#dst_rectangle ctx ~xaxis ~yaxis src in
     let legend_txt_loc, legend_x, legend_y =
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
