@@ -49,9 +49,10 @@ let in_to_pixels inches =
   cm_to_points (inches *. 2.54)
 
 
-let background_resize context width height =
+let resize context plot width height =
   (* Scale so that drawing can take place between 0. and 1. *)
-  let x_ratio, y_ratio = Display_size.normalize ~width ~height in
+  plot#set_size ~w:width ~h:height;
+  let x_ratio, y_ratio = plot#aspect_ratio in
     Drawing.fill_rectangle context ~color:Drawing.white
       (Geometry.rectangle 0. width 0. height);
     Drawing.scale context (width /. x_ratio) (height /. y_ratio)
@@ -67,8 +68,8 @@ let as_png width height plot filename =
 		   Cairo.FORMAT_ARGB32 ~width:(int_of_float width_px)
 		   ~height:(int_of_float height_px)) in
   let context = Cairo.create surface in
-    background_resize context width_px height_px;
-    plot#draw ~suggested_width:width ~suggested_height:height context;
+    resize context plot width_px height_px;
+    plot#draw context;
     Cairo_png.surface_write_to_file surface filename
 
 
@@ -80,8 +81,8 @@ let as_ps width height plot filename =
 		   ~width_in_points:width_pt
 		   ~height_in_points:height_pt) in
   let context = Cairo.create surface in
-    background_resize context width_pt height_pt;
-    plot#draw ~suggested_width:width ~suggested_height:height context;
+    resize context plot width_pt height_pt;
+    plot#draw context;
     Cairo.surface_finish surface;
     close_out chan
 
@@ -94,8 +95,8 @@ let as_pdf width height plot filename =
 		   ~width_in_points:width_pt
 		   ~height_in_points:height_pt) in
   let context = Cairo.create surface in
-    background_resize context width_pt height_pt;
-    plot#draw ~suggested_width:width ~suggested_height:height context;
+    resize context plot width_pt height_pt;
+    plot#draw context;
     Cairo.surface_finish surface;
     close_out chan
 
