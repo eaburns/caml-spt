@@ -18,7 +18,6 @@ type measurement =
   | Px of int
   | Pt of float
 
-
 (* numeric conversion stuff *)
 
 let points_to_cm pval =

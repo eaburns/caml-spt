@@ -38,12 +38,10 @@ let as_png width height plot filename =
 let as_ps width height plot filename =
   let width_pt = Sizing.convert width Sizing.Points
   and height_pt = Sizing.convert height Sizing.Points in
-  let width_flt = Sizing.points_to_flt width_pt
-  and height_flt = Sizing.points_to_flt height_pt in
   let chan = open_out filename in
   let surface = (Cairo_ps.surface_create_for_channel chan
-		   ~width_in_points:width_flt
-		   ~height_in_points:height_flt) in
+		   ~width_in_points:(Sizing.points_to_flt width_pt)
+		   ~height_in_points:(Sizing.points_to_flt height_pt)) in
   let context = Cairo.create surface in
     resize context plot width_pt height_pt;
     plot#draw context;
@@ -54,12 +52,10 @@ let as_ps width height plot filename =
 let as_pdf width height plot filename =
   let width_pt = Sizing.convert width Sizing.Points
   and height_pt = Sizing.convert height Sizing.Points in
-  let width_flt = Sizing.points_to_flt width_pt
-  and height_flt = Sizing.points_to_flt height_pt in
   let chan = open_out filename in
   let surface = (Cairo_pdf.surface_create_for_channel chan
-		   ~width_in_points:width_flt
-		   ~height_in_points:height_flt) in
+		   ~width_in_points:(Sizing.points_to_flt width_pt)
+		   ~height_in_points:(Sizing.points_to_flt height_pt)) in
   let context = Cairo.create surface in
     resize context plot width_pt height_pt;
     plot#draw context;
@@ -80,13 +76,7 @@ let filetype file =
 		      | _ -> Unknown ext)
 
 
-let save ?width ?height plot filename =
-  let width = (match width with
-		 | None -> plot#width
-		 | Some w -> w)
-  and height = (match height with
-		  | None -> plot#height
-		  | Some h -> h) in
+let save plot ?(width = plot#width) ?(height = plot#height) filename =
     assert (Sizing.same_type width height);
     match (filetype filename) with
       | Postscript -> as_ps width height plot filename
