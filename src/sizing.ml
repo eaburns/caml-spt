@@ -4,16 +4,6 @@ let centimeters_per_inch = 2.54
 let pixels_per_centimeter = (96. /. centimeters_per_inch)
 and points_per_centimeter = (72. /. centimeters_per_inch)
 
-
-
-type units =
-  | Inches of float
-  | Centimeters of float
-  | Points of float
-  | Pixels of float
-  | Unspecified of float
-
-
 let points_to_cm pval =
   (** converts a number of points into corresponding centimeters measure *)
   (float_of_int pval) /. points_per_centimeter
