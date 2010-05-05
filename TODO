@@ -4,17 +4,13 @@ Things that we need before anyone can begin beta testing
 
 * Legacy module (in ps_plot)
 
-* Compute better 'tick' locations on numeric axes
+* Change how plots determine their size so the code isn't as sloppy
+  - current size is stored in a set of fields
+  - make a set_size method
+
+* Compute better 'tick' locations on numeric axes (informed by plot size)
 
 * Decide on a final API.
-
-------------------------------------------------------------
-GUI
-------------------------------------------------------------
-
-* Give a graphical error message when failing to save from the GUI
-
-* Fix keyboard shortcuts
 
 ------------------------------------------------------------
 Extra features
@@ -25,11 +21,11 @@ Extra features
 * Fixing the aspect ratio so that the mean slopes of lines in the plot
   are ~45 deg.
 
+* Change text size based on plot size
+
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
-
-* Lines points plots
 
 * Errbars should compute a residual so their cap is not chopped off
 
@@ -37,22 +33,17 @@ Datasets
 
 * Bar charts (and with error bars)
 
-* Waterfall charts
+* A color factory
+
+* Make sure that everything is colorable
 
 * Montages: more complex than simple ps-montage style.
   - Make axis drawing optional.
   - Make room for non-drawn axes, but then don't draw them.
 
-* A color factory
-
-* Make sure that everything is colorable
-
-
 ------------------------------------------------------------
 Documentation
 ------------------------------------------------------------
-
-* Developer readme: each plot draws itself into a unit square.
 
 * Write a real README file
 
@@ -61,6 +52,10 @@ Documentation
 ------------------------------------------------------------
 Usability
 ------------------------------------------------------------
+
+* Give a graphical error message when failing to save from the GUI
+
+* Fix keyboard shortcuts
 
 * Read plots from files
   Involves parsing
@@ -75,5 +70,8 @@ Plot types
 ------------------------------------------------------------
 
 * Numeric by Ordinal (or Ranked) plots
-  This includes run charts, etc. where you have a labeled x-axis where
-  each value is something that I don't feel like describing here.
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
+
