@@ -19,24 +19,21 @@ let file_dialog ~title ~callback () =
   sel#show ()
 
 let save_dialog plot =
-  let w = Display_size.default_output_centimeters
-  and h = Display_size.default_output_centimeters in
-    file_dialog ~title:"Save" ~callback:(fun file -> plot#output w h file) ()
+  file_dialog ~title:"Save" ~callback:(fun file -> plot#output file) ()
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
   let ctx = Cairo_lablgtk.create area#misc#window in
   let { Gtk.width = width ; Gtk.height = height } = area#misc#allocation in
   let widthf = float width and heightf = float height in
-  let x_ratio, y_ratio =
-    Display_size.normalize ~width:widthf ~height:heightf
-  in
-    Drawing.fill_rectangle ctx ~color:Drawing.white
-      (Geometry.rectangle 0. widthf 0. heightf);
-    (* Scale so that drawing can take place in a normalized aspect
-       ratio. *)
-    Drawing.scale ctx (widthf /. x_ratio) (heightf /. y_ratio);
-    plot#draw ~suggested_width:widthf ~suggested_height:heightf ctx
+    plot#set_size ~w:widthf ~h:heightf;
+    let x_ratio, y_ratio = plot#aspect_ratio in
+      Drawing.fill_rectangle ctx ~color:Drawing.white
+	(Geometry.rectangle 0. widthf 0. heightf);
+      (* Scale so that drawing can take place in a normalized aspect
+	 ratio. *)
+      Drawing.scale ctx (widthf /. x_ratio) (heightf /. y_ratio);
+      plot#draw ctx
 
 
 open GdkKeysyms
