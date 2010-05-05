@@ -91,7 +91,7 @@ object (self)
   method output filename =
     (** [output filename] saves the plot to a filename.  The type is
 	pulled from the name, so you must include an extension *)
-    Spt_cairo.save width height self filename
+    Spt_cairo.save self filename
 
 
   method virtual draw : context -> unit
