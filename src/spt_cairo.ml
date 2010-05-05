@@ -7,6 +7,7 @@ type files =
   | PDF
   | Unknown of string
 
+
 let resize context plot width height =
   (* Scale so that drawing can take place between 0. and 1. *)
   plot#set_size ~w:width ~h:height;
