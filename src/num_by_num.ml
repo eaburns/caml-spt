@@ -30,8 +30,8 @@ object (self)
     (** The list of datasets. *)
 
 
-  method private src_ranges =
-    (** [src_ranges] computes the range of the x and y axes. *)
+  method private src_rectangle =
+    (** [src_rectangle] computes the range of the x and y axes. *)
     let r = match datasets with
       | d :: [] -> d#dimensions
       | d :: ds ->
@@ -50,12 +50,12 @@ object (self)
 
   method private xticks =
     (** [xticks] computes the location of the x-axis tick marks. *)
-    Numeric_axis.tick_locations (xrange self#src_ranges)
+    Numeric_axis.tick_locations (xrange self#src_rectangle)
 
 
   method private yticks =
     (** [yticks] computes the location of the y-axis tick marks. *)
-    Numeric_axis.tick_locations (yrange self#src_ranges)
+    Numeric_axis.tick_locations (yrange self#src_rectangle)
 
 
   method private dst_rectangle ctx ~xaxis ~yaxis ~src =
@@ -107,7 +107,7 @@ object (self)
 
 
   method draw ctx =
-    let src = self#src_ranges in
+    let src = self#src_rectangle in
     let xaxis =
       Numeric_axis.create ~label_text_style ~tick_text_style
 	~src:(xrange src) self#xticks xlabel
