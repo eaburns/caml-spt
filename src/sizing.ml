@@ -130,11 +130,5 @@ let points_to_flt pt =
     | _ -> failwith "pt wasn't in pixels"
 
 
-let measure_to_float measure =
-  match measure with
-    | Cm f -> f
-    | In f -> f
-    | Px i -> (float_of_int i)
-    | Pt f -> f
 
 (* EOF *)
