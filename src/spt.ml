@@ -72,8 +72,8 @@ object (self)
 
   method set_size ~w ~h =
     (** [set_size ~w ~h] resizes the plot. *)
-    width <- Sizing.convert w Sizing.Centimeters;
-    height <- Sizing.convert h Sizing.Centimeters
+    width <- w;
+    height <- h
 
 
   method private title = match title with
