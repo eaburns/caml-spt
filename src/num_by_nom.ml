@@ -16,9 +16,9 @@ let x_axis_padding = 0.05
 (** {1 Numeric by nomeric plot} ****************************************)
 
 class plot
-  ?(label_style=Spt.default_label_style)
-  ?(legend_style=Spt.default_legend_style)
-  ?(tick_style=Spt.default_tick_style)
+  ?(label_text_style=Spt.default_label_style)
+  ?(legend_text_style=Spt.default_legend_style)
+  ?(tick_text_style=Spt.default_tick_style)
   ?title ?ylabel ?y_min ?y_max datasets =
   (** [plot ?label_style ?legend_style ?tick_style ?title ?ylabel
       ?y_min ?y_max datasets] a plot that has a nominal x axis and a
@@ -48,14 +48,13 @@ object (self)
     Numeric_axis.tick_locations self#src_y_range
 
 
-  method private x_axis_dimensions ctx  =
+  method private x_axis_dimensions ctx yaxis =
     (** [x_axis_dimensions ctx] computes the x_min, x_max and width
 	for each dataset to display its name on the x-axis. *)
     let x_max, _ = self#aspect_ratio in
     let x_min =
-      Numeric_axis.resize_for_y_axis ctx ~label_style ~tick_style
-	~pad:Spt.text_padding ~x_min:y_axis_padding
-	ylabel self#yticks
+      Numeric_axis.resize_for_y_axis ctx
+	~pad:Spt.text_padding ~x_min:y_axis_padding yaxis
     in
     let n = List.length datasets in
     let text_width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
@@ -69,7 +68,7 @@ object (self)
     let title_height =
       match title with
 	| None -> 0.
-	| Some txt -> snd (text_dimensions ctx ~style:tick_style txt) in
+	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
       List.fold_left (fun m ds ->
 			let h = ds#x_label_height ctx text_width in
@@ -82,17 +81,16 @@ object (self)
 
 
 
-  method private draw_y_axis ctx ~src ~dst =
-    (** [draw_y_axis ctx ~src ~dst] draws the y-axis. *)
+  method private draw_y_axis ctx ~dst yaxis =
+    (** [draw_y_axis ctx ~dst yaxis] draws the y-axis. *)
     let xaspect, yaspect = self#aspect_ratio in
-    Numeric_axis.draw_y_axis ctx
-      ~tick_style ~label_style ~pad:Spt.text_padding
-      ~width:xaspect ~height:yaspect ~src ~dst ylabel self#yticks
+      Numeric_axis.draw_y_axis ctx
+	~pad:Spt.text_padding ~width:xaspect ~height:yaspect ~dst yaxis;
 
 
   method private draw_x_axis ctx ~y ~xrange ~text_width =
     (** [draw_x_axis ctx ~y ~xrange ~text_width] draws the x-axis. *)
-    set_text_style ctx legend_style;
+    set_text_style ctx legend_text_style;
     ignore (List.fold_left
 	      (fun x ds ->
 		 ds#draw_x_label ctx ~x ~y ~text_width;
@@ -102,7 +100,10 @@ object (self)
 
   method draw ctx =
     let src = self#src_y_range in
-    let xrange, text_width = self#x_axis_dimensions ctx in
+    let yaxis =
+      Numeric_axis.create ~label_text_style ~tick_text_style
+	~src self#yticks ylabel in
+    let xrange, text_width = self#x_axis_dimensions ctx yaxis in
     let dst =
       self#dst_y_range ctx ~y_min ~y_max ~text_width:text_width
     in
@@ -110,9 +111,9 @@ object (self)
 	| None -> ()
 	| Some t ->
 	    let x = (fst self#aspect_ratio) /. 2. and y = 0. in
-	      draw_text_centered_below ~style:label_style ctx x y t
+	      draw_text_centered_below ~style:label_text_style ctx x y t
       end;
-      self#draw_y_axis ctx ~src ~dst;
+      self#draw_y_axis ctx ~dst yaxis;
       self#draw_x_axis ctx ~y:(dst.min +. x_axis_padding) ~xrange
 	~text_width:text_width
 end
