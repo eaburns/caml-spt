@@ -22,6 +22,7 @@ Files:
 "src/spt_gtk_stubs"
 "src/spt_cairo"
 "src/spt_cairo_stubs"
+"src/sizing"
 
 Libraries:
 "str"
