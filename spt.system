@@ -8,7 +8,6 @@ Files:
 "src/statistics"
 "src/errbar"
 "src/legend"
-"src/display_size"
 "src/num_by_num/num_by_num_dataset"
 "src/num_by_num/scatter_dataset"
 "src/num_by_num/line_dataset"
