@@ -43,9 +43,11 @@ object (self)
 	  in range ~min ~max
 
 
-  method private yticks =
-    (** [yticks] computes the location of the y-axis tick marks. *)
-    Numeric_axis.tick_locations self#src_y_range
+  method private yaxis src =
+    (** [yaxis src] creates a y-axis. *)
+    let ticks = Numeric_axis.tick_locations self#src_y_range in
+      Numeric_axis.create ~label_text_style ~tick_text_style
+	~src ticks ylabel
 
 
   method private x_axis_dimensions ctx yaxis =
@@ -100,9 +102,7 @@ object (self)
 
   method draw ctx =
     let src = self#src_y_range in
-    let yaxis =
-      Numeric_axis.create ~label_text_style ~tick_text_style
-	~src self#yticks ylabel in
+    let yaxis = self#yaxis src in
     let xrange, text_width = self#x_axis_dimensions ctx yaxis in
     let dst =
       self#dst_y_range ctx ~y_min ~y_max ~text_width:text_width
