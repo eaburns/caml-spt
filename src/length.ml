@@ -18,6 +18,12 @@ type t =
   | Px of int
   | Pt of float
 
+type units =
+  | Inches
+  | Centimeters
+  | Pixels
+  | Points
+
 let as_in = function
   | In i -> i
   | Cm c -> c /. cm_per_in
@@ -43,3 +49,21 @@ let as_pt = function
   | Cm c -> c *. pt_per_cm
   | Px p -> (float p) /. px_per_pt
   | Pt p -> p
+
+
+let convert t unit =
+  match unit with
+    | Inches -> as_in t
+    | Centimeters -> as_cm t
+    | Pixels -> as_px_float t
+    | Points -> as_pt t
+
+
+let get_type t =
+  match t with
+    | In _ -> Inches
+    | Cm _ -> Centimeters
+    | Px _ -> Pixels
+    | Pt _ -> Points
+
+(* EOF *)
