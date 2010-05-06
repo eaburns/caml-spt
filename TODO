@@ -1,0 +1,78 @@
+------------------------------------------------------------
+Things that we need before anyone can begin beta testing
+------------------------------------------------------------
+
+* Standard interface
+
+* Legacy module (in ps_plot)
+
+* Change how plots determine their size so the code isn't as sloppy
+  - current size is stored in a set of fields
+  - make a set_size method
+
+* Compute better 'tick' locations on numeric axes (informed by plot size)
+
+* Decide on a final API.
+
+------------------------------------------------------------
+Extra features
+------------------------------------------------------------
+
+* Drawing legends off of the plot.
+
+* Fixing the aspect ratio so that the mean slopes of lines in the plot
+  are ~45 deg.
+
+* Change text size based on plot size
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+
+* Errbars should compute a residual so their cap is not chopped off
+
+* Box plots
+
+* Bar charts (and with error bars)
+
+* A color factory
+
+* Make sure that everything is colorable
+
+* Montages: more complex than simple ps-montage style.
+  - Make axis drawing optional.
+  - Make room for non-drawn axes, but then don't draw them.
+
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
+
+* Write a real README file
+
+* Document the code
+
+* Generate OCaml docs
+
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
+* Generate .mli files where possible / appropriate
+
+* Read plots from files
+  Involves parsing
+
+* Bindings
+  - C
+  - Python
+  - Java?
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
+
+* Numeric by Ordinal (or Ranked) plots
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
+
