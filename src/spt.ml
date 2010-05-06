@@ -44,10 +44,10 @@ let default_label_style =
 let text_padding = 0.02
   (** Padding around text *)
 
-let default_width = Sizing.Cm 8.
+let default_width = Length.Cm 8.
   (** The default plot width in centimeters. *)
 
-let default_height = Sizing.Cm 8.
+let default_height = Length.Cm 8.
   (** The default plot height in centimeters. *)
 
 
@@ -65,9 +65,8 @@ object (self)
 
   method aspect_ratio =
     (** [aspect_ratio] gets the current aspect ratio of the plot. *)
-    (let w = Sizing.cm_to_flt (Sizing.convert width Sizing.Centimeters)
-     and h = Sizing.cm_to_flt (Sizing.convert height Sizing.Centimeters) in
-       if w > h then 1., h /. w else w /. h, 1.)
+    let w = Length.as_cm width and h = Length.as_cm height in
+      if w > h then 1., h /. w else w /. h, 1.
 
 
   method set_size ~w ~h =
