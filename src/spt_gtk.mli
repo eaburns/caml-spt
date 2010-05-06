@@ -1,5 +1,4 @@
 (**
-
     @author jtd7
     @since 2010-05-06
 *)
