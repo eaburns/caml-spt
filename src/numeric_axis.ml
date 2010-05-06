@@ -25,7 +25,7 @@ let axis_style =
   }
 
 
-let tick_length = Length.Pt 2.
+let tick_length = Length.Pt 4.
   (** The length of a tick mark. *)
 
 
