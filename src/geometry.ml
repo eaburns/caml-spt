@@ -66,6 +66,12 @@ let zero_rectangle = rectangle 0. 0. 0. 0.
   (** A rectangle with no dimensions. *)
 
 
+let rectangle_to_slope r =
+  (** Calculates the slope associated with a rectangle *)
+  let dx = r.x_max -. r.x_min
+  and dy = r.y_max -. r.y_min in
+    dy /. dx
+
 let range_transform ~src ~dst vl =
   (** [range_transform ~src ~dst vl] converts [vl] from the initial scale
       to the new scale. *)
