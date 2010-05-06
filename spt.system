@@ -19,9 +19,7 @@ Files:
 "src/num_by_nom"
 "src/spt"
 "src/spt_gtk"
-"src/spt_gtk_stubs"
 "src/spt_cairo"
-"src/spt_cairo_stubs"
 "src/length"
 
 Libraries:
