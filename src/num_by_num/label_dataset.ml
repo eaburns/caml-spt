@@ -91,4 +91,6 @@ object (self)
 
   method legend_dimensions _ = 0., 0.
 
+  method avg_slope = 1.
+
 end

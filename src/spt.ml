@@ -98,3 +98,5 @@ object (self)
 	the given aspect ratio.  It is up to the caller to scale this
 	to the appropriate width/height. *)
 end
+
+(* EOF *)

@@ -72,6 +72,8 @@ object (self)
   method legend_dimensions ctx =
     (ctx.units line_legend_length), (ctx.units width)
 
+  method avg_slope = 1.
+
 end
 
 let lines_points_dataset dashes glyph ?radius ?width ?color ?name points =

@@ -90,6 +90,8 @@ object (self)
   method legend_dimensions ctx =
     let r2 = (ctx.units radius) *. 2. in r2, r2
 
+  method avg_slope = 1.
+
 end
 
 
@@ -129,3 +131,5 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
     new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs)
   in
     new composite_dataset ?name [scatter; horiz_err; vert_err; labels;]
+
+(* EOF *)
