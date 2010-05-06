@@ -82,7 +82,7 @@ let create_display plot title =
 			       file_menu#popup ~button
 				 ~time:(GdkEvent.Button.time ev); true
 			     end else false));
-    w#add_accel_group accel_group;
+    w#add_accel_group accel_group; (* turns on the button listening *)
     ignore (w#connect#destroy GMain.quit);
     ignore (draw area);
     w#show();
