@@ -11,8 +11,8 @@ type files =
 let resize context plot width height =
   (* Scale so that drawing can take place between 0. and 1. *)
   let w,h = match width, height with
-      Sizing.Pt w, Sizing.Pt h -> w,h
-    | Sizing.Px w, Sizing.Px h -> (float w),(float h)
+    | Length.Pt w, Length.Pt h -> w,h
+    | Length.Px w, Length.Px h -> (float w),(float h)
     | _, _-> assert false in
     (plot#set_size ~w:width ~h:height;
      let x_ratio, y_ratio = plot#aspect_ratio in
@@ -23,43 +23,34 @@ let resize context plot width height =
 
 (* saving functionality *)
 let as_png width height plot filename =
-  let width_px = Sizing.convert width Sizing.Pixels
-  and height_px = Sizing.convert height Sizing.Pixels in
-  let width_int = Sizing.pixels_to_int width_px
-  and height_int = Sizing.pixels_to_int height_px in
+  let width_px = Length.as_px width and height_px = Length.as_px height in
   let surface = (Cairo.image_surface_create
-		   Cairo.FORMAT_ARGB32
-		   ~width:width_int
-		   ~height:height_int) in
+		   Cairo.FORMAT_ARGB32 ~width:width_px ~height:height_px) in
   let context = Cairo.create surface in
-    resize context plot width_px height_px;
+    resize context plot width height;
     plot#draw context;
     Cairo_png.surface_write_to_file surface filename
 
 
 let as_ps width height plot filename =
-  let width_pt = Sizing.convert width Sizing.Points
-  and height_pt = Sizing.convert height Sizing.Points in
+  let width_pt = Length.as_pt width and height_pt = Length.as_pt height in
   let chan = open_out filename in
   let surface = (Cairo_ps.surface_create_for_channel chan
-		   ~width_in_points:(Sizing.points_to_flt width_pt)
-		   ~height_in_points:(Sizing.points_to_flt height_pt)) in
+		   ~width_in_points:width_pt ~height_in_points:height_pt) in
   let context = Cairo.create surface in
-    resize context plot width_pt height_pt;
+    resize context plot width height;
     plot#draw context;
     Cairo.surface_finish surface;
     close_out chan
 
 
 let as_pdf width height plot filename =
-  let width_pt = Sizing.convert width Sizing.Points
-  and height_pt = Sizing.convert height Sizing.Points in
+  let width_pt = Length.as_pt width and height_pt = Length.as_pt height in
   let chan = open_out filename in
   let surface = (Cairo_pdf.surface_create_for_channel chan
-		   ~width_in_points:(Sizing.points_to_flt width_pt)
-		   ~height_in_points:(Sizing.points_to_flt height_pt)) in
+		   ~width_in_points:width_pt ~height_in_points:height_pt) in
   let context = Cairo.create surface in
-    resize context plot width_pt height_pt;
+    resize context plot width height;
     plot#draw context;
     Cairo.surface_finish surface;
     close_out chan

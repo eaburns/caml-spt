@@ -39,7 +39,7 @@ let draw_plot_to_gtk_area plot area =
   let { Gtk.width = width ; Gtk.height = height } = area#misc#allocation in
   let widthf = float width and heightf = float height in
     Printf.eprintf "%i x %i on screen\n%!" width height;
-    plot#set_size ~w:(Sizing.Px width) ~h:(Sizing.Px height);
+    plot#set_size ~w:(Length.Px width) ~h:(Length.Px height);
     let x_ratio, y_ratio = plot#aspect_ratio in
       Drawing.fill_rectangle ctx ~color:Drawing.white
 	(Geometry.rectangle 0. widthf 0. heightf);
