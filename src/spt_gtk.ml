@@ -35,16 +35,21 @@ let save_dialog plot =
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
-  let ctx = Cairo_lablgtk.create area#misc#window in
   let { Gtk.width = width ; Gtk.height = height } = area#misc#allocation in
   let widthf = float width and heightf = float height in
+  let gtk_ctx = Cairo_lablgtk.create area#misc#window in
+  let ctx =
+    Drawing.drawing_context gtk_ctx Length.as_px_float
+      ~w:(Length.Px width) ~h:(Length.Px height)
+  in
     plot#set_size ~w:(Length.Px width) ~h:(Length.Px height);
-    let x_ratio, y_ratio = plot#aspect_ratio in
       Drawing.fill_rectangle ctx ~color:Drawing.white
 	(Geometry.rectangle 0. widthf 0. heightf);
       (* Scale so that drawing can take place in a normalized aspect
 	 ratio. *)
+(*
       Drawing.scale ctx (widthf /. x_ratio) (heightf /. y_ratio);
+*)
       plot#draw ctx
 
 

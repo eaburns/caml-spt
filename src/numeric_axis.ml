@@ -21,11 +21,11 @@ let axis_style =
   {
     line_color = black;
     line_dashes = [| |];
-    line_width = 0.0025;
+    line_width = Length.Pt 1.;
   }
 
 
-let tick_length = 0.02
+let tick_length = Length.Pt 2.
   (** The length of a tick mark. *)
 
 
@@ -34,7 +34,7 @@ let tick_style =
   {
     line_color = black;
     line_dashes = [| |];
-    line_width = 0.0012;
+    line_width = Length.Pt 0.5;
   }
 
 let create ~label_text_style ~tick_text_style ~src ticks label =
@@ -93,6 +93,7 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
       after making room for the x-axis tick marks and label.  [pad] is
       the padding between text.  The result is a new (y_min * x_max)
       that will have room for the x-axis and the x-tick label text. *)
+  let tick_length = ctx.units tick_length in
   let tick_text_style = axis.tick_text_style in
   let label_room =
     match axis.label with
@@ -136,6 +137,7 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
 let draw_x_tick ctx style ~pad ~y scale (vl, t_opt) =
   (** [draw_x_tick ctx style ~pad ~y scale t] draws an x-tick with the
       top at the given [y] location.. *)
+  let tick_length = ctx.units tick_length in
   let x = scale vl in
   let len = if t_opt = None then tick_length /. 2. else tick_length in
     draw_line ctx ~style:tick_style [ point x y; point x (y +. len) ];
@@ -151,6 +153,7 @@ let draw_x_axis ctx ~pad ~width ~height ~dst axis =
       x-axis. [scale] is a function that converts an x-value in the
       original data coordinates to the destination x-coordinate
       system. *)
+  let tick_length = ctx.units tick_length in
   let tick_text_height =
     max_tick_text_height ctx axis.tick_text_style axis.ticks in
   let tr = range_transform ~src:axis.src ~dst in
@@ -173,6 +176,7 @@ let resize_for_y_axis ctx ~pad ~x_min axis =
   (** [resize_for_y_axis ctx ~pad ~x_min axis] gets the new minimum
       and maximum x-values after making room for the y-axis tick marks
       and label.  [pad] is the padding between text. *)
+  let tick_length = ctx.units tick_length in
   let label_room =
     match axis.label with
       | None -> 0.
@@ -190,6 +194,7 @@ let resize_for_y_axis ctx ~pad ~x_min axis =
 let draw_y_tick ctx style ~pad ~x tr (vl, t_opt) =
   (** [draw_y_tick ctx style ~pad ~x tr t]
       draws a y-tick with the left at the given [x] location.. *)
+  let tick_length = ctx.units tick_length in
   let y = tr vl in
   let len = if t_opt = None then tick_length /. 2. else tick_length in
     draw_line ctx ~style:tick_style [ point x y; point (x -. len) y ];
@@ -203,6 +208,7 @@ let draw_y_tick ctx style ~pad ~x tr (vl, t_opt) =
 let draw_y_axis ctx ~pad ~width ~height ~dst axis =
   (** [draw_y_axis ctx ~pad ~width ~height ~dst axis] draws a
   y-axis. *)
+  let tick_length = ctx.units tick_length in
   let tick_text_width =
     max_tick_text_width ctx axis.tick_text_style axis.ticks in
   let tr = range_transform ~src:axis.src ~dst in

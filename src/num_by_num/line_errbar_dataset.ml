@@ -8,7 +8,7 @@ open Num_by_num_dataset
 open Geometry
 
 type style = {
-  dashes : float array;
+  dashes : Length.t array;
   (* The dash pattern for the line. *)
   number : int;
   (* The number of the current line_errbar_dataset. *)

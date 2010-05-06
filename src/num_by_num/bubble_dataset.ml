@@ -10,7 +10,7 @@ open Drawing
 
 class bubble_dataset
   ?(glyph=Circle_glyph) ?(color=(color ~r:0.4 ~g:0.4 ~b:0.4 ~a:0.4))
-  ?(min_radius=0.01) ?(max_radius=0.1) ?name triples =
+  ?(min_radius=(Length.Pt 10.)) ?(max_radius=(Length.Pt 60.)) ?name triples =
   (** For plotting data with three values: x, y and z.  The result
       plots points at their x, y location as a scatter plot would however
       the z values are shown by changing the radius of the point. *)
@@ -38,10 +38,10 @@ object (self)
     in range ~min ~max
 
 
-  method private radius zrange vl =
-    (** [compute_radius zrange vl] gets the radius of the point. *)
-    let rrange = range min_radius max_radius in
-      range_transform ~src:zrange ~dst:rrange vl
+  method private radius ctx zrange vl =
+    (** [compute_radius ctx zrange vl] gets the radius of the point. *)
+    let rrange = range (Length.as_pt min_radius) (Length.as_pt max_radius) in
+      Length.Pt (range_transform ~src:zrange ~dst:rrange vl)
 
 
   method residual ctx ~src ~dst =
@@ -52,8 +52,8 @@ object (self)
 	   let pt' = tr (point t.i t.j) in
 	     if rectangle_contains dst pt'
 	     then begin
-	       let radius = self#radius zrange t.k
-	       in rectangle_max r (point_residual dst pt' radius)
+	       let radius = self#radius ctx zrange t.k
+	       in rectangle_max r (point_residual dst pt' (ctx.units radius))
 	     end else r)
 	zero_rectangle triples
 
@@ -62,7 +62,7 @@ object (self)
     let tr = rectangle_transform ~src ~dst in
     let zrange = self#z_range in
       Array.iter (fun t ->
-		    let radius = self#radius zrange t.k in
+		    let radius = self#radius ctx zrange t.k in
 		    let pt = point t.i t.j in
 		    let pt' = tr pt in
 		      if rectangle_contains src pt
@@ -73,6 +73,7 @@ object (self)
   method draw_legend ctx ~x ~y =
     draw_point ctx ~color min_radius glyph (point x y)
 
-  method legend_dimensions _ = let r2 = min_radius /. 2. in r2, r2
+  method legend_dimensions ctx =
+    let r2 = (ctx.units min_radius) /. 2. in r2, r2
 
 end

@@ -8,17 +8,32 @@
 open Geometry
 
 
-type context = Cairo.t
+type context = {
+  cairo : Cairo.t;
+  units : Length.t -> float;
+  width : Length.t;
+  height : Length.t;
+}
+
+let drawing_context cairo units ~w ~h =
+  (** [drawing_context cairo units ~w ~h] creates a new drawing
+      context.  [cairo] is the Cairo.t context. *)
+  {
+    cairo = cairo;
+    units = units;
+    width = w;
+    height = h;
+  }
 
 (** {1 Transforms} ****************************************)
 
-let save_transforms ctx = Cairo.save ctx
+let save_transforms ctx = Cairo.save ctx.cairo
 
-let restore_transforms ctx = Cairo.restore ctx
+let restore_transforms ctx = Cairo.restore ctx.cairo
 
-let translate ctx x y = Cairo.translate ctx x y
+let translate ctx x y = Cairo.translate ctx.cairo x y
 
-let scale ctx x y = Cairo.scale ctx x y
+let scale ctx x y = Cairo.scale ctx.cairo x y
 
 
 (** {1 Color} ****************************************)
@@ -51,14 +66,14 @@ let color ?(a=1.0) ~r ~g ~b = { r = r; g = g; b = b; a = a }
 
 let set_color ctx color =
   (** [set_color ctx color] sets the current color. *)
-  Cairo.set_source_rgba ctx color.r color.g color.b color.a
+  Cairo.set_source_rgba ctx.cairo color.r color.g color.b color.a
 
 
 (** {1 Text} ****************************************)
 
 type text_style = {
   text_font : string;
-  text_size : float;
+  text_size : Length.t;
   text_slant : Cairo.font_slant;
   text_weight : Cairo.font_weight;
   text_color : color;
@@ -67,9 +82,9 @@ type text_style = {
 let set_text_style ctx style =
   (** [set_text_stlye ctx style] sets the text style. *)
   set_color ctx style.text_color;
-  Cairo.select_font_face ctx
+  Cairo.select_font_face ctx.cairo
     style.text_font style.text_slant style.text_weight;
-  Cairo.set_font_size ctx style.text_size
+  Cairo.set_font_size ctx.cairo (ctx.units style.text_size)
 
 
 let set_text_style_option ctx = function
@@ -83,23 +98,23 @@ let draw_text ctx ?style ?(angle=0.) x y str =
   (** [draw_text ctx ?style ?angle x y str] displays the text at
       the given center point. *)
   set_text_style_option ctx style;
-  let te = Cairo.text_extents ctx str in
+  let te = Cairo.text_extents ctx.cairo str in
   let w = te.Cairo.text_width and h = te.Cairo.text_height in
   let x_offs = te.Cairo.x_bearing and y_offs = te.Cairo.y_bearing in
-    Cairo.save ctx;
-    Cairo.move_to ctx 0. 0.;
-    Cairo.translate ctx x y;
-    Cairo.rotate ctx (angle *. (pi /. 180.));
-    Cairo.move_to ctx ~-.((w /. 2.) +. x_offs) ~-.((h /. 2.) +. y_offs);
-    Cairo.show_text ctx str;
-    Cairo.restore ctx
+    Cairo.save ctx.cairo;
+    Cairo.move_to ctx.cairo 0. 0.;
+    Cairo.translate ctx.cairo x y;
+    Cairo.rotate ctx.cairo (angle *. (pi /. 180.));
+    Cairo.move_to ctx.cairo ~-.((w /. 2.) +. x_offs) ~-.((h /. 2.) +. y_offs);
+    Cairo.show_text ctx.cairo str;
+    Cairo.restore ctx.cairo
 
 
 let text_dimensions ctx ?style str =
   (** [text_dimensions ctx ?style str] gets the dimensions of the
       text.  *)
   set_text_style_option ctx style;
-  let te = Cairo.text_extents ctx str in
+  let te = Cairo.text_extents ctx.cairo str in
     te.Cairo.text_width, te.Cairo.text_height
 
 
@@ -120,7 +135,7 @@ let draw_text_centered_below ctx ?style ?(angle=0.) x y str =
   (** [draw_text_centered_below ctx ?style ?angle x y str] draws the
       given string centered below the given location. *)
   set_text_style_option ctx style;
-  let te = Cairo.text_extents ctx str in
+  let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle x (y +. te.Cairo.text_height /. 2.) str
 
 
@@ -128,7 +143,7 @@ let draw_text_centered_above ctx ?style ?(angle=0.) x y str =
   (** [draw_text_centered_above ctx ?style ?angle x y str] draws the
       given string centered above the given location. *)
   set_text_style_option ctx style;
-  let te = Cairo.text_extents ctx str in
+  let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle x (y -. te.Cairo.text_height /. 2.) str
 
 
@@ -136,7 +151,7 @@ let draw_text_centered_before ctx ?style ?(angle=0.) x y str =
   (** [draw_text_centered_before ctx ?style ?angle x y str] draws the
       given string centered before the given location. *)
   set_text_style_option ctx style;
-  let te = Cairo.text_extents ctx str in
+  let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle (x -. te.Cairo.text_width /. 2.) y str
 
 
@@ -144,7 +159,7 @@ let draw_text_centered_after ctx ?style ?(angle=0.) x y str =
   (** [draw_text_centered_after ctx ?style ?angle x y str] draws the
       given string centered after the given location. *)
   set_text_style_option ctx style;
-  let te = Cairo.text_extents ctx str in
+  let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle (x +. te.Cairo.text_width /. 2.) y str
 
 
@@ -168,7 +183,7 @@ let dimensionsf ctx ?style fmt =
 (** {2 Fixed width text} ****************************************)
 
 
-let default_line_space = 0.005
+let default_line_space = Length.Pt 1.
   (** The default spacing between lines of text. *)
 
 
@@ -224,6 +239,7 @@ let fixed_width_text_height ctx
   (** [fixed_width_text_height ctx ?line_space ?style width string] gets
       the height of the fixed width text.  *)
   set_text_style_option ctx style;
+  let line_space = ctx.units line_space in
   let lines = fixed_width_lines ctx width string in
     List.fold_left (fun sum line ->
 		      let _, h = text_dimensions ctx line in
@@ -237,6 +253,7 @@ let draw_fixed_width_text ctx
       string] displays the given fixed-width text where [x], [y] is
       the location of the top center. *)
   set_text_style_option ctx style;
+  let line_space = ctx.units line_space in
   let lines = fixed_width_lines ctx width string in
     ignore (List.fold_left (fun y line ->
 			      let w, h = text_dimensions ctx line in
@@ -249,24 +266,25 @@ let draw_fixed_width_text ctx
 
 type line_style = {
   line_color : color;
-  line_dashes : float array;
-  line_width : float;
+  line_dashes : Length.t array;
+  line_width : Length.t;
 }
 
 let default_line_style =
   (** The default line style. *)
   {
     line_color = black;
-    line_width = 0.002;
+    line_width = Length.Pt 1.;
     line_dashes = [||];
   }
 
 
 let set_line_style ctx style =
   (** [set_line_style ctx style] sets the line style. *)
-  set_color ctx style.line_color;
-  Cairo.set_dash ctx style.line_dashes 0.;
-  Cairo.set_line_width ctx style.line_width
+  let dashes = Array.map ctx.units style.line_dashes in
+    set_color ctx style.line_color;
+    Cairo.set_dash ctx.cairo dashes 0.;
+    Cairo.set_line_width ctx.cairo (ctx.units style.line_width)
 
 
 let set_line_style_option ctx = function
@@ -285,10 +303,10 @@ let draw_line ctx ?box ?style points =
 	begin match points with
 	  | [] -> ()
 	  | p :: tl ->
-	      Cairo.move_to ctx p.x p.y;
-	      List.iter (fun p -> Cairo.line_to ctx p.x p.y) tl;
-	      Cairo.stroke ctx;
-	      Cairo.set_dash ctx [| |] 0.
+	      Cairo.move_to ctx.cairo p.x p.y;
+	      List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl;
+	      Cairo.stroke ctx.cairo;
+	      Cairo.set_dash ctx.cairo [| |] 0.
 	end
     | Some box ->
 	let rec draw_points = function
@@ -296,29 +314,29 @@ let draw_line ctx ?box ?style points =
 	  | [] -> ()
 	  | p0 :: ((p1 :: _) as tl) ->
 	      let p0', p1' = clip_line_segment box ~p0 ~p1 in
-		Cairo.move_to ctx p0'.x p0'.y;
-		Cairo.line_to ctx p1'.x p1'.y;
+		Cairo.move_to ctx.cairo p0'.x p0'.y;
+		Cairo.line_to ctx.cairo p1'.x p1'.y;
 		draw_points tl
 	in
 	  draw_points points;
-	  Cairo.stroke ctx;
-	  Cairo.set_dash ctx [| |] 0.
+	  Cairo.stroke ctx.cairo;
+	  Cairo.set_dash ctx.cairo [| |] 0.
 
 
 let draw_rectangle ctx ?style r =
   (** [draw_rectangle ctx ?style r] draws the given rectangle. *)
   set_line_style_option ctx style;
-  Cairo.rectangle ctx
+  Cairo.rectangle ctx.cairo
     r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
-  Cairo.stroke ctx
+  Cairo.stroke ctx.cairo
 
 
 let fill_rectangle ctx ?(color=black) r =
   (** [draw_rectangle ctx color r] draws the given rectangle. *)
   set_color ctx color;
-  Cairo.rectangle ctx
+  Cairo.rectangle ctx.cairo
     r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
-  Cairo.fill ctx
+  Cairo.fill ctx.cairo
 
 
 (** {1 Points} ****************************************)
@@ -334,7 +352,7 @@ type glyph =
   | Char_glyph of char
 
 
-let default_glyph_line_width = 0.003
+let default_glyph_line_width = Length.Pt 1.
   (** The default line width when drawing glyphs. *)
 
 
@@ -344,69 +362,69 @@ let make_draw_glyph ctx radius = function
 	change between creating the draw_glyph function and its
 	use. *)
   | Circle_glyph ->
-      Cairo.set_line_width ctx default_glyph_line_width;
+      Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->
-	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. pi);
-	 Cairo.fill ctx)
+	 Cairo.arc ctx.cairo pt.x pt.y radius 0. (2. *. pi);
+	 Cairo.fill ctx.cairo)
   | Ring_glyph ->
-      Cairo.set_line_width ctx default_glyph_line_width;
+      Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->
-	 Cairo.new_path ctx;
-	 Cairo.arc ctx pt.x pt.y radius 0. (2. *. pi);
-	 Cairo.stroke ctx)
+	 Cairo.new_path ctx.cairo;
+	 Cairo.arc ctx.cairo pt.x pt.y radius 0. (2. *. pi);
+	 Cairo.stroke ctx.cairo)
   | Cross_glyph ->
       let r = radius *. (sin (pi /. 4.)) in
-	Cairo.set_line_width ctx default_glyph_line_width;
+	Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
-	     Cairo.new_path ctx;
-	     Cairo.move_to ctx (x -. r) (y +. r);
-	     Cairo.line_to ctx (x +. r) (y -. r);
-	     Cairo.move_to ctx (x -. r) (y -. r);
-	     Cairo.line_to ctx (x +. r) (y +. r);
-	     Cairo.stroke ctx)
+	     Cairo.new_path ctx.cairo;
+	     Cairo.move_to ctx.cairo (x -. r) (y +. r);
+	     Cairo.line_to ctx.cairo (x +. r) (y -. r);
+	     Cairo.move_to ctx.cairo (x -. r) (y -. r);
+	     Cairo.line_to ctx.cairo (x +. r) (y +. r);
+	     Cairo.stroke ctx.cairo)
   | Plus_glyph ->
       (fun pt ->
-	 Cairo.set_line_width ctx default_glyph_line_width;
+	 Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
 	 let x = pt.x and y = pt.y in
-	   Cairo.new_path ctx;
-	   Cairo.move_to ctx (x -. radius) y;
-	   Cairo.line_to ctx (x +. radius) y;
-	   Cairo.move_to ctx x (y -. radius);
-	   Cairo.line_to ctx x (y +. radius);
-	   Cairo.stroke ctx)
+	   Cairo.new_path ctx.cairo;
+	   Cairo.move_to ctx.cairo (x -. radius) y;
+	   Cairo.line_to ctx.cairo (x +. radius) y;
+	   Cairo.move_to ctx.cairo x (y -. radius);
+	   Cairo.line_to ctx.cairo x (y +. radius);
+	   Cairo.stroke ctx.cairo)
   | Box_glyph ->
       let r = radius *. (sin (pi /. 4.)) in
       let r2 = r *. 2. in
-	Cairo.set_line_width ctx default_glyph_line_width;
+	Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
-	     Cairo.rectangle ctx (x -. r) (y -. r) r2 r2;
-	     Cairo.stroke ctx)
+	     Cairo.rectangle ctx.cairo (x -. r) (y -. r) r2 r2;
+	     Cairo.stroke ctx.cairo)
   | Square_glyph ->
       let r = radius *. (sin (pi /. 4.)) in
       let r2 = r *. 2. in
-	Cairo.set_line_width ctx default_glyph_line_width;
+	Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
-	     Cairo.rectangle ctx (x -. r) (y -. r) r2 r2;
-	     Cairo.fill ctx)
+	     Cairo.rectangle ctx.cairo (x -. r) (y -. r) r2 r2;
+	     Cairo.fill ctx.cairo)
   | Triangle_glyph ->
-      Cairo.set_line_width ctx default_glyph_line_width;
+      Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       let s = radius *. (sin (pi /. 6.)) in
       let c = radius *. (cos (pi /. 6.)) in
 	(fun pt ->
 	   let x = pt.x and y = pt.y in
-	     Cairo.new_path ctx;
-	     Cairo.move_to ctx x (y -. radius);
-	     Cairo.line_to ctx (x +. c) (y +. s);
-	     Cairo.line_to ctx (x -. c) (y +. s);
-	     Cairo.line_to ctx x (y -. radius);
-	     Cairo.stroke ctx)
+	     Cairo.new_path ctx.cairo;
+	     Cairo.move_to ctx.cairo x (y -. radius);
+	     Cairo.line_to ctx.cairo (x +. c) (y +. s);
+	     Cairo.line_to ctx.cairo (x -. c) (y +. s);
+	     Cairo.line_to ctx.cairo x (y -. radius);
+	     Cairo.stroke ctx.cairo)
   | Char_glyph ch ->
       let str = " " in
 	str.[0] <- ch;
-	Cairo.set_font_size ctx (radius *. 2.);
+	Cairo.set_font_size ctx.cairo (radius *. 2.);
 	(fun pt -> draw_text ctx pt.x pt.y str)
 
 
@@ -416,7 +434,7 @@ let draw_point ctx ?color radius glyph pt =
     | None -> ()
     | Some color -> set_color ctx color
   end;
-  make_draw_glyph ctx radius glyph pt
+  make_draw_glyph ctx (ctx.units radius) glyph pt
 
 
 let draw_points ctx ?color radius glyph points =
@@ -427,5 +445,5 @@ let draw_points ctx ?color radius glyph points =
     | None -> ()
     | Some color -> set_color ctx color;
   end;
-  let draw_pt = make_draw_glyph ctx radius glyph in
+  let draw_pt = make_draw_glyph ctx (ctx.units radius) glyph in
     List.iter draw_pt points

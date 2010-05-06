@@ -20,12 +20,13 @@ type location =
   | Lower_right
 
 
-let line_spacing = 0.01
+let line_spacing = Length.Pt 2.
   (** The spacing between lines in the legend. *)
 
 let dimensions style ctx datasets =
   (** [dimensions style ctx datasets] gets the dimensions of a legend
       for the given datasets. *)
+  let line_spacing = ctx.units line_spacing in
   List.fold_left
     (fun ((w, h) as dims) ds -> match ds#name with
        | None -> dims
@@ -61,6 +62,7 @@ let locate ctx style dst datasets = function
 let draw ctx text_loc style datasets =
   (** [draw_legend ctx text_loc style datasets] draws the legend into
       the upper right corner of the unit square. *)
+  let line_spacing = ctx.units line_spacing in
   let text_width, icon_width =
     List.fold_left (fun ((tw, iw) as ws) ds -> match ds#name with
 		      | None -> ws
