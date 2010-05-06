@@ -60,7 +60,7 @@ object (self)
 
   method legend_dimensions _ = 0., 0.
 
-  method avg_slope = 1.
+  method avg_slope = nan
 
 end
 
@@ -73,7 +73,7 @@ class horizontal_errbar_dataset ?color triples =
     | None -> Errbar.errbar_line_style
     | Some color -> { Errbar.errbar_line_style with line_color = color }
   in
-object
+object (self)
   inherit errbar_dataset triples
 
   method dimensions =
@@ -107,6 +107,6 @@ object
 
   method legend_dimensions _ = 0., 0.
 
-  method avg_slope = 1.
+  method avg_slope = nan
 
 end

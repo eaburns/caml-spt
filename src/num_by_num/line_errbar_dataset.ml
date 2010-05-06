@@ -207,6 +207,6 @@ object (self)
 
   method legend_dimensions ctx = self#composite#legend_dimensions ctx
 
-  method avg_slope = 1.
+  method avg_slope = self#composite#avg_slope
 
 end

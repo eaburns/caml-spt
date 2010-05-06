@@ -76,6 +76,8 @@ object (self)
   method legend_dimensions ctx =
     let r2 = (ctx.units min_radius) /. 2. in r2, r2
 
-  method avg_slope = 1.
+  method avg_slope = rectangle_to_slope self#dimensions
 
 end
+
+(* EOF *)

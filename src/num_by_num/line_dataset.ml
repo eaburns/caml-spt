@@ -72,7 +72,7 @@ object (self)
   method legend_dimensions ctx =
     (ctx.units line_legend_length), (ctx.units width)
 
-  method avg_slope = 1.
+  method avg_slope = rectangle_to_slope self#dimensions
 
 end
 

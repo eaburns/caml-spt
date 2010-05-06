@@ -104,7 +104,10 @@ object
       (0., 0.) datasets
 
   method avg_slope =
-    (List.fold_left (fun accum ds -> accum +. (ds#avg_slope))
+    (List.fold_left (fun accum ds ->
+		       let ds_slope = ds#avg_slope in
+			 if ds_slope != nan then accum +. ds_slope
+			 else accum)
        0. datasets) /. (float (List.length datasets))
 
 end
