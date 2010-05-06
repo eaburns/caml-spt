@@ -75,6 +75,14 @@ let create_display plot title =
     area#misc#realize ();
     ignore (factory#add_item "Quit" ~key:_Q ~callback:w#destroy);
     ignore (area#event#connect#expose (fun _ -> draw area; true));
+    ignore (area#event#connect#button_press
+	      ~callback:(fun ev ->
+			   let button = GdkEvent.Button.button ev in
+			     if button = 3 then begin
+			       file_menu#popup ~button
+				 ~time:(GdkEvent.Button.time ev); true
+			     end else false));
+    w#add_accel_group accel_group;
     ignore (w#connect#destroy GMain.quit);
     ignore (draw area);
     w#show();

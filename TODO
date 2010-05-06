@@ -56,8 +56,6 @@ Usability
 ------------------------------------------------------------
 * Generate .mli files where possible / appropriate
 
-* Fix keyboard shortcuts
-
 * Read plots from files
   Involves parsing
 
