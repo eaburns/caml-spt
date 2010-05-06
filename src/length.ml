@@ -39,5 +39,5 @@ let as_px = function
 let as_pt = function
   | In i -> i *. pt_per_in
   | Cm c -> c *. pt_per_cm
-  | Px p -> (float p) *. px_per_pt
+  | Px p -> (float p) /. px_per_pt
   | Pt p -> p
