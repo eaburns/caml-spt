@@ -106,8 +106,9 @@ object
   method avg_slope =
     (List.fold_left (fun accum ds ->
 		       let ds_slope = ds#avg_slope in
-			 if ds_slope != nan then accum +. ds_slope
-			 else accum)
+			 match classify_float ds_slope with
+			   | FP_nan -> accum
+			   | _ -> accum +. ds_slope)
        0. datasets) /. (float (List.length datasets))
 
 end
