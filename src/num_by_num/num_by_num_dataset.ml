@@ -45,6 +45,11 @@ object
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
 
+  method virtual avg_slope : float
+    (** [avg_slope} returns the average rate of change across an
+	entire num by num dataset.  Used for setting default axis skew
+	(avg 45 slope for all elements of the plot) *)
+
 end
 
 
@@ -97,5 +102,9 @@ object
 		      and h' = if height > h then height else h
 		      in w', h')
       (0., 0.) datasets
+
+  method avg_slope =
+    (List.fold_left (fun accum ds -> accum +. (ds#avg_slope))
+       0. datasets) /. (float (List.length datasets))
 
 end

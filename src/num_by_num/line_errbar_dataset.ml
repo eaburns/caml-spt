@@ -206,4 +206,7 @@ object (self)
   method draw_legend ctx ~x ~y = self#composite#draw_legend ctx ~x ~y
 
   method legend_dimensions ctx = self#composite#legend_dimensions ctx
+
+  method avg_slope = 1.
+
 end

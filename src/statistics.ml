@@ -58,3 +58,5 @@ let percentile p vls =
       | n when n <= 1. -> ranked.(0)
       | n when n >= num -> ranked.((truncate num) - 1)
       | n -> ranked.(k - 1) +. d *. (ranked.(k) -. ranked.(k - 1))
+
+(* EOF *)

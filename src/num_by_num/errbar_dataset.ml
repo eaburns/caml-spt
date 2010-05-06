@@ -60,6 +60,8 @@ object (self)
 
   method legend_dimensions _ = 0., 0.
 
+  method avg_slope = 1.
+
 end
 
 
@@ -104,5 +106,7 @@ object
   method draw_legend _ ~x:_ ~y:_ = ()
 
   method legend_dimensions _ = 0., 0.
+
+  method avg_slope = 1.
 
 end

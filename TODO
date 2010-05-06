@@ -2,6 +2,8 @@
 Things that we need before anyone can begin beta testing
 ------------------------------------------------------------
 
+* Standard interface
+
 * Legacy module (in ps_plot)
 
 * Change how plots determine their size so the code isn't as sloppy
