@@ -30,11 +30,13 @@ let as_cm = function
   | Px p -> (float p) /. px_per_cm
   | Pt p -> p /. pt_per_cm
 
-let as_px = function
-  | In i -> truncate (i *. px_per_in)
-  | Cm c -> truncate (c *. px_per_cm)
-  | Px p -> p
-  | Pt p -> truncate (p *. px_per_pt)
+let as_px_float = function
+  | In i -> i *. px_per_in
+  | Cm c -> c *. px_per_cm
+  | Px p -> (float p)
+  | Pt p -> p *. px_per_pt
+
+let as_px l = truncate (as_px_float l)
 
 let as_pt = function
   | In i -> i *. pt_per_in

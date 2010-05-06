@@ -7,7 +7,7 @@
 open Geometry
 open Drawing
 
-let axis_padding = 0.05
+let axis_padding = Length.Pt 5.
   (** The padding between the axis and the data. *)
 
 (** {1 Numeric by numeric plot} ****************************************)
@@ -51,21 +51,22 @@ object (self)
   method private dst_rectangle ctx ~xaxis ~yaxis src =
     (** [dst_rectangle ctx ~xaxis ~yaxis src] get the dimensions of
 	the destination rectangle. *)
-    let xaspect, yaspect = self#aspect_ratio in
+    let axis_padding = ctx.units axis_padding in
+    let xsize, ysize = self#size ctx in
     let title_height =
       match title with
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:label_text_style txt) in
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
-	ctx ~pad:Spt.text_padding ~y_min:(yaspect -. axis_padding)
-	~dst:(range 0. xaspect) xaxis in
+	ctx ~pad:(ctx.units Spt.text_padding) ~y_min:(ysize -. axis_padding)
+	~dst:(range 0. xsize) xaxis in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx
-	~pad:Spt.text_padding ~x_min:axis_padding yaxis in
+	~pad:(ctx.units Spt.text_padding) ~x_min:axis_padding yaxis in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
-	~y_max:(title_height +. Spt.text_padding) in
+	~y_max:(title_height +. (ctx.units Spt.text_padding)) in
     let residual =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
@@ -97,34 +98,35 @@ object (self)
   method private draw_x_axis ctx ~dst xaxis =
     (** [draw_x_axis ctx ~dst xaxis] draws the
 	x-axis. *)
-    let xaspect, yaspect = self#aspect_ratio in
-      Numeric_axis.draw_x_axis ctx ~pad:Spt.text_padding
-	~width:xaspect ~height:yaspect ~dst:(xrange dst) xaxis
+    let xsize, ysize = self#size ctx in
+      Numeric_axis.draw_x_axis ctx ~pad:(ctx.units Spt.text_padding)
+	~width:xsize ~height:ysize ~dst:(xrange dst) xaxis
 
 
   method private draw_y_axis ctx ~dst yaxis =
     (** [draw_y_axis ctx ~dst] draws the y-axis. *)
-    let xaspect, yaspect = self#aspect_ratio in
+    let xsize, ysize = self#size ctx in
       Numeric_axis.draw_y_axis ctx
-	~pad:Spt.text_padding ~width:xaspect ~height:yaspect
+	~pad:(ctx.units Spt.text_padding) ~width:xsize ~height:ysize
 	~dst:(yrange dst) yaxis
 
 
   method draw ctx =
     let src = self#src_rectangle in
+    let axis_padding = ctx.units axis_padding in
     let xaxis = self#xaxis src and yaxis = self#yaxis src in
     let dst = self#dst_rectangle ctx ~xaxis ~yaxis src in
     let legend_txt_loc, legend_x, legend_y =
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
 			   x_min = (dst.x_min -. axis_padding
-				    +. Spt.text_padding); }
+				    +. (ctx.units Spt.text_padding)); }
       in Legend.locate ctx legend_text_style legend_dst datasets legend_loc
     in
       begin match title with
 	| None -> ()
 	| Some t ->
-	    let x = (fst self#aspect_ratio) /. 2. and y = 0. in
+	    let x = (fst (self#size ctx)) /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_text_style ctx x y t
       end;
       self#draw_x_axis ctx ~dst xaxis;

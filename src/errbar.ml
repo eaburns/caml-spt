@@ -12,11 +12,11 @@ let errbar_line_style =
   (** The line style for an error bar. *)
   {
     line_color = black;
-    line_width = 0.002;
+    line_width = Length.Pt 1.;
     line_dashes = [| |];
   }
 
-let errbar_cap_size = 0.008
+let errbar_cap_size = Length.Pt 3.
   (** The size of the cap on an error bar. *)
 
 
@@ -27,6 +27,7 @@ let draw_up ctx ?(style=errbar_line_style) ~src ~dst ~x ~y mag =
       coordinate system.  [src] and [dst] are the range of the source
       and destination y-axis values.  This assumes that the center
       point for the error bar is within the destination rectangle. *)
+  let errbar_cap_size = ctx.units errbar_cap_size in
   let tr = range_transform ~src ~dst in
   let y0' = tr y and y1 = y +. mag in
   let y1', clip =
@@ -48,6 +49,7 @@ let draw_down ctx ?(style=errbar_line_style) ~src ~dst ~x ~y mag =
       source and destination y-axis values.  This assumes that the
       center point for the error bar is within the destination
       rectangle. *)
+  let errbar_cap_size = ctx.units errbar_cap_size in
   let tr = range_transform ~src ~dst in
   let y0' = tr y and y1 = y -. mag in
   let y1', clip =
@@ -68,6 +70,7 @@ let draw_left ctx ?(style=errbar_line_style) ~src ~dst ~x ~y mag =
       coordinate system.  [src] and [dst] are the range of the source
       and destination x-axis values.  This assumes that the center
       point for the error bar is within the destination rectangle. *)
+  let errbar_cap_size = ctx.units errbar_cap_size in
   let tr = range_transform ~src ~dst in
   let x0' = tr x and x1 = x -. mag in
   let x1', clip =
@@ -89,6 +92,7 @@ let draw_right ctx ?(style=errbar_line_style) ~src ~dst ~x ~y mag =
       source and destination x-axis values.  This assumes that the
       center point for the error bar is within the destination
       rectangle. *)
+  let errbar_cap_size = ctx.units errbar_cap_size in
   let tr = range_transform ~src ~dst in
   let x0' = tr x and x1 = x +. mag in
   let x1', clip =

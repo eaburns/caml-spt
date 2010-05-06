@@ -22,21 +22,27 @@ let default_dash_factory =
   let default_dash_set =
     [|
       [| |];
-      [| 0.01; 0.01; |];
-      [| 0.02; 0.02; |];
-      [| 0.04; 0.01; |];
-      [| 0.03; 0.02; 0.01; 0.02; |];
-      [| 0.03; 0.01; 0.01; 0.01; 0.01; 0.01; |];
-      [| 0.04; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; 0.005; |];
+      [| Length.Pt 6.; Length.Pt 2.; |];
+      [| Length.Pt 2.; Length.Pt 2.; |];
+      [| Length.Pt 1.; Length.Pt 1.; |];
+      [| Length.Pt 5.; Length.Pt 2.; Length.Pt 1.; Length.Pt 2.; |];
+      [| Length.Pt 10.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.;
+	 Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; |];
+      [| Length.Pt 10.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; |];
+      [| Length.Pt 5.; Length.Pt 2.; Length.Pt 5.; Length.Pt 2.;
+	 Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; |];
+      [| Length.Pt 4.; Length.Pt 2.; Length.Pt 4.; Length.Pt 1.;
+	 Length.Pt 1.; Length.Pt 1.; Length.Pt 1.; Length.Pt 1.;
+	 Length.Pt 1.; Length.Pt 1.; |];
     |]
   in make_dash_factory default_dash_set
 
 
-let line_legend_length = 0.065
+let line_legend_length = Length.Cm 0.75
   (** The length of the line drawn in the legend. *)
 
 
-class line_dataset dashes ?(width=0.002) ?(color=black) ?name points =
+class line_dataset dashes ?(width=Length.Pt 1.) ?(color=black) ?name points =
   (** A line plot dataset. *)
 object (self)
   inherit points_dataset ?name points
@@ -58,12 +64,13 @@ object (self)
 
 
   method draw_legend ctx ~x ~y =
-    let half_length = line_legend_length /. 2. in
+    let half_length = (ctx.units line_legend_length) /. 2. in
     let x0 = x -. half_length and x1 = x +. half_length in
       draw_line ctx ~style [ point x0 y; point x1 y]
 
 
-  method legend_dimensions _ = line_legend_length, width
+  method legend_dimensions ctx =
+    (ctx.units line_legend_length), (ctx.units width)
 
 end
 

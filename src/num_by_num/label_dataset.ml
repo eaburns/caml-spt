@@ -12,7 +12,7 @@ let default_style =
   (** The default style for labels. *)
   {
     text_font = "Palatino-Roman";
-    text_size = 0.03;
+    text_size = Length.Pt 10.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -34,7 +34,7 @@ type label_y_location =
 class label_dataset
   ?(style=default_style)
   ?(xloc=Label_xat) ?(yloc=Label_yat)
-  ?(xoff=0.) ?(yoff=0.)
+  ?(xoff=(Length.Pt 0.)) ?(yoff=(Length.Pt 0.))
   ?name label_points =
   (** Add labels where the points are given data-coordinates.  [xoff]
       and [yoff] are plot-coordinate offsets to apply to the label before
@@ -52,7 +52,7 @@ object (self)
   method private position ctx pt' txt =
     (** [position ctx pt' txt] position the label in the plot
 	coordinate system. *)
-    let x = pt'.x +. xoff and y = pt'.y +. yoff in
+    let x = pt'.x +. (ctx.units xoff) and y = pt'.y +. (ctx.units yoff) in
     let w, h = text_dimensions ctx ~style txt in
     let x' = match xloc with
       | Label_xat -> x

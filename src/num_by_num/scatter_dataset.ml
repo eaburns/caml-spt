@@ -9,7 +9,7 @@ open Geometry
 open Drawing
 
 
-let default_radius = 0.012
+let default_radius = Length.Pt 5.
   (** The default radius of the scatter points. *)
 
 
@@ -71,7 +71,7 @@ object (self)
       Array.fold_left
 	(fun r pt ->
 	   if rectangle_contains src pt
-	   then rectangle_max r (point_residual dst (tr pt) radius)
+	   then rectangle_max r (point_residual dst (tr pt) (ctx.units radius))
 	   else r)
 	zero_rectangle points
 
@@ -87,7 +87,8 @@ object (self)
 
   method draw_legend ctx ~x ~y = draw_point ctx ~color radius glyph (point x y)
 
-  method legend_dimensions _ = let r2 = radius *. 2. in r2, r2
+  method legend_dimensions ctx =
+    let r2 = (ctx.units radius) *. 2. in r2, r2
 
 end
 
@@ -118,7 +119,7 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
   let scatter = new scatter_dataset glyph ?color ~radius (Array.of_list pts)
   and labels =
     new Label_dataset.label_dataset
-      ~yoff:~-.radius ~xoff:radius
+      ~yoff:(Length.Pt ~-.(Length.as_pt radius)) ~xoff:radius
       ~xloc:Label_dataset.Label_after
       ~yloc:Label_dataset.Label_above
       (Array.of_list lbls)

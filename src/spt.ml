@@ -12,7 +12,7 @@ let default_tick_style =
       numeric axis. *)
   {
     text_font = "Palatino-Roman";
-    text_size = 0.03;
+    text_size = Length.Pt 8.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -23,7 +23,7 @@ let default_legend_style =
   (** The default style for legend text. *)
   {
     text_font = "Palatino-Roman";
-    text_size = 0.03;
+    text_size = Length.Pt 10.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -34,15 +34,16 @@ let default_label_style =
       text. *)
   {
     text_font = "Palatino-Roman";
-    text_size = 0.04;
+    text_size = Length.Pt 12.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
   }
 
 
-let text_padding = 0.02
+let text_padding = Length.Pt 2.
   (** Padding around text *)
+
 
 let default_width = Length.Cm 8.
   (** The default plot width in centimeters. *)
@@ -63,10 +64,11 @@ object (self)
 
   method height = height
 
-  method aspect_ratio =
-    (** [aspect_ratio] gets the current aspect ratio of the plot. *)
-    let w = Length.as_cm width and h = Length.as_cm height in
-      if w > h then 1., h /. w else w /. h, 1.
+
+  method private size ctx =
+    (** [size ctx] gets the size of the plot in the units of the
+	context. *)
+    (ctx.units width), (ctx.units height)
 
 
   method set_size ~w ~h =

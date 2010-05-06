@@ -53,10 +53,10 @@ object (self)
   method private x_axis_dimensions ctx yaxis =
     (** [x_axis_dimensions ctx] computes the x_min, x_max and width
 	for each dataset to display its name on the x-axis. *)
-    let x_max, _ = self#aspect_ratio in
+    let x_max, _ = self#size ctx in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx
-	~pad:Spt.text_padding ~x_min:y_axis_padding yaxis
+	~pad:(ctx.units Spt.text_padding) ~x_min:y_axis_padding yaxis
     in
     let n = List.length datasets in
     let text_width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
@@ -78,16 +78,17 @@ object (self)
 	0. datasets
     in
       range
-	((snd self#aspect_ratio) -. data_label_height -. x_axis_padding)
-	(title_height +. Spt.text_padding)
+	((snd (self#size ctx)) -. data_label_height -. x_axis_padding)
+	(title_height +. (ctx.units Spt.text_padding))
 
 
 
   method private draw_y_axis ctx ~dst yaxis =
     (** [draw_y_axis ctx ~dst yaxis] draws the y-axis. *)
-    let xaspect, yaspect = self#aspect_ratio in
+    let xsize, ysize = self#size ctx in
       Numeric_axis.draw_y_axis ctx
-	~pad:Spt.text_padding ~width:xaspect ~height:yaspect ~dst yaxis;
+	~pad:(ctx.units Spt.text_padding)
+	~width:xsize ~height:ysize ~dst yaxis;
 
 
   method private draw_x_axis ctx ~y ~xrange ~text_width =
@@ -110,7 +111,7 @@ object (self)
       begin match title with
 	| None -> ()
 	| Some t ->
-	    let x = (fst self#aspect_ratio) /. 2. and y = 0. in
+	    let x = (fst (self#size ctx)) /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_text_style ctx x y t
       end;
       self#draw_y_axis ctx ~dst yaxis;
