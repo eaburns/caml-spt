@@ -84,12 +84,6 @@ let num_by_num_plot () =
 	       point 8.5 17.1; point 10.1 13.9; |];
 	  |];
 
-	new Num_by_num.scatter_dataset
-	  ~name:"Scatter" ~color:red (next_glyph ())
-	    [| point 0.005 7.5;
-	       point 0.001 1.4;
-	       point 0.00005 7.0;
-	       point 0.0001 3.5; |];
       ]
 
 
