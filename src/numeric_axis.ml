@@ -49,6 +49,11 @@ let create ~label_text_style ~tick_text_style ~src ticks label =
   }
 
 
+let recommended_ticks length = (Length.as_cm length) *. (1. /. 6.)
+  (** [recommended_ticks length] gets the recommended number of tick
+      marks. *)
+
+
 (** {1 Tick marks} ****************************************)
 
 
@@ -64,7 +69,6 @@ let tick_locations ?(suggested_number=3) rng =
       tick false (min +. ((max -. min) *. 0.75));
       tick true max; ]
 *)
-
 
 let rec tick_list major delta prev max =
   (** [tick_list major delta prev max] gets a list of the tick
