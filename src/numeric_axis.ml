@@ -57,31 +57,25 @@ let recommended_ticks length = (Length.as_cm length) *. (1. /. 6.)
 (** {1 Tick marks} ****************************************)
 
 
-(*
-let tick_locations ?(suggested_number=3) rng =
-  (** [tick_locations ?suggested_number rng] computes the location of
-      tick marks on a numeric axis with the given range. *)
-  let min = rng.min and max = rng.max in
-  let tick major vl = vl, if major then Some (sprintf "%.2f" vl) else None in
-    [ tick true min;
-      tick false (min +. ((max -. min) *. 0.25));
-      tick true (min +. ((max -. min) *. 0.50));
-      tick false (min +. ((max -. min) *. 0.75));
-      tick true max; ]
-*)
-
-let rec tick_list major delta prev max =
-  (** [tick_list major delta prev max] gets a list of the tick
+let rec tick_list major delta min max =
+  (** [tick_list major delta min max] gets a list of the tick
       marks. *)
-  let next = ((floor (prev /. delta)) +. 1.) *. delta in
-  let pv =
-    let lg = truncate (log10 next) in
-      if lg <= 0 then (~-lg + 1) else 0
-  in
-    if next > max
-    then []
-    else ((next, if major then Some (sprintf "%.*f" pv next) else None)
-	  :: (tick_list major delta next max))
+  let fst = (floor (min /. delta)) *. delta in
+  let next = ref fst in
+  let lst = ref [] in
+    while !next < max do
+      let n = !next in
+      if n >= min && n <= max
+      then begin
+	let pv =
+	  let lg = truncate (log10 n) in if lg <= 0 then (~-lg + 1) else 0
+	in
+	let t = n, if major then Some (sprintf "%.*f" pv n) else None in
+	  lst := t :: !lst;
+      end;
+      next := delta +. n;
+    done;
+    !lst
 
 
 let tick_locations ?(suggested_number=2.) rng =
