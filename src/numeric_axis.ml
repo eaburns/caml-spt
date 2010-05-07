@@ -76,7 +76,7 @@ let rec tick_list major delta prev max =
   let next = ((floor (prev /. delta)) +. 1.) *. delta in
   let pv =
     let lg = truncate (log10 next) in
-      if lg <= 0 then (~-lg + 1) else lg
+      if lg <= 0 then (~-lg + 1) else 0
   in
     if next > max
     then []
