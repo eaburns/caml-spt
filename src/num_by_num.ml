@@ -83,14 +83,22 @@ object (self)
 
   method private xaxis src =
     (** [xaxis src] creates the x-axis for the plot. *)
-    let ticks = Numeric_axis.tick_locations (xrange self#src_rectangle) in
+    let nticks = Numeric_axis.recommended_ticks width in
+    let ticks =
+      Numeric_axis.tick_locations ~suggested_number:nticks
+	(xrange self#src_rectangle)
+    in
       Numeric_axis.create ~label_text_style ~tick_text_style
 	~src:(xrange src) ticks xlabel
 
 
   method private yaxis src =
     (** [yaxis src] creates the y-axis for the plot. *)
-    let ticks = Numeric_axis.tick_locations (yrange self#src_rectangle) in
+    let nticks = Numeric_axis.recommended_ticks height in
+    let ticks =
+      Numeric_axis.tick_locations ~suggested_number:nticks
+	(yrange self#src_rectangle)
+    in
       Numeric_axis.create ~label_text_style ~tick_text_style
 	~src:(yrange src) ticks ylabel
 
