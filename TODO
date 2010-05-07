@@ -2,6 +2,8 @@
 Things that we need before anyone can begin beta testing
 ------------------------------------------------------------
 
+* Decide on a final API.
+
 * Standard interface
 
 * Legacy module (in ps_plot)
@@ -11,8 +13,6 @@ Things that we need before anyone can begin beta testing
   - make a set_size method
 
 * Compute better 'tick' locations on numeric axes (informed by plot size)
-
-* Decide on a final API.
 
 ------------------------------------------------------------
 Extra features
@@ -28,6 +28,10 @@ Extra features
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
+* Function Datasets (fn x -> y)
+  Sampling rate?
+
+* Scatter with Best Fit
 
 * Errbars should compute a residual so their cap is not chopped off
 
