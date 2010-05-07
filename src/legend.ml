@@ -47,7 +47,6 @@ let locate ctx style dst datasets = function
       txt_loc, x, y
   | loc ->
       let w, h = dimensions style ctx datasets in
-	Printf.printf "x_max=%f w=%f, h=%f\n" dst.x_max w h;
       let txt_loc = match loc with
 	| Upper_left | Lower_left -> Text_after
 	| _ -> Text_before
@@ -57,9 +56,7 @@ let locate ctx style dst datasets = function
       and y_loc = match loc with
 	| Upper_left | Upper_right -> dst.y_max
 	| _ -> dst.y_min -. h
-      in
-	Printf.printf "x=%f, y=%f\n%!" x_loc y_loc;
-	txt_loc, x_loc, y_loc
+      in txt_loc, x_loc, y_loc
 
 
 
@@ -77,8 +74,6 @@ let draw ctx text_loc style datasets =
       (0., 0.) datasets
   in
   let width = text_width +. icon_width +. line_spacing in
-    Printf.printf "text_width=%f, icon_width=%f, width=%f\n%!"
-      text_width icon_width width;
   let _ (* height *) =
     List.fold_left
       (fun y_top ds -> match ds#name with
