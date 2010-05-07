@@ -72,7 +72,21 @@ object (self)
   method legend_dimensions ctx =
     (ctx.units line_legend_length), (ctx.units width)
 
-  method avg_slope = rectangle_to_slope self#dimensions
+  method avg_slope =
+    let pts = points in
+      if Array.length pts < 2 then nan
+      else
+	(let accum = ref 0.
+	 and count = (Array.length pts - 2) in
+	   for i = 0 to count
+	   do
+	     (let pt1 = pts.(i)
+	      and pt2 = pts.(i+1) in
+	      let dy = pt2.y -. pt1.y
+	      and dx = pt2.x -. pt1.x in
+		accum := !accum +. (abs_float (dy /. dx)))
+	   done;
+	   !accum /. (float count))
 
 end
 
