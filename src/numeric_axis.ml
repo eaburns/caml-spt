@@ -51,9 +51,11 @@ let create ~label_text_style ~tick_text_style ~src ticks label =
 
 (** {1 Tick marks} ****************************************)
 
-let tick_locations rng =
-  (** [tick_locations rng] computes the location of tick marks on a
-      numeric axis with the given range. *)
+
+(*
+let tick_locations ?(suggested_number=3) rng =
+  (** [tick_locations ?suggested_number rng] computes the location of
+      tick marks on a numeric axis with the given range. *)
   let min = rng.min and max = rng.max in
   let tick major vl = vl, if major then Some (sprintf "%.2f" vl) else None in
     [ tick true min;
@@ -61,6 +63,38 @@ let tick_locations rng =
       tick true (min +. ((max -. min) *. 0.50));
       tick false (min +. ((max -. min) *. 0.75));
       tick true max; ]
+*)
+
+
+let rec tick_list major delta prev max =
+  (** [tick_list major delta prev max] gets a list of the tick
+      marks. *)
+  let next = ((floor (prev /. delta)) +. 1.) *. delta in
+  let pv =
+    let lg = truncate (log10 next) in
+      if lg <= 0 then (~-lg + 1) else lg
+  in
+    if next > max
+    then []
+    else ((next, if major then Some (sprintf "%.*f" pv next) else None)
+	  :: (tick_list major delta next max))
+
+
+let tick_locations ?(suggested_number=2.) rng =
+  (** [tick_locations ?suggested_number rng] computes the location of
+      tick marks on a numeric axis with the given range. *)
+  let min = rng.min and max = rng.max in
+  let group_width = (max -. min) /. suggested_number in
+  let tens = 10. ** (floor (log10 group_width)) in
+  let ntens = (max -. min) /. tens in
+  let delta = (floor (ntens /. suggested_number)) *. tens in
+  let major_ticks = tick_list true delta min max in
+  let minor_ticks =
+    List.filter (fun (minor_vl, _) ->
+		   List.exists (fun (major_vl, _) -> major_vl <> minor_vl)
+		     major_ticks)
+      (tick_list false (delta /. 2.) min max) in
+    major_ticks @ minor_ticks
 
 
 let max_tick_text_width ctx style ticks =

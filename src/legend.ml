@@ -27,16 +27,17 @@ let dimensions style ctx datasets =
   (** [dimensions style ctx datasets] gets the dimensions of a legend
       for the given datasets. *)
   let line_spacing = ctx.units line_spacing in
-  List.fold_left
-    (fun ((w, h) as dims) ds -> match ds#name with
-       | None -> dims
-       | Some txt ->
-	   let txt_w, txt_h = text_dimensions ctx ~style txt in
-	   let ico_w, ico_h = ds#legend_dimensions ctx in
-	   let width = txt_w +. ico_w +. line_spacing in
-	   let height = (max txt_h ico_h) +. line_spacing in
-	     max width w, height +. h)
-    (0., 0.) datasets
+  let tw, iw, height =
+    List.fold_left
+      (fun ((tw, iw, h) as dims) ds -> match ds#name with
+	 | None -> dims
+	 | Some txt ->
+	     let txt_w, txt_h = text_dimensions ctx ~style txt in
+	     let ico_w, ico_h = ds#legend_dimensions ctx in
+	     let height = (max txt_h ico_h) +. line_spacing in
+	       max tw txt_w, max iw ico_w, height +. h)
+      (0., 0., 0.) datasets
+  in (tw +. iw +. line_spacing), height
 
 
 let locate ctx style dst datasets = function
@@ -73,23 +74,25 @@ let draw ctx text_loc style datasets =
       (0., 0.) datasets
   in
   let width = text_width +. icon_width +. line_spacing in
-    ignore (List.fold_left
-	      (fun y_top ds -> match ds#name with
-		 | None -> y_top
-		 | Some txt ->
-		     let tw, th = text_dimensions ctx ~style txt in
-		     let iw, ih = ds#legend_dimensions ctx in
-		     let height = if ih > th then ih else th in
-		     let y = y_top +. (height /. 2.) in
-		     let tx, ix = match text_loc with
-		       | Text_before ->
-			   (width -. line_spacing -. icon_width -. (tw /. 2.),
-			    width -. (icon_width /. 2.))
-		       | Text_after ->
-			   (icon_width +. line_spacing +. (tw /. 2.),
-			    icon_width /. 2.)
-		     in
-		       draw_text ctx ~style tx y txt;
-		       ds#draw_legend ctx ~x:ix ~y;
-		       y_top +. height +. line_spacing;)
-	      0. datasets)
+  let _ (* height *) =
+    List.fold_left
+      (fun y_top ds -> match ds#name with
+	 | None -> y_top
+	 | Some txt ->
+	     let tw, th = text_dimensions ctx ~style txt in
+	     let iw, ih = ds#legend_dimensions ctx in
+	     let height = if ih > th then ih else th in
+	     let y = y_top +. (height /. 2.) in
+	     let tx, ix = match text_loc with
+	       | Text_before ->
+		   (width -. line_spacing -. icon_width -. (tw /. 2.),
+		    width -. (icon_width /. 2.))
+	       | Text_after ->
+		   (icon_width +. line_spacing +. (tw /. 2.),
+		    icon_width /. 2.)
+	     in
+	       draw_text ctx ~style tx y txt;
+	       ds#draw_legend ctx ~x:ix ~y;
+	       y_top +. height +. line_spacing;)
+      0. datasets in
+    ()
