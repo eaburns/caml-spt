@@ -15,6 +15,7 @@ Files:
 "src/num_by_num/errbar_dataset"
 "src/num_by_num/label_dataset"
 "src/num_by_num/line_errbar_dataset"
+(*"src/num_by_num/function_dataset"*)
 "src/num_by_num"
 "src/num_by_nom"
 "src/spt"
