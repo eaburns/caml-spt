@@ -4,8 +4,8 @@
 *)
 
 val create_display :
-  < draw : Drawing.context -> 'a; output : string -> unit;
-    set_size : w:Length.t -> h:Length.t -> 'b; .. > ->
+  < draw : Drawing.context -> 'a; height : Length.t; output : string -> unit;
+    set_size : w:Length.t -> h:Length.t -> 'b; width : Length.t; .. > ->
   string -> unit
 
 (* EOF *)

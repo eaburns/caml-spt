@@ -58,7 +58,8 @@ open GdkKeysyms
 let create_display plot title =
   (** [create_display plot title] spawns a window with the given title
       showing the specified plot *)
-  let width = init_size and height = init_size in
+  let width = Length.as_px plot#width
+  and height = Length.as_px plot#height in
   let w = GWindow.window ~title ~width ~height:(height + 40) () in
   let vbox = GPack.vbox ~packing:w#add () in
   let menu_bar = GMenu.menu_bar ~packing:vbox#pack () in

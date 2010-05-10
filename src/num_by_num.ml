@@ -30,6 +30,24 @@ object (self)
     (** The list of datasets. *)
 
 
+  method suggest_aspect =
+    let avg_slopes = List.map (fun ds -> ds#avg_slope) datasets in
+    let avg_slope = ((List.fold_left (+.) 0. avg_slopes) /.
+		       (float (List.length datasets))) in
+      avg_slope
+
+  method use_suggested_aspect =
+    let skew len s =
+      match len with
+	| Length.In flt -> Length.In (flt *. s)
+	| Length.Cm flt -> Length.Cm (flt *. s)
+	| Length.Px i -> Length.Px (truncate ((float i) *. s))
+	| Length.Pt flt -> Length.Pt (flt *. s) in
+    let ratio = self#suggest_aspect in
+      if ratio >= 1. (* plot is tall, use plot height to determine size*)
+      then self#set_size ~w:(skew self#width (1. /. ratio)) ~h:self#height
+      else self#set_size ~w:self#width ~h:(skew self#height ratio)
+
   method private src_rectangle =
     (** [src_rectangle] computes the range of the x and y axes. *)
     let r = match datasets with
