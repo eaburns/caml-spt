@@ -49,9 +49,11 @@ let create ~label_text_style ~tick_text_style ~src ticks label =
   }
 
 
-let recommended_ticks length = (Length.as_cm length) *. (1. /. 6.)
+let recommended_ticks length =
   (** [recommended_ticks length] gets the recommended number of tick
       marks. *)
+  let n = (Length.as_cm length) *. (1. /. 6.) in
+    if n < 2. then 2. else n
 
 
 (** {1 Tick marks} ****************************************)
