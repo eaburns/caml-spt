@@ -20,7 +20,6 @@ Extra features
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
-* Nominal by Nominal Dataset
 
 * Function Datasets (fn x -> y)
   Sampling rate?
@@ -31,7 +30,9 @@ Datasets
 
 * Box plots
 
-* Heatmaps (Numeric by Numeric & Nominal by Nominal versions)
+* Heatmaps
+  - Numeric by Numeric
+  - Nominal by Nominal
 
 * Bar charts (and with error bars)
 
@@ -69,6 +70,8 @@ Usability
 ------------------------------------------------------------
 Plot types
 ------------------------------------------------------------
+
+* Nominal by nominal plots
 
 * Numeric by Ordinal (or Ranked) plots
   Like numeric by nominal except that x-axis is a set of ranked values
