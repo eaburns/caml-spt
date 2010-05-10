@@ -28,6 +28,8 @@ Extra features
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
+* Nominal by Nominal Dataset
+
 * Function Datasets (fn x -> y)
   Sampling rate?
 
@@ -36,6 +38,8 @@ Datasets
 * Errbars should compute a residual so their cap is not chopped off
 
 * Box plots
+
+* Heatmaps (Numeric by Numeric & Nominal by Nominal versions)
 
 * Bar charts (and with error bars)
 
