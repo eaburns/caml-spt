@@ -4,15 +4,7 @@ Things that we need before anyone can begin beta testing
 
 * Decide on a final API.
 
-* Standard interface
-
 * Legacy module (in ps_plot)
-
-* Change how plots determine their size so the code isn't as sloppy
-  - current size is stored in a set of fields
-  - make a set_size method
-
-* Compute better 'tick' locations on numeric axes (informed by plot size)
 
 ------------------------------------------------------------
 Extra features
