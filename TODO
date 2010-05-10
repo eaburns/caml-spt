@@ -14,6 +14,8 @@ Extra features
 
 * Fixing the aspect ratio so that the mean slopes of lines in the plot
   are ~45 deg.
+ -- This can really look like ass as currently implemented, maybe we
+  should only scale up, never down?
 
 * Change text size based on plot size
 
@@ -59,6 +61,8 @@ Documentation
 ------------------------------------------------------------
 Usability
 ------------------------------------------------------------
+* Minimum Plot size requirement in Gtk window needs removed
+
 * Generate .mli files where possible / appropriate
 
 * Read plots from files
