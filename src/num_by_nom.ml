@@ -7,10 +7,10 @@
 open Geometry
 open Drawing
 
-let y_axis_padding = 0.01
+let y_axis_padding = Length.Pt 1.
   (** The amount of room to separate the y-axis from the data. *)
 
-let x_axis_padding = 0.05
+let x_axis_padding = Length.Pt 2.
   (** The amount of room to separate the x-axis from the data. *)
 
 (** {1 Numeric by nomeric plot} ****************************************)
@@ -56,7 +56,8 @@ object (self)
     let x_max, _ = self#size ctx in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx
-	~pad:(ctx.units Spt.text_padding) ~x_min:y_axis_padding yaxis
+	~pad:(ctx.units Spt.text_padding) ~x_min:(ctx.units y_axis_padding)
+	yaxis
     in
     let n = List.length datasets in
     let text_width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
@@ -78,7 +79,8 @@ object (self)
 	0. datasets
     in
       range
-	((snd (self#size ctx)) -. data_label_height -. x_axis_padding)
+	((snd (self#size ctx)) -. data_label_height
+	 -. (ctx.units x_axis_padding))
 	(title_height +. (ctx.units Spt.text_padding))
 
 
@@ -115,7 +117,7 @@ object (self)
 	      draw_text_centered_below ~style:label_text_style ctx x y t
       end;
       self#draw_y_axis ctx ~dst yaxis;
-      self#draw_x_axis ctx ~y:(dst.min +. x_axis_padding) ~xrange
+      self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding)) ~xrange
 	~text_width:text_width
 end
 
