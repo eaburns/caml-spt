@@ -16,6 +16,9 @@ Extra features
   are ~45 deg.
  -- This can really look like ass as currently implemented, maybe we
   should only scale up, never down?
+ -- Maybe this is a feature that we don't even want to add.  The user
+   can play with the size of the plot in the GUI and make it look good
+   by hand.
 
 * Change text size based on plot size
 
@@ -26,7 +29,7 @@ Datasets
 ------------------------------------------------------------
 
 * Function Datasets (fn x -> y)
-  Sampling rate?
+  Sampling rate as an optional argument
 
 * Scatter with Best Fit
 
