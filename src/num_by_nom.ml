@@ -45,7 +45,10 @@ object (self)
 
   method private yaxis src =
     (** [yaxis src] creates a y-axis. *)
-    let ticks = Numeric_axis.tick_locations self#src_y_range in
+    let nticks = Numeric_axis.recommended_ticks height in
+    let ticks =
+      Numeric_axis.tick_locations ~suggested_number:nticks self#src_y_range
+    in
       Numeric_axis.create ~label_text_style ~tick_text_style
 	~src ticks ylabel
 
@@ -74,8 +77,9 @@ object (self)
 	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
       List.fold_left (fun m ds ->
-			let h = ds#x_label_height ctx legend_text_style text_width in
-			  if h > m then h else m)
+			let h =
+			  ds#x_label_height ctx legend_text_style text_width
+			in if h > m then h else m)
 	0. datasets
     in
       range
@@ -138,8 +142,8 @@ object
 
 
   method x_label_height : context -> text_style -> float -> float =
-    (** [x_label_height context style width] is the height of the label on thesrc/
-	x-axis. *)
+    (** [x_label_height context style width] is the height of the
+	label on thesrc/ x-axis. *)
     (fun ctx style width -> fixed_width_text_height ctx ~style width name)
 
 
