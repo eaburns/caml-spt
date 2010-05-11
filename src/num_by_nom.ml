@@ -95,10 +95,9 @@ object (self)
 
   method private draw_x_axis ctx ~y ~xrange ~text_width =
     (** [draw_x_axis ctx ~y ~xrange ~text_width] draws the x-axis. *)
-    set_text_style ctx legend_text_style;
     ignore (List.fold_left
 	      (fun x ds ->
-		 ds#draw_x_label ctx ~x ~y ~text_width;
+		 ds#draw_x_label ctx ~x ~y legend_text_style ~text_width;
 		 x +. text_width)
 	      (xrange.min +. (text_width /. 2.)) datasets)
 
@@ -139,17 +138,17 @@ object
 
 
   method x_label_height : context -> text_style -> float -> float =
-    (** [x_label_height context style width] is the height of the label on the
+    (** [x_label_height context style width] is the height of the label on thesrc/
 	x-axis. *)
     (fun ctx style width -> fixed_width_text_height ctx ~style width name)
 
 
   method draw_x_label :
-    context -> x:float -> y:float -> text_width:float -> unit =
-    (** [draw_x_label context ~x ~y ~text_width] draws the x-axis label to
+    context -> x:float -> y:float -> text_style -> text_width:float -> unit =
+    (** [draw_x_label context ~x ~y style ~text_width] draws the x-axis label to
 	the proper location. *)
-    (fun ctx ~x ~y ~text_width ->
-       draw_fixed_width_text ctx ~x ~y ~width:text_width name)
+    (fun ctx ~x ~y style ~text_width ->
+       draw_fixed_width_text ctx ~x ~y ~style ~width:text_width name)
 
   method virtual residual :
     context -> src:range -> dst:range -> float -> int -> range
