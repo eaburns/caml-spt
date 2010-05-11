@@ -74,7 +74,7 @@ object (self)
 	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
       List.fold_left (fun m ds ->
-			let h = ds#x_label_height ctx text_width in
+			let h = ds#x_label_height ctx legend_text_style text_width in
 			  if h > m then h else m)
 	0. datasets
     in
@@ -138,10 +138,10 @@ object
 	dataset. *)
 
 
-  method x_label_height : context -> float -> float =
-    (** [x_label_height context width] is the height of the label on the
+  method x_label_height : context -> text_style -> float -> float =
+    (** [x_label_height context style width] is the height of the label on the
 	x-axis. *)
-    (fun ctx width -> fixed_width_text_height ctx width name)
+    (fun ctx style width -> fixed_width_text_height ctx ~style width name)
 
 
   method draw_x_label :
