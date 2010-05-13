@@ -9,7 +9,7 @@ open Geometry
 open Drawing
 
 
-let default_radius = Length.Pt 5.
+let default_radius = Length.Pt 4.
   (** The default radius of the scatter points. *)
 
 
