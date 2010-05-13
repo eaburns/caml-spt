@@ -12,7 +12,7 @@ let default_tick_style =
       numeric axis. *)
   {
     text_font = "sans-serif";
-    text_size = Length.Pt 8.;
+    text_size = Length.Pt 6.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -23,7 +23,7 @@ let default_legend_style =
   (** The default style for legend text. *)
   {
     text_font = "sans-serrif";
-    text_size = Length.Pt 10.;
+    text_size = Length.Pt 8.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -34,7 +34,7 @@ let default_label_style =
       text. *)
   {
     text_font = "sans-serif";
-    text_size = Length.Pt 12.;
+    text_size = Length.Pt 10.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
