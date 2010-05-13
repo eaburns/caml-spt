@@ -12,7 +12,7 @@ let default_style =
   (** The default style for labels. *)
   {
     text_font = "sans-serif";
-    text_size = Length.Pt 10.;
+    text_size = Length.Pt 8.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
