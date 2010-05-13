@@ -12,7 +12,7 @@ let errbar_line_style =
   (** The line style for an error bar. *)
   {
     line_color = black;
-    line_width = Length.Pt 1.;
+    line_width = Length.Pt 0.75;
     line_dashes = [| |];
   }
 
