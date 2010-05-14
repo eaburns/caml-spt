@@ -21,15 +21,19 @@ type t =
 type env = {
   bindings : (string * t) list;
   next_glyph : unit -> Drawing.glyph;
-  next_dash : unit -> Length.t array
+  next_dash : unit -> Length.t array;
+  next_line_errbar : unit -> Line_errbar_dataset.style;
 }
 
 
-let init_env = {
-  bindings = [];
-  next_glyph = Scatter_dataset.default_glyph_factory ();
-  next_dash = Line_dataset.default_dash_factory ();
-}
+let init_env =
+  let next_dash = Line_dataset.default_dash_factory () in
+    {
+      bindings = [];
+      next_glyph = Scatter_dataset.default_glyph_factory ();
+      next_dash = next_dash;
+      next_line_errbar = Line_errbar_dataset.line_errbar_factory next_dash ();
+    }
 
 
 let to_string = function
@@ -68,6 +72,8 @@ let rec eval env = function
       eval_line env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "line-points-dataset")) :: operands ) ->
       eval_line_points env operands
+  | Sexpr.List (_, (Sexpr.Ident (_, "line-errbar-dataset")) :: operands ) ->
+      eval_line_errbar env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-plot")) :: operands ) ->
       eval_num_by_num env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "display")) :: operands ) ->
@@ -329,7 +335,7 @@ and eval_line env operands =
 	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
 	     set_once name l "name" t
 	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	       set_once dashes l "dashes" (eval_dashes env ds)
+	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
@@ -342,7 +348,7 @@ and eval_line env operands =
 				  l (to_string x))
 	     end
 	 | e ->
-	     failwith (sprintf "line %d: Invalid option to a scatter dataset"
+	     failwith (sprintf "line %d: Invalid option to a line dataset"
 			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
@@ -373,7 +379,7 @@ and eval_line_points env operands =
 	 | S.List (_, S.Ident (l, "glyph") :: S.String (_, t) :: []) ->
 	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
 	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	       set_once dashes l "dashes" (eval_dashes env ds)
+	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
@@ -388,7 +394,8 @@ and eval_line_points env operands =
 				  l (to_string x))
 	     end
 	 | e ->
-	     failwith (sprintf "line %d: Invalid option to a scatter dataset"
+	     failwith (sprintf
+			 "line %d: Invalid option to a line-points dataset"
 			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
@@ -400,3 +407,52 @@ and eval_line_points env operands =
 	 ?radius:!radius
 	 ?name:!name
 	 !data)
+
+
+and eval_line_errbar env operands =
+  (** [eval_line_errbar env operands] evaluates a line and error bar
+      dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and color = ref None
+  and width = ref None
+  and name = ref None
+  and data = ref [ ]
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
+	     set_once dashes l "dashes" (eval_dashes env ds)
+	 | S.List (_, S.Ident (l, "color") :: operands) ->
+	     set_once color l "color" (eval_color env l operands)
+	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
+	     set_once width l "width" (eval_length env l len)
+	 | S.List (l, point_sets) ->
+	     List.iter
+	       (fun points -> match eval env points with
+		  | Points pts ->
+		      data := pts :: !data
+		  | x -> failwith (sprintf "line %d: Expected points got %s"
+				     (Sexpr.line_number points) (to_string x)))
+	       point_sets
+	 | e ->
+	     failwith (sprintf
+			 "line %d: Invalid option to a line-errbar dataset"
+			 (Sexpr.line_number e))
+      ) operands;
+    let style = match !dashes with
+      | Some d -> { (env.next_line_errbar ())
+		    with Line_errbar_dataset.dashes = d }
+      | None -> env.next_line_errbar ()
+    in
+      Num_by_num_dataset
+	(new Num_by_num.line_errbar_dataset
+	   style
+	   ?color:!color
+	   ?width:!width
+	   ?name:!name
+	   (Array.of_list !data))
+
+
