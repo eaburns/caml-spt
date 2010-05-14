@@ -23,6 +23,9 @@ Files:
 "src/spt_cairo"
 "src/length"
 
+"src/spt-it-out/sexpr"
+"src/spt-it-out/eval"
+
 Libraries:
 "str"
 "lablgtk"
@@ -35,4 +38,5 @@ CLibraries:
 
 Result: "spt-debug" bytedebug "spt_main"
 Result: "spt" native "spt_main"
+Result: "spt-it-out" native "src/spt-it-out/spt_it_out"
 

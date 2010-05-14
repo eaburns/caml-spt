@@ -1,4 +1,4 @@
-<num_by_num>: include
+<spt-it-out> or <num_by_num>: include
 <drawing.ml>: use_cairo
 <spt.ml>: use_cairo
 <spt_cairo.ml>: use_cairo

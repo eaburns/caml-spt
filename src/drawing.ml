@@ -356,6 +356,18 @@ let default_glyph_line_width = Length.Pt 1.
   (** The default line width when drawing glyphs. *)
 
 
+let glyph_of_string = function
+  | "circle" -> Circle_glyph
+  | "ring" -> Ring_glyph
+  | "cross" -> Cross_glyph
+  | "plus" -> Plus_glyph
+  | "square" -> Square_glyph
+  | "box" -> Box_glyph
+  | "triangle" -> Triangle_glyph
+  | c when (String.length c) = 1 -> Char_glyph c.[0]
+  | s -> failwith (Printf.sprintf "Invalid glyph name %s" s)
+
+
 let make_draw_glyph ctx radius = function
     (** [make_draw_glyph ctx radius glyph] makes a function draws the given
 	glyph.  Assumes that the text width and line width won't
