@@ -39,6 +39,24 @@ module Lexer = struct
     try
       match Stream.next l.stream with
 	| '"' -> String (l.line_no, Buffer.contents buf)
+	| '\\' ->
+	    begin match Stream.next l.stream with
+	      | 'n' ->
+		  Buffer.add_char buf '\n';
+		  lex_string ~buf l
+	      | 't' ->
+		  Buffer.add_char buf '\t';
+		  lex_string ~buf l
+	      | '\\' ->
+		  Buffer.add_char buf '\\';
+		  lex_string ~buf l
+	      | '"' ->
+		  Buffer.add_char buf '"';
+		  lex_string ~buf l
+	      | c ->
+		  failwith (sprintf "line %d: Bad escape string '\\%c'"
+			      l.line_no c)
+	    end
 	| c ->
 	    if c = '\n' then l.line_no <- l.line_no + 1;
 	    Buffer.add_char buf c;

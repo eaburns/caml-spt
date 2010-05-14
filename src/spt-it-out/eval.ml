@@ -25,6 +25,17 @@ type env = {
   next_line_errbar : unit -> Line_errbar_dataset.style;
 }
 
+let read_points inch =
+  (** [read_points inch] reads the points from the given channel. *)
+  let points = ref [] in
+    try (while true do
+	   let p = Scanf.fscanf inch " %f %f" (fun x y  -> point x y) in
+	     points := p :: !points
+	 done;
+	 failwith "Impossible")
+    with End_of_file ->
+      Points (Array.of_list (List.rev !points))
+
 
 let init_env =
   let next_dash = Line_dataset.default_dash_factory () in
@@ -66,6 +77,8 @@ let rec eval env = function
       eval_points env operands
   | Sexpr.List (_, (Sexpr.Ident (l, "points-file")) :: operands ) ->
       eval_points_file env l operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "points-cmd")) :: operands ) ->
+      eval_points_cmd env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "triples")) :: operands ) ->
       eval_triples env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "scatter-dataset")) :: operands ) ->
@@ -160,25 +173,25 @@ and eval_points env operands =
   in Points (Array.of_list lst)
 
 
-and eval_points_file env line operands =
-  let read_points_file file =
-    let inch = open_in file in
-    let points = ref [] in
-      try (while true do
-	     let p = Scanf.fscanf inch " %f %f" (fun x y  -> point x y) in
-	       points := p :: !points
-	   done;
-	   failwith "Impossible")
-      with End_of_file ->
+and eval_points_file env line = function
+    (** [eval_points_file env operands] evaluates a points file. *)
+  | Sexpr.String (l, file) :: [] ->
+      let inch = open_in file in
+      let points = read_points inch in
 	close_in inch;
-	Points (Array.of_list (List.rev !points))
-  in
-    match operands with
-	(** [eval_points_file env operands] evaluates a points file. *)
-      | Sexpr.String (l, file) :: [] ->
-	  read_points_file file
-      | _ -> failwith (sprintf "line %d: Malformed points-file expression"
-			 line)
+	points
+  | _ -> failwith (sprintf "line %d: Malformed points-file expression"
+		     line)
+
+and eval_points_cmd env line = function
+    (** [eval_points_cmd env operands] evaluates a points command. *)
+  | Sexpr.String (l, cmd) :: [] ->
+      let inch = Unix.open_process_in cmd in
+      let points = read_points inch in
+	ignore (Unix.close_process_in inch);
+	points
+  | _ -> failwith (sprintf "line %d: Malformed points-cmd expression"
+		     line)
 
 
 and eval_triples env operands =
