@@ -153,9 +153,9 @@ module Style_cache = Weak.Make(struct
 
 
 
-class line_errbar_dataset style ?color ?name lines =
-  (** [line_errbar_dataset style ?name lines] makes a line and error
-      bar dataset. *)
+class line_errbar_dataset style ?color ?width ?name lines =
+  (** [line_errbar_dataset style ?color ?width ?name lines] makes a
+      line and error bar dataset. *)
 object (self)
   inherit dataset ?name ()
 
@@ -169,7 +169,8 @@ object (self)
       mean_line_and_errbars style.number !(style.count) lines
     in
       new composite_dataset ?name
-	[(new Line_dataset.line_dataset style.dashes ?color ?name points);
+	[(new Line_dataset.line_dataset style.dashes
+	    ?color ?width ?name points);
 	 (new Errbar_dataset.vertical_errbar_dataset ?color bars)]
 
 
