@@ -64,6 +64,8 @@ let rec eval env = function
       eval_print env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "points")) :: operands ) ->
       eval_points env operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "points-file")) :: operands ) ->
+      eval_points_file env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "triples")) :: operands ) ->
       eval_triples env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "scatter-dataset")) :: operands ) ->
@@ -156,6 +158,27 @@ and eval_points env operands =
 			 (Sexpr.line_number e)))
       operands []
   in Points (Array.of_list lst)
+
+
+and eval_points_file env line operands =
+  let read_points_file file =
+    let inch = open_in file in
+    let points = ref [] in
+      try (while true do
+	     let p = Scanf.fscanf inch " %f %f" (fun x y  -> point x y) in
+	       points := p :: !points
+	   done;
+	   failwith "Impossible")
+      with End_of_file ->
+	close_in inch;
+	Points (Array.of_list (List.rev !points))
+  in
+    match operands with
+	(** [eval_points_file env operands] evaluates a points file. *)
+      | Sexpr.String (l, file) :: [] ->
+	  read_points_file file
+      | _ -> failwith (sprintf "line %d: Malformed points-file expression"
+			 line)
 
 
 and eval_triples env operands =
