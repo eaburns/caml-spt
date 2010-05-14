@@ -27,6 +27,7 @@ Files:
 "src/spt-it-out/eval"
 
 Libraries:
+"unix"
 "str"
 "lablgtk"
 "cairo"
