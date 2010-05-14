@@ -71,10 +71,12 @@ object (self)
 
 
   method draw_legend ctx ~x ~y =
-    draw_point ctx ~color min_radius glyph (point x y)
+    draw_point ctx ~color (Length.Pt ((Length.as_pt min_radius) /. 2.))
+      glyph (point x y)
+
 
   method legend_dimensions ctx =
-    let r2 = (ctx.units min_radius) /. 2. in r2, r2
+    let r2 = ctx.units min_radius in r2, r2
 
   method avg_slope = rectangle_to_slope self#dimensions
 

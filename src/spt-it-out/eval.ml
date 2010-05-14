@@ -25,6 +25,16 @@ type env = {
   next_line_errbar : unit -> Line_errbar_dataset.style;
 }
 
+let init_env =
+  let next_dash = Line_dataset.default_dash_factory () in
+    {
+      bindings = [];
+      next_glyph = Scatter_dataset.default_glyph_factory ();
+      next_dash = next_dash;
+      next_line_errbar = Line_errbar_dataset.line_errbar_factory next_dash ();
+    }
+
+
 let read_points inch =
   (** [read_points inch] reads the points from the given channel. *)
   let points = ref [] in
@@ -37,14 +47,18 @@ let read_points inch =
       Points (Array.of_list (List.rev !points))
 
 
-let init_env =
-  let next_dash = Line_dataset.default_dash_factory () in
-    {
-      bindings = [];
-      next_glyph = Scatter_dataset.default_glyph_factory ();
-      next_dash = next_dash;
-      next_line_errbar = Line_errbar_dataset.line_errbar_factory next_dash ();
-    }
+let read_triples inch =
+  (** [read_triples inch] reads the triples from the given channel. *)
+  let triples = ref [] in
+    try (while true do
+	   let t =
+	     Scanf.fscanf inch " %f %f %f" (fun i j k  -> triple i j k)
+	   in
+	     triples := t :: !triples
+	 done;
+	 failwith "Impossible")
+    with End_of_file ->
+      Triples (Array.of_list (List.rev !triples))
 
 
 let to_string = function
@@ -81,14 +95,22 @@ let rec eval env = function
       eval_points_cmd env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "triples")) :: operands ) ->
       eval_triples env operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "triples-file")) :: operands ) ->
+      eval_triples_file env l operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "triples-cmd")) :: operands ) ->
+      eval_triples_cmd env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "scatter-dataset")) :: operands ) ->
       eval_scatter env operands
+  | Sexpr.List (_, (Sexpr.Ident (_, "bubble-dataset")) :: operands ) ->
+      eval_bubble env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "line-dataset")) :: operands ) ->
       eval_line env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "line-points-dataset")) :: operands ) ->
       eval_line_points env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "line-errbar-dataset")) :: operands ) ->
       eval_line_errbar env operands
+  | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-composite")) :: operands ) ->
+      eval_num_by_num_composite env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-plot")) :: operands ) ->
       eval_num_by_num env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "display")) :: operands ) ->
@@ -208,6 +230,38 @@ and eval_triples env operands =
 			 (Sexpr.line_number e)))
       operands []
   in Triples (Array.of_list lst)
+
+
+and eval_triples_file env line = function
+    (** [eval_triples_file env operands] evaluates a triples file. *)
+  | Sexpr.String (l, file) :: [] ->
+      let inch = open_in file in
+      let points = read_triples inch in
+	close_in inch;
+	points
+  | _ -> failwith (sprintf "line %d: Malformed triples-file expression"
+		     line)
+
+and eval_triples_cmd env line = function
+    (** [eval_triples_cmd env operands] evaluates a triples
+	command. *)
+  | Sexpr.String (l, cmd) :: [] ->
+      let inch = Unix.open_process_in cmd in
+      let points = read_triples inch in
+	ignore (Unix.close_process_in inch);
+	points
+  | _ -> failwith (sprintf "line %d: Malformed triples-cmd expression"
+		     line)
+
+and eval_dashes env ds =
+  let lst =
+    List.map
+      (function
+	 | (Sexpr.List (l, _)) as len -> eval_length env l len
+	 | x -> failwith (sprintf "line %d: Expected a length"
+			    (Sexpr.line_number x)))
+      ds
+  in Array.of_list lst
 
 
 and eval_color env line operands =
@@ -346,15 +400,47 @@ and eval_scatter env operands =
 	 !data)
 
 
-and eval_dashes env ds =
-  let lst =
-    List.map
-      (function
-	 | (Sexpr.List (l, _)) as len -> eval_length env l len
-	 | x -> failwith (sprintf "line %d: Expected a length"
-			    (Sexpr.line_number x)))
-      ds
-  in Array.of_list lst
+and eval_bubble env operands =
+  (** [eval_bubble env operands] evaluates a bubble plot dataset. *)
+  let module S = Sexpr in
+  let glyph = ref None
+  and color = ref None
+  and min_radius = ref None
+  and max_radius = ref None
+  and name = ref None
+  and data = ref [| |]
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | S.List (_, S.Ident (l, "glyph") :: S.String (_, t) :: []) ->
+	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
+	 | S.List (_, S.Ident (l, "color") :: operands) ->
+	     set_once color l "color" (eval_color env l operands)
+	 | S.List (_, S.Ident (l, "min-radius") :: len :: []) ->
+	     set_once min_radius l "min-radius" (eval_length env l len)
+	 | S.List (_, S.Ident (l, "max-radius") :: len :: []) ->
+	     set_once max_radius l "max-radius" (eval_length env l len)
+	 | S.List (l, _) as triples ->
+	     begin match eval env triples with
+	       | Triples pts ->
+		   data := Array.append !data pts
+	       | x -> failwith (sprintf "line %d: Expected triples got %s"
+				  l (to_string x))
+	     end
+	 | e ->
+	     failwith (sprintf "line %d: Invalid option to a bubble dataset"
+			 (Sexpr.line_number e))
+      ) operands;
+    Num_by_num_dataset
+      (new Num_by_num.bubble_dataset
+	 ?glyph:!glyph
+	 ?color:!color
+	 ?min_radius:!min_radius
+	 ?max_radius:!max_radius
+	 ?name:!name
+	 !data)
 
 
 and eval_line env operands =
@@ -492,3 +578,33 @@ and eval_line_errbar env operands =
 	   (Array.of_list !data))
 
 
+and eval_num_by_num_composite env operands =
+  (** [eval_num_by_num_composite env operands] evaluates a composite
+      num-by-num dataset. *)
+  let module S = Sexpr in
+  let name = ref None
+  and dss = ref [] in
+    List.iter
+      (function
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, n) :: []) ->
+	     set_once name l "name" n
+	 | S.List (_, datasets) ->
+	     dss := !dss @
+	       (List.map
+		  (fun expr -> match eval env expr with
+		     | Num_by_num_dataset ds -> ds
+		     | e ->
+			 failwith
+			   (sprintf
+			      "line %d: Expected a num-by-num dataset got %s"
+			      (Sexpr.line_number expr) (to_string e))
+		  )
+		  datasets)
+	 | e ->
+	     failwith
+	       (sprintf
+		  "line %d: Invalid option to a num-by-num-composite dataset"
+		  (Sexpr.line_number e)))
+      operands;
+    Num_by_num_dataset
+      (new Num_by_num.composite_dataset ?name:!name (List.rev !dss))
