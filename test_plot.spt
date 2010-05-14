@@ -43,6 +43,6 @@
 		(title "Test plot")
 		(x-label "The x variable")
 		(y-label "The y variable")
-		(ds5 ds6)))
+		(ds0 ds1 ds2 ds3 ds4 ds5 ds6)))
 	)
     (display plot0)))
