@@ -31,31 +31,6 @@ let line_errbar_factory next_dashes () =
        })
 
 
-let next_location xrange ~num ~count cur =
-  (** next_location xrange ~num ~count cur] gets the next error bar
-      location after the value [cur]. *)
-  let ngroups = 4. in
-  let min = xrange.min and max = xrange.max in
-  let numf = float num and countf = float count in
-  let group_width = (max -. min) /. ngroups in
-  let delta = group_width /. countf in
-  let group_start = delta /. 2. in
-  let group_offs = (group_start +. (delta *. numf)) /. group_width in
-  let cur_group_num = floor (cur /. group_width) in
-(*
-  let cur_group_offs = (cur /. group_width) -. cur_group_num in
-*)
-  let group =
-(*
-    if cur_group_offs >= group_offs
-    then cur_group_num +. 1.
-    else cur_group_num
-*)
-    cur_group_num +. 1.
-  in (group *. group_width) +. (group_width *. group_offs)
-
-
-
 let line_domain l =
   (** [line_domain l] gets the domain of the line. *)
   Array.fold_left (fun r pt ->
@@ -112,16 +87,24 @@ let errbars ~xrange ~num ~count ~domain lines =
       bars. *)
   let min = domain.min and max = domain.max in
   let x = ref min in
+  let ngroups = 4. in
+  let numf = float num and countf = float count in
+  let group_width = (max -. min) /. ngroups in
+  let delta = group_width /. countf in
+  let group_start = delta /. 2. in
+  let group_offs = (group_start +. (delta *. numf)) /. group_width in
+  let group = ref (floor (min /. group_width)) in
   let intervals = ref [] in
     while !x < max do
-      let x' = next_location xrange ~num ~count !x in
-	if x' <= max
+      let x' = (!group *. group_width) +. (group_width *. group_offs) in
+	if x' >= min && x' <= max
 	then begin
 	  let ys = Array.map (fun l -> interpolate l x') lines in
 	  let mean, ci = Statistics.mean_and_interval ys in
 	    intervals := (triple x' mean ci) :: !intervals;
 	end;
 	x := x';
+	group := !group +. 1.;
     done;
     Array.of_list !intervals
 
