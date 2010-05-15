@@ -298,6 +298,7 @@ let draw_line ctx ?box ?style points =
   (** [draw_line ctx ?box ?style points] draws the given line
       optionally within the given bounding box. *)
   set_line_style_option ctx style;
+  Cairo.new_path ctx.cairo;
   match box with
     | None ->
 	begin match points with
@@ -376,12 +377,15 @@ let make_draw_glyph ctx radius = function
   | Circle_glyph ->
       Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->
+	 Cairo.new_path ctx.cairo;
+	 Cairo.move_to ctx.cairo pt.x pt.y;
 	 Cairo.arc ctx.cairo pt.x pt.y radius 0. (2. *. pi);
 	 Cairo.fill ctx.cairo)
   | Ring_glyph ->
       Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->
 	 Cairo.new_path ctx.cairo;
+	 Cairo.move_to ctx.cairo pt.x pt.y;
 	 Cairo.arc ctx.cairo pt.x pt.y radius 0. (2. *. pi);
 	 Cairo.stroke ctx.cairo)
   | Cross_glyph ->
