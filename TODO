@@ -6,6 +6,9 @@ Things that we need before anyone can begin beta testing
 
 * Legacy module (in ps_plot)
 
+* Look into cairo_font_extents (as opposed to text_extents) to get
+  better line spacing.
+
 ------------------------------------------------------------
 Extra features
 ------------------------------------------------------------
