@@ -11,7 +11,7 @@ let default_tick_style =
   (** The default style for the text associated with tick marks on a
       numeric axis. *)
   {
-    text_font = "sans-serif";
+    text_font = "Courier";
     text_size = Length.Pt 8.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
@@ -22,7 +22,7 @@ let default_tick_style =
 let default_legend_style =
   (** The default style for legend text. *)
   {
-    text_font = "sans-serif";
+    text_font = "Courier";
     text_size = Length.Pt 10.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
@@ -33,7 +33,7 @@ let default_label_style =
   (** The default style for the x and y axis labels and the title
       text. *)
   {
-    text_font = "sans-serif";
+    text_font = "Courier";
     text_size = Length.Pt 12.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
