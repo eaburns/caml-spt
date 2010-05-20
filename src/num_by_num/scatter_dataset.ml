@@ -95,14 +95,14 @@ object (self)
 end
 
 
-let scatter_dataset glyph ?color ?name point_list =
-  new scatter_dataset glyph ?color ?name point_list
+let scatter_dataset glyph ?color ?radius ?name point_list =
+  new scatter_dataset glyph ?color ?radius ?name point_list
 
 
-let scatter_datasets uses_color name_by_point_list_list =
+let scatter_datasets ?(uses_color=false) ?radius name_by_point_list_list =
   let next_glyph = default_glyph_factory () in
     List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
-		?name:name point_list) name_by_point_list_list
+		?radius	~name point_list) name_by_point_list_list
 
 
 (** {2 Scatter plot with error bars} ****************************************)
