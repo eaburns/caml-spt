@@ -91,8 +91,8 @@ let num_by_num_plot () =
 let main () =
   let plot = num_by_num_plot () in
     Printf.eprintf "Suggested Ratio: %f\n%!"
-      plot#suggest_aspect;
-    (*plot#use_suggested_aspect;*)
+    plot#suggest_aspect;
+    plot#use_suggested_aspect;
     plot#display
 
 let _ = main ()

@@ -44,8 +44,8 @@ object (self)
 	| Length.Px i -> Length.Px (truncate ((float i) *. s))
 	| Length.Pt flt -> Length.Pt (flt *. s) in
     let ratio = self#suggest_aspect in
-      if ratio >= 1. (* plot is tall, use plot height to determine size*)
-      then self#set_size ~w:(skew self#width (1. /. ratio)) ~h:self#height
+      if ratio <= 1. (* plot is tall, use plot height to determine size*)
+      then self#set_size ~w:(skew self#width ratio) ~h:self#height
       else self#set_size ~w:self#width ~h:(skew self#height ratio)
 
   method private src_rectangle =
