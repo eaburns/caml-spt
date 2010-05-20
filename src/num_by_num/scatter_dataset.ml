@@ -96,10 +96,13 @@ end
 
 
 let scatter_dataset glyph ?color ?name point_list =
-  let c = match color with None -> black | Some v -> v in
-    match name with
-	None -> new scatter_dataset glyph ~color:c point_list
-      | Some n -> new scatter_dataset glyph ~name:n ~color:c point_list
+  new scatter_dataset glyph ?color ?name point_list
+
+
+let scatter_datasets uses_color name_by_point_list_list =
+  let next_glyph = default_glyph_factory () in
+    List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
+		?name:name point_list) name_by_point_list_list
 
 
 (** {2 Scatter plot with error bars} ****************************************)
