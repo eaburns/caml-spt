@@ -2,7 +2,13 @@
 Things that we need before anyone can begin beta testing
 ------------------------------------------------------------
 
-* Decide on a final API.
+* Decide on a final API
+  two basic types of functions, on for generating single datalests,
+  one for making list of related datasets that dispatches to the first
+  type.  One of these calls for each dataset type.  Each inside of its
+  own file.
+
+* Definition of lines as point lists
 
 * Legacy module (in ps_plot)
 
@@ -14,14 +20,6 @@ Extra features
 ------------------------------------------------------------
 
 * Drawing legends off of the plot.
-
-* Fixing the aspect ratio so that the mean slopes of lines in the plot
-  are ~45 deg.
- -- This can really look like ass as currently implemented, maybe we
-  should only scale up, never down?
- -- Maybe this is a feature that we don't even want to add.  The user
-   can play with the size of the plot in the GUI and make it look good
-   by hand.
 
 * Change text size based on plot size
 
