@@ -95,6 +95,13 @@ object (self)
 end
 
 
+let scatter_dataset glyph ?color ?name point_list =
+  let c = match color with None -> black | Some v -> v in
+    match name with
+	None -> new scatter_dataset glyph ~color:c point_list
+      | Some n -> new scatter_dataset glyph ~name:n ~color:c point_list
+
+
 (** {2 Scatter plot with error bars} ****************************************)
 
 
