@@ -314,4 +314,19 @@ let triple_of_array ar =
     | _ -> failwith ("Geometry.triple_of_array: Didn't get a two element array")
 
 
+let line_of_tuples ab_list =
+  ((List.map point_of_tuple ab_list) :> line)
+
+
+let line_of_lists ab_list_list =
+  ((List.map point_of_list ab_list_list) :> line)
+
+
+let line_of_arrays ab_array_list =
+  ((List.map point_of_array ab_array_list) :> line)
+
+
+let line_of_points point_list =
+  (point_list :> line)
+
 (* EOF *)
