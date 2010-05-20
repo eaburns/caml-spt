@@ -29,6 +29,7 @@ type triple = {
   k : float;
 }
 
+type line = point list
 
 type range = {
   min : float;
@@ -277,3 +278,40 @@ let clip_line_segment box ~p0 ~p1 =
 		else p1)
       in p0, p1
     end else p0, p1
+
+
+(*** Conversions ***********************************************)
+
+let point_of_tuple (a,b) =
+  { x  = a; y = b; }
+
+
+let point_of_list lst =
+  match lst with
+      [a; b] -> { x = a; y = b; }
+    | _ -> failwith ("Geometry.point_of_list: Didn't get a two element list")
+
+
+let point_of_array ar =
+  match ar with
+    | [| a; b|] -> { x = a; y = b; }
+    | _ -> failwith ("Geometry.point_of_array: Didn't get a two element array")
+
+
+let triple_of_threeple (a,b,c) =
+  { i  = a; j = b; k = c; }
+
+
+let triple_of_list lst =
+  match lst with
+      [a; b; c] -> { i  = a; j = b; k = c; }
+    | _ -> failwith ("Geometry.triple_of_list: Didn't get a two element list")
+
+
+let triple_of_array ar =
+  match ar with
+    | [| a; b; c|] -> { i  = a; j = b; k = c; }
+    | _ -> failwith ("Geometry.triple_of_array: Didn't get a two element array")
+
+
+(* EOF *)
