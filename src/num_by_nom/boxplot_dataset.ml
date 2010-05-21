@@ -45,8 +45,7 @@ object(self)
   method draw ctx ~src ~dst ~width ~x =
     let tr = range_transform ~src ~dst in
     let center = x +. (width /. 2.) in
-    let quarter_min = center -. (width /. 4.) in
-    let quarter_max = center +. (width /. 4.) in
+    let x0 = x and x1 = x +. width in
     let conf_min = center -. (width /. 16.) in
     let conf_max = center +. (width /. 16.) in
     let min, max =
@@ -59,10 +58,8 @@ object(self)
 	   (fun a v -> (point center (tr v)) :: a)
 	   [] outliers);
       draw_rectangle ctx ~style:line_style
-	(rectangle ~x_min:quarter_min ~x_max:quarter_max
-	   ~y_min:(tr q1) ~y_max:(tr q3));
-      draw_line ctx ~style:line_style
-	[ point quarter_min mean'; point quarter_max mean'; ];
+	(rectangle ~x_min:x0 ~x_max:x1 ~y_min:(tr q1) ~y_max:(tr q3));
+      draw_line ctx ~style:line_style [ point x0 mean'; point x1 mean'; ];
       Errbar.draw_up ctx ~style:line_style ~src ~dst
 	~x:center ~y:q3 ~mag:(max -. q3);
       Errbar.draw_down ctx ~style:line_style ~src ~dst
