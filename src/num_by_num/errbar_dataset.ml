@@ -29,6 +29,18 @@ class vertical_errbar_dataset ?color triples =
 object (self)
   inherit errbar_dataset triples
 
+  method residual ctx ~src ~dst =
+    let tr = rectangle_transform ~src ~dst in
+      Array.fold_left
+	(fun r t ->
+	   let pt = tr (point t.i t.j) in
+	   let x = pt.x and y = pt.y and mag = t.k in
+	   let up_residue = Errbar.residual_up ctx dst ~x ~y ~mag
+	   and down_residue = Errbar.residual_down ctx dst ~x ~y ~mag in
+	     rectangle_extremes r (rectangle_extremes up_residue down_residue))
+	zero_rectangle triples
+
+
   method dimensions =
     Array.fold_left
       (fun r t ->
@@ -50,8 +62,8 @@ object (self)
 		    then begin
 		      let src = yrange src and dst = yrange dst in
 		      let x = tr t.i and y = t.j and mag = t.k in
-			Errbar.draw_up ctx ~style ~src ~dst ~x ~y mag;
-			Errbar.draw_down ctx ~style ~src ~dst ~x ~y mag;
+			Errbar.draw_up ctx ~style ~src ~dst ~x ~y ~mag;
+			Errbar.draw_down ctx ~style ~src ~dst ~x ~y ~mag;
 		    end)
 	triples
 
@@ -76,6 +88,19 @@ class horizontal_errbar_dataset ?color triples =
 object (self)
   inherit errbar_dataset triples
 
+  method residual ctx ~src ~dst =
+    let tr = rectangle_transform ~src ~dst in
+      Array.fold_left
+	(fun r t ->
+	   let pt = tr (point t.i t.j) in
+	   let x = pt.x and y = pt.y and mag = t.k in
+	   let left_residue = Errbar.residual_left ctx dst ~x ~y ~mag
+	   and right_residue = Errbar.residual_right ctx dst ~x ~y ~mag in
+	     rectangle_extremes r (rectangle_extremes
+				     left_residue right_residue))
+	zero_rectangle triples
+
+
   method dimensions =
     Array.fold_left
       (fun r t ->
@@ -97,8 +122,8 @@ object (self)
 		    then begin
 		      let src = xrange src and dst = xrange dst in
 		      let x = t.i and y = tr t.j and mag = t.k in
-			Errbar.draw_left ctx ~style ~src ~dst ~x ~y mag;
-			Errbar.draw_right ctx ~style ~src ~dst ~x ~y mag;
+			Errbar.draw_left ctx ~style ~src ~dst ~x ~y ~mag;
+			Errbar.draw_right ctx ~style ~src ~dst ~x ~y ~mag;
 		    end)
 	triples
 
