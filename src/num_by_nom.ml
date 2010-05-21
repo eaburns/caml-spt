@@ -7,11 +7,14 @@
 open Geometry
 open Drawing
 
-let y_axis_padding = Length.Pt 5.
+let y_axis_padding = Length.Pt 10.
   (** The amount of room to separate the y-axis from the data. *)
 
 let x_axis_padding = Length.Pt 10.
   (** The amount of room to separate the x-axis from the data. *)
+
+let between_padding = Length.Pt 20.
+  (** Padding between each dataset. *)
 
 (** {1 Numeric by nomeric plot} ****************************************)
 
@@ -63,8 +66,13 @@ object (self)
 	~pad:(ctx.units Spt.text_padding) ~x_min:(ctx.units y_axis_padding)
 	yaxis
     in
-    let n = List.length datasets in
-    let text_width = if n > 0 then (x_max -. x_min) /. (float n) else 0. in
+    let n = float (List.length datasets) in
+    let text_width =
+      let total_padding = (n -. 1.) *. (ctx.units between_padding) in
+	if n > 1.
+	then ((x_max -. x_min) -. total_padding) /. n
+	else (x_max -. x_min)
+    in
       range x_min x_max, text_width
 
 
@@ -100,20 +108,21 @@ object (self)
 
   method private draw_x_axis ctx ~y ~xrange ~text_width =
     (** [draw_x_axis ctx ~y ~xrange ~text_width] draws the x-axis. *)
-    ignore (List.fold_left
-	      (fun x ds ->
-		 ds#draw_x_label ctx ~x ~y legend_text_style ~text_width;
-		 x +. text_width)
-	      (xrange.min +. (text_width /. 2.)) datasets)
+    let between_padding = ctx.units between_padding in
+    ignore
+      (List.fold_left
+	 (fun x ds ->
+	    ds#draw_x_label ctx ~x ~y legend_text_style ~width:text_width;
+	    x +. text_width +. between_padding)
+	 xrange.min datasets)
 
 
   method draw ctx =
+    let between_padding = ctx.units between_padding in
     let src = self#src_y_range in
     let yaxis = self#yaxis src in
     let xrange, width = self#x_axis_dimensions ctx yaxis in
-    let dst =
-      self#dst_y_range ctx ~y_min ~y_max ~text_width:width
-    in
+    let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:width in
       begin match title with
 	| None -> ()
 	| Some t ->
@@ -122,11 +131,11 @@ object (self)
       end;
       ignore (List.fold_left (fun x ds ->
 				ds#draw ctx ~src ~dst ~width ~x;
-				x +. width)
+				x +. width +. between_padding)
 		xrange.min datasets);
       self#draw_y_axis ctx ~dst yaxis;
-      self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding)) ~xrange
-	~text_width:width
+      self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding))
+	~xrange ~text_width:width
 end
 
 include Num_by_nom_dataset

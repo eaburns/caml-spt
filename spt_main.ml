@@ -18,20 +18,33 @@ let num_by_nom_plot () =
     ~title:"Title text"
     ~ylabel:"Y label text"
     [
-      new Num_by_nom.boxplot_dataset "Dataset zero"
-	[| 0.; 5.; 8.; ~-.1.; 0.05; ~-.5.; ~-.4.; |];
-      (object
-	 inherit Num_by_nom.dataset "Dataset one"
-	 method dimensions = range 0. 0.
-	 method residual _ ~src ~dst ~width:_ ~x:_ = range nan nan
-	 method draw _ ~src ~dst ~width:_ ~x:_ = ()
-       end);
-      (object
-	 inherit Num_by_nom.dataset "Dataset two"
-	 method dimensions = range 0. 0.
-	 method residual _ ~src ~dst ~width:_ ~x:_ = range nan nan
-	 method draw _ ~src ~dst ~width:_ ~x:_ = ()
-       end);
+      new Num_by_nom.dataset_group "100 samples"
+	[
+	  new Num_by_nom.boxplot_dataset "0-10"
+	    (Array.init 100 (fun _ -> Random.float 10.));
+	  new Num_by_nom.boxplot_dataset "0-25"
+	    (Array.init 100 (fun _ -> Random.float 25.));
+	  new Num_by_nom.boxplot_dataset "0-50"
+	    (Array.init 100 (fun _ -> Random.float 50.));
+	];
+      new Num_by_nom.dataset_group "20 samples"
+	[
+	  new Num_by_nom.boxplot_dataset "0-10"
+	    (Array.init 20 (fun _ -> Random.float 10.));
+	  new Num_by_nom.boxplot_dataset "0-25"
+	    (Array.init 20 (fun _ -> Random.float 25.));
+	  new Num_by_nom.boxplot_dataset "0-50"
+	    (Array.init 20 (fun _ -> Random.float 50.));
+	];
+      new Num_by_nom.dataset_group "10 samples"
+	[
+	  new Num_by_nom.boxplot_dataset "0-10"
+	    (Array.init 10 (fun _ -> Random.float 10.));
+	  new Num_by_nom.boxplot_dataset "0-25"
+	    (Array.init 10 (fun _ -> Random.float 25.));
+	  new Num_by_nom.boxplot_dataset "0-50"
+	    (Array.init 10 (fun _ -> Random.float 50.));
+	];
     ]
 
 
