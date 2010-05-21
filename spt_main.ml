@@ -22,28 +22,28 @@ let num_by_nom_plot () =
 	[
 	  new Num_by_nom.boxplot_dataset "0-10"
 	    (Array.init 100 (fun _ -> Random.float 10.));
-	  new Num_by_nom.boxplot_dataset "0-20"
-	    (Array.init 100 (fun _ -> Random.float 20.));
-	  new Num_by_nom.boxplot_dataset "0-30"
-	    (Array.init 100 (fun _ -> Random.float 30.));
+	  new Num_by_nom.boxplot_dataset "0-25"
+	    (Array.init 100 (fun _ -> Random.float 25.));
+	  new Num_by_nom.boxplot_dataset "0-50"
+	    (Array.init 100 (fun _ -> Random.float 50.));
 	];
       new Num_by_nom.dataset_group "20 samples"
 	[
 	  new Num_by_nom.boxplot_dataset "0-10"
 	    (Array.init 20 (fun _ -> Random.float 10.));
-	  new Num_by_nom.boxplot_dataset "0-20"
-	    (Array.init 20 (fun _ -> Random.float 20.));
-	  new Num_by_nom.boxplot_dataset "0-30"
-	    (Array.init 20 (fun _ -> Random.float 30.));
+	  new Num_by_nom.boxplot_dataset "0-25"
+	    (Array.init 20 (fun _ -> Random.float 25.));
+	  new Num_by_nom.boxplot_dataset "0-50"
+	    (Array.init 20 (fun _ -> Random.float 50.));
 	];
       new Num_by_nom.dataset_group "10 samples"
 	[
 	  new Num_by_nom.boxplot_dataset "0-10"
 	    (Array.init 10 (fun _ -> Random.float 10.));
-	  new Num_by_nom.boxplot_dataset "0-20"
-	    (Array.init 10 (fun _ -> Random.float 20.));
-	  new Num_by_nom.boxplot_dataset "0-30"
-	    (Array.init 10 (fun _ -> Random.float 30.));
+	  new Num_by_nom.boxplot_dataset "0-25"
+	    (Array.init 10 (fun _ -> Random.float 25.));
+	  new Num_by_nom.boxplot_dataset "0-50"
+	    (Array.init 10 (fun _ -> Random.float 50.));
 	];
     ]
 
