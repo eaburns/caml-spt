@@ -25,9 +25,6 @@ Extra features
 Datasets
 ------------------------------------------------------------
 
-* Function Datasets (fn x -> y)
-  Sampling rate as an optional argument
-
 * Scatter with Best Fit
 
 * Box plots
