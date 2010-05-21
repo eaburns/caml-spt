@@ -29,7 +29,7 @@ let init_env =
   let next_dash = Line_dataset.default_dash_factory () in
     {
       bindings = [];
-      next_glyph = Scatter_dataset.default_glyph_factory ();
+      next_glyph = Factories.default_glyph_factory ();
       next_dash = next_dash;
       next_line_errbar = Line_errbar_dataset.line_errbar_factory next_dash ();
     }
