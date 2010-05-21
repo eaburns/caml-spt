@@ -7,10 +7,10 @@
 open Geometry
 open Drawing
 
-let y_axis_padding = Length.Pt 1.
+let y_axis_padding = Length.Pt 5.
   (** The amount of room to separate the y-axis from the data. *)
 
-let x_axis_padding = Length.Pt 2.
+let x_axis_padding = Length.Pt 10.
   (** The amount of room to separate the x-axis from the data. *)
 
 (** {1 Numeric by nomeric plot} ****************************************)
@@ -35,7 +35,8 @@ object (self)
       | _ ->
 	  let min, max =
 	    List.fold_left (fun (min, max) ds ->
-			      let ds_min, ds_max = ds#dimensions in
+			      let r = ds#dimensions in
+			      let ds_min = r.min and ds_max = r.max in
 			      let min' = if ds_min < min then ds_min else min
 			      and max' = if ds_max > max then ds_max else max
 			      in min', max')
@@ -109,9 +110,9 @@ object (self)
   method draw ctx =
     let src = self#src_y_range in
     let yaxis = self#yaxis src in
-    let xrange, text_width = self#x_axis_dimensions ctx yaxis in
+    let xrange, width = self#x_axis_dimensions ctx yaxis in
     let dst =
-      self#dst_y_range ctx ~y_min ~y_max ~text_width:text_width
+      self#dst_y_range ctx ~y_min ~y_max ~text_width:width
     in
       begin match title with
 	| None -> ()
@@ -119,49 +120,14 @@ object (self)
 	    let x = (fst (self#size ctx)) /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_text_style ctx x y t
       end;
+      ignore (List.fold_left (fun x ds ->
+				ds#draw ctx ~src ~dst ~width ~x;
+				x +. width)
+		xrange.min datasets);
       self#draw_y_axis ctx ~dst yaxis;
       self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding)) ~xrange
-	~text_width:text_width
+	~text_width:width
 end
 
-
-(** {1 Datasets} ****************************************)
-
-
-class virtual dataset name =
-  (** [dataset name] is a dataset that is plottable on a nominal x
-      axis and a numeric y axis. *)
-object
-
-  val name = (name : string)
-    (** The name of the dataset is what appears on the x-axis. *)
-
-  method virtual dimensions : float * float
-    (** [dimensions] gets the min and maximum value from the
-	dataset. *)
-
-
-  method x_label_height : context -> text_style -> float -> float =
-    (** [x_label_height context style width] is the height of the
-	label on thesrc/ x-axis. *)
-    (fun ctx style width -> fixed_width_text_height ctx ~style width name)
-
-
-  method draw_x_label :
-    context -> x:float -> y:float -> text_style -> text_width:float -> unit =
-    (** [draw_x_label context ~x ~y style ~text_width] draws the x-axis label to
-	the proper location. *)
-    (fun ctx ~x ~y style ~text_width ->
-       draw_fixed_width_text ctx ~x ~y ~style ~width:text_width name)
-
-  method virtual residual :
-    context -> src:range -> dst:range -> float -> int -> range
-    (** [residual ctx ~src ~dst width rank] get a rectangle containing the
-	maximum amount the dataset will draw off of the destination
-	rectangle in each direction. *)
-
-  method virtual draw :
-    context -> src:range -> dst:range -> float -> int -> unit
-    (** [draw ctx ~src ~dst width rank] draws the dataset to the
-	plot. *)
-end
+include Num_by_nom_dataset
+include Boxplot_dataset

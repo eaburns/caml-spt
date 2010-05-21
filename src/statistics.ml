@@ -59,4 +59,17 @@ let percentile p vls =
       | n when n >= num -> ranked.((truncate num) - 1)
       | n -> ranked.(k - 1) +. d *. (ranked.(k) -. ranked.(k - 1))
 
+
+let upper_and_lower_fence vls =
+  (** [upper_and_lower_fence vls] computes the upper and lower fence.
+      These values are used to determine what points may be considered
+      outliers.  upper = Q2 + 4 * (Q3 - Q2) and lower = Q2 + 4 * (Q1 -
+      Q2) *)
+  let q1 = percentile 25. vls
+  and q2 = percentile 50. vls
+  and q3 = percentile 75. vls
+  and k = 4. in
+  (q2 +. k *. (q3 -. q2),
+   q2 +. k *. (q1 -. q2))
+
 (* EOF *)

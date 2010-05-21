@@ -17,27 +17,20 @@ let num_by_nom_plot () =
   new Num_by_nom.plot
     ~title:"Title text"
     ~ylabel:"Y label text"
-    ~y_min:0.
-    ~y_max:1.
     [
+      new Num_by_nom.boxplot_dataset "Dataset zero"
+	[| 0.; 5.; 8.; ~-.1.; 0.05; ~-.5.; ~-.4.; |];
       (object
 	 inherit Num_by_nom.dataset "Dataset one"
-	 method dimensions = 0., 0.
-	 method residual _ ~src ~dst _ _ = range nan nan
-	 method draw _ ~src ~dst _ _ = ()
+	 method dimensions = range 0. 0.
+	 method residual _ ~src ~dst ~width:_ ~x:_ = range nan nan
+	 method draw _ ~src ~dst ~width:_ ~x:_ = ()
        end);
       (object
-	 inherit Num_by_nom.dataset "This is example dataset two"
-	 method dimensions = 0., 0.
-	 method residual _ ~src ~dst _ _ = range nan nan
-	 method draw _ ~src ~dst _ _ = ()
-       end);
-      (object
-	 inherit Num_by_nom.dataset
-	   "Some third dataset that has a very long name"
-	 method dimensions = 0., 0.
-	 method residual _ ~src ~dst _ _ = range nan nan
-	 method draw _ ~src ~dst _ _ = ()
+	 inherit Num_by_nom.dataset "Dataset two"
+	 method dimensions = range 0. 0.
+	 method residual _ ~src ~dst ~width:_ ~x:_ = range nan nan
+	 method draw _ ~src ~dst ~width:_ ~x:_ = ()
        end);
     ]
 
@@ -104,7 +97,7 @@ let num_by_num_plot () =
 
 
 let main () =
-  let plot = num_by_num_plot () in
+  let plot = num_by_nom_plot () in
 (*
     Printf.eprintf "Suggested Ratio: %f\n%!"
       plot#suggest_aspect;
