@@ -12,23 +12,6 @@ Things that we need before anyone can begin beta testing
 * Legacy module (in ps_plot)
 
 ------------------------------------------------------------
-Output formats
-------------------------------------------------------------
-
-* The head of the caml-cairo git repository contains support for
-   outputting SVG files.  Once this is bundled into a release we
-   should support it.
-
-------------------------------------------------------------
-Fonts
-------------------------------------------------------------
-
-* The head of the caml-cairo git repository contains support for
-   pangocairo bindings.  Once this is bundled into a release we should
-   use pangocairo to map text to font glyphs.  This way we can use the
-   *real* text API instead of the toy API.
-
-------------------------------------------------------------
 Extra features
 ------------------------------------------------------------
 
@@ -46,8 +29,6 @@ Datasets
   Sampling rate as an optional argument
 
 * Scatter with Best Fit
-
-* Errbars should compute a residual so their cap is not chopped off
 
 * Box plots
 
