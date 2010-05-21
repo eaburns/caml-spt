@@ -18,12 +18,33 @@ let num_by_nom_plot () =
     ~title:"Title text"
     ~ylabel:"Y label text"
     [
-      new Num_by_nom.boxplot_dataset "Dataset zero"
-	(Array.init 10 (fun _ -> Random.float 50.));
-      new Num_by_nom.boxplot_dataset "Dataset one"
-	(Array.init 100 (fun _ -> Random.float 20.));
-      new Num_by_nom.boxplot_dataset "Dataset two"
-	(Array.init 100 (fun _ -> Random.float 5.));
+      new Num_by_nom.dataset_group "100 samples"
+	[
+	  new Num_by_nom.boxplot_dataset "0-10"
+	    (Array.init 100 (fun _ -> Random.float 10.));
+	  new Num_by_nom.boxplot_dataset "0-20"
+	    (Array.init 100 (fun _ -> Random.float 20.));
+	  new Num_by_nom.boxplot_dataset "0-30"
+	    (Array.init 100 (fun _ -> Random.float 30.));
+	];
+      new Num_by_nom.dataset_group "20 samples"
+	[
+	  new Num_by_nom.boxplot_dataset "0-10"
+	    (Array.init 20 (fun _ -> Random.float 10.));
+	  new Num_by_nom.boxplot_dataset "0-20"
+	    (Array.init 20 (fun _ -> Random.float 20.));
+	  new Num_by_nom.boxplot_dataset "0-30"
+	    (Array.init 20 (fun _ -> Random.float 30.));
+	];
+      new Num_by_nom.dataset_group "10 samples"
+	[
+	  new Num_by_nom.boxplot_dataset "0-10"
+	    (Array.init 10 (fun _ -> Random.float 10.));
+	  new Num_by_nom.boxplot_dataset "0-20"
+	    (Array.init 10 (fun _ -> Random.float 20.));
+	  new Num_by_nom.boxplot_dataset "0-30"
+	    (Array.init 10 (fun _ -> Random.float 30.));
+	];
     ]
 
 

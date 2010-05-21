@@ -13,7 +13,7 @@ let y_axis_padding = Length.Pt 10.
 let x_axis_padding = Length.Pt 10.
   (** The amount of room to separate the x-axis from the data. *)
 
-let between_padding = Length.Pt 10.
+let between_padding = Length.Pt 20.
   (** Padding between each dataset. *)
 
 (** {1 Numeric by nomeric plot} ****************************************)
@@ -114,7 +114,7 @@ object (self)
 	 (fun x ds ->
 	    ds#draw_x_label ctx ~x ~y legend_text_style ~width:text_width;
 	    x +. text_width +. between_padding)
-	 (xrange.min +. (text_width /. 2.)) datasets)
+	 xrange.min datasets)
 
 
   method draw ctx =
