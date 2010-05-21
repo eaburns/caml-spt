@@ -61,4 +61,30 @@ object (self)
 
 end
 
+(** {2 Scatter plot with best fit} ****************************************)
+
+open Lacaml.Impl.D
+
+let bestfit_dataset glyph dashes ?color ?width ?radius ?name points =
+  let scatter =
+    new Scatter_dataset.scatter_dataset glyph ?color ?radius ?name points in
+  let xs = Mat.of_array (Array.map (fun p -> [| p.x; 1. |]) points) in
+  let ys = Mat.of_array (Array.map (fun p -> [| p.y |]) points) in
+    ignore (gelsd ~rcond:1e-4 xs ys);
+    let m = ys.{1, 1} and b = ys.{2, 1} in
+    let line =
+      new function_dataset dashes ~samples:2 ?width ?color ?name
+	(fun x -> x *. m +. b)
+    in
+      new composite_dataset ?name [scatter; line;]
+
+let bestfit_datasets ?(uses_color=false)
+    ?radius ?width name_by_point_list_list =
+  let next_glyph = Scatter_dataset.default_glyph_factory () in
+  let next_dash = Line_dataset.default_dash_factory () in
+    List.map (fun (name, point_list) ->
+		bestfit_dataset (next_glyph ())
+		  (next_dash ()) ?width ?radius ?name point_list)
+      name_by_point_list_list
+
 (* EOF *)

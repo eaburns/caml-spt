@@ -32,9 +32,12 @@ Libraries:
 "lablgtk"
 "cairo"
 "cairo_lablgtk"
+"bigarray"
+"lacaml"
 
 CLibraries:
 "cairo"
+"gfortran"
 
 
 Result: "spt-debug" bytedebug "spt_main"
