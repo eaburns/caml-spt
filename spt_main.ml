@@ -43,7 +43,7 @@ let num_by_nom_plot () =
 
 
 let num_by_num_plot () =
-  let next_dash = Num_by_num.default_dash_factory () in
+  let next_dash = Factories.default_dash_factory () in
   let next_glyph = Factories.default_glyph_factory () in
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
     ignore (next_line_err ());

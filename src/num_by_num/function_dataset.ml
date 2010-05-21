@@ -81,7 +81,7 @@ let bestfit_dataset glyph dashes ?color ?width ?radius ?name points =
 let bestfit_datasets ?(uses_color=false)
     ?radius ?width name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
-  let next_dash = Line_dataset.default_dash_factory () in
+  let next_dash = Factories.default_dash_factory () in
     List.map (fun (name, point_list) ->
 		bestfit_dataset (next_glyph ())
 		  (next_dash ()) ?width ?radius ?name point_list)
