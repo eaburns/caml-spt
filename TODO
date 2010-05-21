@@ -7,6 +7,7 @@ Things that we need before anyone can begin beta testing
   one for making list of related datasets that dispatches to the first
   type.  One of these calls for each dataset type.  Each inside of its
   own file.
+  -- Num by num datasets are done
 
 * Legacy module (in ps_plot)
 
