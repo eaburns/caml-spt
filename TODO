@@ -53,6 +53,7 @@ Documentation
 ------------------------------------------------------------
 Usability
 ------------------------------------------------------------
+
 * Push factories from most datasets into src/factories.ml
   -- Line_errbars get to keep theres since they belong there
   --- Alternatively, why isn't the errbar stuff in the errbar dataset?
@@ -61,8 +62,7 @@ Usability
 
 * Generate .mli files where possible / appropriate
 
-* Read plots from files
-  Involves parsing
+* num_by_nom plots in spt-it-out
 
 * Bindings
   - C
