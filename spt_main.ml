@@ -19,19 +19,11 @@ let num_by_nom_plot () =
     ~ylabel:"Y label text"
     [
       new Num_by_nom.boxplot_dataset "Dataset zero"
-	[| 0.; 5.; 8.; ~-.1.; 0.05; ~-.5.; ~-.4.; |];
-      (object
-	 inherit Num_by_nom.dataset "Dataset one"
-	 method dimensions = range 0. 0.
-	 method residual _ ~src ~dst ~width:_ ~x:_ = range nan nan
-	 method draw _ ~src ~dst ~width:_ ~x:_ = ()
-       end);
-      (object
-	 inherit Num_by_nom.dataset "Dataset two"
-	 method dimensions = range 0. 0.
-	 method residual _ ~src ~dst ~width:_ ~x:_ = range nan nan
-	 method draw _ ~src ~dst ~width:_ ~x:_ = ()
-       end);
+	(Array.init 10 (fun _ -> Random.float 50.));
+      new Num_by_nom.boxplot_dataset "Dataset one"
+	(Array.init 100 (fun _ -> Random.float 20.));
+      new Num_by_nom.boxplot_dataset "Dataset two"
+	(Array.init 100 (fun _ -> Random.float 5.));
     ]
 
 

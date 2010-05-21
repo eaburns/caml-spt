@@ -13,8 +13,8 @@ let maxf a b = if (a:float) > b then a else b
 let line_style = { default_line_style with line_width = Length.Pt 1. }
 
 class boxplot_dataset ?(radius=Length.Pt 2.) name values =
-  let mean, conf_interval = Statistics.mean_and_interval values in
-  let upper, lower = Statistics.upper_and_lower_fence values in
+  let outliers, data = Statistics.separate_outliers values in
+  let mean, conf_interval = Statistics.mean_and_interval data in
 object(self)
 
   inherit Num_by_nom_dataset.dataset name
@@ -25,13 +25,13 @@ object(self)
   val q1 = Statistics.percentile 25. values
   val q2 = Statistics.percentile 50. values
   val q3 = Statistics.percentile 75. values
-  val upper = upper
-  val lower = lower
+  val outliers = outliers
+  val data = data
 
   method dimensions =
     let vs =
       Array.append
-	[| mean; conf_lower; conf_upper; q1; q2; q3; upper; lower; |]
+	[| mean; conf_lower; conf_upper; q1; q2; q3; |]
 	values
     in
       range
@@ -47,22 +47,17 @@ object(self)
     let center = x +. (width /. 2.) in
     let quarter_min = center -. (width /. 4.) in
     let quarter_max = center +. (width /. 4.) in
-    let eighth_min = center -. (width /. 8.) in
-    let eighth_max = center +. (width /. 8.) in
-    let outliers, data =
-      Array.fold_left (fun (os, ds) v ->
-			 if v > upper || v < lower
-			 then v :: os, ds
-			 else os, v :: ds)
-	([], []) values
-    in
+    let conf_min = center -. (width /. 16.) in
+    let conf_max = center +. (width /. 16.) in
     let min, max =
-      List.fold_left (fun (min, max) v -> (minf min v), (maxf max v))
+      Array.fold_left (fun (min, max) v -> (minf min v), (maxf max v))
 	(infinity, neg_infinity) data
     in
     let mean' = tr mean in
       draw_points ctx radius Ring_glyph
-	(List.map (fun v -> point center (tr v)) outliers);
+	(Array.fold_left
+	   (fun a v -> (point center (tr v)) :: a)
+	   [] outliers);
       draw_rectangle ctx ~style:line_style
 	(rectangle ~x_min:quarter_min ~x_max:quarter_max
 	   ~y_min:(tr q1) ~y_max:(tr q3));
@@ -72,8 +67,8 @@ object(self)
 	~x:center ~y:q3 ~mag:(max -. q3);
       Errbar.draw_down ctx ~style:line_style ~src ~dst
 	~x:center ~y:q1 ~mag:(q1 -. min);
-      fill_rectangle ctx
-	(rectangle ~x_min:eighth_min ~x_max:eighth_max
+      fill_rectangle ctx ~color:gray
+	(rectangle ~x_min:conf_min ~x_max:conf_max
 	   ~y_min:(tr conf_lower) ~y_max:(tr conf_upper));
 
 end
