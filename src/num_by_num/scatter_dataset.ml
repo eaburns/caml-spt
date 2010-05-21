@@ -149,5 +149,4 @@ let scatter_errbar_datasets ?(uses_color=false) name_by_sets_list =
 	      scatter_errbar_dataset (next_glyph()) ?name sets)
     name_by_sets_list
 
-
 (* EOF *)

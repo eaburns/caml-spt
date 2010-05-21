@@ -67,6 +67,17 @@ let num_by_num_plot () =
 	       point 8.5 7.1; point 10.1 3.9; |], Some "four";
 	  |];
 
+
+	Num_by_num.bestfit_dataset
+	  (next_glyph ()) (next_dash ())
+	  ~color:green ~name:"Best fit"
+	  [|
+	    point 0. 0.;
+	    point 1. 1.;
+	    point 2. 2.;
+	    point 3. 1.;
+	  |];
+
 	Num_by_num.line_points_dataset (next_dash ()) (next_glyph ())
 	  ~name:"Lines and points"
 	  [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
