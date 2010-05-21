@@ -20,24 +20,40 @@ type location =
   | Lower_right
 
 
-let line_spacing = Length.Pt 2.
-  (** The spacing between lines in the legend. *)
+let padding = Length.Pt 2.
+  (** Padding between legend text and the icons. *)
+
+
+let max_height ctx style datasets =
+  (** [max_height ctx style datasets] gets the max entry height. *)
+  let text_height = font_suggested_line_height ~style ctx in
+    List.fold_left
+      (fun h ds ->
+	 let _, icon_height = ds#legend_dimensions ctx in
+	   max h (max text_height icon_height))
+      0. datasets
+
+
+let max_widths ctx style datasets =
+  (** [max_widths ctx style datasets] gets the max entry height. *)
+  List.fold_left
+    (fun ((tw, iw) as dims) ds -> match ds#name with
+       | None -> dims
+       | Some txt ->
+	   let txt_w, _ = text_dimensions ctx ~style txt in
+	   let ico_w, _ = ds#legend_dimensions ctx in
+	     max tw txt_w, max iw ico_w)
+    (0., 0.) datasets
+
 
 let dimensions style ctx datasets =
   (** [dimensions style ctx datasets] gets the dimensions of a legend
       for the given datasets. *)
-  let line_spacing = ctx.units line_spacing in
-  let tw, iw, height =
-    List.fold_left
-      (fun ((tw, iw, h) as dims) ds -> match ds#name with
-	 | None -> dims
-	 | Some txt ->
-	     let txt_w, txt_h = text_dimensions ctx ~style txt in
-	     let ico_w, ico_h = ds#legend_dimensions ctx in
-	     let height = (max txt_h ico_h) +. line_spacing in
-	       max tw txt_w, max iw ico_w, height +. h)
-      (0., 0., 0.) datasets
-  in (tw +. iw +. line_spacing), height
+  let padding = ctx.units padding in
+  let ndatasets = float (List.length datasets) in
+  let ent_height = max_height ctx style datasets in
+  let text_width, icon_width = max_widths ctx style datasets
+  in (text_width +. icon_width +. padding), ent_height *. ndatasets
 
 
 let locate ctx style dst datasets = function
@@ -63,36 +79,30 @@ let locate ctx style dst datasets = function
 let draw ctx text_loc style datasets =
   (** [draw_legend ctx text_loc style datasets] draws the legend into
       the upper right corner of the unit square. *)
-  let line_spacing = ctx.units line_spacing in
-  let text_width, icon_width =
-    List.fold_left (fun ((tw, iw) as ws) ds -> match ds#name with
-		      | None -> ws
-		      | Some txt ->
-			  let tw', _ = text_dimensions ctx ~style txt in
-			  let iw', _ = ds#legend_dimensions ctx in
-			    max tw tw', max iw iw')
-      (0., 0.) datasets
-  in
-  let width = text_width +. icon_width +. line_spacing in
+  let padding = ctx.units padding in
+  let text_width, icon_width = max_widths ctx style datasets in
+  let width = text_width +. icon_width +. padding in
+  let entry_height = max_height ctx style datasets in
   let _ (* height *) =
     List.fold_left
       (fun y_top ds -> match ds#name with
 	 | None -> y_top
 	 | Some txt ->
-	     let tw, th = text_dimensions ctx ~style txt in
-	     let iw, ih = ds#legend_dimensions ctx in
-	     let height = if ih > th then ih else th in
-	     let y = y_top +. (height /. 2.) in
+	     let tw, _ = text_dimensions ctx ~style txt in
+(*
+	     let iw, _ = ds#legend_dimensions ctx in
+*)
+	     let y = y_top +. (entry_height /. 2.) in
 	     let tx, ix = match text_loc with
 	       | Text_before ->
-		   (width -. line_spacing -. icon_width -. (tw /. 2.),
+		   (width -. padding -. icon_width -. (tw /. 2.),
 		    width -. (icon_width /. 2.))
 	       | Text_after ->
-		   (icon_width +. line_spacing +. (tw /. 2.),
+		   (icon_width +. padding +. (tw /. 2.),
 		    icon_width /. 2.)
 	     in
 	       draw_text ctx ~style tx y txt;
 	       ds#draw_legend ctx ~x:ix ~y;
-	       y_top +. height +. line_spacing;)
+	       y_top +. entry_height)
       0. datasets in
     ()
