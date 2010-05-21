@@ -1,0 +1,30 @@
+                      *S*imple *P*lotting *T*ool
+
+
+To build:
+
+ocamlbuild spt_main.byte
+or
+ocamlbuild spt_main.native
+or
+ocm
+
+
+Notes:
+-------------------------------------------------
+
+Factories to decide style, giving a consistent feel to plots
+
+Try to avoid data sets which combine multiple data sets, use composite
+instead
+
+Composite datasets for representing multiple datasets in the same
+dataset, ensuring that the legends overlay properly
+
+Labels are probably their own thing, even though they are internal to
+one of the uml elements.
+
+
+Building cairo top level --
+
+You need to include a few c libraries
