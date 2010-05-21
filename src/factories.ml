@@ -93,7 +93,8 @@ let make_color_factory color_list =
 
 
 let make_default_color_factory () =
-  make_color_factory [black;red;green;blue]
+  make_color_factory
+    [black; red; green; blue; gray; purple; fuchsia; lavender; mustard]
 
 
 (* EOF *)
