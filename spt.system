@@ -22,6 +22,7 @@ Files:
 "src/spt_gtk"
 "src/spt_cairo"
 "src/length"
+"src/factories"
 
 "src/spt-it-out/sexpr"
 "src/spt-it-out/eval"
