@@ -9,7 +9,7 @@ open Geometry
 open Drawing
 
 class bubble_dataset
-  ?(glyph=Circle_glyph) ?(color=(color ~r:0.4 ~g:0.4 ~b:0.4 ~a:0.4))
+  ?(glyph=Circle_glyph) ?(color=gray)
   ?(min_radius=(Length.Pt 10.)) ?(max_radius=(Length.Pt 60.)) ?name triples =
   (** For plotting data with three values: x, y and z.  The result
       plots points at their x, y location as a scatter plot would however

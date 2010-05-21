@@ -59,6 +59,15 @@ let green = { r = 0.; g = 1.; b = 0.; a = 1.; }
 let blue = { r = 0.; g = 0.; b = 1.; a = 1.; }
   (** The color blue. *)
 
+let gray = { r = 0.4; g = 0.4; b = 0.4; a = 0.4; }
+
+let purple = { r = 0.4; g = 0.; b = 0.4; a = 1.; }
+
+let lavender = {r = 0.4; g = 0.; b = 1.; a = 1.; }
+
+let fuchsia = { r = 0.8; g = 0.; b = 1.; a = 1.; }
+
+let mustard = {r = 0.8; g = 0.8; b = 0.2; a = 1.; }
 
 let color ?(a=1.0) ~r ~g ~b = { r = r; g = g; b = b; a = a }
   (** [color ?a ~r ~g ~b] makes a new color. *)
