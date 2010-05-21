@@ -2,7 +2,7 @@
 ;; This is a sample spt-it-out plot
 ;;
 (let (
-      (ds0 (scatter-dataset
+      (ds0 (bestfit-dataset
 	    (name "ds0")
 	    (color 0 0.8 0)
 	    (points (0 0) (1.5 1.5) (2.5 2.5) (5 3) (3 0.7))))
