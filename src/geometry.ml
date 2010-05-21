@@ -285,6 +285,8 @@ let clip_line_segment box ~p0 ~p1 =
 let point_of_tuple (a,b) =
   { x  = a; y = b; }
 
+let points_of_tuples ab_list =
+  List.map point_of_tuple ab_list
 
 let point_of_list lst =
   match lst with
