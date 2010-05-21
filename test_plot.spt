@@ -27,7 +27,7 @@
 	     )))
       (ds4 (line-errbar-dataset
 	    (color 0.8 0.0 0.8)
-	    (name "ps4")
+	    (name "ds4")
 	    ((points (0 15) (2 7) (4 9))
 	     (points (0 17) (2 7) (4 7))
 	     (points (0 19) (2 7) (4 5))
