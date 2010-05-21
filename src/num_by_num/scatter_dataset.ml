@@ -142,4 +142,12 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
   in
     new composite_dataset ?name [scatter; horiz_err; vert_err; labels;]
 
+
+let scatter_errbar_datasets ?(uses_color=false) name_by_sets_list =
+  let next_glyph = default_glyph_factory () in
+  List.map (fun (name,sets) ->
+	      scatter_errbar_dataset (next_glyph()) ?name sets)
+    name_by_sets_list
+
+
 (* EOF *)
