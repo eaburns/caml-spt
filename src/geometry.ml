@@ -89,6 +89,13 @@ let range_scale ~src ~dst vl =
   in vl *. (d /. s)
 
 
+let range_extremes a b =
+  (** [range_extremes a b] gets the extremes of the two ranges. *)
+  let max = if a.max > b.max then a.max else b.max in
+  let min = if a.min < b.min then a.min else b.min in
+    range ~min ~max
+
+
 let xrange rect = range rect.x_min rect.x_max
   (** [xrange rect] gets the range of the x values from the rectangle. *)
 

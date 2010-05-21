@@ -27,11 +27,11 @@ object
 
 
   method draw_x_label :
-    context -> x:float -> y:float -> text_style -> text_width:float -> unit =
-    (** [draw_x_label context ~x ~y style ~text_width] draws the x-axis label to
-	the proper location. *)
-    (fun ctx ~x ~y style ~text_width ->
-       draw_fixed_width_text ctx ~x ~y ~style ~width:text_width name)
+    context -> x:float -> y:float -> text_style -> width:float -> unit =
+    (** [draw_x_label context ~x ~y style ~width] draws the x-axis
+	label to the proper location. *)
+    (fun ctx ~x ~y style ~width ->
+       draw_fixed_width_text ctx ~x ~y ~style ~width name)
 
   method virtual residual :
     context -> src:range -> dst:range -> width:float -> x:float -> range
@@ -44,3 +44,21 @@ object
     (** [draw ctx ~src ~dst width x] draws the dataset to the
 	plot.  [x] is the left-hand-side x value. *)
 end
+
+(** {6 Grouped datasets} ****************************************)
+
+(*
+class dataset_group group_name datasets =
+object
+
+  method dimensions =
+    List.fold_left (fun r ds -> range_extremes r ds#dimensions)
+      (range ~min:infinity ~max:neg_infinity) datasets
+
+
+  method draw_x_label ctx ~x ~y style ~width =
+    let ndatasets = float (List.length datasets) in
+    let ds_width = width /. ndatasets in
+      draw_fixed_width_text ctx ~x ~y ~style ~ds_width name
+end
+*)
