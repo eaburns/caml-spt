@@ -8,8 +8,6 @@ Things that we need before anyone can begin beta testing
   type.  One of these calls for each dataset type.  Each inside of its
   own file.
 
-* Definition of lines as point lists
-
 * Legacy module (in ps_plot)
 
 * Look into cairo_font_extents (as opposed to text_extents) to get
