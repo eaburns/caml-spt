@@ -94,3 +94,8 @@ object (self)
   method avg_slope = nan
 
 end
+
+(* No api constructors.  Again, these are parts of plots, not so much
+   things you'll be generating outside of another plot *)
+
+(* EOF *)
