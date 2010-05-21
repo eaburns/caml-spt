@@ -1,0 +1,43 @@
+Systems:
+(* Nothing should ever go here. *)
+
+Files:
+"src/geometry"
+"src/drawing"
+"src/numeric_axis"
+"src/statistics"
+"src/errbar"
+"src/legend"
+"src/num_by_num/num_by_num_dataset"
+"src/num_by_num/scatter_dataset"
+"src/num_by_num/line_dataset"
+"src/num_by_num/bubble_dataset"
+"src/num_by_num/errbar_dataset"
+"src/num_by_num/label_dataset"
+"src/num_by_num/line_errbar_dataset"
+(*"src/num_by_num/function_dataset"*)
+"src/num_by_num"
+"src/num_by_nom"
+"src/spt"
+"src/spt_gtk"
+"src/spt_cairo"
+"src/length"
+
+"src/spt-it-out/sexpr"
+"src/spt-it-out/eval"
+
+Libraries:
+"unix"
+"str"
+"lablgtk"
+"cairo"
+"cairo_lablgtk"
+
+CLibraries:
+"cairo"
+
+
+Result: "spt-debug" bytedebug "spt_main"
+Result: "spt" native "spt_main"
+Result: "spt-it-out" native "src/spt-it-out/spt_it_out"
+

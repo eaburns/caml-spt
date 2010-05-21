@@ -1,0 +1,5 @@
+<spt-it-out> or <num_by_num>: include
+<drawing.ml>: use_cairo
+<spt.ml>: use_cairo
+<spt_cairo.ml>: use_cairo
+<spt_gtk.ml>: use_lablgtk, use_cairo_lablgtk, use_cairo
