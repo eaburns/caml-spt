@@ -1,0 +1,87 @@
+------------------------------------------------------------
+Things that we need before anyone can begin beta testing
+------------------------------------------------------------
+
+* Decide on a final API
+  two basic types of functions, on for generating single datalests,
+  one for making list of related datasets that dispatches to the first
+  type.  One of these calls for each dataset type.  Each inside of its
+  own file.
+  -- Num by num datasets are done
+
+* Legacy module (in ps_plot)
+
+------------------------------------------------------------
+Extra features
+------------------------------------------------------------
+
+* Drawing legends off of the plot.
+
+* Change text size based on plot size
+
+* Scatter plot matrix
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+
+* Box plots
+
+* Heatmaps
+  - Numeric by Numeric
+  - Nominal by Nominal
+
+* Bar charts (and with error bars)
+
+* Stacked bar charts
+  - Diffenent hash marks filling bars (for situations when there are no colors)
+
+* A color factory
+
+* Make sure that everything is colorable
+
+* Montages: more complex than simple ps-montage style.
+  - Make axis drawing optional.
+  - Make room for non-drawn axes, but then don't draw them.
+
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
+
+* Write a real README file
+
+* Document the code
+
+* Generate OCaml docs
+
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
+* Push factories from most datasets into src/factories.ml
+  -- Line_errbars get to keep theres since they belong there
+  --- Alternatively, why isn't the errbar stuff in the errbar dataset?
+
+* Minimum Plot size requirement in Gtk window needs removed
+
+* Generate .mli files where possible / appropriate
+
+* Read plots from files
+  Involves parsing
+
+* Bindings
+  - C
+  - Python
+  - Java?
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
+
+* Nominal by nominal plots
+
+* Numeric by Ordinal (or Ranked) plots
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
+
