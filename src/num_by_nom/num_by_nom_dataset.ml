@@ -80,7 +80,7 @@ object(self)
 
   method x_label_height ctx style width =
     (self#dataset_name_height ctx style width)
-    +. (font_suggested_line_height ~style ctx)
+    +. (fixed_width_text_height ctx ~style width group_name)
 
 
   method draw_x_label ctx ~x ~y style ~width =
