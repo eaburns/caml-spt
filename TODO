@@ -36,8 +36,6 @@ Datasets
 * Stacked bar charts
   - Diffenent hash marks filling bars (for situations when there are no colors)
 
-* A color factory
-
 * Make sure that everything is colorable
 
 * Montages: more complex than simple ps-montage style.
