@@ -101,6 +101,8 @@ let rec eval env = function
       eval_triples_cmd env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "scatter-dataset")) :: operands ) ->
       eval_scatter env operands
+  | Sexpr.List (_, (Sexpr.Ident (_, "bestfit-dataset")) :: operands ) ->
+      eval_bestfit env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "bubble-dataset")) :: operands ) ->
       eval_bubble env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "line-dataset")) :: operands ) ->
@@ -394,6 +396,50 @@ and eval_scatter env operands =
     Num_by_num_dataset
       (new Num_by_num.scatter_dataset
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
+	 ?color:!color
+	 ?radius:!radius
+	 ?name:!name
+	 !data)
+
+
+and eval_bestfit env operands =
+  (** [eval_bestfit env operands] evaluates a line-of-bestfit
+      dataset. *)
+  let module S = Sexpr in
+  let glyph = ref None
+  and dashes = ref None
+  and color = ref None
+  and radius = ref None
+  and name = ref None
+  and data = ref [| |]
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | S.List (_, S.Ident (l, "glyph") :: S.String (_, t) :: []) ->
+	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
+	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
+	     set_once dashes l "dashes" (eval_dashes env ds)
+	 | S.List (_, S.Ident (l, "color") :: operands) ->
+	     set_once color l "color" (eval_color env l operands)
+	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
+	     set_once radius l "radius" (eval_length env l len)
+	 | S.List (l, _) as points ->
+	     begin match eval env points with
+	       | Points pts ->
+		   data := Array.append !data pts
+	       | x -> failwith (sprintf "line %d: Expected points got %s"
+				  l (to_string x))
+	     end
+	 | e ->
+	     failwith (sprintf "line %d: Invalid option to a scatter dataset"
+			 (Sexpr.line_number e))
+      ) operands;
+    Num_by_num_dataset
+      (Num_by_num.bestfit_dataset
+	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
+	 (match !dashes with | Some d -> d | None -> env.next_dash ())
 	 ?color:!color
 	 ?radius:!radius
 	 ?name:!name
