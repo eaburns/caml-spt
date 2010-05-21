@@ -194,3 +194,6 @@ object (self)
   method avg_slope = self#composite#avg_slope
 
 end
+
+
+(* EOF *)

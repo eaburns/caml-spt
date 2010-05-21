@@ -93,12 +93,34 @@ end
 let default_radius =
   Length.Pt ((Length.as_pt Scatter_dataset.default_radius) /. 2.)
 
+
 let line_points_dataset dashes glyph ?(radius=default_radius)
     ?width ?color ?name points =
   (** [line_points_dataset dashes glyph ?radius ?width ?color ?name
       points] makes a dataset that is a line with glyphs at each
       point. *)
-  new composite_dataset ?name [
-    new line_dataset dashes ?width ?color ?name points;
-    new Scatter_dataset.scatter_dataset glyph ~radius ?color ?name points;
-  ]
+  new composite_dataset ?name
+    [new line_dataset dashes ?width ?color ?name points;
+     new Scatter_dataset.scatter_dataset glyph ~radius ?color ?name points;]
+
+
+let line_dataset dashes ?width ?color ?name points =
+  new line_dataset dashes ?width ?color ?name points
+
+
+let line_datasets ?(uses_color=false) name_by_points_list =
+  let next_dash = default_dash_factory () in
+  List.map (fun (name, points) ->
+	      line_dataset (next_dash ()) ?name points)
+    name_by_points_list
+
+
+let line_points_datasets ?(uses_color=false) name_by_points_list =
+  let next_dash = default_dash_factory ()
+  and next_glyph = Scatter_dataset.default_glyph_factory () in
+  List.map (fun (name, points) ->
+	      line_points_dataset (next_dash ()) (next_glyph()) ?name points)
+  name_by_points_list
+
+
+(* EOF *)
