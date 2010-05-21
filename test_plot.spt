@@ -1,0 +1,53 @@
+;;
+;; This is a sample spt-it-out plot
+;;
+(let (
+      (ds0 (scatter-dataset
+	    (name "ds0")
+	    (color 0 0.8 0)
+	    (points (0 0) (1.5 1.5) (2.5 2.5) (5 3) (3 0.7))))
+      (ds1 (line-points-dataset
+	    (dashes ((pt 2) (pt 2)))
+	    (color 0.8 0 0)
+	    (name "ds1")
+	    (points (0 2) (1 0) (2 -2))))
+      (ds2_0 (bubble-dataset
+	      (max-radius (cm 1))
+	      (color 0.8 0.5 0.5 0.4)
+	      (triples (0.5 0 3) (4.1 3.14 4) (6.2 7 8))))
+      (ds2_1 (line-dataset
+	      (color 0.8 0.5 0.5 0.4)
+	      (points (0.5 0) (4.1 3.14) (6.2 7))))
+      (ds3 (line-errbar-dataset
+	    (color 0 0.8 0.8)
+	    (name "ds3")
+	    ((points (0 10) (2 2) (4 4))
+	     (points (0 12) (2 2) (4 2))
+	     (points (0 14) (2 2) (4 0))
+	     )))
+      (ds4 (line-errbar-dataset
+	    (color 0.8 0.0 0.8)
+	    (name "ds4")
+	    ((points (0 15) (2 7) (4 9))
+	     (points (0 17) (2 7) (4 7))
+	     (points (0 19) (2 7) (4 5))
+	     )))
+      (ds5 (line-points-dataset
+	    (color 1. 0.5 0.5)
+	    (name "ds5")
+	    (points-file "test_points.dat")))
+      (ds6 (line-points-dataset
+	    (color 0.2 0.2 0.8 0.5)
+	    (name "ds6")
+	    (points-cmd "awk '{ print $2 \" \" $1 }' test_points.dat")))
+      )
+  (let
+      ((ds2 (num-by-num-composite (name "ds2") (ds2_0 ds2_1))))
+    (let (
+	  (plot0 (num-by-num-plot
+		  (title "Test plot")
+		  (x-label "The x variable")
+		  (y-label "The y variable")
+		  (ds0 ds1 ds2 ds3 ds4 ds5 ds6)))
+	  )
+      (display plot0))))
