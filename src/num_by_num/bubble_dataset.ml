@@ -82,4 +82,15 @@ object (self)
 
 end
 
+let bubble_dataset ?glyph ?color ?min_radius ?max_radius ?name triples =
+  new bubble_dataset ?glyph ?color ?min_radius ?max_radius ?name triples
+
+
+let bubble_datasets ?(uses_color = false) ?min_radius ?max_radius
+    name_by_triples_list =
+  let next_glyph = Scatter_dataset.default_glyph_factory () in
+    List.map (fun (name,triples) ->
+		(new bubble_dataset ~glyph:(next_glyph()) ?min_radius
+		   ?max_radius ?name triples)) name_by_triples_list
+
 (* EOF *)
