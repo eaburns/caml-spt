@@ -196,4 +196,15 @@ object (self)
 end
 
 
+let line_errbar_dataset dashes ?width ?color ?name lines =
+  new line_errbar_dataset dashes ?width ?color ?name lines
+
+
+let line_errbar_datasets ?(uses_color=false) name_by_lines_list =
+  let next_dash = Line_dataset.default_dash_factory () in
+  let next_style = line_errbar_factory next_dash () in
+  List.map (fun (name, lines) ->
+	      line_errbar_dataset (next_style ()) ?name lines)
+    name_by_lines_list
+
 (* EOF *)
