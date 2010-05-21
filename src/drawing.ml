@@ -379,14 +379,12 @@ let make_draw_glyph ctx radius = function
       Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->
 	 Cairo.new_path ctx.cairo;
-	 Cairo.move_to ctx.cairo pt.x pt.y;
 	 Cairo.arc ctx.cairo pt.x pt.y radius 0. (2. *. pi);
 	 Cairo.fill ctx.cairo)
   | Ring_glyph ->
       Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->
 	 Cairo.new_path ctx.cairo;
-	 Cairo.move_to ctx.cairo pt.x pt.y;
 	 Cairo.arc ctx.cairo pt.x pt.y radius 0. (2. *. pi);
 	 Cairo.stroke ctx.cairo)
   | Cross_glyph ->
