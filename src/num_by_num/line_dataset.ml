@@ -8,36 +8,6 @@ open Num_by_num_dataset
 open Drawing
 open Geometry
 
-let make_dash_factory dash_set () =
-  (** [make_dash_factory dash_set ()] makes a dash pattern factory. *)
-  let next = ref 0 in
-  let n = Array.length dash_set in
-    (fun () ->
-       let d = dash_set.(!next) in
-	 next := (!next + 1) mod n;
-	 d)
-
-let default_dash_factory =
-  (** [default_dash_factory] gets the default dash factory builder. *)
-  let default_dash_set =
-    [|
-      [| |];
-      [| Length.Pt 6.; Length.Pt 2.; |];
-      [| Length.Pt 2.; Length.Pt 2.; |];
-      [| Length.Pt 1.; Length.Pt 1.; |];
-      [| Length.Pt 5.; Length.Pt 2.; Length.Pt 1.; Length.Pt 2.; |];
-      [| Length.Pt 10.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.;
-	 Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; |];
-      [| Length.Pt 10.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; |];
-      [| Length.Pt 5.; Length.Pt 2.; Length.Pt 5.; Length.Pt 2.;
-	 Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; Length.Pt 2.; |];
-      [| Length.Pt 4.; Length.Pt 2.; Length.Pt 4.; Length.Pt 1.;
-	 Length.Pt 1.; Length.Pt 1.; Length.Pt 1.; Length.Pt 1.;
-	 Length.Pt 1.; Length.Pt 1.; |];
-    |]
-  in make_dash_factory default_dash_set
-
-
 let line_legend_length = Length.Cm 0.75
   (** The length of the line drawn in the legend. *)
 
@@ -109,14 +79,14 @@ let line_dataset dashes ?width ?color ?name points =
 
 
 let line_datasets ?(uses_color=false) name_by_points_list =
-  let next_dash = default_dash_factory () in
+  let next_dash = Factories.default_dash_factory () in
   List.map (fun (name, points) ->
 	      line_dataset (next_dash ()) ?name points)
     name_by_points_list
 
 
 let line_points_datasets ?(uses_color=false) name_by_points_list =
-  let next_dash = default_dash_factory ()
+  let next_dash = Factories.default_dash_factory ()
   and next_glyph = Factories.default_glyph_factory () in
   List.map (fun (name, points) ->
 	      line_points_dataset (next_dash ()) (next_glyph()) ?name points)

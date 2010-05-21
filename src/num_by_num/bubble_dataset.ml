@@ -9,7 +9,7 @@ open Geometry
 open Drawing
 
 class bubble_dataset
-  ?(glyph=Circle_glyph) ?(color=(color ~r:0.4 ~g:0.4 ~b:0.4 ~a:0.4))
+  ?(glyph=Circle_glyph) ?(color=gray)
   ?(min_radius=(Length.Pt 10.)) ?(max_radius=(Length.Pt 60.)) ?name triples =
   (** For plotting data with three values: x, y and z.  The result
       plots points at their x, y location as a scatter plot would however
@@ -89,8 +89,15 @@ let bubble_dataset ?glyph ?color ?min_radius ?max_radius ?name triples =
 let bubble_datasets ?(uses_color = false) ?min_radius ?max_radius
     name_by_triples_list =
   let next_glyph = Factories.default_glyph_factory () in
-    List.map (fun (name,triples) ->
-		(new bubble_dataset ~glyph:(next_glyph()) ?min_radius
-		   ?max_radius ?name triples)) name_by_triples_list
+    if uses_color
+    then (let next_color = Factories.default_color_factory () in
+	    List.map (fun (name,triples) ->
+			(new bubble_dataset ~color:(next_color())
+			   ~glyph:(next_glyph()) ?min_radius ?max_radius
+			   ?name triples)) name_by_triples_list)
+    else
+      List.map (fun (name,triples) ->
+		  (new bubble_dataset ~glyph:(next_glyph()) ?min_radius
+		     ?max_radius ?name triples)) name_by_triples_list
 
 (* EOF *)
