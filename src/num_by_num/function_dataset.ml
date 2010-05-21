@@ -82,9 +82,16 @@ let bestfit_datasets ?(uses_color=false)
     ?radius ?width name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
   let next_dash = Factories.default_dash_factory () in
-    List.map (fun (name, point_list) ->
-		bestfit_dataset (next_glyph ())
-		  (next_dash ()) ?width ?radius ?name point_list)
-      name_by_point_list_list
+    if uses_color
+    then (let next_color = Factories.default_color_factory () in
+	    List.map (fun (name, point_list) ->
+			bestfit_dataset (next_glyph ())
+			  (next_dash ()) ~color:(next_color()) ?width ?radius
+			  ?name point_list) name_by_point_list_list)
+    else
+      List.map (fun (name, point_list) ->
+		  bestfit_dataset (next_glyph ())
+		    (next_dash ()) ?width ?radius ?name point_list)
+	name_by_point_list_list
 
 (* EOF *)
