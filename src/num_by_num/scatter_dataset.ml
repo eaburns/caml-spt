@@ -13,50 +13,6 @@ let default_radius = Length.Pt 4.
   (** The default radius of the scatter points. *)
 
 
-let make_glyph_factory glyph_set () =
-  (** [make_glyph_factory glyph_set ()] makes a glyph factory which
-      returns a new glyph at each call. *)
-  let next = ref 0 in
-  let n = Array.length glyph_set in
-    (fun () ->
-       let g = glyph_set.(!next) in
-	 next := (!next + 1) mod n;
-	 g)
-
-
-let default_glyph_factory =
-  (** [default_glyph_factory] gets the default glyph factory
-      builder. *)
-  let glyph_set =
-    [| Circle_glyph;
-       Ring_glyph;
-       Triangle_glyph;
-       Box_glyph;
-       Square_glyph;
-       Cross_glyph;
-       Plus_glyph;
-    |]
-  in make_glyph_factory glyph_set
-
-
-let numbered_glyph_factory =
-  (** [numbered_glyph_factory] gets a glyph factory builder that
-      returns numbers as the glyphs. *)
-  let glyph_set =
-    [| Char_glyph '0';
-       Char_glyph '1';
-       Char_glyph '2';
-       Char_glyph '3';
-       Char_glyph '4';
-       Char_glyph '5';
-       Char_glyph '6';
-       Char_glyph '7';
-       Char_glyph '8';
-       Char_glyph '9';
-    |]
-  in make_glyph_factory glyph_set
-
-
 class scatter_dataset
   glyph ?(color=black) ?(radius=default_radius) ?name points =
   (** A scatter plot dataset. *)
@@ -100,7 +56,7 @@ let scatter_dataset glyph ?color ?radius ?name point_list =
 
 
 let scatter_datasets ?(uses_color=false) ?radius name_by_point_list_list =
-  let next_glyph = default_glyph_factory () in
+  let next_glyph = Factories.default_glyph_factory () in
     List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
 		?radius	~name point_list) name_by_point_list_list
 
@@ -144,7 +100,7 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
 
 
 let scatter_errbar_datasets ?(uses_color=false) name_by_sets_list =
-  let next_glyph = default_glyph_factory () in
+  let next_glyph = Factories.default_glyph_factory () in
   List.map (fun (name,sets) ->
 	      scatter_errbar_dataset (next_glyph()) ?name sets)
     name_by_sets_list
