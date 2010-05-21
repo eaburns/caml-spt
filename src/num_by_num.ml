@@ -172,3 +172,4 @@ include Scatter_dataset
 include Line_dataset
 include Bubble_dataset
 include Line_errbar_dataset
+include Function_dataset

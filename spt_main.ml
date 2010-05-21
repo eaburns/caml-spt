@@ -51,6 +51,7 @@ let num_by_num_plot () =
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
+      ~y_min:0.
       [
 	Num_by_num.scatter_errbar_dataset
 	  ~name:"Scatter with error bars"
@@ -84,15 +85,20 @@ let num_by_num_plot () =
 	       point 8.5 17.1; point 10.1 13.9; |];
 	  |];
 
+	new Num_by_num.function_dataset (next_dash ())
+	  ~name:"y=x^2" (fun x -> x ** 2.);
+
       ]
 
 
 
 let main () =
   let plot = num_by_num_plot () in
+(*
     Printf.eprintf "Suggested Ratio: %f\n%!"
       plot#suggest_aspect;
     plot#use_suggested_aspect;
+*)
     plot#display
 
 let _ = main ()
