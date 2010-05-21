@@ -117,7 +117,7 @@ let line_datasets ?(uses_color=false) name_by_points_list =
 
 let line_points_datasets ?(uses_color=false) name_by_points_list =
   let next_dash = default_dash_factory ()
-  and next_glyph = Scatter_dataset.default_glyph_factory () in
+  and next_glyph = Factories.default_glyph_factory () in
   List.map (fun (name, points) ->
 	      line_points_dataset (next_dash ()) (next_glyph()) ?name points)
   name_by_points_list
