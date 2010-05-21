@@ -110,3 +110,8 @@ object (self)
   method avg_slope = nan
 
 end
+
+(* no api constructors, since no one would ever want to make these
+   manually, they're always part of something else. *)
+
+(* EOF *)
