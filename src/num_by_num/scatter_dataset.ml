@@ -57,8 +57,13 @@ let scatter_dataset glyph ?color ?radius ?name point_list =
 
 let scatter_datasets ?(uses_color=false) ?radius name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
-    List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
-		?radius	~name point_list) name_by_point_list_list
+    if uses_color
+    then (let next_color = Factories.default_color_factory () in
+	    List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
+			~color:(next_color()) ?radius ~name point_list)
+	      name_by_point_list_list)
+    else List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
+		     ?radius	~name point_list) name_by_point_list_list
 
 
 (** {2 Scatter plot with error bars} ****************************************)
@@ -101,8 +106,14 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
 
 let scatter_errbar_datasets ?(uses_color=false) name_by_sets_list =
   let next_glyph = Factories.default_glyph_factory () in
-  List.map (fun (name,sets) ->
-	      scatter_errbar_dataset (next_glyph()) ?name sets)
-    name_by_sets_list
+    if uses_color
+    then (let next_color = Factories.default_color_factory () in
+	    List.map (fun (name,sets) ->
+			scatter_errbar_dataset (next_glyph())
+			  ~color:(next_color()) ?name sets) name_by_sets_list)
+    else
+      List.map (fun (name,sets) ->
+		  scatter_errbar_dataset (next_glyph()) ?name sets)
+	name_by_sets_list
 
 (* EOF *)
