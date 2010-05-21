@@ -57,7 +57,7 @@ object (self)
   method legend_dimensions ctx =
     (ctx.units Line_dataset.line_legend_length), (ctx.units width)
 
-  method avg_slope = 0.
+  method avg_slope = nan
 
 end
 
