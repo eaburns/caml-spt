@@ -81,6 +81,10 @@ Documentation
 ------------------------------------------------------------
 Usability
 ------------------------------------------------------------
+* Push factories from most datasets into src/factories.ml
+  -- Line_errbars get to keep theres since they belong there
+  --- Alternatively, why isn't the errbar stuff in the errbar dataset?
+
 * Minimum Plot size requirement in Gtk window needs removed
 
 * Generate .mli files where possible / appropriate
