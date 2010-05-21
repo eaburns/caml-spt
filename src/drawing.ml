@@ -118,6 +118,16 @@ let text_dimensions ctx ?style str =
     te.Cairo.text_width, te.Cairo.text_height
 
 
+let font_suggested_line_height ?style ctx =
+  (** [font_suggested_line_height ?style ctx] gets the suggested line
+      height for the given font.  This is useful when adding multiple
+      lines of text.  If the text dimensions are used instead the
+      spacing between different lines may not be uniform. *)
+  set_text_style_option ctx style;
+  let fe = Cairo.font_extents ctx.cairo in
+    fe.Cairo.font_height
+
+
 let text_rectangle ctx ~style ?(pt=point 0. 0.) txt =
   (** [text_rectangle ctx ~style ?pt txt] gets the bounding box around
       the given text optionally given its location. *)
@@ -183,10 +193,6 @@ let dimensionsf ctx ?style fmt =
 (** {2 Fixed width text} ****************************************)
 
 
-let default_line_space = Length.Pt 1.
-  (** The default spacing between lines of text. *)
-
-
 let hypenate_word ctx width word =
   (** [hypenate_word ctx width word] hyphenates a word that is
       too long to fit across the given width. *)
@@ -234,31 +240,26 @@ let fixed_width_lines ctx width string =
     get_line [] "" words
 
 
-let fixed_width_text_height ctx
-    ?(line_space=default_line_space) ?style width string =
-  (** [fixed_width_text_height ctx ?line_space ?style width string] gets
+let fixed_width_text_height ctx ?style width string =
+  (** [fixed_width_text_height ctx ?style width string] gets
       the height of the fixed width text.  *)
   set_text_style_option ctx style;
-  let line_space = ctx.units line_space in
+  let line_height = font_suggested_line_height ctx in
   let lines = fixed_width_lines ctx width string in
-    List.fold_left (fun sum line ->
-		      let _, h = text_dimensions ctx line in
-			h +. line_space +. sum)
-      (~-.line_space) lines
+    line_height *. (float (List.length lines))
 
 
-let draw_fixed_width_text ctx
-    ?(line_space=default_line_space) ?style ~x ~y ~width string =
-  (** [draw_fixed_width_text ctx ?line_space ?style ~x ~y ~width
+let draw_fixed_width_text ctx ?style ~x ~y ~width string =
+  (** [draw_fixed_width_text ctx ?style ~x ~y ~width
       string] displays the given fixed-width text where [x], [y] is
       the location of the top center. *)
   set_text_style_option ctx style;
-  let line_space = ctx.units line_space in
+  let line_height = font_suggested_line_height ctx in
   let lines = fixed_width_lines ctx width string in
     ignore (List.fold_left (fun y line ->
 			      let w, h = text_dimensions ctx line in
 				draw_text ctx x (y +. h /. 2.) line;
-				y +. h +. line_space)
+				y +. line_height)
 	      y lines)
 
 (** {1 Lines} ****************************************)
