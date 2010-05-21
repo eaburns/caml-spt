@@ -26,7 +26,7 @@ type env = {
 }
 
 let init_env =
-  let next_dash = Line_dataset.default_dash_factory () in
+  let next_dash = Factories.default_dash_factory () in
     {
       bindings = [];
       next_glyph = Factories.default_glyph_factory ();
