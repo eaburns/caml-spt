@@ -83,5 +83,17 @@ let default_dash_factory =
   in make_dash_factory default_dash_set
 
 
+let make_color_factory color_list =
+  let colors = ref color_list in
+    (fun () ->
+       match !colors with
+	   hd::tl -> (colors := tl @ [hd];
+		      hd)
+	 | _ -> failwith "Couldn't get next color")
+
+
+let make_default_color_factory () =
+  make_color_factory [black;red;green;blue]
+
 
 (* EOF *)
