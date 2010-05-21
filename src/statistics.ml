@@ -72,4 +72,17 @@ let upper_and_lower_fence vls =
   (q2 +. k *. (q3 -. q2),
    q2 +. k *. (q1 -. q2))
 
+
+let separate_outliers vls =
+  (** [separate_outliers vls] separates the outliers that are outside
+      the upper and lower fence values. *)
+  let upper, lower = upper_and_lower_fence vls in
+  let out_lst, dat_lst =
+    Array.fold_left (fun (os, ds) v ->
+		       if v > upper || v < lower
+		       then v :: os, ds
+		       else os, v :: ds)
+      ([], []) vls
+  in Array.of_list out_lst, Array.of_list dat_lst
+
 (* EOF *)
