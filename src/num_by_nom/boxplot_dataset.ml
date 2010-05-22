@@ -53,10 +53,13 @@ object(self)
 	(infinity, neg_infinity) data
     in
     let mean' = tr mean in
-      draw_points ctx radius Ring_glyph
+      draw_points ctx radius ~color:black Ring_glyph
 	(Array.fold_left
 	   (fun a v -> (point center (tr v)) :: a)
 	   [] outliers);
+      fill_rectangle ctx ~color:(color ~r:0.7 ~g:0.7 ~b:0.7 ~a:1.)
+	(rectangle ~x_min:conf_min ~x_max:conf_max
+	   ~y_min:(tr conf_lower) ~y_max:(tr conf_upper));
       draw_rectangle ctx ~style:line_style
 	(rectangle ~x_min:x0 ~x_max:x1 ~y_min:(tr q1) ~y_max:(tr q3));
       draw_line ctx ~style:line_style [ point x0 mean'; point x1 mean'; ];
@@ -64,8 +67,5 @@ object(self)
 	~x:center ~y:q3 ~mag:(max -. q3);
       Errbar.draw_down ctx ~style:line_style ~src ~dst
 	~x:center ~y:q1 ~mag:(q1 -. min);
-      fill_rectangle ctx ~color:gray
-	(rectangle ~x_min:conf_min ~x_max:conf_max
-	   ~y_min:(tr conf_lower) ~y_max:(tr conf_upper));
 
 end
