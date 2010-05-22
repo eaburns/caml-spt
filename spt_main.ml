@@ -110,7 +110,7 @@ let num_by_num_plot () =
 
 
 let main () =
-  let plot = num_by_nom_plot () in
+  let plot = num_by_num_plot () in
 (*
     Printf.eprintf "Suggested Ratio: %f\n%!"
       plot#suggest_aspect;
