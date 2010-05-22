@@ -45,11 +45,11 @@ let text_padding = Length.Pt 4.
   (** Padding around text *)
 
 
-let default_width = Length.Cm 8.
-  (** The default plot width in centimeters. *)
+let default_width = Length.Pt (4. *. 72.)
+  (** The default plot width. *)
 
-let default_height = Length.Cm 8.
-  (** The default plot height in centimeters. *)
+let default_height = Length.Pt (4. *. 72.)
+  (** The default plot height. *)
 
 
 class virtual plot title =
