@@ -107,13 +107,14 @@ object(self)
     rectangle ~x_min:(1.) ~x_max:(1.) ~y_min:0. ~y_max:1.
 
   method draw ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
-      List.iter
-	(fun bin ->
-	   let r = rectangle ~x_min:bin.lower_end
-	     ~x_max:bin.upper_end ~y_min:0. ~y_max:(float bin.count) in
-	     draw_rectangle ~box:dst ctx ~style (tr r)) bins
-
+    let tr = point_transform ~src ~dst in
+    List.iter (fun bin ->
+		 let lleft = { x = bin.lower_end; y = 0.; }
+		 and uleft = { x = bin.lower_end; y = float bin.count; }
+		 and uright = { x = bin.upper_end; y = float bin.count; }
+		 and lright = { x = bin.upper_end; y = 0.} in
+		   draw_line ctx ~fill:false ~box:dst ~style
+		     (List.map tr [lleft;uleft;uright;lright; lleft])) bins
 
   method draw_legend ctx ~x ~y =
     let half_length = (ctx.units line_legend_length) /. 2. in

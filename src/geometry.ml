@@ -134,12 +134,13 @@ let point_transform ~src ~dst =
 let rectangle_transform ~src ~dst =
   let pt_transform = point_transform ~src ~dst in
     (fun r ->
-       let lleft = { x = r.x_min; y = r.y_min }
+       let lleft =  { x = r.x_min; y = r.y_min }
        and uright = { x = r.x_max; y = r.y_max } in
        let nlleft = pt_transform lleft
        and nuright = pt_transform uright in
 	 rectangle ~x_min:nlleft.x ~x_max:nuright.x
 	   ~y_min:nlleft.y ~y_max:nuright.y)
+
 
 let face_forward rect =
   (** [face_forward rect] if the rectangle is facing the wrong
@@ -180,8 +181,8 @@ let rectangle_clip ~box ~r =
       bounding box. *)
   let x_min' = if r.x_min < box.x_min then box.x_min else r.x_min
   and x_max' = if r.x_max > box.x_max then box.x_max else r.x_max
-  and y_min' = if r.y_min < box.y_min then box.y_min else r.y_min
-  and y_max' = if r.y_max > box.y_max then box.y_max else r.y_max in
+  and y_min' = if r.y_min > box.y_min then box.y_min else r.y_min
+  and y_max' = if r.y_max < box.y_max then box.y_max else r.y_max in
     rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
 
 
