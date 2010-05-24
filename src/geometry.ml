@@ -112,7 +112,7 @@ let yrange rect = range rect.y_min rect.y_max
   (** [yrange rect] gets the range of the y values from the rectangle. *)
 
 
-let rectangle_transform ~src ~dst =
+let point_transform ~src ~dst =
   (** [rectangle_transform ~src ~dst pt] transforms a point drawn on
       the [src] rectangle to a point on the [dst] rectangle. *)
   let src_x_min = src.x_min

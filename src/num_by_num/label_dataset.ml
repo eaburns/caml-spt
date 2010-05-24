@@ -66,7 +66,7 @@ object (self)
 
 
   method residual ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
       Array.fold_left
 	(fun r (pt, txt) ->
 	   if rectangle_contains src pt
@@ -80,7 +80,7 @@ object (self)
 
 
   method draw ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
       Array.iter (fun (pt, txt) ->
 		    let pt' = self#position ctx (tr pt) txt in
 		      draw_text ctx ~style pt'.x pt'.y txt)

@@ -30,7 +30,7 @@ object (self)
   inherit errbar_dataset triples
 
   method residual ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
       Array.fold_left
 	(fun r t ->
 	   let pt = tr (point t.i t.j) in
@@ -89,7 +89,7 @@ object (self)
   inherit errbar_dataset triples
 
   method residual ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
       Array.fold_left
 	(fun r t ->
 	   let pt = tr (point t.i t.j) in

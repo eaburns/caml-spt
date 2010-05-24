@@ -45,7 +45,7 @@ object (self)
 
 
   method draw ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
       draw_line ctx ~box:dst ~style (List.map tr (self#points src))
 
 

@@ -6,9 +6,9 @@
 
 *)
 
+open Num_by_num_dataset
 open Drawing
 open Geometry
-
 
 type bin =
   { lower_end : float;
@@ -48,16 +48,12 @@ let bin_from_value value bin_width =
       count = 1;}
 
 
-class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=black)
-  ?bin_width name vals =
-  let values = Array.sort compare vals ; vals in
-  let min_value = values.(0)
-  and max_value = values.((Array.length values) - 1) in
-  let bin_width = (match bin_width with
-		       None -> (ceil (max_value -. min_value) /.
-				  (default_bins -. 1.))
-		     | Some w -> w) in
-  let bins =
+let bin_to_point bin =
+  { x = bin.lower_end +. ((bin.upper_end -. bin.lower_end) /. 2.);
+    y = float bin.count}
+
+
+let make_bins ~min_value ~bin_width values =
     let first_bin = bin_from_value min_value bin_width in
       first_bin.count <- first_bin.count - 1;
       let c_bin,bins =
@@ -73,11 +69,25 @@ class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=black)
 		      let center = ((float bi) *. bin_width +. min_value) in
 			bin_from_value center bin_width, (current::accum))))
 	  (first_bin, []) values in
-	c_bin::bins in
+	c_bin::bins
+
+let make_width ~bin_width ~max_value ~min_value =
+  match bin_width with
+      None -> (ceil (max_value -. min_value) /.
+		 (default_bins -. 1.))
+    | Some w -> w
+
+class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=black)
+  ?bin_width ?name vals =
+  let values = Array.sort compare vals ; vals in
+  let min_value = values.(0)
+  and max_value = values.((Array.length values) - 1) in
+  let bin_width = make_width ~bin_width ~max_value ~min_value in
+  let bins = make_bins min_value bin_width values in
 
 object(self)
 
-  inherit Num_by_num_dataset.dataset ~name ()
+  inherit dataset ?name ()
 
   val style = { line_color = color;
 		line_dashes = dashes;
@@ -97,15 +107,12 @@ object(self)
     rectangle ~x_min:(1.) ~x_max:(1.) ~y_min:0. ~y_max:1.
 
   method draw ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
       List.iter
 	(fun bin ->
-	   let lleft =  { x = bin.lower_end; y = 0. }
-	   and uleft =  { x = bin.lower_end; y = float bin.count }
-	   and uright = { x = bin.upper_end; y = float bin.count }
-	   and lright = { x = bin.upper_end; y = 0. } in
-	     draw_line ctx ~box:dst ~style
-	       (List.map tr [lleft; uleft; uright; lright])) bins
+	   let r = rectangle ~x_min:bin.lower_end
+	     ~x_max:bin.upper_end ~y_min:0. ~y_max:(float bin.count) in
+	     draw_rectangle ctx ~style r) bins
 
 
   method draw_legend ctx ~x ~y =
@@ -119,7 +126,20 @@ object(self)
 
 
   method avg_slope = nan
-
 end
+
+
+let histogram_connected_dataset dashes glyph ?width ?bin_width ?(color = black)
+    ?name values =
+  Array.sort f_compare values;
+  let min_value = values.(0)
+  and max_value = values.((Array.length values) - 1) in
+  let histogram = new histogram_dataset dashes ?name values in
+  let bins = make_bins ~min_value
+    ~bin_width:(make_width ~bin_width ~max_value ~min_value) values in
+    new composite_dataset ?name
+      [histogram;
+       Line_dataset.line_points_dataset dashes glyph ?width ~color ?name
+	 (Array.of_list (List.map bin_to_point bins));]
 
 (* EOF *)
