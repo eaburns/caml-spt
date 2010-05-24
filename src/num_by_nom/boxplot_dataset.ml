@@ -39,13 +39,26 @@ object(self)
 	~max:(Array.fold_left maxf neg_infinity vs)
 
 
-  method residual _ ~src:_ ~dst:_ ~width:_ ~x:_ = range 0. 0.
+  method residual ctx ~src ~dst ~width ~x =
+    let r = ctx.units radius in
+    let tr = range_transform ~src ~dst in
+      Array.fold_left
+	(fun res v ->
+	   if v >= src.min && v <= src.max
+	   then
+	     let v' = tr v in
+	     let max = if v' +. r > dst.max then (v' +. r) -. dst.max else 0.
+	     and min = if v' -. r < dst.min then dst.min -. (v' -. r) else 0.
+	     in range_max (range min max) res
+	   else res)
+	(range 0. 0.) outliers
 
 
   method draw ctx ~src ~dst ~width ~x =
+    let lwidth = ctx.units line_style.line_width in
     let tr = range_transform ~src ~dst in
     let center = x +. (width /. 2.) in
-    let x0 = x and x1 = x +. width in
+    let x0 = x +. lwidth and x1 = x +. (width -. lwidth) in
     let conf_min = center -. (width /. 16.) in
     let conf_max = center +. (width /. 16.) in
     let min, max =
@@ -54,8 +67,10 @@ object(self)
     in
     let mean' = tr mean in
       draw_points ctx radius ~color:black Ring_glyph
-	(Array.fold_left
-	   (fun a v -> (point center (tr v)) :: a)
+	(Array.fold_left (fun a v ->
+			    if v >= src.min && v <= src.max
+			    then (point center (tr v)) :: a
+			    else a)
 	   [] outliers);
       fill_rectangle ctx ~color:(color ~r:0.7 ~g:0.7 ~b:0.7 ~a:1.)
 	(rectangle ~x_min:conf_min ~x_max:conf_max

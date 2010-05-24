@@ -96,6 +96,14 @@ let range_extremes a b =
     range ~min ~max
 
 
+let range_max a b =
+  (** [range_max a b] get a new range with the maximum min and max
+      values over a and b. *)
+  let min' = if a.min > b.min then a.min else b.min
+  and max' = if a.max > b.max then a.max else b.max
+  in range min' max'
+
+
 let xrange rect = range rect.x_min rect.x_max
   (** [xrange rect] gets the range of the x values from the rectangle. *)
 
