@@ -311,28 +311,25 @@ let line_path ctx ?box points =
   (match box with
      | None ->
 	 begin match points with
-	   | [] -> ()
+	   | [] -> false
 	   | p :: tl ->
 	       Cairo.move_to ctx.cairo p.x p.y;
-	       List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl
+	       List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl;
+	       true
 	 end;
-	 true
      | Some box ->
-	 let rec draw_points = function
-	   | _ :: []
-	   | [] -> ()
-	   | p0 :: ((p1 :: _) as tl) ->
-	       let p0', p1' = clip_line_segment box ~p0 ~p1 in
-		 Cairo.line_to ctx.cairo p1'.x p1'.y;
-		 draw_points tl in
-	   (match points with
-	      | p0 :: ((p1 :: _) as tl) ->
-		  let p0', p1' = clip_line_segment box ~p0 ~p1 in
-		    Cairo.move_to ctx.cairo p0'.x p0'.y;
-		    Cairo.line_to ctx.cairo p1'.x p1'.y;
-		    draw_points tl;
-		    true
-	      | _ -> false))
+	 begin match clip_line box points with
+	   | [] -> false
+	   | lst ->
+	       List.iter
+		 (function
+		    | p :: tl ->
+			Cairo.move_to ctx.cairo p.x p.y;
+			List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl
+		    | [] -> ())
+		 lst;
+	       true
+	 end)
 
 
 let draw_line ctx  ?box ?style points =

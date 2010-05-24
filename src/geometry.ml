@@ -316,6 +316,38 @@ let clip_line_segment box ~p0 ~p1 =
     end else p0, p1
 
 
+let rec chomp_clipped_prefix box = function
+    (** [chomp_clipped_prefix box pts] removes pairs of points at the
+	beginning of the line that are *both* outside the bounding
+	box.  *)
+  | (p0 :: ((p1 :: _) as tl)) as pts ->
+      if rectangle_contains box p0 || rectangle_contains box p1
+      then pts
+      else chomp_clipped_prefix box tl
+  | _ -> []
+
+
+let rec clip_line box points =
+  (** [clip_line box points] clips the line defined by a set of
+      points.  The result is a list of lines. *)
+  let rec clipped_segments p0 accum = function
+    | p1 :: tl when rectangle_contains box p1 ->
+	let p0', p1' = clip_line_segment box ~p0 ~p1 in
+	  clipped_segments p1 (p1' :: accum) tl
+    | (p1 :: _) as pts ->
+	assert (not (rectangle_contains box p1));
+	let _, p1' = clip_line_segment box ~p0 ~p1 in
+	    ([List.rev (p1' :: accum)]) @ clip_line box pts
+    | _ -> [ List.rev accum ]
+  in
+    match chomp_clipped_prefix box points with
+      | p0 :: ((p1 :: _) as tl) ->
+	  assert ((rectangle_contains box p0) || (rectangle_contains box p1));
+	  let p0', p1' = clip_line_segment box ~p0 ~p1 in
+	    clipped_segments p0 [p0']  tl
+      | _ -> []
+
+
 (*** Conversions ***********************************************)
 
 let point_of_tuple (a,b) =

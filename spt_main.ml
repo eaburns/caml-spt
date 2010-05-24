@@ -55,8 +55,8 @@ let num_by_num_plot () =
     Random.init 17;
   let histogram = new Num_by_num.histogram_dataset (next_dash ())
     ~name:"histo" (Array.init 100 (fun i -> Random.float 100.)) in
-  let bad_line =  new Num_by_num.line_dataset
-    (next_dash ())
+  let bad_line =  Num_by_num.line_points_dataset
+    (next_dash ()) (next_glyph ())
     ~name:"Lines and points"
     [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |] in
     ignore (next_line_err ());
@@ -64,8 +64,7 @@ let num_by_num_plot () =
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
-      ~y_max:70.
-      ~y_min:15.
+      ~y_max:6.0
 (*      [
 	Num_by_num.scatter_errbar_dataset
 	  ~name:"Scatter with error bars"
@@ -114,7 +113,7 @@ let num_by_num_plot () =
 	  ~name:"y=x^2" (fun x -> x ** 2.);
 
       ]*)
-      [histogram; bad_line]
+      [ bad_line]
 
 
 
