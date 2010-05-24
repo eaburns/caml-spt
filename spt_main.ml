@@ -64,7 +64,8 @@ let num_by_num_plot () =
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
-      ~y_max:6.0
+      ~y_max:60.0
+      ~y_min:5.
 (*      [
 	Num_by_num.scatter_errbar_dataset
 	  ~name:"Scatter with error bars"
@@ -113,7 +114,7 @@ let num_by_num_plot () =
 	  ~name:"y=x^2" (fun x -> x ** 2.);
 
       ]*)
-      [ bad_line]
+      [ histogram ]
 
 
 

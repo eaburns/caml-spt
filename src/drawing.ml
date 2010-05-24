@@ -347,7 +347,7 @@ let fill_polygon ctx ?box ?(color=black) points =
   set_color ctx color;
   if line_path ?box ctx points;
   then (Cairo.close_path ctx.cairo;
-	Cairo.stroke ctx.cairo)
+	Cairo.fill ctx.cairo)
 
 
 let draw_rectangle ctx ?style r =
