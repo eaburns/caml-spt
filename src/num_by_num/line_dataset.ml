@@ -28,11 +28,13 @@ object (self)
 
   method draw ctx ~src ~dst =
     let tr = point_transform ~src ~dst in
+(*
     let pts = ref [] in
       for i = (Array.length points) - 1 downto 0 do
 	pts := (tr points.(i)) :: !pts
       done;
-      draw_line ctx ~box:dst ~style !pts
+*)
+      draw_line ctx ~box:src ~tr ~style (Array.to_list points)
 
 
   method draw_legend ctx ~x ~y =

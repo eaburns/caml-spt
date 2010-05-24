@@ -46,7 +46,7 @@ object (self)
 
   method draw ctx ~src ~dst =
     let tr = point_transform ~src ~dst in
-      draw_line ctx ~box:dst ~style (List.map tr (self#points src))
+      draw_line ctx ~box:src ~tr ~style (self#points src)
 
 
   method draw_legend ctx ~x ~y =

@@ -137,13 +137,13 @@ object(self)
 		     rectangle ~x_min:bin.lower_end ~x_max:bin.upper_end
 		       ~y_min:0. ~y_max
 		   in
-		   let outline = [ tr_pt (point bin.lower_end 0.);
-				   tr_pt (point bin.lower_end y_max);
-				   tr_pt (point bin.upper_end y_max);
-				   tr_pt (point bin.upper_end 0.);
-				   tr_pt (point bin.lower_end 0.);];
+		   let outline = [ point bin.lower_end 0.;
+				   point bin.lower_end y_max;
+				   point bin.upper_end y_max;
+				   point bin.upper_end 0.;
+				   point bin.lower_end 0.;];
 		   in
-		     draw_line ctx ~box:dst ~style outline;
+		     draw_line ctx ~box:src ~tr:tr_pt ~style outline;
 		     match clip_rectangle ~box:src ~r with
 		       | Some r -> fill_rectangle ctx ~color (tr_rect r)
 		       | None -> ())

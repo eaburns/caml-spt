@@ -304,8 +304,8 @@ let set_line_style_option ctx = function
   | Some style -> set_line_style ctx style
 
 
-let draw_line ctx ?box ?style points =
-  (** [draw_line ctx ?box ?style points] draws the given line
+let draw_line ctx ?box ?(tr=(fun x -> x)) ?style points =
+  (** [draw_line ctx ?box ?tr ?style points] draws the given line
       optionally within the given bounding box. *)
   set_line_style_option ctx style;
   begin match box with
@@ -313,21 +313,25 @@ let draw_line ctx ?box ?style points =
 	begin match points with
 	  | [] -> ()
 	  | p :: tl ->
-	      Cairo.new_path ctx.cairo;
-	      Cairo.move_to ctx.cairo p.x p.y;
-	      List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl;
-	      Cairo.stroke ctx.cairo;
+	      let p = tr p in
+		Cairo.new_path ctx.cairo;
+		Cairo.move_to ctx.cairo p.x p.y;
+		List.iter (fun p ->
+			     let p = tr p in
+			       Cairo.line_to ctx.cairo p.x p.y) tl;
+		Cairo.stroke ctx.cairo;
 	end;
     | Some box ->
 	begin match clip_line box points with
 	  | [] -> ()
 	  | lst ->
 	      List.iter (fun (p0, p1) ->
-			   Cairo.new_path ctx.cairo;
-			   Cairo.move_to ctx.cairo p0.x p0.y;
-			   Cairo.line_to ctx.cairo p1.x p1.y;
-			   Cairo.stroke ctx.cairo;)
-	      lst;
+			   let p0 = tr p0 and p1 = tr p1 in
+			     Cairo.new_path ctx.cairo;
+			     Cairo.move_to ctx.cairo p0.x p0.y;
+			     Cairo.line_to ctx.cairo p1.x p1.y;
+			     Cairo.stroke ctx.cairo;)
+		lst;
 	end;
   end;
   Cairo.set_dash ctx.cairo [| |] 0.

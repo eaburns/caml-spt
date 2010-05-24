@@ -324,18 +324,22 @@ let clip_line box = function
 	pairs) that are within the bounding box.  This routine assumes
 	that [box] is facing backwards ([y_min > y_max]). *)
   | p0 :: (p1 :: _) as tl ->
-      snd (List.fold_left (fun (p0, segs) p1 ->
-			     if (p0.x < box.x_min && p1.x < box.x_min)
-			       || (p0.x > box.x_max && p1.x > box.x_max)
-			       || (p0.y < box.y_max && p1.y < box.y_max)
-			       || (p0.y > box.y_min && p1.y > box.y_min)
-			     then p1, segs
-			     else begin
-			       let p0', p1' = clip_line_segment box ~p0 ~p1 in
-				 p1, (p0', p1') :: segs;
-			     end)
-	     (p0, []) tl);
-  | _ -> []
+      snd (List.fold_left
+	     (fun (p0, segs) p1 ->
+		if (p0.x < box.x_min && p1.x < box.x_min)
+		  || (p0.x > box.x_max && p1.x > box.x_max)
+		  || (if box.y_min > box.y_max
+		      then ((p0.y < box.y_max && p1.y < box.y_max)
+			    || (p0.y > box.y_min && p1.y > box.y_min))
+		      else ((p0.y > box.y_max && p1.y > box.y_max)
+			    || (p0.y < box.y_min && p1.y < box.y_min)))
+	   then p1, segs
+	   else begin
+	     let p0', p1' = clip_line_segment box ~p0 ~p1 in
+	       p1, (p0', p1') :: segs;
+	   end)
+	(p0, []) tl);
+ | _ -> []
 
 
 (*** Conversions ***********************************************)
