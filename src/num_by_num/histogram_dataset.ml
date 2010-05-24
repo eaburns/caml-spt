@@ -1,7 +1,7 @@
 (**
 
-    @author jtd7
-    @since 2010-05-24
+   @author jtd7
+   @since 2010-05-24
    Histogram dataset
 
 *)
@@ -103,8 +103,30 @@ object(self)
 		   max_y := max !max_y bucket.count) bins;
       rectangle ~x_min:!min_x ~x_max:!max_x ~y_min:0. ~y_max:(float !max_y)
 
+
   method residual ctx ~src ~dst =
-    rectangle ~x_min:(1.) ~x_max:(1.) ~y_min:0. ~y_max:1.
+    let tr_rect = rectangle_transform ~src ~dst in
+    let w = (ctx.units width) /. 2. in
+      List.fold_left
+	(fun res bin ->
+	   let x_min = bin.lower_end
+	   and x_max = bin.upper_end
+	   and y_min = 0.
+	   and y_max = float bin.count in
+	   let r = rectangle ~x_min ~x_max ~y_min ~y_max in
+	     match clip_rectangle ~box:src ~r with
+	       | Some r ->
+		   let r' = tr_rect r in
+		   let r'' =
+		     rectangle ~x_min:(r'.x_min -. w)
+		       ~x_max:(r'.x_max +. w)
+		       ~y_min:(r'.y_min +. w)
+		       ~y_max:(r'.y_max -. w)
+		   in
+		     rectangle_max res (rectangle_residual ~dst ~r:r'')
+	       | None -> res)
+	zero_rectangle bins
+
 
   method draw ctx ~src ~dst =
     let tr_rect = rectangle_transform ~src ~dst in
@@ -115,16 +137,18 @@ object(self)
 		     rectangle ~x_min:bin.lower_end ~x_max:bin.upper_end
 		       ~y_min:0. ~y_max
 		   in
-		     draw_line ctx ~box:dst ~style
-		       [ tr_pt (point bin.lower_end 0.);
-			 tr_pt (point bin.lower_end y_max);
-			 tr_pt (point bin.upper_end y_max);
-			 tr_pt (point bin.upper_end 0.);
-		         tr_pt (point bin.lower_end 0.);];
-		     match rectangle_clip ~box:dst ~r:(tr_rect r) with
-		       | Some r -> fill_rectangle ctx ~color r
+		   let outline = [ tr_pt (point bin.lower_end 0.);
+				   tr_pt (point bin.lower_end y_max);
+				   tr_pt (point bin.upper_end y_max);
+				   tr_pt (point bin.upper_end 0.);
+				   tr_pt (point bin.lower_end 0.);];
+		   in
+		     draw_line ctx ~box:dst ~style outline;
+		     match clip_rectangle ~box:src ~r with
+		       | Some r -> fill_rectangle ctx ~color (tr_rect r)
 		       | None -> ())
 	bins
+
 
   method draw_legend ctx ~x ~y =
     let half_length = (ctx.units line_legend_length) /. 2. in

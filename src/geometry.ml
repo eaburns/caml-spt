@@ -176,27 +176,27 @@ let rectangle_max r0 r1 =
     ~y_max:(max r0.y_max r1.y_max)
 
 
-let rectangle_clip ~box ~r =
-  (** [rectangle_clip ~box ~r] clips the given rectangle to the given
-      bounding box.  Assumes that [r] is "facing backwards" ([r.y_min
-      > r.y_max]). *)
-  if r.y_max > box.y_min || r.y_min < box.y_max
+let clip_rectangle ~box ~r =
+  (** [clip_rectangle ~box ~r] clips the given rectangle to the given
+      bounding box.  Assumes that [r] is facing forward ([y_max >
+      y_min]). *)
+  if r.y_max < box.y_min || r.y_min > box.y_max
     || r.x_min > box.x_max || r.x_max < box.x_min
   then None
   else begin
     let x_min' = if r.x_min < box.x_min then box.x_min else r.x_min
     and x_max' = if r.x_max > box.x_max then box.x_max else r.x_max
-    and y_min' = if r.y_min > box.y_min then box.y_min else r.y_min
-    and y_max' = if r.y_max < box.y_max then box.y_max else r.y_max in
+    and y_min' = if r.y_min < box.y_min then box.y_min else r.y_min
+    and y_max' = if r.y_max > box.y_max then box.y_max else r.y_max in
       Some (rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max')
   end
 
 
-let rectangle_residual ?src dst r =
-  (** [rectangle_residual ?src dst r] gets the residual of [r] on
-      [dst].  (how much does [r] go over the extremes of [dst] on each
-      side.  (assumes the destination rectangle has a greater y_min
-      than y_max.) *)
+let rectangle_residual ~dst ~r =
+  (** [rectangle_residual ~dst ~r] gets the residual of [r] on [dst].
+      (how much does [r] go over the extremes of [dst] on each side.
+      (assumes the destination rectangle has a greater y_min than
+      y_max.) *)
   let x_min = if r.x_min < dst.x_min then dst.x_min -. r.x_min else 0.
   and x_max = if r.x_max > dst.x_max then r.x_max -. dst.x_max else 0.
   and y_min = if r.y_min > dst.y_min then r.y_min -. dst.y_min else 0.
@@ -319,36 +319,23 @@ let clip_line_segment box ~p0 ~p1 =
     end else p0, p1
 
 
-let rec chomp_clipped_prefix box = function
-    (** [chomp_clipped_prefix box pts] removes pairs of points at the
-	beginning of the line that are *both* outside the bounding
-	box.  *)
-  | (p0 :: ((p1 :: _) as tl)) as pts ->
-      if rectangle_contains box p0 || rectangle_contains box p1
-      then pts
-      else chomp_clipped_prefix box tl
+let clip_line box = function
+    (** [clip_line box points] gets a list of line segments (point
+	pairs) that are within the bounding box.  This routine assumes
+	that [box] is facing backwards ([y_min > y_max]). *)
+  | p0 :: (p1 :: _) as tl ->
+      snd (List.fold_left (fun (p0, segs) p1 ->
+			     if (p0.x < box.x_min && p1.x < box.x_min)
+			       || (p0.x > box.x_max && p1.x > box.x_max)
+			       || (p0.y < box.y_max && p1.y < box.y_max)
+			       || (p0.y > box.y_min && p1.y > box.y_min)
+			     then p1, segs
+			     else begin
+			       let p0', p1' = clip_line_segment box ~p0 ~p1 in
+				 p1, (p0', p1') :: segs;
+			     end)
+	     (p0, []) tl);
   | _ -> []
-
-
-let rec clip_line box points =
-  (** [clip_line box points] clips the line defined by a set of
-      points.  The result is a list of lines. *)
-  let rec clipped_segments p0 accum = function
-    | p1 :: tl when rectangle_contains box p1 ->
-	let p0', p1' = clip_line_segment box ~p0 ~p1 in
-	  clipped_segments p1 (p1' :: accum) tl
-    | (p1 :: _) as pts ->
-	assert (not (rectangle_contains box p1));
-	let _, p1' = clip_line_segment box ~p0 ~p1 in
-	    ([List.rev (p1' :: accum)]) @ clip_line box pts
-    | _ -> [ List.rev accum ]
-  in
-    match chomp_clipped_prefix box points with
-      | p0 :: ((p1 :: _) as tl) ->
-	  assert ((rectangle_contains box p0) || (rectangle_contains box p1));
-	  let p0', p1' = clip_line_segment box ~p0 ~p1 in
-	    clipped_segments p0 [p0']  tl
-      | _ -> []
 
 
 (*** Conversions ***********************************************)

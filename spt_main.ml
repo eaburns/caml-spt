@@ -58,8 +58,10 @@ let num_by_num_plot () =
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
+(*
       ~y_min:5.
       ~y_max:10.
+*)
       (*      [
 	      Num_by_num.scatter_errbar_dataset
 	      ~name:"Scatter with error bars"

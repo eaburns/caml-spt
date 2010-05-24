@@ -304,50 +304,33 @@ let set_line_style_option ctx = function
   | Some style -> set_line_style ctx style
 
 
-
-let line_path ctx ?box points =
-  (** fixme *)
-  Cairo.new_path ctx.cairo;
-  (match box with
-     | None ->
-	 begin match points with
-	   | [] -> false
-	   | p :: tl ->
-	       Cairo.move_to ctx.cairo p.x p.y;
-	       List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl;
-	       true
-	 end;
-     | Some box ->
-	 begin match clip_line box points with
-	   | [] -> false
-	   | lst ->
-	       List.iter
-		 (function
-		    | p :: tl ->
-			Cairo.move_to ctx.cairo p.x p.y;
-			List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl
-		    | [] -> ())
-		 lst;
-	       true
-	 end)
-
-
 let draw_line ctx ?box ?style points =
   (** [draw_line ctx ?box ?style points] draws the given line
       optionally within the given bounding box. *)
   set_line_style_option ctx style;
-  ignore (line_path ctx ?box points);
-  Cairo.stroke ctx.cairo;
+  begin match box with
+    | None ->
+	begin match points with
+	  | [] -> ()
+	  | p :: tl ->
+	      Cairo.new_path ctx.cairo;
+	      Cairo.move_to ctx.cairo p.x p.y;
+	      List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl;
+	      Cairo.stroke ctx.cairo;
+	end;
+    | Some box ->
+	begin match clip_line box points with
+	  | [] -> ()
+	  | lst ->
+	      List.iter (fun (p0, p1) ->
+			   Cairo.new_path ctx.cairo;
+			   Cairo.move_to ctx.cairo p0.x p0.y;
+			   Cairo.line_to ctx.cairo p1.x p1.y;
+			   Cairo.stroke ctx.cairo;)
+	      lst;
+	end;
+  end;
   Cairo.set_dash ctx.cairo [| |] 0.
-
-
-let fill_polygon ctx ?box ?(color=black) points =
-  (** [draw_line ctx ?box ?color points] draws the given polygon
-      optionally within the given bounding box. *)
-  set_color ctx color;
-  if line_path ?box ctx points;
-  then (Cairo.close_path ctx.cairo;
-	Cairo.fill ctx.cairo)
 
 
 let draw_rectangle ctx ?style r =
