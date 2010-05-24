@@ -16,6 +16,8 @@ type t =
   | Triples of triple array
   | Num_by_num_dataset of Num_by_num.dataset
   | Num_by_num_plot of Num_by_num.plot
+  | Num_by_nom_dataset of Num_by_nom.dataset
+  | Num_by_nom_plot of Num_by_nom.plot
 
 
 type env = {
@@ -33,6 +35,18 @@ let init_env =
       next_dash = next_dash;
       next_line_errbar = Line_errbar_dataset.line_errbar_factory next_dash ();
     }
+
+
+let read_floats inch =
+  (** [read_floats inch] reads the floats from the given channel. *)
+  let floats = ref [] in
+    try (while true do
+	   let p = Scanf.fscanf inch " %f" (fun x -> x) in
+	     floats := p :: !floats
+	 done;
+	 failwith "Impossible")
+    with End_of_file ->
+      Scalars (Array.of_list (List.rev !floats))
 
 
 let read_points inch =
@@ -71,6 +85,8 @@ let to_string = function
   | Triples _ -> "Triples"
   | Num_by_num_dataset _ -> "Num_by_num_dataset"
   | Num_by_num_plot _ -> "Num_by_num_plot"
+  | Num_by_nom_dataset _ -> "Num_by_nom_dataset"
+  | Num_by_nom_plot _ -> "Num_by_nom_plot"
 
 
 let set_once reference line name vl =
@@ -87,6 +103,12 @@ let rec eval env = function
       eval_let env line operands
   | Sexpr.List (_, (Sexpr.Ident (_, "print")) :: operands ) ->
       eval_print env operands
+  | Sexpr.List (_, (Sexpr.Ident (_, "scalars")) :: operands ) ->
+      eval_scalars env operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "scalars-file")) :: operands ) ->
+      eval_scalars_file env l operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "scalars-cmd")) :: operands ) ->
+      eval_scalars_cmd env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "points")) :: operands ) ->
       eval_points env operands
   | Sexpr.List (_, (Sexpr.Ident (l, "points-file")) :: operands ) ->
@@ -115,8 +137,14 @@ let rec eval env = function
       eval_num_by_num_composite env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-plot")) :: operands ) ->
       eval_num_by_num env operands
+  | Sexpr.List (_, (Sexpr.Ident (line, "boxplot-dataset")) :: operands ) ->
+      eval_boxplot env line operands
+  | Sexpr.List (_, (Sexpr.Ident (_, "num-by-nom-plot")) :: operands ) ->
+      eval_num_by_nom env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "display")) :: operands ) ->
       eval_display env operands
+  | Sexpr.List (_, (Sexpr.Ident (line, "output")) :: operands ) ->
+      eval_output env line operands
   | Sexpr.Number (_, vl) -> Number vl
   | Sexpr.String (_, n) -> String n
   | Sexpr.Ident (l, n) ->
@@ -131,6 +159,10 @@ let rec eval env = function
       failwith (sprintf "line %d: Unknown or malformed operation: %s" l i)
   | Sexpr.List (l, _) ->
       failwith (sprintf "line %d: Unexpected list" l)
+
+(************************************************************)
+(* Operations                                               *)
+(************************************************************)
 
 
 and eval_let env line = function
@@ -156,6 +188,30 @@ and eval_let env line = function
       failwith (sprintf "line %d: let expression: Unexpected end of file" line)
 
 
+and eval_display env operands =
+  List.fold_left
+    (fun _ p -> match eval env p with
+       | (Num_by_num_plot p) as vl -> p#display; vl
+       | (Num_by_nom_plot p) as vl -> p#display; vl
+       | x ->
+	   failwith (sprintf "line %d: Expected plot got %s"
+		       (Sexpr.line_number p) (to_string x)))
+    Unit operands;
+
+
+and eval_output env line = function
+  | Sexpr.String(_, filename) :: plot_expr :: [] ->
+      begin match eval env plot_expr with
+	| (Num_by_num_plot p) as vl -> p#output filename; vl
+	| (Num_by_nom_plot p) as vl -> p#output filename; vl
+	| x ->
+	    failwith (sprintf "line %d: Expected plot got %s"
+			(Sexpr.line_number plot_expr) (to_string x))
+      end
+  | _ ->
+      failwith (sprintf "line %d: Malformed output operation" line)
+
+
 and eval_print env operands =
   (** [eval_print env operands] evaluates a print expression. *)
   List.fold_left
@@ -177,9 +233,48 @@ and eval_print env operands =
 	       printf "|]"
 	   | Num_by_num_dataset _ -> printf "<num-by-num-dataset>"
 	   | Num_by_num_plot _ -> printf "<num-by-num-plot>"
+	   | Num_by_nom_dataset _ -> printf "<num-by-nom-dataset>"
+	   | Num_by_nom_plot _ -> printf "<num-by-nom-plot>"
 	 end;
 	 vl)
     Unit operands
+
+(************************************************************)
+(* Types of data                                            *)
+(************************************************************)
+
+and eval_scalars env operands =
+  (** [eval_scalars env operands] evaluates a scalar list. *)
+  let lst =
+    List.fold_right
+      (fun p l -> match p with
+	 | Sexpr.Number (_, x) ->  x :: l
+	 | e ->
+	     failwith (sprintf "line %d: Malformed scalar"
+			 (Sexpr.line_number e)))
+      operands []
+  in Scalars (Array.of_list lst)
+
+
+and eval_scalars_file env line = function
+    (** [eval_scalars_file env operands] evaluates a scalar file. *)
+  | Sexpr.String (l, file) :: [] ->
+      let inch = open_in file in
+      let floats = read_floats inch in
+	close_in inch;
+	floats
+  | _ -> failwith (sprintf "line %d: Malformed scalar-file expression"
+		     line)
+
+and eval_scalars_cmd env line = function
+    (** [eval_scalars_cmd env operands] evaluates a scalar command. *)
+  | Sexpr.String (l, cmd) :: [] ->
+      let inch = Unix.open_process_in cmd in
+      let floats = read_floats inch in
+	ignore (Unix.close_process_in inch);
+	floats
+  | _ -> failwith (sprintf "line %d: Malformed scalar-cmd expression"
+		     line)
 
 
 and eval_points env operands =
@@ -255,11 +350,15 @@ and eval_triples_cmd env line = function
   | _ -> failwith (sprintf "line %d: Malformed triples-cmd expression"
 		     line)
 
+(************************************************************)
+(* Plot look-and-feel items.                                *)
+(************************************************************)
+
 and eval_dashes env ds =
   let lst =
     List.map
       (function
-	 | (Sexpr.List (l, _)) as len -> eval_length env l len
+	 | (Sexpr.List (l, _)) as len -> eval_length env len
 	 | x -> failwith (sprintf "line %d: Expected a length"
 			    (Sexpr.line_number x)))
       ds
@@ -279,7 +378,7 @@ and eval_color env line operands =
   in Drawing.color ~r:r ~g:g ~b:b ~a:a
 
 
-and eval_length env line = function
+and eval_length env = function
     (** [eval_length env operands] evaluates a length. *)
   | Sexpr.List (_, Sexpr.Ident (_, "in") :: Sexpr.Number (_, i) :: []) ->
       Length.In i
@@ -289,17 +388,7 @@ and eval_length env line = function
       Length.Pt p
   | Sexpr.List (_, Sexpr.Ident (_, "px") :: Sexpr.Number (_, p) :: []) ->
       Length.Px (truncate p)
-  | _ -> failwith (sprintf "line %d: Malformed length" line)
-
-
-and eval_display env operands =
-  List.fold_left
-    (fun _ p -> match eval env p with
-       | (Num_by_num_plot p) as vl -> p#display; vl
-       | x ->
-	   failwith (sprintf "line %d: Expected plot got %s"
-		       (Sexpr.line_number p) (to_string x)))
-    Unit operands;
+  | x -> failwith (sprintf "line %d: Malformed length" (Sexpr.line_number x))
 
 
 (************************************************************)
@@ -316,6 +405,8 @@ and eval_num_by_num env operands =
   and x_max = ref None
   and y_min = ref None
   and y_max = ref None
+  and width = ref None
+  and height = ref None
   and datasets = ref []
   in
     List.iter
@@ -326,6 +417,10 @@ and eval_num_by_num env operands =
 	     set_once xlabel l "x-label" t
 	 | S.List (_, S.Ident (l, "y-label") :: S.String (_, t) :: []) ->
 	     set_once ylabel l "y-label" t
+	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
+	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "height") :: len :: []) ->
+	     set_once height l "height" (eval_length env len)
 	 | S.List (_, S.Ident (l, "x-min") :: S.Number (_, t) :: []) ->
 	     set_once x_min l "x-min" t
 	 | S.List (_, S.Ident (l, "x-max") :: S.Number (_, t) :: []) ->
@@ -351,16 +446,14 @@ and eval_num_by_num env operands =
 	     failwith (sprintf "line %d: Invalid option to a num-by-num plot"
 			 (Sexpr.line_number e))
       ) operands;
-    Num_by_num_plot
-      (new Num_by_num.plot
-	 ?title:!title
-	 ?xlabel:!xlabel
-	 ?ylabel:!ylabel
-	 ?x_min:!x_min
-	 ?x_max:!x_max
-	 ?y_min:!y_min
-	 ?y_max:!y_max
-	 !datasets)
+    let plot = (new Num_by_num.plot ?title:!title ?xlabel:!xlabel
+		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
+		  ?y_min:!y_min ?y_max:!y_max !datasets)
+    in
+    let width = match !width with None -> plot#width | Some w -> w in
+    let height = match !height with None -> plot#height | Some h -> h in
+      plot#set_size ~w:width ~h:height;
+      Num_by_num_plot plot
 
 
 and eval_scatter env operands =
@@ -381,7 +474,7 @@ and eval_scatter env operands =
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
-	     set_once radius l "radius" (eval_length env l len)
+	     set_once radius l "radius" (eval_length env len)
 	 | S.List (l, _) as points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -424,7 +517,7 @@ and eval_bestfit env operands =
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
-	     set_once radius l "radius" (eval_length env l len)
+	     set_once radius l "radius" (eval_length env len)
 	 | S.List (l, _) as points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -465,9 +558,9 @@ and eval_bubble env operands =
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "min-radius") :: len :: []) ->
-	     set_once min_radius l "min-radius" (eval_length env l len)
+	     set_once min_radius l "min-radius" (eval_length env len)
 	 | S.List (_, S.Ident (l, "max-radius") :: len :: []) ->
-	     set_once max_radius l "max-radius" (eval_length env l len)
+	     set_once max_radius l "max-radius" (eval_length env len)
 	 | S.List (l, _) as triples ->
 	     begin match eval env triples with
 	       | Triples pts ->
@@ -507,7 +600,7 @@ and eval_line env operands =
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env l len)
+	     set_once width l "width" (eval_length env len)
 	 | S.List (l, _) as points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -551,9 +644,9 @@ and eval_line_points env operands =
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env l len)
+	     set_once width l "width" (eval_length env len)
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
-	     set_once radius l "radius" (eval_length env l len)
+	     set_once radius l "radius" (eval_length env len)
 	 | S.List (l, _) as points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -596,7 +689,7 @@ and eval_line_errbar env operands =
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env l len)
+	     set_once width l "width" (eval_length env len)
 	 | S.List (l, point_sets) ->
 	     List.iter
 	       (fun points -> match eval env points with
@@ -654,3 +747,91 @@ and eval_num_by_num_composite env operands =
       operands;
     Num_by_num_dataset
       (new Num_by_num.composite_dataset ?name:!name (List.rev !dss))
+
+(************************************************************)
+(* Num-by-nom                                               *)
+(************************************************************)
+
+and eval_num_by_nom env operands =
+  (** [eval_num_by_nom env operands] evaluates a num_by_nom plot. *)
+  let module S = Sexpr in
+  let title = ref None
+  and ylabel = ref None
+  and y_min = ref None
+  and y_max = ref None
+  and width = ref None
+  and height = ref None
+  and datasets = ref []
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "title") :: S.String (_, t) :: []) ->
+	     set_once title l "title" t
+	 | S.List (_, S.Ident (l, "y-label") :: S.String (_, t) :: []) ->
+	     set_once ylabel l "y-label" t
+	 | S.List (_, S.Ident (l, "y-min") :: S.Number (_, t) :: []) ->
+	     set_once y_min l "y-min" t
+	 | S.List (_, S.Ident (l, "y-max") :: S.Number (_, t) :: []) ->
+	     set_once y_max l "y-max" t
+	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
+	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "height") :: len :: []) ->
+	     set_once height l "height" (eval_length env len)
+	 | S.List (l, dss) ->
+	     datasets :=
+	       !datasets @
+		 (List.map
+		    (fun e ->
+		       match eval env e with
+			 | Num_by_nom_dataset ds -> ds
+			 | x ->
+			     failwith
+			       (sprintf
+				  "line %d: Expected num-by-nom dataset got %s"
+				  l (to_string x)))
+		    dss);
+	 | e ->
+	     failwith (sprintf "line %d: Invalid option to a num-by-nom plot"
+			 (Sexpr.line_number e))
+      ) operands;
+    let plot = (new Num_by_nom.plot ?title:!title ?ylabel:!ylabel
+		  ?y_min:!y_min ?y_max:!y_max !datasets)
+    in
+    let width = match !width with None -> plot#width | Some w -> w in
+    let height = match !height with None -> plot#height | Some h -> h in
+      plot#set_size ~w:width ~h:height;
+      Num_by_nom_plot plot
+
+
+and eval_boxplot env line operands =
+  (** [eval_boxplot env line operands] evaluates a boxplot dataset. *)
+  let module S = Sexpr in
+  let radius = ref None
+  and name = ref None
+  and data = ref [| |]
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
+	     set_once radius l "radius" (eval_length env len)
+	 | S.List (l, _) as floats ->
+	     begin match eval env floats with
+	       | Scalars vls ->
+		   data := Array.append !data vls
+	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
+				  l (to_string x))
+	     end
+	 | e ->
+	     failwith (sprintf
+			 "line %d: Invalid option to a boxplot dataset"
+			 (Sexpr.line_number e))
+      ) operands;
+    match !name with
+      | None ->
+	  failwith
+	    (sprintf "line %d: Invalid boxplot dataset, no name given" line)
+      | Some n ->
+	  Num_by_nom_dataset
+	    (new Num_by_nom.boxplot_dataset ?radius:!radius n !data)
