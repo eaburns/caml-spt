@@ -80,4 +80,22 @@ object (self)
 
 end
 
+
+
+let cdf_dataset dashes ?width ?color ?name points =
+  new cdf_dataset dashes ?width ?color ?name points
+
+let cdf_datasets ?(uses_color=false) name_by_values_list =
+  let next_dash = Factories.default_dash_factory () in
+    if uses_color
+    then (let next_color = Factories.default_color_factory () in
+	    List.map (fun (name, values) ->
+			cdf_dataset (next_dash ()) ~color:(next_color())
+			  ?name values) name_by_values_list)
+    else
+      List.map (fun (name, values) ->
+		  cdf_dataset (next_dash ()) ?name values)
+	name_by_values_list
+
+
 (* EOF *)
