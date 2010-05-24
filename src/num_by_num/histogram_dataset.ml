@@ -107,12 +107,12 @@ object(self)
     rectangle ~x_min:(1.) ~x_max:(1.) ~y_min:0. ~y_max:1.
 
   method draw ctx ~src ~dst =
-    let tr = point_transform ~src ~dst in
+    let tr = rectangle_transform ~src ~dst in
       List.iter
 	(fun bin ->
 	   let r = rectangle ~x_min:bin.lower_end
 	     ~x_max:bin.upper_end ~y_min:0. ~y_max:(float bin.count) in
-	     draw_rectangle ctx ~style r) bins
+	     draw_rectangle ctx ~style (tr r)) bins
 
 
   method draw_legend ctx ~x ~y =
