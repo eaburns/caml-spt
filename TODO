@@ -41,6 +41,10 @@ Datasets
 * Stacked bar charts
   - Diffenent hash marks filling bars (for situations when there are no colors)
 
+* Histograms
+
+* Box set dataset
+
 * Make sure that everything is colorable
 
 * Montages: more complex than simple ps-montage style.
