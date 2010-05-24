@@ -332,7 +332,7 @@ let line_path ctx ?box points =
 	 end)
 
 
-let draw_line ctx  ?box ?style points =
+let draw_line ctx ?box ?style points =
   (** [draw_line ctx ?box ?style points] draws the given line
       optionally within the given bounding box. *)
   set_line_style_option ctx style;
