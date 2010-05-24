@@ -304,52 +304,50 @@ let set_line_style_option ctx = function
   | Some style -> set_line_style ctx style
 
 
-let draw_line ctx ?box ?style points =
-  (** [draw_line ctx ?box ?style points] draws the given line
+let draw_line ctx ?(fill=false) ?box ?style points =
+  (** [draw_line ctx ?fill ?box ?style points] draws the given line
       optionally within the given bounding box. *)
   set_line_style_option ctx style;
   Cairo.new_path ctx.cairo;
-  match box with
-    | None ->
-	begin match points with
-	  | [] -> ()
-	  | p :: tl ->
-	      Cairo.move_to ctx.cairo p.x p.y;
-	      List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl;
-	      Cairo.stroke ctx.cairo;
-	      Cairo.set_dash ctx.cairo [| |] 0.
-	end
-    | Some box ->
-	let rec draw_points = function
-	  | _ :: []
-	  | [] -> ()
-	  | p0 :: ((p1 :: _) as tl) ->
-	      let p0', p1' = clip_line_segment box ~p0 ~p1 in
-		Cairo.move_to ctx.cairo p0'.x p0'.y;
-		Cairo.line_to ctx.cairo p1'.x p1'.y;
-		draw_points tl
-	in
-	  draw_points points;
-	  Cairo.stroke ctx.cairo;
-	  Cairo.set_dash ctx.cairo [| |] 0.
+  (match box with
+     | None ->
+	 begin match points with
+	   | [] -> ()
+	   | p :: tl ->
+	       Cairo.move_to ctx.cairo p.x p.y;
+	       List.iter (fun p -> Cairo.line_to ctx.cairo p.x p.y) tl
+	 end
+     | Some box ->
+	 let rec draw_points = function
+	   | _ :: []
+	   | [] -> ()
+	   | p0 :: ((p1 :: _) as tl) ->
+	       let p0', p1' = clip_line_segment box ~p0 ~p1 in
+		 Cairo.move_to ctx.cairo p0'.x p0'.y;
+		 Cairo.line_to ctx.cairo p1'.x p1'.y;
+		 draw_points tl
+	 in draw_points points);
+  (if not fill
+   then Cairo.stroke ctx.cairo
+   else(Cairo.close_path ctx.cairo;
+	Cairo.fill ctx.cairo));
+  Cairo.set_dash ctx.cairo [| |] 0.
 
 
-let draw_rectangle ?box ctx ?style r =
-  (** [draw_rectangle ?box ctx ?style r] draws the given rectangle. *)
-  let r = match box with None -> r | Some box -> rectangle_clip ~box ~r in
+let draw_rectangle ctx ?style r =
+  (** [draw_rectangle ctx ?style r] draws the given rectangle. *)
     set_line_style_option ctx style;
     Cairo.rectangle ctx.cairo
       r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
     Cairo.stroke ctx.cairo
 
 
-let fill_rectangle ?box ctx ?(color=black) r =
-  (** [draw_rectangle ?box ctx color r] draws the given rectangle. *)
-  let r = match box with None -> r | Some box -> rectangle_clip ~box ~r in
-    set_color ctx color;
-    Cairo.rectangle ctx.cairo
-      r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
-    Cairo.fill ctx.cairo
+let fill_rectangle ctx ?(color=black) r =
+  (** [draw_rectangle ctx color r] draws the given rectangle. *)
+  set_color ctx color;
+  Cairo.rectangle ctx.cairo
+    r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
+  Cairo.fill ctx.cairo
 
 
 (** {1 Points} ****************************************)
