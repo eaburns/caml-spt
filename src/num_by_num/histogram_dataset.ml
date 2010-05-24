@@ -77,7 +77,7 @@ let make_width ~bin_width ~max_value ~min_value =
 		 (default_bins -. 1.))
     | Some w -> w
 
-class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=black)
+class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
   ?bin_width ?name vals =
   let values = Array.sort compare vals ; vals in
   let min_value = values.(0)
@@ -89,7 +89,7 @@ object(self)
 
   inherit dataset ?name ()
 
-  val style = { line_color = color;
+  val style = { line_color = black;
 		line_dashes = dashes;
 		line_width = width; }
 
@@ -107,14 +107,24 @@ object(self)
     rectangle ~x_min:(1.) ~x_max:(1.) ~y_min:0. ~y_max:1.
 
   method draw ctx ~src ~dst =
-    let tr = point_transform ~src ~dst in
-    List.iter (fun bin ->
-		 let lleft = { x = bin.lower_end; y = 0.; }
-		 and uleft = { x = bin.lower_end; y = float bin.count; }
-		 and uright = { x = bin.upper_end; y = float bin.count; }
-		 and lright = { x = bin.upper_end; y = 0.} in
-		   fill_polygon ctx ~box:dst ~color
-		     (List.map tr [lleft; uleft; uright; lright;])) bins
+    let tr_rect = rectangle_transform ~src ~dst in
+    let tr_pt = point_transform ~src ~dst in
+      List.iter (fun bin ->
+		   let y_max = float bin.count in
+		   let r =
+		     rectangle ~x_min:bin.lower_end ~x_max:bin.upper_end
+		       ~y_min:0. ~y_max
+		   in
+		     draw_line ctx ~box:dst ~style
+		       [ tr_pt (point bin.lower_end 0.);
+			 tr_pt (point bin.lower_end y_max);
+			 tr_pt (point bin.upper_end y_max);
+			 tr_pt (point bin.upper_end 0.);
+		         tr_pt (point bin.lower_end 0.);];
+		     match rectangle_clip ~box:dst ~r:(tr_rect r) with
+		       | Some r -> fill_rectangle ctx ~color r
+		       | None -> ())
+	bins
 
   method draw_legend ctx ~x ~y =
     let half_length = (ctx.units line_legend_length) /. 2. in
