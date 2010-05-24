@@ -178,27 +178,30 @@ let rectangle_max r0 r1 =
 
 let rectangle_clip ~box ~r =
   (** [rectangle_clip ~box ~r] clips the given rectangle to the given
-      bounding box. *)
-  let x_min' = if r.x_min < box.x_min then box.x_min else r.x_min
-  and x_max' = if r.x_max > box.x_max then box.x_max else r.x_max
-  and y_min' = if r.y_min > box.y_min then box.y_min else r.y_min
-  and y_max' = if r.y_max < box.y_max then box.y_max else r.y_max in
-    rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
+      bounding box.  Assumes that [r] is "facing backwards" ([r.y_min
+      > r.y_max]). *)
+  if r.y_max > box.y_min || r.y_min < box.y_max
+    || r.x_min > box.x_max || r.x_max < box.x_min
+  then None
+  else begin
+    let x_min' = if r.x_min < box.x_min then box.x_min else r.x_min
+    and x_max' = if r.x_max > box.x_max then box.x_max else r.x_max
+    and y_min' = if r.y_min > box.y_min then box.y_min else r.y_min
+    and y_max' = if r.y_max < box.y_max then box.y_max else r.y_max in
+      Some (rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max')
+  end
 
 
 let rectangle_residual ?src dst r =
   (** [rectangle_residual ?src dst r] gets the residual of [r] on
       [dst].  (how much does [r] go over the extremes of [dst] on each
       side.  (assumes the destination rectangle has a greater y_min
-      than y_max.)  If [src] is specified then the rectangle is
-      clipped to the source. *)
-  let r = match src with None -> r | Some box -> rectangle_clip ~box ~r in
+      than y_max.) *)
   let x_min = if r.x_min < dst.x_min then dst.x_min -. r.x_min else 0.
   and x_max = if r.x_max > dst.x_max then r.x_max -. dst.x_max else 0.
   and y_min = if r.y_min > dst.y_min then r.y_min -. dst.y_min else 0.
   and y_max = if r.y_max < dst.y_max then dst.y_max -. r.y_max else 0.
   in rectangle ~x_min ~x_max ~y_min ~y_max
-
 
 
 let rectangle_contains box p =
