@@ -14,9 +14,6 @@ Things that we need before anyone can begin beta testing
 * Add a constants file of some sort, or a configurable datafile that
   is read in
 
-
-* Fix residuals on label datasets (plot spt-debug with x_min=6.0)
-
 ------------------------------------------------------------
 Extra features
 ------------------------------------------------------------
@@ -33,6 +30,11 @@ Extra features
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
+
+* Histograms: fix the legend "icon"
+
+* Fix residuals on label datasets (plot spt-debug with x_min=6.0)
+
 * Make sure we present a consistent type to the world for all datasets
 
 * Heatmaps
