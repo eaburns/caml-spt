@@ -334,20 +334,22 @@ let draw_line ctx ?box ?style points =
 	  Cairo.set_dash ctx.cairo [| |] 0.
 
 
-let draw_rectangle ctx ?style r =
-  (** [draw_rectangle ctx ?style r] draws the given rectangle. *)
-  set_line_style_option ctx style;
-  Cairo.rectangle ctx.cairo
-    r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
-  Cairo.stroke ctx.cairo
+let draw_rectangle ?box ctx ?style r =
+  (** [draw_rectangle ?box ctx ?style r] draws the given rectangle. *)
+  let r = match box with None -> r | Some box -> rectangle_clip ~box ~r in
+    set_line_style_option ctx style;
+    Cairo.rectangle ctx.cairo
+      r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
+    Cairo.stroke ctx.cairo
 
 
-let fill_rectangle ctx ?(color=black) r =
-  (** [draw_rectangle ctx color r] draws the given rectangle. *)
-  set_color ctx color;
-  Cairo.rectangle ctx.cairo
-    r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
-  Cairo.fill ctx.cairo
+let fill_rectangle ?box ctx ?(color=black) r =
+  (** [draw_rectangle ?box ctx color r] draws the given rectangle. *)
+  let r = match box with None -> r | Some box -> rectangle_clip ~box ~r in
+    set_color ctx color;
+    Cairo.rectangle ctx.cairo
+      r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
+    Cairo.fill ctx.cairo
 
 
 (** {1 Points} ****************************************)
