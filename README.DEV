@@ -99,3 +99,12 @@
 
  Geometry.ranges are used to specify an area in 1D space (for example,
  a plot with a single numeric axis).
+
+
+4.0 Clipping
+
+    Do clipping in the source coordinate system.  If clipping is done
+    in the destination coordinate system then the dimensions may get
+    set assuming that something will be on the plot that is later
+    clipped via rounding imperfection in the transform from source to
+    destination.
