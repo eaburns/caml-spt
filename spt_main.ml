@@ -60,7 +60,8 @@ let num_by_num_plot () =
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
-      ~y_min:0.
+      ~y_min:5.
+      ~y_max:70.
 (*      [
 	Num_by_num.scatter_errbar_dataset
 	  ~name:"Scatter with error bars"
