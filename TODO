@@ -26,6 +26,8 @@ Datasets
 ------------------------------------------------------------
 * Make sure we present a consistent type to the world for all datasets
 
+* Boxplots should compute a residual for their linewidth.
+
 * Heatmaps
   - Numeric by Numeric
   - Nominal by Nominal
@@ -62,8 +64,6 @@ Usability
 * Minimum Plot size requirement in Gtk window needs removed
 
 * Generate .mli files where possible / appropriate
-
-* num_by_nom plots in spt-it-out
 
 * Bindings
   - C
