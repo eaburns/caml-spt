@@ -139,7 +139,7 @@ let rectangle_transform ~src ~dst =
        let nlleft = pt_transform lleft
        and nuright = pt_transform uright in
 	 rectangle ~x_min:nlleft.x ~x_max:nuright.x
-	   ~y_min:nlleft.x ~y_max:nuright.y)
+	   ~y_min:nlleft.y ~y_max:nuright.y)
 
 let face_forward rect =
   (** [face_forward rect] if the rectangle is facing the wrong

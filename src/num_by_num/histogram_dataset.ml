@@ -112,7 +112,7 @@ object(self)
 	(fun bin ->
 	   let r = rectangle ~x_min:bin.lower_end
 	     ~x_max:bin.upper_end ~y_min:0. ~y_max:(float bin.count) in
-	     draw_rectangle ctx ~style (tr r)) bins
+	     draw_rectangle ~box:dst ctx ~style (tr r)) bins
 
 
   method draw_legend ctx ~x ~y =
