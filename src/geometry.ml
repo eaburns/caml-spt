@@ -131,6 +131,16 @@ let point_transform ~src ~dst =
 	 (((pt.y -. src_y_min) *. y_scale) +. dst_y_min))
 
 
+let rectangle_transform ~src ~dst =
+  let pt_transform = point_transform ~src ~dst in
+    (fun r ->
+       let lleft = { x = r.x_min; y = r.y_min }
+       and uright = { x = r.x_max; y = r.y_max } in
+       let nlleft = pt_transform lleft
+       and nuright = pt_transform uright in
+	 rectangle ~x_min:nlleft.x ~x_max:nuright.x
+	   ~y_min:nlleft.x ~y_max:nuright.y)
+
 let face_forward rect =
   (** [face_forward rect] if the rectangle is facing the wrong
       direction, it is faced forward. *)
