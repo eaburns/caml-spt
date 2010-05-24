@@ -41,13 +41,22 @@
 	    (name "ds6")
 	    (points-cmd "awk '{ print $2 \" \" $1 }' test_points.dat")))
       )
-  (let
-      ((ds2 (num-by-num-composite (name "ds2") (ds2_0 ds2_1))))
+  (let ((ds2 (num-by-num-composite (name "ds2") (ds2_0 ds2_1))))
     (let (
 	  (plot0 (num-by-num-plot
+		  (width (in 10))
 		  (title "Test plot")
 		  (x-label "The x variable")
 		  (y-label "The y variable")
 		  (ds0 ds1 ds2 ds3 ds4 ds5 ds6)))
+	  (plot1 (num-by-nom-plot
+		  (title "Test plot")
+		  (y-label "The y variable")
+		  ((boxplot-dataset (name "Dataset one")
+				    (scalars 5 7 2 9 1 0 10))
+		   (boxplot-dataset (name "Dataset two")
+				    (scalars 38 1 -19 4 29 10)
+				    ))))
 	  )
-      (display plot0))))
+      (output "test_output.pdf" (display plot0 plot1))
+      )))
