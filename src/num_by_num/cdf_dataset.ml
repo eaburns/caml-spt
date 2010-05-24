@@ -91,10 +91,10 @@ let cdf_datasets ?(uses_color=false) name_by_values_list =
     then (let next_color = Factories.default_color_factory () in
 	    List.map (fun (name, values) ->
 			cdf_dataset (next_dash ()) ~color:(next_color())
-			  ?name values) name_by_values_list)
+			  ~name values) name_by_values_list)
     else
       List.map (fun (name, values) ->
-		  cdf_dataset (next_dash ()) ?name values)
+		  cdf_dataset (next_dash ()) ~name values)
 	name_by_values_list
 
 
