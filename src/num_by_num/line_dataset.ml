@@ -14,7 +14,9 @@ let line_legend_length = Length.Cm 0.75
 
 class line_dataset dashes ?(width=Length.Pt 1.) ?(color=black) ?name points =
   (** A line plot dataset. *)
+
 object (self)
+
   inherit points_dataset ?name points
 
   val style =

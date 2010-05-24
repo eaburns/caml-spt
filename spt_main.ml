@@ -52,13 +52,16 @@ let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
   let next_glyph = Factories.default_glyph_factory () in
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
+    Random.self_init();
+  let histogram = new Num_by_num.histogram_dataset (next_dash ())
+    "histo" (Array.init 100 (fun i -> Random.float 100.)) in
     ignore (next_line_err ());
     new Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~y_min:0.
-      [
+(*      [
 	Num_by_num.scatter_errbar_dataset
 	  ~name:"Scatter with error bars"
 	  ~color:green (next_glyph ())
@@ -105,7 +108,8 @@ let num_by_num_plot () =
 	new Num_by_num.function_dataset (next_dash ())
 	  ~name:"y=x^2" (fun x -> x ** 2.);
 
-      ]
+      ]*)
+      [histogram]
 
 
 

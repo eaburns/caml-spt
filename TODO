@@ -11,9 +11,15 @@ Things that we need before anyone can begin beta testing
 
 * Legacy module (in ps_plot)
 
+* Add a constants file of some sort, or a configurable datafile that
+  is read in
+
 ------------------------------------------------------------
 Extra features
 ------------------------------------------------------------
+* Add an edit menu to the gtk gui allowing for
+      * Specify the size of the plot -- make sure to pre-populate dialogue
+      * Turn color on / off
 
 * Drawing legends off of the plot.
 
