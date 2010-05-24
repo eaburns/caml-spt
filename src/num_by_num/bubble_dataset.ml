@@ -45,7 +45,7 @@ object (self)
 
 
   method residual ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
     let zrange = self#z_range in
       Array.fold_left
 	(fun r t ->
@@ -59,7 +59,7 @@ object (self)
 
 
   method draw ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
     let zrange = self#z_range in
       Array.iter (fun t ->
 		    let radius = self#radius ctx zrange t.k in

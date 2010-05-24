@@ -54,7 +54,7 @@ let num_by_num_plot () =
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
     Random.self_init();
   let histogram = new Num_by_num.histogram_dataset (next_dash ())
-    "histo" (Array.init 100 (fun i -> Random.float 100.)) in
+    ~name:"histo" (Array.init 100 (fun i -> Random.float 100.)) in
     ignore (next_line_err ());
     new Num_by_num.plot
       ~title:"Title text"

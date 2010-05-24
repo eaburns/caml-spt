@@ -23,7 +23,7 @@ object (self)
     (** [residual ctx ~src ~dst] if we were to plot this right now
 	with the given [dst] rectangle, how far out-of-bounds will we
 	go in each direction. *)
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
       Array.fold_left
 	(fun r pt ->
 	   if rectangle_contains src pt
@@ -33,7 +33,7 @@ object (self)
 
 
   method draw ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
     let pts = ref [] in
       for i = (Array.length points) - 1 downto 0 do
 	let pt = points.(i) in

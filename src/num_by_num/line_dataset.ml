@@ -27,7 +27,7 @@ object (self)
     }
 
   method draw ctx ~src ~dst =
-    let tr = rectangle_transform ~src ~dst in
+    let tr = point_transform ~src ~dst in
     let pts = ref [] in
       for i = (Array.length points) - 1 downto 0 do
 	pts := (tr points.(i)) :: !pts
