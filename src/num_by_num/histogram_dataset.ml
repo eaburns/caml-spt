@@ -113,8 +113,8 @@ object(self)
 		 and uleft = { x = bin.lower_end; y = float bin.count; }
 		 and uright = { x = bin.upper_end; y = float bin.count; }
 		 and lright = { x = bin.upper_end; y = 0.} in
-		   draw_line ctx ~fill:false ~box:dst ~style
-		     (List.map tr [lleft;uleft;uright;lright; lleft])) bins
+		   fill_polygon ctx ~box:dst ~color
+		     (List.map tr [lleft; uleft; uright; lright;])) bins
 
   method draw_legend ctx ~x ~y =
     let half_length = (ctx.units line_legend_length) /. 2. in
