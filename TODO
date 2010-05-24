@@ -1,0 +1,88 @@
+------------------------------------------------------------
+Things that we need before anyone can begin beta testing
+------------------------------------------------------------
+
+* Decide on a final API
+  two basic types of functions, on for generating single datalests,
+  one for making list of related datasets that dispatches to the first
+  type.  One of these calls for each dataset type.  Each inside of its
+  own file.
+  -- Num by num datasets are done
+
+* Legacy module (in ps_plot)
+
+* Add a constants file of some sort, or a configurable datafile that
+  is read in
+
+------------------------------------------------------------
+Extra features
+------------------------------------------------------------
+* Add an edit menu to the gtk gui allowing for
+      * Specify the size of the plot -- make sure to pre-populate dialogue
+      * Turn color on / off
+
+* Drawing legends off of the plot.
+
+* Change text size based on plot size
+
+* Scatter plot matrix
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+* Make sure we present a consistent type to the world for all datasets
+
+* Heatmaps
+  - Numeric by Numeric
+  - Nominal by Nominal
+
+* Bar charts (and with error bars)
+
+* Stacked bar charts
+  - Diffenent hash marks filling bars (for situations when there are no colors)
+
+* Make sure that everything is colorable
+
+* Montages: more complex than simple ps-montage style.
+  - Make axis drawing optional.
+  - Make room for non-drawn axes, but then don't draw them.
+
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
+
+* Write a real README file
+
+* Document the code
+
+* Generate OCaml docs
+
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
+
+* Push factories from most datasets into src/factories.ml
+  -- Line_errbars get to keep theres since they belong there
+  --- Alternatively, why isn't the errbar stuff in the errbar dataset?
+
+* Minimum Plot size requirement in Gtk window needs removed
+
+* Generate .mli files where possible / appropriate
+
+* Bindings
+  - C
+  - Python
+  - Java?
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
+
+* Nominal by nominal plots
+
+* Numeric by Ordinal (or Ranked) plots
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
+
