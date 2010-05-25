@@ -80,6 +80,7 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
 		       let mu_x, int_x = Statistics.mean_and_interval xs
 		       and mu_y, int_y = Statistics.mean_and_interval ys in
 		       let pt = point mu_x mu_y in
+			 Printf.eprintf "%f x %f\n" mu_x mu_y;
 		       let lbls' = match name with
 			 | Some txt -> (pt, txt) :: lbls
 			 | None -> lbls
@@ -115,5 +116,7 @@ let scatter_errbar_datasets ?(uses_color=false) name_by_sets_list =
       List.map (fun (name,sets) ->
 		  scatter_errbar_dataset (next_glyph()) ~name sets)
 	name_by_sets_list
+
+
 
 (* EOF *)

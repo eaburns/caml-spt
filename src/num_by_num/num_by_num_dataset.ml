@@ -74,6 +74,7 @@ end
 class composite_dataset ?name datasets =
   (** A dataset composed of a set of datasets. *)
 object
+
   inherit dataset ?name ()
 
   val datasets = (datasets : dataset list)
