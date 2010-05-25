@@ -57,6 +57,14 @@
 		   (boxplot-dataset (name "Dataset two")
 				    (scalars 38 1 -19 4 29 10)
 				    ))))
+	  (plot2 (num-by-num-plot
+		  (title "Test Histogram")
+		  (y-label "counts")
+		  (x-label "The x values")
+		  ((histogram-dataset (name "Dataset one")
+				    (scalars 5 8 3.8 7.1 9.4 8.1 0.5
+					     5 7 2 9 1 0 10 0.5 2.8))
+				    )))
 	  )
-      (output "test_output.pdf" (display plot0 plot1))
+      (output "test_output.pdf" (display plot2))
       )))

@@ -133,6 +133,8 @@ let rec eval env = function
       eval_line_points env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "line-errbar-dataset")) :: operands ) ->
       eval_line_errbar env operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "histogram-dataset")) :: operands ) ->
+      eval_histogram env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-composite")) :: operands ) ->
       eval_num_by_num_composite env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-plot")) :: operands ) ->
@@ -715,6 +717,48 @@ and eval_line_errbar env operands =
 	   ?width:!width
 	   ?name:!name
 	   (Array.of_list !data))
+
+
+and eval_histogram env line operands =
+  (** [eval_histogram env line operands] evaluates a histogram
+      dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and color = ref None
+  and width = ref None
+  and bin_width = ref None
+  and name = ref None
+  and data = ref [| |]
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
+	     set_once dashes l "dashes" (eval_dashes env ds)
+	 | S.List (_, S.Ident (l, "color") :: operands) ->
+	     set_once color l "color" (eval_color env l operands)
+	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
+	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "bin-width") :: S.Number(_, w) :: []) ->
+	     set_once bin_width l "bin-width" w
+	 | S.List (l, _) as floats ->
+	     begin match eval env floats with
+	       | Scalars vls ->
+		   data := Array.append !data vls
+	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
+				  l (to_string x))
+	     end
+	 | e ->
+	     failwith (sprintf
+			 "line %d: Invalid option to a histogram dataset"
+			 (Sexpr.line_number e))
+      ) operands;
+    Num_by_num_dataset
+      (new Num_by_num.histogram_dataset
+	 (match !dashes with | Some g -> g | None -> env.next_dash ())
+	 ?width:!width ?color:!color ?bin_width:!bin_width ?name:!name
+	 !data)
 
 
 and eval_num_by_num_composite env operands =

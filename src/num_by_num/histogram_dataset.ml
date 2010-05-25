@@ -71,11 +71,12 @@ let make_bins ~min_value ~bin_width values =
 	  (first_bin, []) values in
 	c_bin::bins
 
+
 let make_width ~bin_width ~max_value ~min_value =
   match bin_width with
-      None -> (ceil (max_value -. min_value) /.
-		 (default_bins -. 1.))
+      None -> (ceil (max_value -. min_value) /. (default_bins -. 1.))
     | Some w -> w
+
 
 class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
   ?bin_width ?name vals =
