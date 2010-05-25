@@ -44,7 +44,9 @@ object (self)
 			      and max' = if ds_max > max then ds_max else max
 			      in min', max')
 	      (infinity, neg_infinity) datasets
-	  in range ~min ~max
+	  in
+	  let pad = (max -. min) *. 0.01 in
+	    range ~min:(min -. pad) ~max:(max +. pad)
 
 
   method private yaxis src =
@@ -109,12 +111,12 @@ object (self)
   method private draw_x_axis ctx ~y ~xrange ~text_width =
     (** [draw_x_axis ctx ~y ~xrange ~text_width] draws the x-axis. *)
     let between_padding = ctx.units between_padding in
-    ignore
-      (List.fold_left
-	 (fun x ds ->
-	    ds#draw_x_label ctx ~x ~y legend_text_style ~width:text_width;
-	    x +. text_width +. between_padding)
-	 xrange.min datasets)
+      ignore
+	(List.fold_left
+	   (fun x ds ->
+	      ds#draw_x_label ctx ~x ~y legend_text_style ~width:text_width;
+	      x +. text_width +. between_padding)
+	   xrange.min datasets)
 
 
   method draw ctx =

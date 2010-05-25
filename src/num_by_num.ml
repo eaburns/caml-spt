@@ -62,8 +62,11 @@ object (self)
     let x_min' = match x_min with None -> r.x_min | Some m -> m
     and x_max' = match x_max with None -> r.x_max | Some m -> m
     and y_min' = match y_min with None -> r.y_min | Some m -> m
-    and y_max' = match y_max with None -> r.y_max | Some m -> m
-    in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
+    and y_max' = match y_max with None -> r.y_max | Some m -> m in
+    let x_pad = (x_max' -. x_min') *. 0.01 in
+    let y_pad = (y_max' -. y_min') *. 0.01 in
+      rectangle ~x_min:(x_min' -. x_pad) ~x_max:(x_max' +. x_pad)
+	~y_min:(y_min' -. y_pad) ~y_max:(y_max' +. y_pad)
 
 
   method private dst_rectangle ctx ~xaxis ~yaxis src =
