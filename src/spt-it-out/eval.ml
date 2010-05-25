@@ -500,16 +500,13 @@ and eval_scatter env operands =
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
 	     set_once radius l "radius" (eval_length env len)
-	 | S.List (l, _) as points ->
+	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
 		   data := Array.append !data pts
 	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  l (to_string x))
+				  (S.line_number points) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf "line %d: Invalid option to a scatter dataset"
-			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
       (new Num_by_num.scatter_dataset
@@ -543,16 +540,13 @@ and eval_bestfit env operands =
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
 	     set_once radius l "radius" (eval_length env len)
-	 | S.List (l, _) as points ->
+	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
 		   data := Array.append !data pts
 	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  l (to_string x))
+				  (S.line_number points) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf "line %d: Invalid option to a scatter dataset"
-			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
       (Num_by_num.bestfit_dataset
@@ -586,16 +580,13 @@ and eval_bubble env operands =
 	     set_once min_radius l "min-radius" (eval_length env len)
 	 | S.List (_, S.Ident (l, "max-radius") :: len :: []) ->
 	     set_once max_radius l "max-radius" (eval_length env len)
-	 | S.List (l, _) as triples ->
+	 | triples ->
 	     begin match eval env triples with
 	       | Triples pts ->
 		   data := Array.append !data pts
 	       | x -> failwith (sprintf "line %d: Expected triples got %s"
-				  l (to_string x))
+				  (S.line_number triples) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf "line %d: Invalid option to a bubble dataset"
-			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
       (new Num_by_num.bubble_dataset
@@ -626,16 +617,13 @@ and eval_line env operands =
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
 	     set_once width l "width" (eval_length env len)
-	 | S.List (l, _) as points ->
+	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
 		   data := Array.append !data pts
 	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  l (to_string x))
+				  (S.line_number points) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf "line %d: Invalid option to a line dataset"
-			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
       (new Num_by_num.line_dataset
@@ -672,17 +660,13 @@ and eval_line_points env operands =
 	     set_once width l "width" (eval_length env len)
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
 	     set_once radius l "radius" (eval_length env len)
-	 | S.List (l, _) as points ->
+	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
 		   data := Array.append !data pts
 	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  l (to_string x))
+				  (S.line_number points) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf
-			 "line %d: Invalid option to a line-points dataset"
-			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
       (Num_by_num.line_points_dataset
@@ -765,17 +749,13 @@ and eval_histogram env line operands =
 	     set_once width l "width" (eval_length env len)
 	 | S.List (_, S.Ident (l, "bin-width") :: S.Number(_, w) :: []) ->
 	     set_once bin_width l "bin-width" w
-	 | S.List (l, _) as floats ->
+	 | floats ->
 	     begin match eval env floats with
 	       | Scalars vls ->
 		   data := Array.append !data vls
 	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
-				  l (to_string x))
+				  (S.line_number floats) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf
-			 "line %d: Invalid option to a histogram dataset"
-			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
       (new Num_by_num.histogram_dataset
@@ -804,17 +784,13 @@ and eval_cdf env line operands =
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
 	     set_once width l "width" (eval_length env len)
-	 | S.List (l, _) as floats ->
+	 | floats ->
 	     begin match eval env floats with
 	       | Scalars vls ->
 		   data := Array.append !data vls
 	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
-				  l (to_string x))
+				  (S.line_number floats) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf
-			 "line %d: Invalid option to a cdf dataset"
-			 (Sexpr.line_number e))
       ) operands;
     Num_by_num_dataset
       (new Num_by_num.cdf_dataset
@@ -921,17 +897,13 @@ and eval_boxplot env line operands =
 	     set_once name l "name" t
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
 	     set_once radius l "radius" (eval_length env len)
-	 | S.List (l, _) as floats ->
+	 | floats ->
 	     begin match eval env floats with
 	       | Scalars vls ->
 		   data := Array.append !data vls
 	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
-				  l (to_string x))
+				  (S.line_number floats) (to_string x))
 	     end
-	 | e ->
-	     failwith (sprintf
-			 "line %d: Invalid option to a boxplot dataset"
-			 (Sexpr.line_number e))
       ) operands;
     match !name with
       | None ->
