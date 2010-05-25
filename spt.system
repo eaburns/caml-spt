@@ -19,7 +19,6 @@ Files:
 "src/num_by_num"
 "src/num_by_nom/num_by_nom_dataset"
 "src/num_by_nom/boxplot_dataset"
-"src/num_by_nom/boxset_dataset"
 "src/num_by_num/histogram_dataset"
 "src/num_by_num/cdf_dataset"
 "src/num_by_nom"
