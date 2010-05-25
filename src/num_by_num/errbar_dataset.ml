@@ -33,14 +33,18 @@ object (self)
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
       Array.fold_left
 	(fun r t ->
-	   let src_y = yrange src and dst_x = xrange dst in
-	   let x = tr t.i and y = t.j and mag = t.k in
-	   let up_residue =
-	     Errbar.residual_vert ctx true ~src_y ~dst_x ~x ~y ~mag
-	   and down_residue =
-	     Errbar.residual_vert ctx false ~src_y ~dst_x ~x ~y ~mag
-	   in
-	     rectangle_extremes r (rectangle_extremes up_residue down_residue))
+	   if rectangle_contains src (point t.i t.j)
+	   then begin
+	     let src_y = yrange src and dst_x = xrange dst in
+	     let x = tr t.i and y = t.j and mag = t.k in
+	     let up_residue =
+	       Errbar.residual_vert ctx true ~src_y ~dst_x ~x ~y ~mag
+	     and down_residue =
+	       Errbar.residual_vert ctx false ~src_y ~dst_x ~x ~y ~mag
+	     in
+	       rectangle_extremes r
+		 (rectangle_extremes up_residue down_residue)
+	   end else r)
 	zero_rectangle triples
 
 
@@ -95,15 +99,18 @@ object (self)
     let tr = range_transform ~src:(yrange src) ~dst:(yrange dst) in
       Array.fold_left
 	(fun r t ->
-	   let src_x = xrange src and dst_y = yrange dst in
-	   let x = t.i and y = tr t.j and mag = t.k in
-	   let left_residue =
-	     Errbar.residual_horiz ctx true ~src_x ~dst_y ~x ~y ~mag
-	   and right_residue =
-	     Errbar.residual_horiz ctx false ~src_x ~dst_y ~x ~y ~mag
-	   in
-	     rectangle_extremes r (rectangle_extremes
-				     left_residue right_residue))
+	   if rectangle_contains src (point t.i t.j)
+	   then begin
+	     let src_x = xrange src and dst_y = yrange dst in
+	     let x = t.i and y = tr t.j and mag = t.k in
+	     let left_residue =
+	       Errbar.residual_horiz ctx true ~src_x ~dst_y ~x ~y ~mag
+	     and right_residue =
+	       Errbar.residual_horiz ctx false ~src_x ~dst_y ~x ~y ~mag
+	     in
+	       rectangle_extremes r (rectangle_extremes
+				       left_residue right_residue)
+	   end else r)
 	zero_rectangle triples
 
 
