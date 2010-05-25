@@ -29,9 +29,20 @@ object(self)
   val data = data
 
   method dimensions =
+    let min, max =
+      Array.fold_left (fun (min, max) v -> (minf min v), (maxf max v))
+	(infinity, neg_infinity) data
+    in
     let vs =
       Array.append
-	[| mean; conf_lower; conf_upper; q1; q2; q3; |]
+	[| mean; conf_lower; conf_upper; q1; q2; q3;
+
+	   (* The following are the computations of the error bar cap
+	      locations.  These need to be here because of floating
+	      point rounding issues... *)
+	   q1 -. (q1 -. min);
+	   q3 +. (max -. q3);
+	|]
 	values
     in
       range
