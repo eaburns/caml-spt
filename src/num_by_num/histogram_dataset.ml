@@ -44,8 +44,8 @@ let bucket ~min ~bin_width value =
   truncate ((value -. min) /. bin_width)
 
 
-let make_bins ~min_value ~bin_width values =
-  let range = values.((Array.length values) - 1) -. min_value in
+let make_bins ~min_value ~max_value ~bin_width values =
+  let range = max_value -. min_value in
   let bin_count = truncate (ceil (range /. bin_width)) in
   let bins = Array.create (bin_count + 1) 0 in
     Array.iter
@@ -64,11 +64,12 @@ let make_width ~bin_width ~max_value ~min_value =
 class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
   ?bin_width ?name vals =
   let values = Array.sort compare vals ; vals in
-  let min_value = values.(0)
-  and max_value = values.((Array.length values) - 1) in
+  let min_value, max_value =
+    if (Array.length values) > 0
+    then values.(0), values.((Array.length values) - 1)
+    else nan, nan in
   let bin_width = make_width ~bin_width ~max_value ~min_value in
-  let bins = make_bins min_value bin_width values in
-
+  let bins = make_bins ~max_value ~min_value ~bin_width values in
 object(self)
 
   inherit dataset ?name ()
@@ -77,10 +78,12 @@ object(self)
 		line_dashes = dashes;
 		line_width = width; }
 
+
   method dimensions =
-    rectangle ~x_min:(min_value -. (bin_width /. 2.))
-      ~x_max:(max_value +. (bin_width /. 2.)) ~y_min:0.
-      ~y_max:(float (Array.fold_left max 0 bins))
+    rectangle
+      ~x_min:(min_value -. (bin_width /. 2.))
+      ~x_max:(max_value +. (bin_width /. 2.))
+      ~y_min:0. ~y_max:(float (Array.fold_left max 0 bins))
 
 
   method residual ctx ~src ~dst = zero_rectangle
@@ -89,23 +92,27 @@ object(self)
   method draw ctx ~src ~dst =
     let tr_rect = rectangle_transform ~src ~dst in
     let tr_pt = point_transform ~src ~dst in
-      Array.iteri (fun index count ->
-		     let y_max = float count
-		     and x_min = min_value +. ((float index) -. 0.5) *. bin_width
-		     and x_max = min_value +. ((float index) +. 0.5) *. bin_width
-		     in
-		     let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max
-		     in
-		     let outline = [ point x_min 0.;
-				     point x_min y_max;
-				     point x_max y_max;
-				     point x_max 0.;
-				     point x_min 0.;];
-		     in
-		       draw_line ctx ~box:src ~tr:tr_pt ~style outline;
-		       match clip_rectangle ~box:src ~r with
-			 | Some r -> fill_rectangle ctx ~color (tr_rect r)
-			 | None -> ())
+      Array.iteri
+	(fun index count ->
+	   if count > 0
+	   then begin
+	     let y_max = float count
+	     and x_min = min_value +. ((float index) -. 0.5) *. bin_width
+	     and x_max = min_value +. ((float index) +. 0.5) *. bin_width
+	     in
+	     let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max
+	     in
+	     let outline = [ point x_min 0.;
+			     point x_min y_max;
+			     point x_max y_max;
+			     point x_max 0.;
+			     point x_min 0.;];
+	     in
+	       draw_line ctx ~box:src ~tr:tr_pt ~style outline;
+	       match clip_rectangle ~box:src ~r with
+		 | Some r -> fill_rectangle ctx ~color (tr_rect r)
+		 | None -> ()
+	   end)
 	bins
 
 
