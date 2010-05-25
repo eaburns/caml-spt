@@ -78,9 +78,9 @@ object(self)
 		line_width = width; }
 
   method dimensions =
-      rectangle ~x_min:(min_value -. (bin_width /. 2.))
-	~x_max:(max_value +. (bin_width /. 2.)) ~y_min:0.
-	~y_max:(float (Array.fold_left max 0 bins))
+    rectangle ~x_min:(min_value -. (bin_width /. 2.))
+      ~x_max:(max_value +. (bin_width /. 2.)) ~y_min:0.
+      ~y_max:(float (Array.fold_left max 0 bins))
 
 
   method residual ctx ~src ~dst = zero_rectangle
@@ -90,29 +90,40 @@ object(self)
     let tr_rect = rectangle_transform ~src ~dst in
     let tr_pt = point_transform ~src ~dst in
       Array.iteri (fun index count ->
-		   let y_max = float count
-		   and x_min = min_value +. ((float index) -. 0.5) *. bin_width
-		   and x_max = min_value +. ((float index) +. 0.5) *. bin_width
-		   in
-		   let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max
-		   in
-		   let outline = [ point x_min 0.;
-				   point x_min y_max;
-				   point x_max y_max;
-				   point x_max 0.;
-				   point x_min 0.;];
-		   in
-		     draw_line ctx ~box:src ~tr:tr_pt ~style outline;
-		     match clip_rectangle ~box:src ~r with
-		       | Some r -> fill_rectangle ctx ~color (tr_rect r)
-		       | None -> ())
+		     let y_max = float count
+		     and x_min = min_value +. ((float index) -. 0.5) *. bin_width
+		     and x_max = min_value +. ((float index) +. 0.5) *. bin_width
+		     in
+		     let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max
+		     in
+		     let outline = [ point x_min 0.;
+				     point x_min y_max;
+				     point x_max y_max;
+				     point x_max 0.;
+				     point x_min 0.;];
+		     in
+		       draw_line ctx ~box:src ~tr:tr_pt ~style outline;
+		       match clip_rectangle ~box:src ~r with
+			 | Some r -> fill_rectangle ctx ~color (tr_rect r)
+			 | None -> ())
 	bins
 
 
   method draw_legend ctx ~x ~y =
-    let half_length = (ctx.units line_legend_length) /. 2. in
-    let x0 = x -. half_length and x1 = x +. half_length in
-      draw_line ctx ~style [ point x0 y; point x1 y]
+    let half_length = (ctx.units line_legend_length) /. 2.
+    and quarter_length = (ctx.units line_legend_length) /. 4. in
+    let x_min = x -. half_length
+    and x_max = x +. half_length
+    and y_min = y -. quarter_length
+    and y_max = y +. quarter_length in
+    let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max in
+    let outline = [ point x_min y_min;
+		    point x_min y_max;
+		    point x_max y_max;
+		    point x_max y_min;
+		    point x_min y_min;] in
+      draw_line ctx ~style outline;
+      fill_rectangle ctx ~color r
 
 
   method legend_dimensions ctx =
