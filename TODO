@@ -34,6 +34,10 @@ Datasets
 
 * Histograms: fix the legend "icon"
    - Hash marks filling the histograms
+   - Coloring w/ alpha values
+
+
+* CDF's need error bars
 
 * Make sure we present a consistent type to the world for all datasets
 
