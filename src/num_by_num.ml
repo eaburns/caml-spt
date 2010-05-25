@@ -63,8 +63,12 @@ object (self)
     and x_max' = match x_max with None -> r.x_max | Some m -> m
     and y_min' = match y_min with None -> r.y_min | Some m -> m
     and y_max' = match y_max with None -> r.y_max | Some m -> m in
-    let x_pad = (x_max' -. x_min') *. 0.01 in
-    let y_pad = (y_max' -. y_min') *. 0.01 in
+    let x_pad = range_padding ~max:x_max' ~min:x_min' 0.01 in
+    let y_pad = range_padding ~max:y_max' ~min:y_min' 0.01 in
+      Spt.vprintf Spt.verb_debug
+	"src: x_min=%f x_max=%f y_min=%f y_max=%f\n"
+	(x_min' -. x_pad) (x_max' +. x_pad)
+	(y_min' -. y_pad) (y_max' +. y_pad);
       rectangle ~x_min:(x_min' -. x_pad) ~x_max:(x_max' +. x_pad)
 	~y_min:(y_min' -. y_pad) ~y_max:(y_max' +. y_pad)
 
@@ -95,6 +99,14 @@ object (self)
 	(fun r ds -> rectangle_max r (ds#residual ctx ~src ~dst))
 	zero_rectangle datasets
     in
+      Spt.vprintf Spt.verb_debug
+	"residuals: x_min=%f x_max=%f y_min=%f y_max=%f\n"
+	residual.x_min residual.x_max
+	residual.y_min residual.y_max;
+      Spt.vprintf Spt.verb_debug
+	"dst: x_min=%f x_max=%f y_min=%f y_max=%f\n"
+	(dst.x_min +. residual.x_min) (dst.x_max -. residual.x_max)
+	(dst.y_min -. residual.y_min) (dst.y_max +. residual.y_max);
       rectangle
 	~x_min:(dst.x_min +. residual.x_min)
 	~x_max:(dst.x_max -. residual.x_max)
@@ -120,8 +132,15 @@ object (self)
       Numeric_axis.tick_locations ~suggested_number:nticks
 	(yrange self#src_rectangle)
     in
-      Numeric_axis.create ~label_text_style ~tick_text_style
-	~src:(yrange src) ticks ylabel
+    let axis = Numeric_axis.create ~label_text_style ~tick_text_style
+      ~src:(yrange src) ticks ylabel in
+      List.iter (fun (vl, str) ->
+		   Spt.vprintf Spt.verb_debug "y-tick: %f, %s\n" vl
+		     (match str with None -> "None" | Some s -> s))
+	ticks;
+      Spt.vprintf Spt.verb_debug "y-axis: min=%f, max=%f\n"
+	axis.Numeric_axis.src.min axis.Numeric_axis.src.max;
+      axis
 
 
   method private draw_x_axis ctx ~dst xaxis =

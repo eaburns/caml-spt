@@ -20,52 +20,48 @@ let errbar_cap_size = Length.Pt 3.
   (** The size of the cap on an error bar. *)
 
 
-let residual_up ctx dst ~x ~y ~mag =
-  (** [residual_up ctx dst ~x ~y ~mag] computes the residual. *)
+let residual_vert ctx up ~src_y ~dst_x ~x ~y ~mag =
+  (** [residual_vert ctx up ~src_y ~dst_x ~x ~y ~mag] computes the
+      residual for a vertical error bar.  The [x] coordinate is in the
+      destination coordinate system and the [y] coordinate is in the
+      data coordinate system.  [src_y] and [dst_x] are the range of
+      the source and destination y-axis and x-axis values
+      respectively.  This assumes that the center point for the error
+      bar is within the destination rectangle. *)
   let errbar_cap_size = ctx.units errbar_cap_size in
-  let y = y -. mag in
-  let x_min = x -. errbar_cap_size and x_max = x +. errbar_cap_size in
-  let x_min' = if x_min < dst.x_min then dst.x_min -. x_min else 0.
-  and x_max' = if x_max > dst.x_max then x_max -. dst.x_max else 0.
-  and y_min' = if y > dst.y_min then y -. dst.y_min else 0.
-  and y_max' = if y < dst.y_max then dst.y_max -. y else 0.
-  in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
+  let y1 = if up then y +. mag else y -. mag in
+  let clip = if up then y1 > src_y.max else y1 < src_y.min in
+    if clip
+    then zero_rectangle
+    else begin
+      let x0 = x -. errbar_cap_size and x1 = x +. errbar_cap_size in
+      let res_min = if x0 < dst_x.min then dst_x.min -. x0 else 0.
+      and res_max = if x1 > dst_x.max then x1 -. dst_x.max else 0. in
+	Spt.vprintf Spt.verb_debug "x0=%f, x1=%f, dst.max=%f, res_max=%f\n%!"
+	  x0 x1 dst_x.max res_max;
+	{ zero_rectangle with x_min = res_min; x_max = res_max }
+    end
 
 
-let residual_down ctx dst ~x ~y ~mag =
-  (** [residual_down ctx dst ~x ~y ~mag] computes the residual. *)
+let residual_horiz ctx left ~src_x ~dst_y ~x ~y ~mag =
+  (** [residual_horiz ctx up ~src_x ~dst_y ~x ~y ~mag] computes the
+      residual for a horizontal error bar.  The [x] coordinate is in
+      the destination coordinate system and the [y] coordinate is in
+      the data coordinate system.  [src_x] and [dst_y] are the range
+      of the source and destination x-axis and y-axis values
+      respectively.  This assumes that the center point for the error
+      bar is within the destination rectangle. *)
   let errbar_cap_size = ctx.units errbar_cap_size in
-  let y = y +. mag in
-  let x_min = x -. errbar_cap_size and x_max = x +. errbar_cap_size in
-  let x_min' = if x_min < dst.x_min then dst.x_min -. x_min else 0.
-  and x_max' = if x_max > dst.x_max then x_max -. dst.x_max else 0.
-  and y_min' = if y > dst.y_min then y -. dst.y_min else 0.
-  and y_max' = if y < dst.y_max then dst.y_max -. y else 0.
-  in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
-
-
-let residual_left ctx dst ~x ~y ~mag =
-  (** [residual_left ctx dst ~x ~y ~mag] computes the residual. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
-  let x = x -. mag in
-  let y_min = y +. errbar_cap_size and y_max = y -. errbar_cap_size in
-  let x_min' = if x < dst.x_min then dst.x_min -. x else 0.
-  and x_max' = if x > dst.x_max then x -. dst.x_max else 0.
-  and y_min' = if y_min > dst.y_min then y_min -. dst.y_min else 0.
-  and y_max' = if y_max < dst.y_max then dst.y_max -. y_max else 0.
-  in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
-
-
-let residual_right ctx dst ~x ~y ~mag =
-  (** [residual_right ctx dst ~x ~y ~mag] computes the residual. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
-  let x = x +. mag in
-  let y_min = y +. errbar_cap_size and y_max = y -. errbar_cap_size in
-  let x_min' = if x < dst.x_min then dst.x_min -. x else 0.
-  and x_max' = if x > dst.x_max then x -. dst.x_max else 0.
-  and y_min' = if y_min > dst.y_min then y_min -. dst.y_min else 0.
-  and y_max' = if y_max < dst.y_max then dst.y_max -. y_max else 0.
-  in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
+  let x1 = if left then x -. mag else x +. mag in
+  let clip = if left then x1 < src_x.min else x1 > src_x.max in
+    if clip
+    then zero_rectangle
+    else begin
+      let y0 = y -. errbar_cap_size and y1 = y +. errbar_cap_size in
+      let y_min = if y0 > dst_y.min then y0 -. dst_y.min else 0.
+      and y_max = if y1 < dst_y.max then dst_y.max -. y1 else 0. in
+	{ zero_rectangle with y_min = y_min; y_max = y_max }
+    end
 
 
 let draw_up ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =

@@ -7,6 +7,19 @@
 open Geometry
 open Drawing
 
+let verb_level = ref 0
+  (** The current verbosity level. *)
+
+let verb_debug = 5
+  (** The verbosity level for debugging. *)
+
+let vprintf lvl fmt =
+  (** [vprintf lvl fmt] for verbosity printing *)
+  let dp s =
+    if !verb_level >= lvl then output_string stderr s; flush stderr
+  in Printf.kprintf dp fmt
+
+
 let default_tick_style =
   (** The default style for the text associated with tick marks on a
       numeric axis. *)
