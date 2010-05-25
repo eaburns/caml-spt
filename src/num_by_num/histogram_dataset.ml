@@ -136,8 +136,4 @@ object(self)
 end
 
 
-let histogram_connected_dataset dashes glyph ?width ?bin_width ?(color = black)
-    ?name values =
-  failwith "not anymore"
-
 (* EOF *)
