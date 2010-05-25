@@ -60,7 +60,6 @@ let num_by_num_plot () =
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
-      ~x_min:6.
       ~legend_loc:Legend.Upper_right
       [
 	  Num_by_num.scatter_errbar_dataset
