@@ -18,10 +18,6 @@ Things that we need before anyone can begin beta testing
 Extra features
 ------------------------------------------------------------
 
-* Add an edit menu to the gtk gui allowing for
-      * Specify the size of the plot -- make sure to pre-populate dialogue
-      * Turn color on / off
-
 * Drawing legends off of the plot.
 
 * Change text size based on plot size
@@ -35,7 +31,6 @@ Datasets
 * Histograms: fix the legend "icon"
    - Hash marks filling the histograms
    - Coloring w/ alpha values
-
 
 * CDF's need error bars
 
@@ -70,9 +65,9 @@ Documentation
 Usability
 ------------------------------------------------------------
 
-* Push factories from most datasets into src/factories.ml
-  -- Line_errbars get to keep theres since they belong there
-  --- Alternatively, why isn't the errbar stuff in the errbar dataset?
+* Add an edit menu to the gtk gui allowing for
+      * Specify the size of the plot -- make sure to pre-populate dialogue
+      * Turn color on / off
 
 * Minimum Plot size requirement in Gtk window needs removed
 
@@ -94,4 +89,3 @@ Plot types
   and the datasets are drawn across both the x and y axes.
   - Waterfall charts
   - Run charts
-
