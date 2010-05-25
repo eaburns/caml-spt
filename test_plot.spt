@@ -59,6 +59,7 @@
 				    ))))
 	  (plot2 (num-by-num-plot
 		  (title "Test Histogram")
+		  (legend-location upper-right)
 		  (y-label "counts")
 		  (x-label "The x values")
 		  ((histogram-dataset (name "Dataset one")
@@ -67,10 +68,11 @@
 				    )))
 	  (plot3 (num-by-num-plot
 		  (title "Test CDF")
+		  (legend-location (at text-before 50 50))
 		  (y-label "accumulated weight")
 		  (x-label "The x values")
 		  ((cdf-dataset (name "Dataset one")
 				    (scalars 5 8 3.8 7.1 9.4 8.1 0.5 5
 					     7 2 9 1 0 10 0.5 2.8))
 					     ))) )
-      (display plot3) )))
+      (display plot2 plot3) )))

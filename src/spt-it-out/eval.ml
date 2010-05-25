@@ -395,6 +395,23 @@ and eval_length env = function
   | x -> failwith (sprintf "line %d: Malformed length" (Sexpr.line_number x))
 
 
+and eval_legend_loc env = function
+  | Sexpr.Ident (l, "upper-right") -> Legend.Upper_right
+  | Sexpr.Ident (l, "upper-left") -> Legend.Upper_left
+  | Sexpr.Ident (l, "lower-right") -> Legend.Lower_right
+  | Sexpr.Ident (l, "lower-left") -> Legend.Lower_left
+  | Sexpr.List (_, Sexpr.Ident(_, "at") :: Sexpr.Ident(l, txt_loc)
+		  :: Sexpr.Number(_, x) :: Sexpr.Number(_, y) :: []) ->
+      let txt_loc = match String.lowercase txt_loc with
+	| "text-before" -> Legend.Text_before
+	| "text-after" -> Legend.Text_after
+	| _ -> failwith (sprintf
+			   "line %d: Malformed text location %s"
+			   l "try one of 'text-before' or 'text-after'")
+      in Legend.At (txt_loc, x, y)
+  | x -> failwith (sprintf "line %d: Malformed legend location"
+		     (Sexpr.line_number x))
+
 (************************************************************)
 (* Num-by-num                                               *)
 (************************************************************)
@@ -403,6 +420,7 @@ and eval_num_by_num env operands =
   (** [eval_num_by_num env operands] evaluates a num_by_num plot. *)
   let module S = Sexpr in
   let title = ref None
+  and legend_loc = ref None
   and xlabel = ref None
   and ylabel = ref None
   and x_min = ref None
@@ -415,6 +433,8 @@ and eval_num_by_num env operands =
   in
     List.iter
       (fun op -> match op with
+	 | S.List (_, S.Ident (l, "legend-location") :: loc :: []) ->
+	     set_once legend_loc l "legend-location" (eval_legend_loc env loc)
 	 | S.List (_, S.Ident (l, "title") :: S.String (_, t) :: []) ->
 	     set_once title l "title" t
 	 | S.List (_, S.Ident (l, "x-label") :: S.String (_, t) :: []) ->
@@ -451,6 +471,7 @@ and eval_num_by_num env operands =
 			 (Sexpr.line_number e))
       ) operands;
     let plot = (new Num_by_num.plot ?title:!title ?xlabel:!xlabel
+		  ?legend_loc:!legend_loc
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
 		  ?y_min:!y_min ?y_max:!y_max !datasets)
     in
