@@ -51,7 +51,6 @@ let make_bins ~min_value ~bin_width values =
     Array.iter
       (fun ele ->
 	 let bi = truncate ((ele -. min_value) /. bin_width) in
-	   Printf.eprintf "%i of %i\n%!" bi (Array.length bins);
 	   bins.(bi) <- bins.(bi) + 1) values;
     bins
 
