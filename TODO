@@ -9,8 +9,6 @@ Things that we need before anyone can begin beta testing
   own file.
   -- Num by num datasets are done
 
-* Legacy module (in ps_plot)
-
 * Add a constants file of some sort, or a configurable datafile that
   is read in
 
