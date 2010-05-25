@@ -103,4 +103,55 @@ let line_points_datasets ?(uses_color=false) name_by_points_list =
   name_by_points_list
 
 
+let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
+    ?name sets =
+  let pts, lbls, x_errs, y_errs =
+    Array.fold_left (fun (pts, lbls, x_errs, y_errs) (vls, name) ->
+		       let xs = Array.map (fun p -> p.x) vls
+		       and ys = Array.map (fun p -> p.y) vls in
+		       let mu_x, int_x = Statistics.mean_and_interval xs
+		       and mu_y, int_y = Statistics.mean_and_interval ys in
+		       let pt = point mu_x mu_y in
+			 Printf.eprintf "%f x %f\n" mu_x mu_y;
+		       let lbls' = match name with
+			 | Some txt -> (pt, txt) :: lbls
+			 | None -> lbls
+		       in
+			 (pt :: pts,
+			  lbls',
+			  triple mu_x mu_y int_x :: x_errs,
+			  triple mu_x mu_y int_y :: y_errs))
+      ([], [], [], []) sets in
+  let scatter = new Scatter_dataset.scatter_dataset
+    glyph ?color ~radius (Array.of_list pts)
+  and labels =
+    new Label_dataset.label_dataset
+      ~yoff:(Length.Pt ~-.(Length.as_pt radius)) ~xoff:radius
+      ~xloc:Label_dataset.Label_after
+      ~yloc:Label_dataset.Label_above
+      (Array.of_list lbls)
+  and horiz_err =
+    new Errbar_dataset.horizontal_errbar_dataset (Array.of_list x_errs)
+  and vert_err =
+    new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs)
+  and line = line_dataset dash ?color ?name (Array.of_list pts)
+  in
+    new composite_dataset ?name [scatter; line; horiz_err; vert_err; labels;]
+
+
+
+let scatter_errbar_lines_datasets ?(uses_color=false) name_by_sets_list =
+  let next_glyph = Factories.default_glyph_factory ()
+  and next_dash = Factories.default_dash_factory () in
+    if uses_color
+    then (let next_color = Factories.default_color_factory () in
+	    List.map (fun (name,sets) ->
+			scatter_errbar_lines_dataset (next_glyph())
+			  (next_dash()) ~color:(next_color()) ~name sets)
+	      name_by_sets_list)
+    else
+      List.map (fun (name,sets) ->
+		  scatter_errbar_lines_dataset (next_glyph()) (next_dash())
+		    ~name sets)	name_by_sets_list
+
 (* EOF *)
