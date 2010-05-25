@@ -28,10 +28,12 @@ Extra features
 Datasets
 ------------------------------------------------------------
 
+* Normal quantile plots
+
 * Histograms: fix the legend "icon"
    - Hash marks filling the histograms
    - Coloring w/ alpha values
-   - Don't throw a better error when given an empty set of values
+   - Throw a better error when given an empty set of values
 
 * CDF's need error bars
 
