@@ -9,9 +9,6 @@ Things that we need before anyone can begin beta testing
   own file.
   -- Num by num datasets are done
 
-* Add a constants file of some sort, or a configurable datafile that
-  is read in
-
 ------------------------------------------------------------
 Extra features
 ------------------------------------------------------------
@@ -28,7 +25,7 @@ Datasets
 
 * Normal quantile plots
 
-* Histograms: fix the legend "icon"
+* Histograms:
    - Hash marks filling the histograms
    - Coloring w/ alpha values
    - Throw a better error when given an empty set of values
