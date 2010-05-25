@@ -101,7 +101,7 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
   and vert_err =
     new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs)
   in
-    new composite_dataset ?name [scatter; horiz_err; vert_err; (* labels; *)]
+    new composite_dataset ?name [ scatter; horiz_err; vert_err; labels; ]
 
 
 let scatter_errbar_datasets ?(uses_color=false) name_by_sets_list =
