@@ -28,7 +28,6 @@ Datasets
 * Histograms:
    - Hash marks filling the histograms
    - Coloring w/ alpha values
-   - Throw a better error when given an empty set of values
 
 * CDF's need error bars
 
