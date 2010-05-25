@@ -127,7 +127,9 @@ object(self)
 
 
   method legend_dimensions ctx =
-    (ctx.units line_legend_length), (ctx.units width)
+    (ctx.units line_legend_length),
+  (max ((ctx.units line_legend_length) /. 4.)
+     (ctx.units width))
 
 
   method avg_slope = nan
