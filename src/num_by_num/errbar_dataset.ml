@@ -30,13 +30,16 @@ object (self)
   inherit errbar_dataset triples
 
   method residual ctx ~src ~dst =
-    let tr = point_transform ~src ~dst in
+    let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
       Array.fold_left
 	(fun r t ->
-	   let pt = tr (point t.i t.j) in
-	   let x = pt.x and y = pt.y and mag = t.k in
-	   let up_residue = Errbar.residual_up ctx dst ~x ~y ~mag
-	   and down_residue = Errbar.residual_down ctx dst ~x ~y ~mag in
+	   let src_y = yrange src and dst_x = xrange dst in
+	   let x = tr t.i and y = t.j and mag = t.k in
+	   let up_residue =
+	     Errbar.residual_vert ctx true ~src_y ~dst_x ~x ~y ~mag
+	   and down_residue =
+	     Errbar.residual_vert ctx false ~src_y ~dst_x ~x ~y ~mag
+	   in
 	     rectangle_extremes r (rectangle_extremes up_residue down_residue))
 	zero_rectangle triples
 
@@ -89,13 +92,16 @@ object (self)
   inherit errbar_dataset triples
 
   method residual ctx ~src ~dst =
-    let tr = point_transform ~src ~dst in
+    let tr = range_transform ~src:(yrange src) ~dst:(yrange dst) in
       Array.fold_left
 	(fun r t ->
-	   let pt = tr (point t.i t.j) in
-	   let x = pt.x and y = pt.y and mag = t.k in
-	   let left_residue = Errbar.residual_left ctx dst ~x ~y ~mag
-	   and right_residue = Errbar.residual_right ctx dst ~x ~y ~mag in
+	   let src_x = xrange src and dst_y = yrange dst in
+	   let x = t.i and y = tr t.j and mag = t.k in
+	   let left_residue =
+	     Errbar.residual_horiz ctx true ~src_x ~dst_y ~x ~y ~mag
+	   and right_residue =
+	     Errbar.residual_horiz ctx false ~src_x ~dst_y ~x ~y ~mag
+	   in
 	     rectangle_extremes r (rectangle_extremes
 				     left_residue right_residue))
 	zero_rectangle triples

@@ -52,13 +52,13 @@ let num_by_num_plot () =
   let next_glyph = Factories.default_glyph_factory () in
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
 
-(*
-  let histogram = new Num_by_num.histogram_dataset (next_dash ())
-    ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
-  and histogram2 = new Num_by_num.histogram_dataset (next_dash ())
-    ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
-  in
-*)
+    (*
+      let histogram = new Num_by_num.histogram_dataset (next_dash ())
+      ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
+      and histogram2 = new Num_by_num.histogram_dataset (next_dash ())
+      ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
+      in
+    *)
 
     new Num_by_num.plot
       ~title:"Title text"
@@ -66,55 +66,61 @@ let num_by_num_plot () =
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
       [
-	  Num_by_num.scatter_errbar_dataset
+	Num_by_num.scatter_errbar_dataset
 	  ~name:"Scatter with error bars"
 	  ~color:green (next_glyph ())
 	  [|
-	  [| point 0.5 7.5; point 1.0 1.4;
-	  point 2.0 7.0; point 10.0 3.5; |], Some "one";
-	  [| point 8.5 10.5; point 1.8 8.1;
-	  point 5.7 7.6; point 20.7 9.5; |], Some "two";
-	  [| point 3.2 2.6; point 4.7 2.1;
-	  point 3.6 7.7; point 10.0 3.7; |], Some "three";
-	  [| point 1.9 9.5; point 9.2 8.0;
-	  point 8.5 7.1; point 10.1 3.9; |], Some "four";
+	    [|
+	      point 3.524080 92.450000;
+	      point 5.912676 150000044.360000;
+	      point 4.587590 58.890000;
+	      point 3.579893 85.190000;
+	      point 5.044204 10000054.910000;
+	      point 4.369472 62.330000;
+	      point 6.206105 320000034.490000;
+	      point 3.722864 74.230000;
+
+	    |], Some "one";
 	  |];
 
 
-	  Num_by_num.bestfit_dataset
+(*
+	Num_by_num.bestfit_dataset
 	  (next_glyph ()) (next_dash ())
 	  ~color:green ~name:"Best fit"
 	  [|
-	  point 0. 0.;
-	  point 1. 1.;
-	  point 2. 2.;
-	  point 3. 1.;
+	    point 0. 0.;
+	    point 1. 1.;
+	    point 2. 2.;
+	    point 3. 1.;
 	  |];
 
-	  Num_by_num.line_points_dataset (next_dash ()) (next_glyph ())
+	Num_by_num.line_points_dataset (next_dash ()) (next_glyph ())
 	  ~name:"Lines and points"
 	  [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
 
-	  new Num_by_num.line_errbar_dataset
+	new Num_by_num.line_errbar_dataset
 	  ~name:"Lines with error bars"
 	  ~color:blue (next_line_err ())
 	  [|
-	  [| point 0.5 17.5; point 1.0 11.4;
-	  point 2.0 17.0; point 10.0 13.5; |];
-	  [| point 8.5 17.5; point 1.8 17.1;
-	  point 5.7 12.6; point 20.7 13.5; |];
-	  [| point 3.2 17.6; point 4.7 12.1;
-	  point 3.6 17.7; point 10.0 13.7; |];
-	  [| point 1.9 17.5; point 9.2 18.0;
-	  point 8.5 17.1; point 10.1 13.9; |];
+	    [| point 0.5 17.5; point 1.0 11.4;
+	       point 2.0 17.0; point 10.0 13.5; |];
+	    [| point 8.5 17.5; point 1.8 17.1;
+	       point 5.7 12.6; point 20.7 13.5; |];
+	    [| point 3.2 17.6; point 4.7 12.1;
+	       point 3.6 17.7; point 10.0 13.7; |];
+	    [| point 1.9 17.5; point 9.2 18.0;
+	       point 8.5 17.1; point 10.1 13.9; |];
 	  |];
 
-	  new Num_by_num.function_dataset (next_dash ())
+	new Num_by_num.function_dataset (next_dash ())
 	  ~name:"y=x^2" (fun x -> x ** 2.);
+*)
       ]
 
 
 let main () =
+  Spt.verb_level := Spt.verb_debug;
   let plot = num_by_num_plot () in
 (*
     Random.init 17;

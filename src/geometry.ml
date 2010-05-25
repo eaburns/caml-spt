@@ -53,6 +53,13 @@ let range ~min ~max = { min = min; max = max }
   (** [range ~min ~max] creates a new range. *)
 
 
+let range_padding ~min ~max percent =
+  (** [range_padding ~min ~max percent] computes [percent] padding for
+      the range or gives a default padding if the range is empty. *)
+  let diff = max -. min in
+    if diff = 0. then 1. else diff *. percent
+
+
 let rectangle ~x_min ~x_max ~y_min ~y_max =
   (** [rectangle ~x_min ~x_max ~y_min ~y_max] creates a new rectangle. *)
   {

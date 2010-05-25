@@ -45,7 +45,7 @@ object (self)
 			      in min', max')
 	      (infinity, neg_infinity) datasets
 	  in
-	  let pad = (max -. min) *. 0.01 in
+	  let pad = range_padding ~max ~min 0.01 in
 	    range ~min:(min -. pad) ~max:(max +. pad)
 
 
