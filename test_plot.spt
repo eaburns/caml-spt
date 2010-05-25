@@ -65,6 +65,12 @@
 				    (scalars 5 8 3.8 7.1 9.4 8.1 0.5
 					     5 7 2 9 1 0 10 0.5 2.8))
 				    )))
-	  )
-      (output "test_output.pdf" (display plot2))
-      )))
+	  (plot3 (num-by-num-plot
+		  (title "Test CDF")
+		  (y-label "accumulated weight")
+		  (x-label "The x values")
+		  ((cdf-dataset (name "Dataset one")
+				    (scalars 5 8 3.8 7.1 9.4 8.1 0.5 5
+					     7 2 9 1 0 10 0.5 2.8))
+					     ))) )
+      (display plot3) )))

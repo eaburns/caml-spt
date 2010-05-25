@@ -135,6 +135,8 @@ let rec eval env = function
       eval_line_errbar env operands
   | Sexpr.List (_, (Sexpr.Ident (l, "histogram-dataset")) :: operands ) ->
       eval_histogram env l operands
+  | Sexpr.List (_, (Sexpr.Ident (l, "cdf-dataset")) :: operands ) ->
+      eval_cdf env l operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-composite")) :: operands ) ->
       eval_num_by_num_composite env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-num-plot")) :: operands ) ->
@@ -759,6 +761,44 @@ and eval_histogram env line operands =
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?width:!width ?color:!color ?bin_width:!bin_width ?name:!name
 	 !data)
+
+
+and eval_cdf env line operands =
+  (** [eval_cdf env line operands] evaluates a cumulative density
+      dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and color = ref None
+  and width = ref None
+  and name = ref None
+  and data = ref [| |]
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
+	     set_once dashes l "dashes" (eval_dashes env ds)
+	 | S.List (_, S.Ident (l, "color") :: operands) ->
+	     set_once color l "color" (eval_color env l operands)
+	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
+	     set_once width l "width" (eval_length env len)
+	 | S.List (l, _) as floats ->
+	     begin match eval env floats with
+	       | Scalars vls ->
+		   data := Array.append !data vls
+	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
+				  l (to_string x))
+	     end
+	 | e ->
+	     failwith (sprintf
+			 "line %d: Invalid option to a cdf dataset"
+			 (Sexpr.line_number e))
+      ) operands;
+    Num_by_num_dataset
+      (new Num_by_num.cdf_dataset
+	 (match !dashes with | Some g -> g | None -> env.next_dash ())
+	 ?width:!width ?color:!color ?name:!name !data)
 
 
 and eval_num_by_num_composite env operands =
