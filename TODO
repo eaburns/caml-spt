@@ -88,6 +88,8 @@ spt-it-out
 
 * Simple arithmetic... mapping log10 over things, etc.
 
+* Including other spt-it-out files
+
 ------------------------------------------------------------
 Plot types
 ------------------------------------------------------------
