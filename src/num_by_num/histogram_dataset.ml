@@ -10,10 +10,6 @@ open Num_by_num_dataset
 open Drawing
 open Geometry
 
-type bin =
-  { lower_end : float;
-    upper_end : float;
-    mutable count : int;}
 
 let f_compare a b =
   let v = a -. b in
@@ -26,50 +22,38 @@ let line_legend_length = Length.Cm 0.75
 let default_line = { default_line_style with line_width = Length.Pt 1. }
 and default_bins = 10.
 
-let fits bin value =
-  (* checks to see if [value] fits into the current bin, increments
-     count if it does and returns true, else false *)
-  if (bin.lower_end <= value) && (value <= bin.upper_end)
-  then (bin.count <- bin.count + 1; true)
-  else false
+
+let bin_start ~min ~bin_width index =
+  (** value at the left edge of bin [i] in [h] *)
+  min +. (bin_width *. (float index))
 
 
-let bin_from_bin prev_bin bin_width =
-  assert (bin_width <> 0.);
-  { lower_end = prev_bin.upper_end;
-    upper_end = prev_bin.upper_end +. bin_width;
-    count = 0; }
+let bin_end ~min ~bin_width index =
+  (** Value at the right edge of bin [i] in [h].
+      This is not implemented interms of bin_start because (even when
+      inlined) OCaml boxes the return value of bin_start. *)
+  min +. (bin_width *. (float (index + 1)))
 
 
-let bin_from_value value bin_width =
-  let half = bin_width /. 2. in
-    { lower_end = value -. half;
-      upper_end = value +. half;
-      count = 1;}
-
-
-let bin_to_point bin =
-  { x = bin.lower_end +. ((bin.upper_end -. bin.lower_end) /. 2.);
-    y = float bin.count}
+let bucket ~min ~bin_width value =
+  (** the index of the bin that should contain [value].  Note that any
+      value outside the range of representable integers, such as
+      [infinity], may yield a garbage value, such as 0!  If you might pass
+      such a value, test before calling!  (This routine is intended to be
+      simple and fast.) *)
+  truncate ((value -. min) /. bin_width)
 
 
 let make_bins ~min_value ~bin_width values =
-    let first_bin = bin_from_value min_value bin_width in
-      first_bin.count <- first_bin.count - 1;
-      let c_bin,bins =
-	Array.fold_left
-	  (fun (current, accum) value ->
-	     if fits current value
-	     then (current,accum)
-	     else (if bin_width = 0.
-		   then (bin_from_value value bin_width, (current::accum))
-		   else
-		     (let bi =
-			truncate (ceil ((value -. min_value) /. bin_width)) in
-		      let center = ((float bi) *. bin_width +. min_value) in
-			bin_from_value center bin_width, (current::accum))))
-	  (first_bin, []) values in
-	c_bin::bins
+  let range = values.((Array.length values) - 1) -. min_value in
+  let bin_count = truncate (ceil (range /. bin_width)) in
+  let bins = Array.create (bin_count + 1) 0 in
+    Array.iter
+      (fun ele ->
+	 let bi = truncate ((ele -. min_value) /. bin_width) in
+	   Printf.eprintf "%i of %i\n%!" bi (Array.length bins);
+	   bins.(bi) <- bins.(bi) + 1) values;
+    bins
 
 
 let make_width ~bin_width ~max_value ~min_value =
@@ -95,54 +79,29 @@ object(self)
 		line_width = width; }
 
   method dimensions =
-    let min_x = ref infinity
-    and max_x = ref neg_infinity
-    and max_y = ref 0 in
-      List.iter (fun bucket ->
-		   min_x := min !min_x bucket.lower_end;
-		   max_x := max !max_x bucket.upper_end;
-		   max_y := max !max_y bucket.count) bins;
-      rectangle ~x_min:!min_x ~x_max:!max_x ~y_min:0. ~y_max:(float !max_y)
+      rectangle ~x_min:(min_value -. (bin_width /. 2.))
+	~x_max:(max_value +. (bin_width /. 2.)) ~y_min:0.
+	~y_max:(float (Array.fold_left max 0 bins))
 
 
-  method residual ctx ~src ~dst =
-    let tr_rect = rectangle_transform ~src ~dst in
-    let w = (ctx.units width) /. 2. in
-      List.fold_left
-	(fun res bin ->
-	   let x_min = bin.lower_end
-	   and x_max = bin.upper_end
-	   and y_min = 0.
-	   and y_max = float bin.count in
-	   let r = rectangle ~x_min ~x_max ~y_min ~y_max in
-	     match clip_rectangle ~box:src ~r with
-	       | Some r ->
-		   let r' = tr_rect r in
-		   let r'' =
-		     rectangle ~x_min:(r'.x_min -. w)
-		       ~x_max:(r'.x_max +. w)
-		       ~y_min:(r'.y_min +. w)
-		       ~y_max:(r'.y_max -. w)
-		   in
-		     rectangle_max res (rectangle_residual ~dst ~r:r'')
-	       | None -> res)
-	zero_rectangle bins
+  method residual ctx ~src ~dst = zero_rectangle
 
 
   method draw ctx ~src ~dst =
     let tr_rect = rectangle_transform ~src ~dst in
     let tr_pt = point_transform ~src ~dst in
-      List.iter (fun bin ->
-		   let y_max = float bin.count in
-		   let r =
-		     rectangle ~x_min:bin.lower_end ~x_max:bin.upper_end
-		       ~y_min:0. ~y_max
+      Array.iteri (fun index count ->
+		   let y_max = float count
+		   and x_min = min_value +. ((float index) -. 0.5) *. bin_width
+		   and x_max = min_value +. ((float index) +. 0.5) *. bin_width
 		   in
-		   let outline = [ point bin.lower_end 0.;
-				   point bin.lower_end y_max;
-				   point bin.upper_end y_max;
-				   point bin.upper_end 0.;
-				   point bin.lower_end 0.;];
+		   let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max
+		   in
+		   let outline = [ point x_min 0.;
+				   point x_min y_max;
+				   point x_max y_max;
+				   point x_max 0.;
+				   point x_min 0.;];
 		   in
 		     draw_line ctx ~box:src ~tr:tr_pt ~style outline;
 		     match clip_rectangle ~box:src ~r with
@@ -167,15 +126,6 @@ end
 
 let histogram_connected_dataset dashes glyph ?width ?bin_width ?(color = black)
     ?name values =
-  Array.sort f_compare values;
-  let min_value = values.(0)
-  and max_value = values.((Array.length values) - 1) in
-  let histogram = new histogram_dataset dashes ?name values in
-  let bins = make_bins ~min_value
-    ~bin_width:(make_width ~bin_width ~max_value ~min_value) values in
-    new composite_dataset ?name
-      [histogram;
-       Line_dataset.line_points_dataset dashes glyph ?width ~color ?name
-	 (Array.of_list (List.map bin_to_point bins));]
+  failwith "not anymore"
 
 (* EOF *)
