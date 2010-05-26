@@ -6,8 +6,11 @@
 
 open Verbosity
 
-let verb_string = "Set the verbosity level"
 
+let version = 0.1
+  (** The version number *)
+
+let verb_string = "Set the verbosity level"
 
 let parse_args () =
   (** [parse_args ()] parses the command-line arguments. *)
@@ -24,6 +27,7 @@ let parse_args () =
 
 let main () =
   let file, verb = parse_args () in
+    vprintf verb_normal "spt-it-out version %3.1f\n" version;
     Verb_level.set verb;
     let inch = open_in file in
     let ast = Sexpr.parse (Stream.of_channel inch) in
