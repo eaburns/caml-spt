@@ -8,16 +8,6 @@ open Num_by_nom_dataset
 open Drawing
 open Geometry
 
-let default_text_style =
-  (** The default style for labels. *)
-  {
-    text_font = "sans-serif";
-    text_size = Length.Pt 8.;
-    text_slant = font_slant_normal;
-    text_weight = font_weight_normal;
-    text_color = black;
-  }
-
 class barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray) name value =
   let min_val = min 0. value
   and max_val = max 0. value in
