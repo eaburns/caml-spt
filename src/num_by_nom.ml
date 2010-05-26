@@ -48,6 +48,7 @@ class plot
   (** [plot ?label_style ?legend_style ?tick_style ?title ?ylabel
       ?y_min ?y_max datasets] a plot that has a nominal x axis and a
       numeric y axis. *)
+  let _ = vprintf verb_normal "creating a numeric by nominal plot\n" in
 object (self)
   inherit Spt.plot title
 

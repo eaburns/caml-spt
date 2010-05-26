@@ -51,6 +51,7 @@ class plot
   (** [plot ?label_style ?legend_style ?tick_style ?title ?xlabel
       ?ylabel ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a
       numeric x and y axis. *)
+  let _ = vprintf verb_normal "creating a numeric by numeric plot\n" in
 object (self)
   inherit Spt.plot title
 

@@ -471,7 +471,6 @@ and eval_num_by_num env operands =
 	     failwith (sprintf "line %d: Invalid option to a num-by-num plot"
 			 (Sexpr.line_number e))
       ) operands;
-    vprintf verb_normal "creating a numeric by numeric plot\n";
     let plot = (new Num_by_num.plot ?title:!title ?xlabel:!xlabel
 		  ?legend_loc:!legend_loc
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
@@ -877,7 +876,6 @@ and eval_num_by_nom env operands =
 	     failwith (sprintf "line %d: Invalid option to a num-by-nom plot"
 			 (Sexpr.line_number e))
       ) operands;
-    vprintf verb_normal "creating a numeric by nominal plot\n";
     let plot = (new Num_by_nom.plot ?title:!title ?ylabel:!ylabel
 		  ?y_min:!y_min ?y_max:!y_max !datasets)
     in
