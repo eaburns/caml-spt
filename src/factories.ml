@@ -113,10 +113,11 @@ let default_fill_pattern_factory ?(color=black) () =
   let line_style = { default_line_style with line_color = color } in
     make_fill_pattern_factory
       [|
-	Fill_none;
-	Fill_vertical ( line_style, Length.Pt 5.);
-	Fill_horizontal ( line_style, Length.Pt 5.);
-	Fill_solid color;
+	No_fill;
+	Vertical_fill (line_style, Length.Pt 4.);
+	Horizontal_fill (line_style, Length.Pt 4.);
+	Dotted_fill (Length.Pt 1., Length.Pt 4.);
+	Solid_fill color;
       |]
 
 
@@ -124,7 +125,7 @@ let default_color_fill_pattern_factory () =
   (** [default_color_fill_pattern_factory] makes a factory that
       returns different colored fills. *)
   let next_color = default_color_factory () in
-    (fun () -> Fill_solid (next_color ()))
+    (fun () -> Solid_fill (next_color ()))
 
 
 (* EOF *)
