@@ -9,7 +9,7 @@ open Drawing
 open Geometry
 
 
-class barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray) name value =
+class barchart_dataset fill ?(width=Length.Pt 1.) ?(color=gray) name value =
   let min_val = min 0. value
   and max_val = max 0. value in
 
@@ -17,9 +17,9 @@ object(self)
 
   inherit Num_by_nom_dataset.dataset name
 
-  val style = { line_color = black;
-		line_dashes = dashes;
-		line_width = width; }
+  val style = { default_line_style with
+		  line_color = black;
+		  line_width = width; }
 
 
   method dimensions =
@@ -34,8 +34,11 @@ object(self)
     let tr = range_transform ~src ~dst in
     let y_min = tr (min 0. value)
     and y_max = tr (max 0. value) in
-      fill_rectangle ctx ~color
-	(rectangle ~x_min:x ~x_max:(x +. width) ~y_min ~y_max);
+    let r = rectangle ~x_min:x ~x_max:(x +. width) ~y_min ~y_max in
+(*
+      fill_rectangle ctx ~color r;
+*)
+      draw_fill_pattern ctx r fill;
       draw_line ctx ~style [point x y_min;
 			    point x y_max;
 			    point (x +. width) y_max;
@@ -136,16 +139,25 @@ object(self)
 end
 
 
-let barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray) name data =
-  new barchart_dataset dashes ~width ~color name data
+let barchart_dataset
+    fill_pattern ?(width=Length.Pt 1.) ?(color=gray) name data =
+  new barchart_dataset fill_pattern ~width ~color name data
 
 
-let barchart_datasets dashes ?(width=Length.Pt 1.) ?(color=gray)
-    ?(gname = "") values =
-  let bars = List.map
-    (fun (nm,dt) ->
-       new barchart_dataset dashes ~width ~color nm dt) values in
-    new Num_by_nom.dataset_group gname bars
+let barchart_datasets
+    ?(use_color=false)
+    ?(width=Length.Pt 1.) ?(gname = "") values =
+  (** [barchart_datasets ?use_color ?width ?gname values] makes a
+      group of bars datasets. *)
+  let next_fill =
+    if use_color
+    then Factories.default_color_fill_pattern_factory ()
+    else Factories.default_fill_pattern_factory () in
+  let bars =
+    List.map
+      (fun (nm,dt) -> new barchart_dataset (next_fill ()) ~width nm dt)
+      values
+  in new Num_by_nom.dataset_group gname bars
 
 
 let barchart_errbar_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
