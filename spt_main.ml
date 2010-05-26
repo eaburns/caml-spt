@@ -15,7 +15,7 @@ open GMain
 
 let num_by_nom_plot () =
   let next_dash = Factories.default_dash_factory () in
-  let barchart = Barchart_dataset.barchart_errbar_datasets (next_dash ())
+  let barchart = Barchart_dataset.stacked_barchart_datasets (next_dash ())
     ~gname:"test barchart"  ["jan", [|10.; 10.; 10.; 15.; 12.; 5.|];
 			     "feb", [|40.; 10.; 20.; 15.; 12.; 5.|];
 			     "mar", [|20.; 0.; 0.; 15.; 12.; 5.|];
