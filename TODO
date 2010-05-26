@@ -9,6 +9,8 @@ Things that we need before anyone can begin beta testing
   own file.
   -- Num by num datasets are done
 
+* Order legends by mean y-value in num_by_num plots.
+
 ------------------------------------------------------------
 Extra features
 ------------------------------------------------------------
