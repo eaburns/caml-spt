@@ -463,12 +463,13 @@ let draw_points ctx ?color radius glyph points =
 
 type fill_pattern =
   | No_fill
+  | Patterned_solid_fill of color * fill_pattern
   | Solid_fill of color
   | Vertical_fill of line_style * Length.t
   | Horizontal_fill of line_style * Length.t
   | Diagonal_fill of line_style * Length.t * Length.t
   | Hash_fill of line_style * Length.t * Length.t
-  | Dotted_fill of Length.t * Length.t
+  | Dotted_fill of color * Length.t * Length.t
 
 
 let draw_solid_fill ctx r color =
@@ -528,8 +529,9 @@ let draw_diagonal_fill ctx r style slope delta =
     done
 
 
-let draw_dotted_fill ctx r radius delta =
-  (** [draw_dotted_fill ctx r radius delta] draws a fill of dots. *)
+let draw_dotted_fill ctx r color radius delta =
+  (** [draw_dotted_fill ctx r color radius delta] draws a fill of dots. *)
+  set_color ctx color;
   let radius = ctx.units radius in
   let delta = ctx.units delta in
   let draw_dot = make_draw_glyph ctx radius Circle_glyph in
@@ -548,7 +550,7 @@ let draw_dotted_fill ctx r radius delta =
     done
 
 
-let draw_fill_pattern ctx r = function
+let rec draw_fill_pattern ctx r = function
     (** [draw_fill_pattern ctx r] draws the given fill pattern in the
 	rectangle. *)
   | No_fill -> ()
@@ -561,7 +563,16 @@ let draw_fill_pattern ctx r = function
       let s = Length.as_pt slope in
 	draw_diagonal_fill ctx r style slope delta;
 	draw_diagonal_fill ctx r style (Length.Pt ~-.s) delta;
-  | Dotted_fill (radius, delta) -> draw_dotted_fill ctx r radius delta
+  | Dotted_fill (color, radius, delta) ->
+      draw_dotted_fill ctx r color radius delta
+  | Patterned_solid_fill (color, pattern) ->
+      match pattern with
+	| Patterned_solid_fill (_, _) | Solid_fill _ ->
+	    invalid_arg ("Patterned_solid_fill: pattern cannot be one of: "
+			   ^ "Patterned_solid_fill or Solid_fill")
+	| x ->
+	    draw_solid_fill ctx r color;
+	    draw_fill_pattern ctx r pattern
 
 
 let draw_rectangle ctx ?style r =

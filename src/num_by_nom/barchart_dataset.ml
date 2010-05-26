@@ -9,7 +9,8 @@ open Drawing
 open Geometry
 
 
-class barchart_dataset fill ?(width=Length.Pt 1.) ?(color=gray) name value =
+class barchart_dataset
+  fill_pattern ?(width=Length.Pt 1.) ?(color=gray) name value =
   let min_val = min 0. value
   and max_val = max 0. value in
 
@@ -35,10 +36,7 @@ object(self)
     let y_min = tr (min 0. value)
     and y_max = tr (max 0. value) in
     let r = rectangle ~x_min:x ~x_max:(x +. width) ~y_min ~y_max in
-(*
-      fill_rectangle ctx ~color r;
-*)
-      draw_fill_pattern ctx r fill;
+      draw_fill_pattern ctx r fill_pattern;
       draw_line ctx ~style [point x y_min;
 			    point x y_max;
 			    point (x +. width) y_max;
@@ -48,21 +46,21 @@ object(self)
 end
 
 
-class barchart_errbar_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
+class barchart_errbar_dataset fill_pattern ?(width=Length.Pt 1.) ?(color=gray)
   name values =
 
-let mean, conf_interval = Statistics.mean_and_interval values in
+  let mean, conf_interval = Statistics.mean_and_interval values in
 
-let min_val = min 0. (mean -. conf_interval)
-and max_val = max 0. (mean +. conf_interval) in
+  let min_val = min 0. (mean -. conf_interval)
+  and max_val = max 0. (mean +. conf_interval) in
 
 object(self)
 
   inherit Num_by_nom_dataset.dataset name
 
-  val style = { line_color = black;
-		line_dashes = dashes;
-		line_width = width; }
+  val style = { default_line_style with
+		  line_color = black;
+		  line_width = width; }
 
 
   method dimensions =
@@ -78,8 +76,8 @@ object(self)
     let y_min = tr (min 0. mean)
     and y_max = tr (max 0. mean)
     and center = (width /. 2.) +. x in
-      fill_rectangle ctx ~color
-	(rectangle ~x_min:x ~x_max:(x +. width) ~y_min ~y_max);
+    let r = rectangle ~x_min:x ~x_max:(x +. width) ~y_min ~y_max in
+      draw_fill_pattern ctx r fill_pattern;
       draw_line ctx ~style [point x y_min;
 			    point x y_max;
 			    point (x +. width) y_max;
@@ -160,17 +158,25 @@ let barchart_datasets
   in new Num_by_nom.dataset_group gname bars
 
 
-let barchart_errbar_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
+let barchart_errbar_dataset fill_pattern ?(width=Length.Pt 1.) ?(color=gray)
     name data =
-  new barchart_errbar_dataset dashes ~width ~color name data
+  new barchart_errbar_dataset fill_pattern ~width ~color name data
 
 
-let barchart_errbar_datasets dashes ?(width=Length.Pt 1.) ?(color=gray)
-    ?(gname = "") values =
-  let bars = List.map
-    (fun (nm,dt) ->
-       new barchart_errbar_dataset dashes ~width ~color nm dt) values in
-    new Num_by_nom.dataset_group gname bars
+let barchart_errbar_datasets
+    ?(use_color=false) ?(width=Length.Pt 1.) ?(gname = "") values =
+  (** [barchart_errbar_datasets ?use_color ?width ?gname values] makes
+      a set of barcharts. *)
+  let next_fill =
+    if use_color
+    then Factories.default_color_fill_pattern_factory ()
+    else Factories.default_fill_pattern_factory () in
+  let bars =
+    List.map
+      (fun (nm,dt) ->
+	 new barchart_errbar_dataset (next_fill ()) ~width nm dt)
+      values
+  in new Num_by_nom.dataset_group gname bars
 
 
 let stacked_barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)

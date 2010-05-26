@@ -14,14 +14,31 @@ open Spt
 open GMain
 
 let num_by_nom_plot () =
+(*
   let barchart =
     Barchart_dataset.barchart_datasets
-(* Uncomment this for colors
       ~use_color:true
-*)
       ["jan", 10.; "feb", 40.; "mar", 20.; "apr", -10.;
        "may", 10.; "jun", 10.; "jul", 10.; "aug", 10.;
        "sep", 10.; "oct", 10.; "nov", 10.; "dec", 10.;
+      ]
+  in
+*)
+  let bar_err =
+    Barchart_dataset.barchart_errbar_datasets
+      ~use_color:true
+      ["jan", (Array.init 100 (fun _ -> Random.float 100.));
+       "feb", (Array.init 100 (fun _ -> Random.float 100.));
+       "mar", (Array.init 100 (fun _ -> Random.float 100.));
+       "apr", (Array.init 100 (fun _ -> Random.float 100.));
+       "may", (Array.init 100 (fun _ -> Random.float 100.));
+       "jun", (Array.init 100 (fun _ -> Random.float 100.));
+       "jul", (Array.init 100 (fun _ -> Random.float 100.));
+       "aug", (Array.init 100 (fun _ -> Random.float 100.));
+       "sep", (Array.init 100 (fun _ -> Random.float 100.));
+       "oct", (Array.init 100 (fun _ -> Random.float 100.));
+       "nov", (Array.init 100 (fun _ -> Random.float 100.));
+       "dec", (Array.init 100 (fun _ -> Random.float 100.));
       ]
   in
     new Num_by_nom.plot
@@ -56,13 +73,17 @@ let num_by_nom_plot () =
 	  new Num_by_nom.boxplot_dataset "0-50"
 	  (Array.init 10 (fun _ -> Random.float 50.));
 	  ];*)
-	barchart
+	bar_err
       ]
 
 let num_by_num_plot () =
+(*
   let next_dash = Factories.default_dash_factory () in
+*)
   let next_glyph = Factories.default_glyph_factory () in
+(*
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
+*)
 
     (*
       let histogram = new Num_by_num.histogram_dataset (next_dash ())
