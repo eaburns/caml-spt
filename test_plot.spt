@@ -49,6 +49,7 @@
 		  (x-label "The x variable")
 		  (y-label "The y variable")
 		  (ds0 ds1 ds2 ds3 ds4 ds5 ds6)))
+
 	  (plot1 (num-by-nom-plot
 		  (title "Test plot")
 		  (y-label "The y variable")
@@ -75,5 +76,24 @@
 		  ((cdf-dataset (name "Dataset one")
 				    (scalars 5 8 3.8 7.1 9.4 8.1 0.5 5
 					     7 2 9 1 0 10 0.5 2.8))
-					     ))) )
-      (display plot2) )))
+					     )))
+
+	  (plot4 (num-by-nom-plot
+		  (title "Test plot")
+		  (y-label "The y variable")
+		  ((barchart-dataset (name "Dataset one") 5)
+		   (barchart-dataset (name "Dataset two") 6)
+		   (barchart-dataset (name "Dataset three") 1)
+		   (barchart-dataset (name "Dataset four") 10)
+				    )))
+	  (plot5 (num-by-nom-plot
+		  (title "Test plot")
+		  (y-label "The y variable")
+		  ((barchart-errbar-dataset (name "Dataset one")
+					    (scalars 5 7 2 9 1 0 10))
+		   (barchart-errbar-dataset (name "Dataset two")
+					    (scalars 3 1 -1 4 9 10)
+					    ))
+		  ))
+	  )
+      (display plot5) )))

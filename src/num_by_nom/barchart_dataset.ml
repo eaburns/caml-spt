@@ -63,7 +63,7 @@ let barchart_datasets
     List.map
       (fun (nm,dt) -> new barchart_dataset (next_fill ()) ~width nm dt)
       values
-  in new Num_by_nom.dataset_group gname bars
+  in new Num_by_nom_dataset.dataset_group gname bars
 
 
 (** {1 Barcharts with error bars} ****************************************)
@@ -130,7 +130,7 @@ let barchart_errbar_datasets
       (fun (nm,dt) ->
 	 new barchart_errbar_dataset (next_fill ()) ~width nm dt)
       values
-  in new Num_by_nom.dataset_group gname bars
+  in new Num_by_nom_dataset.dataset_group gname bars
 
 
 (** {1 Stacked barcharts} ****************************************)
@@ -192,7 +192,7 @@ let stacked_barchart_datasets dashes ?(width=Length.Pt 1.) ?(color=gray)
   let bars = List.map
     (fun (nm,dt) ->
        new stacked_barchart_dataset dashes ~width ~color nm dt) values in
-    new Num_by_nom.dataset_group gname bars
+    new Num_by_nom_dataset.dataset_group gname bars
 
 
 (* EOF *)
