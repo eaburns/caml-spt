@@ -75,6 +75,8 @@ Usability
       * Specify the size of the plot -- make sure to pre-populate dialogue
       * Turn color on / off
 
+* Grouping num by nom datasets in spt-it-out
+
 * Minimum Plot size requirement in Gtk window needs removed
 
 * Generate .mli files where possible / appropriate
