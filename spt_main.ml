@@ -120,7 +120,6 @@ let num_by_num_plot () =
 
 
 let main () =
-  Spt.verb_level := Spt.verb_debug;
   let plot = num_by_num_plot () in
 (*
     Random.init 17;
