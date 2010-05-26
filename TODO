@@ -39,7 +39,8 @@ Datasets
   - Numeric by Numeric
   - Nominal by Nominal
 
-* Bar charts (and with error bars)
+* Bar charts (and with error bars) -
+  Needs to have possibility of being filled with hash marks
 
 * Stacked bar charts
   - Diffenent hash marks filling bars (for situations when there are no colors)
