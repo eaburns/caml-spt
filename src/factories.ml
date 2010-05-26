@@ -94,7 +94,7 @@ let make_color_factory color_list =
 
 let default_color_factory () =
   make_color_factory
-    [black; red; green; blue; gray; purple; fuchsia; lavender; mustard]
+    [red; green; blue; gray; purple; fuchsia; lavender; mustard]
 
 
 let make_fill_pattern_factory fill_set =
@@ -118,17 +118,33 @@ let default_fill_pattern_factory ?(color=black) () =
 	Diagonal_fill (line_style, Length.Pt 1., Length.Pt 10.);
 	Diagonal_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
 	Hash_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
-	Dotted_fill (Length.Pt 1., Length.Pt 4.);
+	Dotted_fill (color, Length.Pt 1., Length.Pt 4.);
 	Vertical_fill (line_style, Length.Pt 4.);
 	Solid_fill color;
       |]
 
 
-let default_color_fill_pattern_factory () =
-  (** [default_color_fill_pattern_factory] makes a factory that
-      returns different colored fills. *)
+let default_color_fill_pattern_factory ?(patterned=true) () =
+  (** [default_color_fill_pattern_factory ?patterned ()] makes a
+      factory that returns different colored fills. *)
+  let line_style = { default_line_style with line_color = black } in
   let next_color = default_color_factory () in
-    (fun () -> Solid_fill (next_color ()))
+  let next_pattern =
+    make_fill_pattern_factory
+      [|
+	No_fill;
+	Horizontal_fill (line_style, Length.Pt 4.);
+	Diagonal_fill (line_style, Length.Pt 1., Length.Pt 10.);
+	Diagonal_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
+	Hash_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
+	Dotted_fill (black, Length.Pt 1., Length.Pt 4.);
+	Vertical_fill (line_style, Length.Pt 4.);
+      |]
+  in
+    (fun () ->
+       if not patterned
+       then Solid_fill (next_color ())
+       else Patterned_solid_fill ((next_color ()), next_pattern ()))
 
 
 (* EOF *)
