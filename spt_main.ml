@@ -15,19 +15,19 @@ open GMain
 
 let num_by_nom_plot () =
   let next_dash = Factories.default_dash_factory () in
-  let barchart = Barchart_dataset.barchart_datasets (next_dash ())
-    ~gname:"test barchart"  ["jan", 10.;
-			     "feb", 20.;
-			     "mar", 30.;
-			     "apr", 40.;
-			     "may", 50.;
-			     "jun", 40.;
-			     "jul", 30.;
-			     "aug", 20.;
-			     "sep", 10.;
-			     "oct", 0.;
-			     "nov", -.10.;
-			     "dec", 100.;] in
+  let barchart = Barchart_dataset.barchart_errbar_datasets (next_dash ())
+    ~gname:"test barchart"  ["jan", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "feb", [|40.; 10.; 20.; 15.; 12.; 5.|];
+			     "mar", [|20.; 0.; 0.; 15.; 12.; 5.|];
+			     "apr", [|-10.; 10.; 10.; 15.; 12.; 5.|];
+			     "may", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "jun", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "jul", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "aug", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "sep", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "oct", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "nov", [|10.; 10.; 10.; 15.; 12.; 5.|];
+			     "dec", [|10.; 10.; 10.; 15.; 12.; 5.|];] in
     new Num_by_nom.plot
       ~title:"Title text"
       ~ylabel:"Y label text"
