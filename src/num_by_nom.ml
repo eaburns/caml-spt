@@ -17,6 +17,27 @@ let x_axis_padding = Length.Pt 10.
 let between_padding = Length.Pt 20.
   (** Padding between each dataset. *)
 
+let data_dimensions ~y_min ~y_max datasets =
+  (** [data_dimensions ~y_min ~y_max datasets] computes the dimension
+      of the y-axis. *)
+  let r = match y_min, y_max with
+    | Some min, Some max -> range ~min ~max
+    | _ ->
+	let min, max =
+	  List.fold_left (fun (min, max) ds ->
+			    let r = ds#dimensions in
+			    let ds_min = r.min and ds_max = r.max in
+			    let min' = if ds_min < min then ds_min else min
+			    and max' = if ds_max > max then ds_max else max
+			    in min', max')
+	    (infinity, neg_infinity) datasets
+	in
+	let pad = range_padding ~max ~min 0.01 in
+	  range ~min:(min -. pad) ~max:(max +. pad)
+  in
+    vprintf verb_normal "data dimensions: y=[%f, %f]\n" r.min r.max;
+    r
+
 (** {1 Numeric by nomeric plot} ****************************************)
 
 class plot
@@ -30,39 +51,19 @@ class plot
 object (self)
   inherit Spt.plot title
 
-  val datasets = datasets
+  val src = data_dimensions ~y_min ~y_max datasets
+    (** The dimensions of the y-axis in data coordinates. *)
 
-  method private src_y_range =
-    (** [src_y_range] computes the range of the y axis. *)
-    let r = match y_min, y_max with
-      | Some min, Some max -> range ~min ~max
-      | _ ->
-	  let min, max =
-	    List.fold_left (fun (min, max) ds ->
-			      let r = ds#dimensions in
-			      let ds_min = r.min and ds_max = r.max in
-			      let min' = if ds_min < min then ds_min else min
-			      and max' = if ds_max > max then ds_max else max
-			      in min', max')
-	      (infinity, neg_infinity) datasets
-	  in
-	  let pad = range_padding ~max ~min 0.01 in
-	    range ~min:(min -. pad) ~max:(max +. pad)
-    in
-      vprintf verb_optional "\tdata dimensions: y=[%f, %f]\n" r.min r.max;
-      r
-
-
-  method private yaxis src =
-    (** [yaxis src] creates a y-axis. *)
+  method private yaxis =
+    (** [yaxis] creates a y-axis. *)
     let nticks = Numeric_axis.recommended_ticks height in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
       verb_eval verb_debug
 	(fun () ->
-	   vprintf verb_debug "\ty-ticks:\n";
+	   vprintf verb_debug "y-ticks:\n";
 	   List.iter (fun (vl, name) -> match name with
-			| None -> vprintf verb_debug "\t\tminor: %f" vl
-			| Some _ -> vprintf verb_debug "\t\tmajor: %f" vl)
+			| None -> vprintf verb_debug "\tminor: %f\n" vl
+			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
 	     ticks);
       Numeric_axis.create ~label_text_style ~tick_text_style
 	~src ticks ylabel
@@ -128,15 +129,14 @@ object (self)
 
 
   method draw ctx =
-    vprintf verb_optional "Drawing numeric by nominal plot\n";
+    vprintf verb_optional "\ndrawing numeric by nominal plot\n";
     let between_padding = ctx.units between_padding in
-    let src = self#src_y_range in
-    let yaxis = self#yaxis src in
+    let yaxis = self#yaxis in
     let xrange, width = self#x_axis_dimensions ctx yaxis in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:width in
       vprintf verb_optional
-	"\tplot dimensions: x=[%f, %f] text width=%f, y=[%f, %f]\n"
-	xrange.min xrange.max width dst.min dst.max;
+	"plot dimensions: x=[%f, %f], y=[%f, %f]\ntext width=%f\n"
+	xrange.min xrange.max dst.min dst.max width;
       begin match title with
 	| None -> ()
 	| Some t ->

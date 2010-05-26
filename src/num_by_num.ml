@@ -11,6 +11,33 @@ open Verbosity
 let axis_padding = Length.Pt 5.
   (** The padding between the axis and the data. *)
 
+
+let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
+  (** [data_dimensions ~x_min ~x_max ~y_min ~y_max datasets] computes
+      the range of the x and y axes for the given datasets. *)
+  let r = match datasets with
+    | d :: [] -> d#dimensions
+    | d :: ds ->
+	List.fold_left (fun r d -> rectangle_extremes r d#dimensions)
+	  d#dimensions ds
+    | [] ->
+	rectangle ~x_min:infinity ~x_max:neg_infinity
+	  ~y_min:infinity ~y_max:neg_infinity
+  in
+  let x_min' = match x_min with None -> r.x_min | Some m -> m
+  and x_max' = match x_max with None -> r.x_max | Some m -> m
+  and y_min' = match y_min with None -> r.y_min | Some m -> m
+  and y_max' = match y_max with None -> r.y_max | Some m -> m in
+  let x_pad = range_padding ~max:x_max' ~min:x_min' 0.01 in
+  let y_pad = range_padding ~max:y_max' ~min:y_min' 0.01 in
+  let r = (rectangle ~x_min:(x_min' -. x_pad) ~x_max:(x_max' +. x_pad)
+	     ~y_min:(y_min' -. y_pad) ~y_max:(y_max' +. y_pad))
+  in
+    vprintf verb_normal "data dimensions: x=[%f, %f], y=[%f, %f]\n"
+      r.x_min r.x_max r.y_min r.y_max;
+    r
+
+
 (** {1 Numeric by numeric plot} ****************************************)
 
 class plot
@@ -27,8 +54,8 @@ class plot
 object (self)
   inherit Spt.plot title
 
-  val datasets = datasets
-    (** The list of datasets. *)
+  val src = data_dimensions ~x_min ~x_max ~y_min ~y_max datasets
+    (** The dimensions of the axes in the data coordinate system. *)
 
 
   method suggest_aspect =
@@ -50,33 +77,8 @@ object (self)
       else self#set_size ~w:self#width ~h:(skew self#height ratio)
 
 
-  method private src_rectangle =
-    (** [src_rectangle] computes the range of the x and y axes. *)
-    let r = match datasets with
-      | d :: [] -> d#dimensions
-      | d :: ds ->
-	  List.fold_left (fun r d -> rectangle_extremes r d#dimensions)
-	    d#dimensions ds
-      | [] ->
-	  rectangle ~x_min:infinity ~x_max:neg_infinity
-	    ~y_min:infinity ~y_max:neg_infinity
-    in
-    let x_min' = match x_min with None -> r.x_min | Some m -> m
-    and x_max' = match x_max with None -> r.x_max | Some m -> m
-    and y_min' = match y_min with None -> r.y_min | Some m -> m
-    and y_max' = match y_max with None -> r.y_max | Some m -> m in
-    let x_pad = range_padding ~max:x_max' ~min:x_min' 0.01 in
-    let y_pad = range_padding ~max:y_max' ~min:y_min' 0.01 in
-    let r = (rectangle ~x_min:(x_min' -. x_pad) ~x_max:(x_max' +. x_pad)
-	       ~y_min:(y_min' -. y_pad) ~y_max:(y_max' +. y_pad))
-    in
-      vprintf verb_optional "\tdata dimensions: x=[%f, %f], y=[%f, %f]\n"
-	r.x_min r.x_max r.y_min r.y_max;
-      r
-
-
-  method private dst_rectangle ctx ~xaxis ~yaxis src =
-    (** [dst_rectangle ctx ~xaxis ~yaxis src] get the dimensions of
+  method private dst_rectangle ctx ~xaxis ~yaxis =
+    (** [dst_rectangle ctx ~xaxis ~yaxis] get the dimensions of
 	the destination rectangle. *)
     let axis_padding = ctx.units axis_padding in
     let xsize, ysize = self#size ctx in
@@ -105,37 +107,37 @@ object (self)
 	       ~y_min:(dst.y_min -. residual.y_min)
 	       ~y_max:(dst.y_max +. residual.y_max))
     in
-      vprintf verb_optional "\tplot dimensions: x=[%f, %f], y=[%f, %f]\n"
+      vprintf verb_optional "plot dimensions: x=[%f, %f], y=[%f, %f]\n"
 	r.x_min r.x_max r.y_min r.y_max;
       r
 
 
-  method private xaxis src =
-    (** [xaxis src] creates the x-axis for the plot. *)
+  method private xaxis =
+    (** [xaxis] creates the x-axis for the plot. *)
     let src = xrange src in
     let nticks = Numeric_axis.recommended_ticks width in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
       verb_eval verb_debug
 	(fun () ->
-	   vprintf verb_debug "\tx-ticks:\n";
+	   vprintf verb_debug "x-ticks:\n";
 	   List.iter (fun (vl, name) -> match name with
-			| None -> vprintf verb_debug "\t\tminor: %f" vl
-			| Some _ -> vprintf verb_debug "\t\tmajor: %f" vl)
+			| None -> vprintf verb_debug "\tminor: %f\n" vl
+			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
 	     ticks);
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks xlabel
 
 
-  method private yaxis src =
-    (** [yaxis src] creates the y-axis for the plot. *)
+  method private yaxis =
+    (** [yaxis] creates the y-axis for the plot. *)
     let src = yrange src in
     let nticks = Numeric_axis.recommended_ticks height in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
       verb_eval verb_debug
 	(fun () ->
-	   vprintf verb_debug "\ty-ticks:\n";
+	   vprintf verb_debug "y-ticks:\n";
 	   List.iter (fun (vl, name) -> match name with
-			| None -> vprintf verb_debug "\t\tminor: %f" vl
-			| Some _ -> vprintf verb_debug "\t\tmajor: %f" vl)
+			| None -> vprintf verb_debug "\tminor: %f\n" vl
+			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
 	     ticks);
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks ylabel
 
@@ -157,11 +159,10 @@ object (self)
 
 
   method draw ctx =
-    vprintf verb_optional "Drawing numeric by numeric plot\n";
-    let src = self#src_rectangle in
+    vprintf verb_optional "\ndrawing numeric by numeric plot\n";
     let axis_padding = ctx.units axis_padding in
-    let xaxis = self#xaxis src and yaxis = self#yaxis src in
-    let dst = self#dst_rectangle ctx ~xaxis ~yaxis src in
+    let xaxis = self#xaxis and yaxis = self#yaxis in
+    let dst = self#dst_rectangle ctx ~xaxis ~yaxis in
     let legend_txt_loc, legend_x, legend_y =
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
