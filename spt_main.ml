@@ -14,10 +14,25 @@ open Spt
 open GMain
 
 let num_by_nom_plot () =
+  let next_dash = Factories.default_dash_factory () in
+  let barchart = Barchart_dataset.barchart_dataset (next_dash ())
+    "test barchart"  ["jan", 10.;
+		      "feb", 20.;
+		      "mar", 30.;
+		      "apr", 40.;
+		      "may", 50.;
+		      "jun", 40.;
+		      "jul", 30.;
+		      "aug", 20.;
+		      "sep", 10.;
+		      "oct", 0.;
+		      "nov", -.10.;
+		      "dec", 100.;] in
   new Num_by_nom.plot
     ~title:"Title text"
     ~ylabel:"Y label text"
     [
+(*
       new Num_by_nom.dataset_group "100 samples"
 	[
 	  new Num_by_nom.boxplot_dataset "0-10"
@@ -44,7 +59,8 @@ let num_by_nom_plot () =
 	    (Array.init 10 (fun _ -> Random.float 25.));
 	  new Num_by_nom.boxplot_dataset "0-50"
 	    (Array.init 10 (fun _ -> Random.float 50.));
-	];
+	];*)
+      barchart
     ]
 
 let num_by_num_plot () =
@@ -121,7 +137,7 @@ let num_by_num_plot () =
 
 let main () =
   Spt.verb_level := Spt.verb_debug;
-  let plot = num_by_num_plot () in
+  let plot = num_by_nom_plot () in
 (*
     Random.init 17;
 *)
