@@ -130,7 +130,7 @@ object (self)
 
 
   method draw ctx =
-    vprintf verb_optional "\ndrawing numeric by nominal plot\n";
+    vprintf verb_optional "drawing numeric by nominal plot\n";
     let between_padding = ctx.units between_padding in
     let yaxis = self#yaxis in
     let xrange, width = self#x_axis_dimensions ctx yaxis in

@@ -4,6 +4,7 @@
     @since 2010-05-05
 *)
 
+open Printf
 
 let cm_per_in = 2.54
 let px_per_in = 96.
@@ -49,6 +50,13 @@ let as_pt = function
   | Cm c -> c *. pt_per_cm
   | Px p -> (float p) /. px_per_pt
   | Pt p -> p
+
+
+let to_string = function
+  | In i -> sprintf "%f in" i
+  | Cm c -> sprintf "%f cm" c
+  | Px p -> sprintf "%d px" p
+  | Pt p -> sprintf "%f pt" p
 
 
 let convert t unit =

@@ -17,6 +17,8 @@ val as_px : t -> int
 
 val as_pt : t -> float
 
+val to_string : t -> string
+
 val convert : t -> units -> float
 
 val get_type : t -> units

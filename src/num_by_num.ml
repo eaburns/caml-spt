@@ -160,7 +160,7 @@ object (self)
 
 
   method draw ctx =
-    vprintf verb_optional "\ndrawing numeric by numeric plot\n";
+    vprintf verb_optional "drawing numeric by numeric plot\n";
     let axis_padding = ctx.units axis_padding in
     let xaxis = self#xaxis and yaxis = self#yaxis in
     let dst = self#dst_rectangle ctx ~xaxis ~yaxis in
