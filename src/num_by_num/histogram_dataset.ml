@@ -1,9 +1,8 @@
-(**
+(** Histograms show an approximate distribution given a set of
+    floating point values.
 
-   @author jtd7
-   @since 2010-05-24
-   Histogram dataset
-
+    @author jtd7
+    @since 2010-05-24
 *)
 
 open Num_by_num_dataset
@@ -61,8 +60,8 @@ let make_width ~bin_width ~max_value ~min_value =
     | Some w -> w
 
 
-class histogram_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
-  ?bin_width ?name vals =
+class histogram_dataset
+  dashes ?(width=Length.Pt 1.) ?(bg_color=gray) ?bin_width ?name vals =
   let values = Array.sort compare vals ; vals in
   let min_value, max_value =
     if (Array.length values) > 0
@@ -110,7 +109,7 @@ object(self)
 	     in
 	       draw_line ctx ~box:src ~tr:tr_pt ~style outline;
 	       match clip_rectangle ~box:src ~r with
-		 | Some r -> fill_rectangle ctx ~color (tr_rect r)
+		 | Some r -> fill_rectangle ctx ~color:bg_color (tr_rect r)
 		 | None -> ()
 	   end)
 	bins
@@ -130,7 +129,7 @@ object(self)
 		    point x_max y_min;
 		    point x_min y_min;] in
       draw_line ctx ~style outline;
-      fill_rectangle ctx ~color r
+      fill_rectangle ctx ~color:bg_color r
 
 
   method legend_dimensions ctx =

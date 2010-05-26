@@ -761,7 +761,7 @@ and eval_histogram env line operands =
     Num_by_num_dataset
       (new Num_by_num.histogram_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
-	 ?width:!width ?color:!color ?bin_width:!bin_width ?name:!name
+	 ?width:!width ?bg_color:!color ?bin_width:!bin_width ?name:!name
 	 !data)
 
 
