@@ -43,7 +43,7 @@ Datasets
   Needs to have possibility of being filled with hash marks
 
 * Stacked bar charts
-  - Diffenent hash marks filling bars (for situations when there are no colors)
+  - need to do some kind of different colorization of the stacked bars
 
 * Make sure that everything is colorable
 
