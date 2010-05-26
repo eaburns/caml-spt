@@ -114,9 +114,12 @@ let default_fill_pattern_factory ?(color=black) () =
     make_fill_pattern_factory
       [|
 	No_fill;
-	Vertical_fill (line_style, Length.Pt 4.);
 	Horizontal_fill (line_style, Length.Pt 4.);
+	Diagonal_fill (line_style, Length.Pt 1., Length.Pt 10.);
+	Diagonal_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
+	Hash_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
 	Dotted_fill (Length.Pt 1., Length.Pt 4.);
+	Vertical_fill (line_style, Length.Pt 4.);
 	Solid_fill color;
       |]
 
