@@ -466,6 +466,8 @@ type fill_pattern =
   | Solid_fill of color
   | Vertical_fill of line_style * Length.t
   | Horizontal_fill of line_style * Length.t
+  | Diagonal_fill of line_style * Length.t * Length.t
+  | Hash_fill of line_style * Length.t * Length.t
   | Dotted_fill of Length.t * Length.t
 
 
@@ -504,6 +506,28 @@ let draw_horizontal_fill ctx r style delta =
     done
 
 
+let draw_diagonal_fill ctx r style slope delta =
+  (** [draw_diagonal_fill ctx r style slope delta] draws a fill of
+      diagonal lines. *)
+  set_line_style ctx style;
+  let delta = ctx.units delta in
+  let slope = ctx.units slope in
+  let y_min, y_max =
+    if r.y_min < r.y_max then r.y_min, r.y_max else r.y_max, r.y_min
+  in
+  let y_diff = (r.x_max -. r.x_min) *. slope in
+  let y0, y1 =
+    if slope > 0.
+    then ref (y_min +. delta), ref (y_min +. delta -. y_diff)
+    else ref (y_min +. delta +. y_diff), ref (y_min +. delta)
+  in
+    while !y0 < y_max || !y1 < y_max do
+      draw_line ctx ~box:r [ point r.x_min !y0; point r.x_max !y1 ];
+      y0 := !y0 +. delta;
+      y1 := !y1 +. delta;
+    done
+
+
 let draw_dotted_fill ctx r radius delta =
   (** [draw_dotted_fill ctx r radius delta] draws a fill of dots. *)
   let radius = ctx.units radius in
@@ -513,10 +537,10 @@ let draw_dotted_fill ctx r radius delta =
     if r.y_min < r.y_max then r.y_min, r.y_max else r.y_max, r.y_min in
   let x_min, x_max =
     if r.x_min < r.x_max then r.x_min, r.x_max else r.x_max, r.x_min in
-  let x = ref (x_min +. radius) in
-    while !x < (x_max -. radius) do
-      let y = ref (y_min +. radius) in
-	while !y < (y_max -. radius) do
+  let x = ref (x_min +. (2. *. radius)) in
+    while !x <= (x_max -. radius) do
+      let y = ref (y_min +. (2. *. radius)) in
+	while !y <= (y_max -. radius) do
 	  draw_dot (point !x !y);
 	  y := !y +. delta;
 	done;
@@ -531,6 +555,12 @@ let draw_fill_pattern ctx r = function
   | Solid_fill c -> draw_solid_fill ctx r c
   | Vertical_fill (style, delta) -> draw_vertical_fill ctx r style delta
   | Horizontal_fill (style, delta) -> draw_horizontal_fill ctx r style delta
+  | Diagonal_fill (style, slope, delta) ->
+      draw_diagonal_fill ctx r style slope delta
+  | Hash_fill (style, slope, delta) ->
+      let s = Length.as_pt slope in
+	draw_diagonal_fill ctx r style slope delta;
+	draw_diagonal_fill ctx r style (Length.Pt ~-.s) delta;
   | Dotted_fill (radius, delta) -> draw_dotted_fill ctx r radius delta
 
 
