@@ -26,6 +26,7 @@ type env = {
   next_glyph : unit -> Drawing.glyph;
   next_dash : unit -> Length.t array;
   next_line_errbar : unit -> Line_errbar_dataset.style;
+  next_fill : unit -> Drawing.fill_pattern;
 }
 
 let init_env =
@@ -35,6 +36,7 @@ let init_env =
       next_glyph = Factories.default_glyph_factory ();
       next_dash = next_dash;
       next_line_errbar = Line_errbar_dataset.line_errbar_factory next_dash ();
+      next_fill = Factories.default_fill_pattern_factory ();
     }
 
 
@@ -144,6 +146,11 @@ let rec eval env = function
       eval_num_by_num env operands
   | Sexpr.List (_, (Sexpr.Ident (line, "boxplot-dataset")) :: operands ) ->
       eval_boxplot env line operands
+  | Sexpr.List (_, (Sexpr.Ident (line, "barchart-dataset")) :: operands ) ->
+      eval_barchart env line operands
+  | Sexpr.List (_, (Sexpr.Ident (line, "barchart-errbar-dataset"))
+		  :: operands ) ->
+      eval_barchart_errbar env line operands
   | Sexpr.List (_, (Sexpr.Ident (_, "num-by-nom-plot")) :: operands ) ->
       eval_num_by_nom env operands
   | Sexpr.List (_, (Sexpr.Ident (_, "display")) :: operands ) ->
@@ -913,3 +920,61 @@ and eval_boxplot env line operands =
       | Some n ->
 	  Num_by_nom_dataset
 	    (new Num_by_nom.boxplot_dataset ?radius:!radius n !data)
+
+
+and eval_barchart env line operands =
+  (** [eval_barchart env line operands] evaluates a barchart
+      dataset. *)
+  let module S = Sexpr in
+  let name = ref None
+  and data = ref None
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | S.Number (_, v) -> data := Some v;
+	 | x -> failwith (sprintf "line %d: Expected a value"
+			    (S.line_number x))
+      ) operands;
+    let name = match !name with
+      | None ->
+	  failwith (sprintf "line %d: Invalid barchart, no name given" line)
+      | Some n -> n
+    and data = match !data with
+      | None ->
+	  failwith (sprintf "line %d: Invalid barchart, no value given" line)
+      | Some n -> n
+    in
+      Num_by_nom_dataset
+	(new Num_by_nom.barchart_dataset (env.next_fill()) name data)
+
+
+and eval_barchart_errbar env line operands =
+  (** [eval_barchart_errbar env line operands] evaluates a barchart
+      with error bars dataset. *)
+  let module S = Sexpr in
+  let name = ref None
+  and data = ref [| |]
+  in
+    List.iter
+      (fun op -> match op with
+	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
+	     set_once name l "name" t
+	 | floats ->
+	     begin match eval env floats with
+	       | Scalars vls ->
+		   data := Array.append !data vls
+	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
+				  (S.line_number floats) (to_string x))
+	     end
+      ) operands;
+    match !name with
+      | None ->
+	  failwith
+	    (sprintf "line %d: Invalid barchart with errorbars dataset, %s"
+	       line "no name given")
+      | Some n ->
+	  Num_by_nom_dataset
+	    (new Num_by_nom.barchart_errbar_dataset
+	       (env.next_fill()) n !data)

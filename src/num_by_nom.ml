@@ -155,3 +155,4 @@ end
 
 include Num_by_nom_dataset
 include Boxplot_dataset
+include Barchart_dataset
