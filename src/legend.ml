@@ -6,6 +6,7 @@
 
 open Drawing
 open Geometry
+open Verbosity
 
 type text_location =
   | Text_before
@@ -20,7 +21,7 @@ type location =
   | Lower_right
 
 
-let padding = Length.Pt 2.
+let padding = Length.Pt 4.
   (** Padding between legend text and the icons. *)
 
 
@@ -60,6 +61,9 @@ let locate ctx style dst datasets = function
     (** [locate ctx style dst datasest legend_loc] gets the location
 	for drawing the plot legend of the given datasets. *)
   | At (txt_loc, x, y) ->
+      vprintf verb_optional "legend location: text %s icons (%f, %f)\n"
+	(match txt_loc with Text_after -> "after" | _ -> "before")
+	x y;
       txt_loc, x, y
   | loc ->
       let w, h = dimensions style ctx datasets in
@@ -72,7 +76,11 @@ let locate ctx style dst datasets = function
       and y_loc = match loc with
 	| Upper_left | Upper_right -> dst.y_max
 	| _ -> dst.y_min -. h
-      in txt_loc, x_loc, y_loc
+      in
+	vprintf verb_optional "legend location: text %s icons (%f, %f)\n"
+	  (match txt_loc with Text_after -> "after" | _ -> "before")
+	  x_loc y_loc;
+	txt_loc, x_loc, y_loc
 
 
 
@@ -89,9 +97,6 @@ let draw ctx text_loc style datasets =
 	 | None -> y_top
 	 | Some txt ->
 	     let tw, _ = text_dimensions ctx ~style txt in
-(*
-	     let iw, _ = ds#legend_dimensions ctx in
-*)
 	     let y = y_top +. (entry_height /. 2.) in
 	     let tx, ix = match text_loc with
 	       | Text_before ->

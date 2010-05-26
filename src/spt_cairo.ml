@@ -1,5 +1,6 @@
 (** A bunch of calls to cairo - Currently just for saving files *)
 
+open Verbosity
 
 type files =
   | Postscript
@@ -82,9 +83,15 @@ let save ?width ?height plot filename =
 		  | None -> plot#height
 		  | Some h -> h) in
     match (filetype filename) with
-      | Postscript -> as_ps width height plot filename
-      | PNG -> as_png width height plot filename
-      | PDF -> as_pdf width height plot filename
+      | Postscript ->
+	  vprintf verb_optional "saving as postscript\n";
+	  as_ps width height plot filename
+      | PNG ->
+	  vprintf verb_optional "saving as png\n";
+	  as_png width height plot filename
+      | PDF ->
+	  vprintf verb_optional "saving as PDF\n";
+	  as_pdf width height plot filename
       | Unknown ext -> failwith ("Cannot save unknown filetype " ^ ext)
 
 

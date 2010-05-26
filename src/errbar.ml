@@ -37,8 +37,6 @@ let residual_vert ctx up ~src_y ~dst_x ~x ~y ~mag =
       let x0 = x -. errbar_cap_size and x1 = x +. errbar_cap_size in
       let res_min = if x0 < dst_x.min then dst_x.min -. x0 else 0.
       and res_max = if x1 > dst_x.max then x1 -. dst_x.max else 0. in
-	Spt.vprintf Spt.verb_debug "x0=%f, x1=%f, dst.max=%f, res_max=%f\n%!"
-	  x0 x1 dst_x.max res_max;
 	{ zero_rectangle with x_min = res_min; x_max = res_max }
     end
 

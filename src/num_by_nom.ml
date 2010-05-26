@@ -6,6 +6,7 @@
 
 open Geometry
 open Drawing
+open Verbosity
 
 let y_axis_padding = Length.Pt 10.
   (** The amount of room to separate the y-axis from the data. *)
@@ -33,7 +34,7 @@ object (self)
 
   method private src_y_range =
     (** [src_y_range] computes the range of the y axis. *)
-    match y_min, y_max with
+    let r = match y_min, y_max with
       | Some min, Some max -> range ~min ~max
       | _ ->
 	  let min, max =
@@ -47,14 +48,22 @@ object (self)
 	  in
 	  let pad = range_padding ~max ~min 0.01 in
 	    range ~min:(min -. pad) ~max:(max +. pad)
+    in
+      vprintf verb_optional "\tdata dimensions: y=[%f, %f]\n" r.min r.max;
+      r
 
 
   method private yaxis src =
     (** [yaxis src] creates a y-axis. *)
     let nticks = Numeric_axis.recommended_ticks height in
-    let ticks =
-      Numeric_axis.tick_locations ~suggested_number:nticks self#src_y_range
-    in
+    let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
+      verb_eval verb_debug
+	(fun () ->
+	   vprintf verb_debug "\ty-ticks:\n";
+	   List.iter (fun (vl, name) -> match name with
+			| None -> vprintf verb_debug "\t\tminor: %f" vl
+			| Some _ -> vprintf verb_debug "\t\tmajor: %f" vl)
+	     ticks);
       Numeric_axis.create ~label_text_style ~tick_text_style
 	~src ticks ylabel
 
@@ -103,8 +112,7 @@ object (self)
   method private draw_y_axis ctx ~dst yaxis =
     (** [draw_y_axis ctx ~dst yaxis] draws the y-axis. *)
     let xsize, ysize = self#size ctx in
-      Numeric_axis.draw_y_axis ctx
-	~pad:(ctx.units Spt.text_padding)
+      Numeric_axis.draw_y_axis ctx ~pad:(ctx.units Spt.text_padding)
 	~width:xsize ~height:ysize ~dst yaxis;
 
 
@@ -120,11 +128,15 @@ object (self)
 
 
   method draw ctx =
+    vprintf verb_optional "Drawing numeric by nominal plot\n";
     let between_padding = ctx.units between_padding in
     let src = self#src_y_range in
     let yaxis = self#yaxis src in
     let xrange, width = self#x_axis_dimensions ctx yaxis in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:width in
+      vprintf verb_optional
+	"\tplot dimensions: x=[%f, %f] text width=%f, y=[%f, %f]\n"
+	xrange.min xrange.max width dst.min dst.max;
       begin match title with
 	| None -> ()
 	| Some t ->

@@ -6,19 +6,7 @@
 
 open Geometry
 open Drawing
-
-let verb_level = ref 0
-  (** The current verbosity level. *)
-
-let verb_debug = 5
-  (** The verbosity level for debugging. *)
-
-let vprintf lvl fmt =
-  (** [vprintf lvl fmt] for verbosity printing *)
-  let dp s =
-    if !verb_level >= lvl then output_string stderr s; flush stderr
-  in Printf.kprintf dp fmt
-
+open Verbosity
 
 let default_tick_style =
   (** The default style for the text associated with tick marks on a
@@ -103,6 +91,7 @@ object (self)
   method output filename =
     (** [output filename] saves the plot to a filename.  The type is
 	pulled from the name, so you must include an extension *)
+    vprintf verb_normal "outputting to %s\n" filename;
     Spt_cairo.save self filename
 
 

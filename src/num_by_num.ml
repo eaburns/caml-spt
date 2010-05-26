@@ -6,6 +6,7 @@
 
 open Geometry
 open Drawing
+open Verbosity
 
 let axis_padding = Length.Pt 5.
   (** The padding between the axis and the data. *)
@@ -48,6 +49,7 @@ object (self)
       then self#set_size ~w:(skew self#width ratio) ~h:self#height
       else self#set_size ~w:self#width ~h:(skew self#height ratio)
 
+
   method private src_rectangle =
     (** [src_rectangle] computes the range of the x and y axes. *)
     let r = match datasets with
@@ -65,12 +67,12 @@ object (self)
     and y_max' = match y_max with None -> r.y_max | Some m -> m in
     let x_pad = range_padding ~max:x_max' ~min:x_min' 0.01 in
     let y_pad = range_padding ~max:y_max' ~min:y_min' 0.01 in
-      Spt.vprintf Spt.verb_debug
-	"src: x_min=%f x_max=%f y_min=%f y_max=%f\n"
-	(x_min' -. x_pad) (x_max' +. x_pad)
-	(y_min' -. y_pad) (y_max' +. y_pad);
-      rectangle ~x_min:(x_min' -. x_pad) ~x_max:(x_max' +. x_pad)
-	~y_min:(y_min' -. y_pad) ~y_max:(y_max' +. y_pad)
+    let r = (rectangle ~x_min:(x_min' -. x_pad) ~x_max:(x_max' +. x_pad)
+	       ~y_min:(y_min' -. y_pad) ~y_max:(y_max' +. y_pad))
+    in
+      vprintf verb_optional "\tdata dimensions: x=[%f, %f], y=[%f, %f]\n"
+	r.x_min r.x_max r.y_min r.y_max;
+      r
 
 
   method private dst_rectangle ctx ~xaxis ~yaxis src =
@@ -97,50 +99,45 @@ object (self)
 	 any dataset may need to draw. *)
       List.fold_left
 	(fun r ds -> rectangle_max r (ds#residual ctx ~src ~dst))
-	zero_rectangle datasets
+	zero_rectangle datasets in
+    let r = (rectangle ~x_min:(dst.x_min +. residual.x_min)
+	       ~x_max:(dst.x_max -. residual.x_max)
+	       ~y_min:(dst.y_min -. residual.y_min)
+	       ~y_max:(dst.y_max +. residual.y_max))
     in
-      Spt.vprintf Spt.verb_debug
-	"residuals: x_min=%f x_max=%f y_min=%f y_max=%f\n"
-	residual.x_min residual.x_max
-	residual.y_min residual.y_max;
-      Spt.vprintf Spt.verb_debug
-	"dst: x_min=%f x_max=%f y_min=%f y_max=%f\n"
-	(dst.x_min +. residual.x_min) (dst.x_max -. residual.x_max)
-	(dst.y_min -. residual.y_min) (dst.y_max +. residual.y_max);
-      rectangle
-	~x_min:(dst.x_min +. residual.x_min)
-	~x_max:(dst.x_max -. residual.x_max)
-	~y_min:(dst.y_min -. residual.y_min)
-	~y_max:(dst.y_max +. residual.y_max)
+      vprintf verb_optional "\tplot dimensions: x=[%f, %f], y=[%f, %f]\n"
+	r.x_min r.x_max r.y_min r.y_max;
+      r
 
 
   method private xaxis src =
     (** [xaxis src] creates the x-axis for the plot. *)
+    let src = xrange src in
     let nticks = Numeric_axis.recommended_ticks width in
-    let ticks =
-      Numeric_axis.tick_locations ~suggested_number:nticks
-	(xrange self#src_rectangle)
-    in
-      Numeric_axis.create ~label_text_style ~tick_text_style
-	~src:(xrange src) ticks xlabel
+    let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
+      verb_eval verb_debug
+	(fun () ->
+	   vprintf verb_debug "\tx-ticks:\n";
+	   List.iter (fun (vl, name) -> match name with
+			| None -> vprintf verb_debug "\t\tminor: %f" vl
+			| Some _ -> vprintf verb_debug "\t\tmajor: %f" vl)
+	     ticks);
+      Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks xlabel
 
 
   method private yaxis src =
     (** [yaxis src] creates the y-axis for the plot. *)
+    let src = yrange src in
     let nticks = Numeric_axis.recommended_ticks height in
-    let ticks =
-      Numeric_axis.tick_locations ~suggested_number:nticks
-	(yrange self#src_rectangle)
-    in
-    let axis = Numeric_axis.create ~label_text_style ~tick_text_style
-      ~src:(yrange src) ticks ylabel in
-      List.iter (fun (vl, str) ->
-		   Spt.vprintf Spt.verb_debug "y-tick: %f, %s\n" vl
-		     (match str with None -> "None" | Some s -> s))
-	ticks;
-      Spt.vprintf Spt.verb_debug "y-axis: min=%f, max=%f\n"
-	axis.Numeric_axis.src.min axis.Numeric_axis.src.max;
-      axis
+    let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
+      verb_eval verb_debug
+	(fun () ->
+	   vprintf verb_debug "\ty-ticks:\n";
+	   List.iter (fun (vl, name) -> match name with
+			| None -> vprintf verb_debug "\t\tminor: %f" vl
+			| Some _ -> vprintf verb_debug "\t\tmajor: %f" vl)
+	     ticks);
+      Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks ylabel
 
 
   method private draw_x_axis ctx ~dst xaxis =
@@ -160,6 +157,7 @@ object (self)
 
 
   method draw ctx =
+    vprintf verb_optional "Drawing numeric by numeric plot\n";
     let src = self#src_rectangle in
     let axis_padding = ctx.units axis_padding in
     let xaxis = self#xaxis src and yaxis = self#yaxis src in

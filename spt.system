@@ -2,6 +2,7 @@ Systems:
 (* Nothing should ever go here. *)
 
 Files:
+"src/verbosity"
 "src/geometry"
 "src/drawing"
 "src/numeric_axis"
