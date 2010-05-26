@@ -13,7 +13,17 @@ type value =
       data : float; }
 
 
-class barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray) name values =
+let default_text_style =
+  (** The default style for labels. *)
+  {
+    text_font = "sans-serif";
+    text_size = Length.Pt 8.;
+    text_slant = font_slant_normal;
+    text_weight = font_weight_normal;
+    text_color = black;
+  }
+
+class barchart_dataset dashes ?(lwidth=Length.Pt 1.) ?(color=gray) name values =
 
   let min_val,max_val =
     (Array.fold_left
@@ -27,7 +37,7 @@ object(self)
 
   val style = { line_color = black;
 		line_dashes = dashes;
-		line_width = width; }
+		line_width = lwidth; }
 
 
   method dimensions =
@@ -48,6 +58,10 @@ object(self)
 	   and y_min = tr (min 0. value.data)
 	   and y_max = tr (max 0. value.data) in
 	     fill_rectangle ctx ~color  (rectangle ~x_min ~x_max ~y_min ~y_max);
+	     draw_text ctx ~style:default_text_style
+	       (x_min +. (x_max -. x_min) /. 2.)
+	       (y_min +. (ctx.units default_text_style.text_size))
+	       value.name;
 	     draw_line ctx ~style [point x_min y_min;
 				   point x_min y_max;
 				   point x_max y_max;
@@ -58,7 +72,7 @@ end
 
 
 let barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray) name values =
-  new barchart_dataset dashes ~width ~color name
+  new barchart_dataset dashes ~lwidth:width ~color name
        (Array.of_list
 	  (List.map (fun (a,b) -> { name = a; data = b}) values))
 
