@@ -337,6 +337,58 @@ let draw_line ctx ?box ?(tr=(fun x -> x)) ?style points =
   Cairo.set_dash ctx.cairo [| |] 0.
 
 
+(** {1 Rectangles} ****************************************)
+
+type fill_pattern =
+  | Fill_none
+  | Fill_solid of color
+  | Fill_vertical of line_style * Length.t
+  | Fill_horizontal of line_style * Length.t
+
+
+let draw_solid_fill ctx r color =
+  (** [draw_solid_fill ctx r color] draws a solid fill *)
+  set_color ctx color;
+  Cairo.rectangle ctx.cairo
+    r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
+  Cairo.fill ctx.cairo
+
+
+let draw_vertical_fill ctx r style delta =
+  (** [draw_vertical_fill ctx r style delta] draws a fill of vertical
+      bars. *)
+  set_line_style ctx style;
+  let delta = ctx.units delta in
+  let x = ref (r.x_min +. delta) in
+    while !x < r.x_max do
+      draw_line ctx [ point !x r.y_min; point !x r.y_max ];
+      x := !x +. delta
+    done
+
+
+let draw_horizontal_fill ctx r style delta =
+  (** [draw_horizontal_fill ctx r style delta] draws a fill of
+      horizontal bars. *)
+  set_line_style ctx style;
+  let y_min, y_max =
+    if r.y_min < r.y_max then r.y_min, r.y_max else r.y_max, r.y_min
+  in
+  let delta = ctx.units delta in
+  let y = ref (y_min +. delta) in
+    while !y < y_max do
+      draw_line ctx [ point r.x_min !y; point r.x_max !y ];
+      y := !y +. delta
+    done
+
+let draw_fill_pattern ctx r = function
+    (** [draw_fill_pattern ctx r] draws the given fill pattern in the
+	rectangle. *)
+  | Fill_none -> ()
+  | Fill_solid c -> draw_solid_fill ctx r c
+  | Fill_vertical (style, delta) -> draw_vertical_fill ctx r style delta
+  | Fill_horizontal (style, delta) -> draw_horizontal_fill ctx r style delta
+
+
 let draw_rectangle ctx ?style r =
   (** [draw_rectangle ctx ?style r] draws the given rectangle. *)
     set_line_style_option ctx style;

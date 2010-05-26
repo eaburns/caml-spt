@@ -97,4 +97,34 @@ let default_color_factory () =
     [black; red; green; blue; gray; purple; fuchsia; lavender; mustard]
 
 
+let make_fill_pattern_factory fill_set =
+  (** [make_fill_pattern_factory fill_set] makes a factory for getting
+      fill patterns. *)
+  let next = ref 0 in
+  let n = Array.length fill_set in
+    (fun () ->
+       let d = fill_set.(!next) in
+	 next := (!next + 1) mod n;
+	 d)
+
+let default_fill_pattern_factory ?(color=black) () =
+  (** [default_fill_pattern_factory ?color ()] makes the default
+      fill pattern factory. *)
+  let line_style = { default_line_style with line_color = color } in
+    make_fill_pattern_factory
+      [|
+	Fill_none;
+	Fill_vertical ( line_style, Length.Pt 5.);
+	Fill_horizontal ( line_style, Length.Pt 5.);
+	Fill_solid color;
+      |]
+
+
+let default_color_fill_pattern_factory () =
+  (** [default_color_fill_pattern_factory] makes a factory that
+      returns different colored fills. *)
+  let next_color = default_color_factory () in
+    (fun () -> Fill_solid (next_color ()))
+
+
 (* EOF *)
