@@ -41,40 +41,7 @@ let num_by_nom_plot () =
        "dec", (Array.init 100 (fun _ -> Random.float 100.));
       ]
   in
-    new Num_by_nom.plot
-      ~title:"Title text"
-      ~ylabel:"Y label text"
-      [
-	(*
-	  new Num_by_nom.dataset_group "100 samples"
-	  [
-	  new Num_by_nom.boxplot_dataset "0-10"
-	  (Array.init 100 (fun _ -> Random.float 10.));
-	  new Num_by_nom.boxplot_dataset "0-25"
-	  (Array.init 100 (fun _ -> Random.float 25.));
-	  new Num_by_nom.boxplot_dataset "0-50"
-	  (Array.init 100 (fun _ -> Random.float 50.));
-	  ];
-	  new Num_by_nom.dataset_group "20 samples"
-	  [
-	  new Num_by_nom.boxplot_dataset "0-10"
-	  (Array.init 20 (fun _ -> Random.float 10.));
-	  new Num_by_nom.boxplot_dataset "0-25"
-	  (Array.init 20 (fun _ -> Random.float 25.));
-	  new Num_by_nom.boxplot_dataset "0-50"
-	  (Array.init 20 (fun _ -> Random.float 50.));
-	  ];
-	  new Num_by_nom.dataset_group "10 samples"
-	  [
-	  new Num_by_nom.boxplot_dataset "0-10"
-	  (Array.init 10 (fun _ -> Random.float 10.));
-	  new Num_by_nom.boxplot_dataset "0-25"
-	  (Array.init 10 (fun _ -> Random.float 25.));
-	  new Num_by_nom.boxplot_dataset "0-50"
-	  (Array.init 10 (fun _ -> Random.float 50.));
-	  ];*)
-	bar_err
-      ]
+    new Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text" bar_err
 
 let num_by_num_plot () =
 (*

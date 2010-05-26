@@ -52,8 +52,8 @@ let barchart_dataset fill_pattern ?(width=Length.Pt 1.) name data =
 
 let barchart_datasets
     ?(use_color=false)
-    ?(width=Length.Pt 1.) ?(gname = "") values =
-  (** [barchart_datasets ?use_color ?width ?gname values] makes a
+    ?(width=Length.Pt 1.) ?group values =
+  (** [barchart_datasets ?use_color ?width ?group values] makes a
       group of bars datasets. *)
   let next_fill =
     if use_color
@@ -63,7 +63,10 @@ let barchart_datasets
     List.map
       (fun (nm,dt) -> new barchart_dataset (next_fill ()) ~width nm dt)
       values
-  in new Num_by_nom_dataset.dataset_group gname bars
+  in
+    match group with
+      | Some name -> [ new Num_by_nom_dataset.dataset_group name bars ]
+      | None -> bars
 
 
 (** {1 Barcharts with error bars} ****************************************)
@@ -118,7 +121,7 @@ let barchart_errbar_dataset fill_pattern ?(width=Length.Pt 1.) name data =
 
 
 let barchart_errbar_datasets
-    ?(use_color=false) ?(width=Length.Pt 1.) ?(gname = "") values =
+    ?(use_color=false) ?(width=Length.Pt 1.) ?group values =
   (** [barchart_errbar_datasets ?use_color ?width ?gname values] makes
       a set of barcharts with error bars. *)
   let next_fill =
@@ -130,7 +133,10 @@ let barchart_errbar_datasets
       (fun (nm,dt) ->
 	 new barchart_errbar_dataset (next_fill ()) ~width nm dt)
       values
-  in new Num_by_nom_dataset.dataset_group gname bars
+  in
+    match group with
+      | Some name -> [ new Num_by_nom_dataset.dataset_group name bars ]
+      | None -> bars
 
 
 (** {1 Stacked barcharts} ****************************************)
