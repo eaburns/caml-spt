@@ -24,13 +24,14 @@ let default_glyph_factory =
   (** [default_glyph_factory] gets the default glyph factory
       builder. *)
   let glyph_set =
-    [| Circle_glyph;
-       Ring_glyph;
-       Triangle_glyph;
-       Box_glyph;
-       Square_glyph;
-       Cross_glyph;
-       Plus_glyph;
+    [|
+      Ring_glyph;
+      Circle_glyph;
+      Triangle_glyph;
+      Box_glyph;
+      Square_glyph;
+      Cross_glyph;
+      Plus_glyph;
     |]
   in make_glyph_factory glyph_set
 
