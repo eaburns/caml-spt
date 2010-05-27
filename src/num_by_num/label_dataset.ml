@@ -81,12 +81,13 @@ object (self)
 
   method draw ctx ~src ~dst =
     let tr = point_transform ~src ~dst in
-      Array.iter (fun (pt, txt) ->
-		    if rectangle_contains src pt
-		    then begin
-		      let pt' = self#position ctx (tr pt) txt in
-			draw_text ctx ~style pt'.x pt'.y txt
-		    end)
+      Array.iter
+	(fun (pt, txt) ->
+	   if rectangle_contains src pt
+	   then begin
+	     let pt' = self#position ctx (tr pt) txt in
+	       draw_text ctx ~style ~x:pt'.x ~y:pt'.y txt
+	   end)
 	label_points
 
 

@@ -27,9 +27,6 @@ Datasets
 
 * Normal quantile plots
 
-* Nominal plots, make sure names are alligned appropriately on the
-   x-axis.
-
 * Histograms:
    - Hash marks filling the histograms
    - Coloring w/ alpha values
