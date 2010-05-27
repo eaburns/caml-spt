@@ -24,15 +24,13 @@ let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
 	rectangle ~x_min:infinity ~x_max:neg_infinity
 	  ~y_min:infinity ~y_max:neg_infinity
   in
-  let x_min' = match x_min with None -> r.x_min | Some m -> m
-  and x_max' = match x_max with None -> r.x_max | Some m -> m
-  and y_min' = match y_min with None -> r.y_min | Some m -> m
-  and y_max' = match y_max with None -> r.y_max | Some m -> m in
-  let x_pad = range_padding ~max:x_max' ~min:x_min' 0.01 in
-  let y_pad = range_padding ~max:y_max' ~min:y_min' 0.01 in
-  let r = (rectangle ~x_min:(x_min' -. x_pad) ~x_max:(x_max' +. x_pad)
-	     ~y_min:(y_min' -. y_pad) ~y_max:(y_max' +. y_pad))
-  in
+  let x_pad = range_padding ~max:r.x_max ~min:r.x_min 0.01 in
+  let y_pad = range_padding ~max:r.y_max ~min:r.y_min 0.01 in
+  let x_min' = match x_min with None -> (r.x_min -. x_pad) | Some m -> m
+  and x_max' = match x_max with None -> (r.x_max +. x_pad) | Some m -> m
+  and y_min' = match y_min with None -> (r.y_min -. y_pad) | Some m -> m
+  and y_max' = match y_max with None -> (r.y_max +. y_pad) | Some m -> m in
+  let r = rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max' in
     vprintf verb_normal "data dimensions: x=[%f, %f], y=[%f, %f]\n"
       r.x_min r.x_max r.y_min r.y_max;
     r

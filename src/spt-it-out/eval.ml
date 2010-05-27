@@ -558,8 +558,8 @@ and eval_bestfit env operands =
       ) operands;
     Num_by_num_dataset
       (Num_by_num.bestfit_dataset
-	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
-	 (match !dashes with | Some d -> d | None -> env.next_dash ())
+	 ~glyph:(match !glyph with | Some g -> g | None -> env.next_glyph ())
+	 ~dashes:(match !dashes with | Some d -> d | None -> env.next_dash ())
 	 ?color:!color
 	 ?radius:!radius
 	 ?name:!name
