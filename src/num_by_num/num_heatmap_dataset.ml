@@ -131,7 +131,7 @@ class valuemap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient ?name triples=
 		     and yi = bucket ~min:x_min ~bin_size:bin_height trp.j in
 		     let xi = min xi (xcnt - 1)
 		     and yi = min yi (ycnt - 1) in
-		       b.(xi).(yi) <- trp.k) triples;
+		       b.(xi).(yi) <- b.(xi).(yi) +. trp.k) triples;
 		Printf.eprintf "Done\n%!";
 		b) in
 
