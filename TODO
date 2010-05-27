@@ -1,0 +1,95 @@
+------------------------------------------------------------
+Things that we need before anyone can begin beta testing
+------------------------------------------------------------
+
+* Decide on a final API
+  two basic types of functions, on for generating single datalests,
+  one for making list of related datasets that dispatches to the first
+  type.  One of these calls for each dataset type.  Each inside of its
+  own file.
+  -- Num by num datasets are done
+
+* Order legends by mean y-value in num_by_num plots.
+
+------------------------------------------------------------
+Extra features
+------------------------------------------------------------
+
+* Drawing legends off of the plot.
+
+* Change text size based on plot size
+
+* Scatter plot matrix
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+
+* Normal quantile plots
+
+* CDF's need error bars
+
+* Make sure we present a consistent type to the world for all datasets
+
+* Heatmaps
+  - Numeric by Numeric
+  - Nominal by Nominal
+
+* Make sure that everything is colorable
+
+* Montages: more complex than simple ps-montage style.
+  - Make axis drawing optional.
+  - Make room for non-drawn axes, but then don't draw them.
+
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
+
+* Write a real README file
+
+* Document the code
+
+* Generate OCaml docs
+
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
+
+* Add an edit menu to the gtk gui allowing for
+      * Specify the size of the plot -- make sure to pre-populate dialogue
+      * Turn color on / off
+
+* Minimum Plot size requirement in Gtk window needs removed
+
+* Generate .mli files where possible / appropriate
+
+* Bindings
+  - C
+  - Python
+  - Java?
+
+------------------------------------------------------------
+spt-it-out
+------------------------------------------------------------
+
+* Grouping num by nom datasets in spt-it-out
+
+* label datasets
+
+* scatter with errbar datasets
+
+* Including other spt-it-out files
+
+* Simple arithmetic... mapping log10 over things, etc.
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
+
+* Nominal by nominal plots
+
+* Numeric by Ordinal (or Ranked) plots
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
