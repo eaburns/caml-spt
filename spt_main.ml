@@ -80,7 +80,11 @@ let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
   let next_glyph = Factories.default_glyph_factory () in
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
-
+  let count_map = Num_heatmap_dataset.countmap_dataset
+    ~bin_size:(Geometry.point 1. 1.)
+    ~name:"Countmap" (Array.init 10000 (fun i ->
+					 { x = Random.float 100.;
+					   y = Random.float 100.;})) in
     (*
       let histogram = new Num_by_num.histogram_dataset (next_dash ())
       ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
@@ -94,7 +98,7 @@ let num_by_num_plot () =
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
-      [
+      [(*
 	Num_by_num.bestfit_dataset
 	  (next_glyph ()) (next_dash ())
 	  ~color:green ~name:"Best fit"
@@ -124,16 +128,17 @@ let num_by_num_plot () =
 	  |];
 
 	new Num_by_num.function_dataset (next_dash ())
-	  ~name:"y=x^2" (fun x -> x ** 2.);
+	  ~name:"y=x^2" (fun x -> x ** 2.);*)
+	count_map
       ]
 
 
 let main () =
-  let plot = num_by_nom_plot () in
 (*
     Random.init 17;
 *)
-    Random.self_init ();
+  Random.self_init ();
+  let plot = num_by_num_plot () in
 (*
     Printf.eprintf "Suggested Ratio: %f\n%!"
       plot#suggest_aspect;

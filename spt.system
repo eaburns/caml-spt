@@ -22,6 +22,7 @@ Files:
 "src/num_by_nom/boxplot_dataset"
 "src/num_by_nom/barchart_dataset"
 "src/num_by_num/histogram_dataset"
+"src/num_by_num/num_heatmap_dataset"
 "src/num_by_num/cdf_dataset"
 "src/num_by_nom"
 "src/spt"

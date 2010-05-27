@@ -69,6 +69,7 @@ class histogram_dataset
     else nan, nan in
   let bin_width = make_width ~bin_width ~max_value ~min_value in
   let bins = make_bins ~max_value ~min_value ~bin_width values in
+
 object(self)
 
   inherit dataset ?name ()
