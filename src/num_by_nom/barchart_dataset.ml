@@ -199,15 +199,17 @@ let stacked_barchart_dataset ?(width=Length.Pt 1.)
   new stacked_barchart_dataset fill_factory ~width nm_data_array
 
 
-let stacked_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
+let stacked_barchart_datasets ?(width=Length.Pt 1.) ?group
     ?(fill_factory=Factories.default_fill_pattern_factory())
     nm_data_array_list =
   let bars = List.map
     (fun  nm_data_array ->
        new stacked_barchart_dataset fill_factory ~width nm_data_array)
     nm_data_array_list in
-    new Num_by_nom_dataset.dataset_group gname bars
 
+    match group with
+      | Some name -> [ new Num_by_nom_dataset.dataset_group name bars ]
+      | None -> bars
 
 
 (** {1 Stacked barcharts} ****************************************)
