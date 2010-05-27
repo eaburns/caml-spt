@@ -31,7 +31,7 @@ let make_default_gradient min max =
        else {r = 1.; g = 1.; b = src -. 2.; a = 1.})
 
 
-class countmap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient ?name points =
+class countmap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient points =
 
   let x_min, y_min, x_max, y_max =
     Array.fold_left
@@ -70,7 +70,7 @@ class countmap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient ?name points =
 
 object (self)
 
-  inherit dataset ?name ()
+  inherit dataset ()
 
   method dimensions =
     rectangle ~x_min ~x_max:(x_min +. bin_width *. (float (Array.length bins)))
@@ -100,8 +100,8 @@ object (self)
 end
 
 
-let countmap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient ?name points =
-  new countmap_dataset ~width ?bin_size ?gradient ?name points
+let countmap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient points =
+  new countmap_dataset ~width ?bin_size ?gradient points
 
 
 
@@ -145,7 +145,7 @@ class valuemap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient ?name triples=
 
 object (self)
 
-  inherit dataset ?name ()
+  inherit dataset ()
 
   method dimensions =
     rectangle ~x_min ~x_max:(x_min +. bin_width *. (float (Array.length bins)))
@@ -175,7 +175,7 @@ object (self)
 end
 
 
-let valuemap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient ?name triples=
-  new valuemap_dataset ~width ?bin_size ?gradient ?name triples
+let valuemap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient triples=
+  new valuemap_dataset ~width ?bin_size ?gradient triples
 
 (* EOF *)
