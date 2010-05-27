@@ -44,7 +44,6 @@
   (let ((ds2 (num-by-num-composite (name "ds2") (ds2_0 ds2_1))))
     (let (
 	  (plot0 (num-by-num-plot
-		  (width (in 10))
 		  (title "Test plot")
 		  (x-label "The x variable")
 		  (y-label "The y variable")
@@ -96,4 +95,4 @@
 					    ))
 		  ))
 	  )
-      (display plot5) )))
+      (display plot0) )))
