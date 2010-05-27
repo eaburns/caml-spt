@@ -1,5 +1,4 @@
 <src>: include
 
-<spt_main.ml>: use_lablgtk
-
-<*.byte> or <*.native>: use_str, use_lablgtk, use_cairo_lablgtk, use_cairo
+<*.byte> or <*.native>: use_str, use_bigarray, use_lacaml, \
+         use_lablgtk, use_cairo_lablgtk, use_cairo

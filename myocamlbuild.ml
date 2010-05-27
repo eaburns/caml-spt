@@ -15,6 +15,7 @@ dispatch begin function
 	 add -custom *)
       if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
 
+      ocaml_lib ~extern:true ~dir:"+lacaml" "lacaml";
       ocaml_lib ~extern:true ~dir:"+cairo" "cairo";
       ocaml_lib ~extern:true ~dir:"+cairo" "cairo_lablgtk";
       ocaml_lib ~extern:true ~dir:"+lablgtk2" "lablgtk";

@@ -11,7 +11,6 @@
 open Geometry
 open Drawing
 open Spt
-open GMain
 
 let num_by_nom_plot () =
   (*
