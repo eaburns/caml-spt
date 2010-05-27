@@ -92,7 +92,7 @@ let num_by_num_plot () =
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
-      ~legend_loc:Legend.Upper_right
+      ~legend_loc:Legend.Lower_right
       [
 	Num_by_num.bestfit_dataset
 	  ~glyph:(next_glyph ()) ~dashes:(next_dash ())
