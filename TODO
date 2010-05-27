@@ -31,9 +31,7 @@ Datasets
 
 * Make sure we present a consistent type to the world for all datasets
 
-* Heatmaps
-  - Numeric by Numeric
-  - Nominal by Nominal
+* Heatmaps - Nominal by Nominal
 
 * Make sure that everything is colorable
 
