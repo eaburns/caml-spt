@@ -59,6 +59,7 @@ let num_by_nom_plot () =
 	 ])*)
   let stacked =
     Barchart_dataset.layered_barchart_datasets
+      ~fill_factory:(Factories.default_color_fill_pattern_factory ())
       [ [|"a1", 10.; "a2", 5.; "a3", 7.;|];
 	[|"b1", 10.; "b2", 2.; "b3", 9.;|];
 	[|"c1", 8.; "c2", 13.; "c3", 1.;|]]
