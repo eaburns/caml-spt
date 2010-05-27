@@ -35,18 +35,6 @@ Datasets
   - Numeric by Numeric
   - Nominal by Nominal
 
-* Stacked bar charts
-  - need to do some kind of different colorization of the stacked bars
-   -> My thought is to make each stacked dataset take a list of
-   barchart datasets.  It will then proceed to draw each bar from the
-   tallest to the shortest overlapping eachother.  This way the
-   drawing of bars is separated from the stacked chart and each bar
-   will be its own color (if the user gave them each different
-   colors).  Then, overwrite the draw_x_label (and x_label_height)
-   method for stacked so that it can draw the names each on their own
-   line from tallest to smallest followed by the name of the stack.
-
-
 * Make sure that everything is colorable
 
 * Montages: more complex than simple ps-montage style.
