@@ -143,7 +143,7 @@ let barchart_errbar_datasets
 
 
 class stacked_barchart_dataset fill_factory ?(width=Length.Pt 1.) values =
-  let next_pattern = fill_factory ()
+  let next_pattern = fill_factory
   and values = Array.to_list values in
 
   let pos = List.filter (fun (_,v) -> v >= 0.) values
@@ -195,12 +195,13 @@ end
 
 
 let stacked_barchart_dataset ?(width=Length.Pt 1.)
-    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array =
+    ?(fill_factory=Factories.default_fill_pattern_factory ()) nm_data_array =
   new stacked_barchart_dataset fill_factory ~width nm_data_array
 
 
 let stacked_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
-    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array_list =
+    ?(fill_factory=Factories.default_fill_pattern_factory())
+    nm_data_array_list =
   let bars = List.map
     (fun  nm_data_array ->
        new stacked_barchart_dataset fill_factory ~width nm_data_array)
@@ -273,14 +274,16 @@ let layered_barchart_dataset ?(width=Length.Pt 1.)
   new layered_barchart_dataset fill_factory ~width nm_data_array
 
 
-let layered_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
+let layered_barchart_datasets ?(width=Length.Pt 1.) ?group
     ?(fill_factory=Factories.default_fill_pattern_factory())
     nm_data_array_list =
   let bars = List.map
     (fun  nm_data_array ->
        new layered_barchart_dataset fill_factory ~width nm_data_array)
     nm_data_array_list in
-    new Num_by_nom_dataset.dataset_group gname bars
+    match group with
+      | Some name -> [ new Num_by_nom_dataset.dataset_group name bars ]
+      | None -> bars
 
 
 (* EOF *)
