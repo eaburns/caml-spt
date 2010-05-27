@@ -24,7 +24,7 @@ let num_by_nom_plot () =
     ]
     in
   *)
-  let bar_err =
+  (*let bar_err =
     (Barchart_dataset.barchart_errbar_datasets
        ~group:"Winter"
        ~use_color:true
@@ -56,9 +56,14 @@ let num_by_nom_plot () =
 	   "sep", (Array.init 1000 (fun _ -> Random.float 1000.));
 	   "oct", (Array.init 1000 (fun _ -> Random.float 1000.));
 	   "nov", (Array.init 1000 (fun _ -> Random.float 1000.));
-	 ])
+	 ])*)
+  let stacked =
+    Barchart_dataset.stacked_barchart_datasets
+      [ [|"a1", 10.; "a2", 5.; "a3", 7.;|];
+	[|"b1", 10.; "b2", 2.; "b3", 9.;|];
+	[|"c1", 8.; "c2", 13.; "c3", 1.;|]]
   in
-    new Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text" bar_err
+    new Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text" [stacked]
 
 let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in

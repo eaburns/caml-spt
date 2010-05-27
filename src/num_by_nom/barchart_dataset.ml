@@ -142,22 +142,27 @@ let barchart_errbar_datasets
 (** {1 Stacked barcharts} ****************************************)
 
 
-class stacked_barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
-  name values =
+class stacked_barchart_dataset fill_factory ?(width=Length.Pt 1.) values =
+  let next_pattern = fill_factory ()
+  and values = Array.to_list values in
 
-  let pos = List.filter (fun v -> v >= 0.) (Array.to_list values)
-  and neg = List.filter (fun v -> v < 0.) (Array.to_list values) in
+  let pos = List.filter (fun (_,v) -> v >= 0.) values
+  and neg = List.filter (fun (_,v) -> v < 0.) values in
 
-  let min_val = List.fold_left (+.) 0. neg
-  and max_val = List.fold_left (+.) 0. pos in
+  let min_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. neg
+  and max_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. pos in
+  let pos = List.map (fun (nm,value) -> value, next_pattern ()) pos
+  and neg = List.map (fun (nm,value) -> value, next_pattern ()) neg
+  and name = (List.fold_left (fun accum (nm,_) -> nm ^ "," ^ accum) ""
+		(List.rev values)) in
+  let name = String.sub name 0 ((String.length name - 1)) in
 
 object(self)
 
   inherit Num_by_nom_dataset.dataset name
 
-  val style = { line_color = black;
-		line_dashes = dashes;
-		line_width = width; }
+
+  val style = { default_line_style with line_width = width; }
 
 
   method dimensions =
@@ -169,35 +174,37 @@ object(self)
 
 
   method draw ctx ~src ~dst ~width ~x =
-    let tr = range_transform ~src ~dst in
-    let fn start_y value =
-      let y_min = tr start_y
-      and y_max = tr (start_y +. value) in
-	fill_rectangle ctx ~color
-	  (rectangle ~x_min:x ~x_max:(x +. width)
-	     ~y_min ~y_max);
+    let tr = range_transform ~src ~dst
+    and x_min = x
+    and x_max = x +. width in
+    let d start_y (value,fill) =
+      let y_max = tr (start_y +. value)
+      and y_min = tr start_y in
+      let r = rectangle ~x_min ~x_max ~y_min ~y_max in
+	draw_fill_pattern ctx r fill;
 	draw_line ctx ~style [point x y_min;
 			      point x y_max;
 			      point (x +. width) y_max;
 			      point (x +. width) y_min;
 			      point x y_min;];
-	(start_y +. value) in
-      ignore (List.fold_left fn 0. neg);
-      ignore (List.fold_left fn 0. pos)
+	start_y +. value in
+      ignore (List.fold_left d 0. pos);
+      ignore (List.fold_left d 0. neg)
 
 end
 
 
-let stacked_barchart_dataset dashes ?(width=Length.Pt 1.) ?(color=gray)
-    name data =
-  new stacked_barchart_dataset dashes ~width ~color name data
+let stacked_barchart_dataset ?(width=Length.Pt 1.)
+    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array =
+  new stacked_barchart_dataset fill_factory ~width nm_data_array
 
 
-let stacked_barchart_datasets dashes ?(width=Length.Pt 1.) ?(color=gray)
-    ?(gname = "") values =
+let stacked_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
+    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array_list =
   let bars = List.map
-    (fun (nm,dt) ->
-       new stacked_barchart_dataset dashes ~width ~color nm dt) values in
+    (fun  nm_data_array ->
+       new stacked_barchart_dataset fill_factory ~width nm_data_array)
+    nm_data_array_list in
     new Num_by_nom_dataset.dataset_group gname bars
 
 
