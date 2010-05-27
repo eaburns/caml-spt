@@ -58,7 +58,7 @@ let num_by_nom_plot () =
 	   "nov", (Array.init 1000 (fun _ -> Random.float 1000.));
 	 ])*)
   let stacked =
-    Barchart_dataset.stacked_barchart_datasets
+    Barchart_dataset.layered_barchart_datasets
       [ [|"a1", 10.; "a2", 5.; "a3", 7.;|];
 	[|"b1", 10.; "b2", 2.; "b3", 9.;|];
 	[|"c1", 8.; "c2", 13.; "c3", 1.;|]]

@@ -208,4 +208,78 @@ let stacked_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
     new Num_by_nom_dataset.dataset_group gname bars
 
 
+
+(** {1 Stacked barcharts} ****************************************)
+
+
+class layered_barchart_dataset fill_factory ?(width=Length.Pt 1.) values =
+
+  let next_pattern = fill_factory ()
+  and values = Array.to_list values
+  and neg_compare (_,v1) (_,v2) = compare v1 v2
+  and pos_compare (_,v1) (_,v2) = compare v2 v1 in
+  let pos = List.sort pos_compare (List.filter (fun (_,v) -> v >= 0.) values)
+  and neg = List.sort neg_compare (List.filter (fun (_,v) -> v < 0.) values) in
+
+  let min_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. neg
+  and max_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. pos in
+  let pos = List.map (fun (nm,value) -> nm,value, next_pattern ()) pos
+  and neg = List.map (fun (nm,value) -> nm,value, next_pattern ()) neg in
+  let name = (List.fold_left (fun accum (nm,_,_) -> nm ^ "," ^ accum) ""
+		(List.rev (neg @ pos))) in
+  let name = String.sub name 0 ((String.length name - 1)) in
+
+object(self)
+
+  inherit Num_by_nom_dataset.dataset name
+
+
+  val style = { default_line_style with line_width = width; }
+
+
+  method dimensions =
+    { min = min_val; max = max_val}
+
+
+  method residual ctx ~src ~dst ~width ~x =
+    { min = 0.; max = 0.; }
+
+
+  method draw ctx ~src ~dst ~width ~x =
+    let offset = (width /. 10.) in
+    let tr = range_transform ~src ~dst
+    and max_offset = max (List.length pos) (List.length neg) in
+    let width = width -. ((float max_offset) *. offset) in
+    let d x_min (_,value,fill) =
+      let x_max = x_min +. width
+      and y_max = tr value
+      and y_min = tr 0. in
+      let r = rectangle ~x_min ~x_max ~y_min ~y_max in
+	draw_fill_pattern ctx r fill;
+	draw_line ctx ~style [point x_min y_min;
+			      point x_min y_max;
+			      point x_max y_max;
+			      point x_max y_min;
+			      point x_min y_min;];
+	x_min +. offset in
+      ignore (List.fold_left d x pos);
+      ignore (List.fold_left d x neg)
+
+end
+
+
+let layered_barchart_dataset ?(width=Length.Pt 1.)
+    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array =
+  new layered_barchart_dataset fill_factory ~width nm_data_array
+
+
+let layered_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
+    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array_list =
+  let bars = List.map
+    (fun  nm_data_array ->
+       new layered_barchart_dataset fill_factory ~width nm_data_array)
+    nm_data_array_list in
+    new Num_by_nom_dataset.dataset_group gname bars
+
+
 (* EOF *)
