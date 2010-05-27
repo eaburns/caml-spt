@@ -29,10 +29,10 @@ let data_dimensions ~y_min ~y_max datasets =
 		      in min', max')
       (infinity, neg_infinity) datasets
   in
-  let min = match y_min with None -> min | Some m -> m in
-  let max = match y_max with None -> max | Some m -> m in
   let pad = range_padding ~max ~min 0.01 in
-  let r = range ~min:(min -. pad) ~max:(max +. pad) in
+  let min = match y_min with None -> (min -. pad) | Some m -> m in
+  let max = match y_max with None -> (max +. pad) | Some m -> m in
+  let r = range ~min ~max in
     vprintf verb_normal "data dimensions: y=[%f, %f]\n" r.min r.max;
     r
 
