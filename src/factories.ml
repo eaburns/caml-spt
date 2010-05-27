@@ -24,13 +24,31 @@ let default_glyph_factory =
   (** [default_glyph_factory] gets the default glyph factory
       builder. *)
   let glyph_set =
-    [| Circle_glyph;
-       Ring_glyph;
-       Triangle_glyph;
-       Box_glyph;
-       Square_glyph;
-       Cross_glyph;
-       Plus_glyph;
+    [|
+      Ring_glyph;
+      Circle_glyph;
+      Triangle_glyph;
+      Box_glyph;
+      Square_glyph;
+      Cross_glyph;
+      Plus_glyph;
+    |]
+  in make_glyph_factory glyph_set
+
+
+let overlapping_glyph_factory =
+  (** [overlapping_glyph_factory] gets a glyph factory builder that
+      makes glyphs that look good with overlapping data.
+
+      This set is similar to the set recommended in ps_plot for
+      overlapping data. *)
+  let glyph_set =
+    [|
+      Plus_glyph;
+      Char_glyph '<';
+      Char_glyph 'S';
+      Char_glyph 'W';
+      Cross_glyph;
     |]
   in make_glyph_factory glyph_set
 
