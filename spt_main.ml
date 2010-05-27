@@ -128,7 +128,7 @@ let num_by_num_plot () =
 
 
 let main () =
-  let plot = num_by_nom_plot () in
+  let plot = num_by_num_plot () in
 (*
     Random.init 17;
 *)

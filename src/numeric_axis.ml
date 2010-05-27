@@ -207,7 +207,7 @@ let draw_x_axis ctx ~pad ~width ~height ~dst axis =
 	  h
   in
   let y' =
-    height -. h -. pad -. tick_text_height -. -. tick_text_pad -. tick_length
+    height -. h -. pad -. tick_text_height -. tick_text_pad -. tick_length
   in
     List.iter (draw_x_tick ctx axis.tick_text_style ~y:y' tr) axis.ticks;
     draw_line ctx ~style:axis_style [ point dst.min y'; point dst.max y'; ]
