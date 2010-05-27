@@ -64,7 +64,7 @@ let num_by_nom_plot () =
 	[|"b1", 10.; "b2", 2.; "b3", 9.;|];
 	[|"c1", 8.; "c2", 13.; "c3", 1.;|]]
   in
-    new Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text" [stacked]
+    new Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text" stacked
 
 let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
