@@ -1,0 +1,111 @@
+------------------------------------------------------------
+Things that we need before anyone can begin beta testing
+------------------------------------------------------------
+
+* Decide on a final API
+  two basic types of functions, on for generating single datalests,
+  one for making list of related datasets that dispatches to the first
+  type.  One of these calls for each dataset type.  Each inside of its
+  own file.
+  -- Num by num datasets are done
+
+* Order legends by mean y-value in num_by_num plots.
+
+------------------------------------------------------------
+Extra features
+------------------------------------------------------------
+
+* Drawing legends off of the plot.
+
+* Change text size based on plot size
+
+* Scatter plot matrix
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+
+* Normal quantile plots
+
+* Histograms:
+   - Hash marks filling the histograms
+   - Coloring w/ alpha values
+
+* CDF's need error bars
+
+* Make sure we present a consistent type to the world for all datasets
+
+* Heatmaps
+  - Numeric by Numeric
+  - Nominal by Nominal
+
+* Stacked bar charts
+  - need to do some kind of different colorization of the stacked bars
+   -> My thought is to make each stacked dataset take a list of
+   barchart datasets.  It will then proceed to draw each bar from the
+   tallest to the shortest overlapping eachother.  This way the
+   drawing of bars is separated from the stacked chart and each bar
+   will be its own color (if the user gave them each different
+   colors).  Then, overwrite the draw_x_label (and x_label_height)
+   method for stacked so that it can draw the names each on their own
+   line from tallest to smallest followed by the name of the stack.
+
+
+* Make sure that everything is colorable
+
+* Montages: more complex than simple ps-montage style.
+  - Make axis drawing optional.
+  - Make room for non-drawn axes, but then don't draw them.
+
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
+
+* Write a real README file
+
+* Document the code
+
+* Generate OCaml docs
+
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
+
+* Add an edit menu to the gtk gui allowing for
+      * Specify the size of the plot -- make sure to pre-populate dialogue
+      * Turn color on / off
+
+* Grouping num by nom datasets in spt-it-out
+
+* Minimum Plot size requirement in Gtk window needs removed
+
+* Generate .mli files where possible / appropriate
+
+* Bindings
+  - C
+  - Python
+  - Java?
+
+------------------------------------------------------------
+spt-it-out
+------------------------------------------------------------
+
+* label datasets
+
+* scatter with errbar datasets
+
+* Simple arithmetic... mapping log10 over things, etc.
+
+* Including other spt-it-out files
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
+
+* Nominal by nominal plots
+
+* Numeric by Ordinal (or Ranked) plots
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
