@@ -105,7 +105,7 @@ object (self)
       range
 	((snd (self#size ctx)) -. data_label_height
 	 -. (ctx.units x_axis_padding))
-	(title_height +. (ctx.units Spt.text_padding))
+	(title_height +. (2. *. (ctx.units Spt.text_padding)))
 
 
 
