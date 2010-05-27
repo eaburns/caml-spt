@@ -32,7 +32,6 @@ let make_default_gradient min max =
 
 
 class countmap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient ?name points =
-  (** A line plot dataset. *)
 
   let x_min, y_min, x_max, y_max =
     Array.fold_left
@@ -104,5 +103,79 @@ end
 let countmap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient ?name points =
   new countmap_dataset ~width ?bin_size ?gradient ?name points
 
+
+
+
+class valuemap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient ?name triples=
+
+  let x_min, y_min, x_max, y_max =
+    Array.fold_left
+      (fun (a_xmin,a_ymin,a_xmax, a_ymax) t ->
+	 min a_xmin t.i, min a_ymin t.j, max a_xmax t.i, max a_ymax t.j)
+      (infinity,infinity,neg_infinity,neg_infinity) triples in
+
+  let bin_width = (match bin_size with
+		       None -> (x_max -. x_min) /. default_bins
+		     | Some pt -> pt.x)
+
+  and bin_height = (match bin_size with
+			None -> (y_max -. y_min) /. default_bins
+		      | Some pt -> pt.y) in
+
+  let bins = (let xcnt = truncate (ceil ((x_max -. x_min) /. bin_width))
+	      and ycnt = truncate (ceil ((y_max -. y_min) /. bin_height)) in
+	      let b = Array.create_matrix xcnt ycnt 0. in
+		Array.iter
+		  (fun trp ->
+		     let xi = bucket ~min:x_min ~bin_size:bin_width trp.i
+		     and yi = bucket ~min:x_min ~bin_size:bin_height trp.j in
+		     let xi = min xi (xcnt - 1)
+		     and yi = min yi (ycnt - 1) in
+		       b.(xi).(yi) <- trp.k) triples;
+		Printf.eprintf "Done\n%!";
+		b) in
+
+  let gradient = (match gradient with
+		      None -> make_default_gradient 0.
+			(Array.fold_left
+			   (fun accum ar ->
+			      max accum (Array.fold_left max neg_infinity ar))
+			   neg_infinity bins)
+		    | Some fn -> fn) in
+
+object (self)
+
+  inherit dataset ?name ()
+
+  method dimensions =
+    rectangle ~x_min ~x_max:(x_min +. bin_width *. (float (Array.length bins)))
+      ~y_min ~y_max:(y_min +. bin_height *. (float (Array.length bins.(0))))
+
+  method draw ctx ~src ~dst =
+    let tr_rect = rectangle_transform ~src ~dst in
+      for x = 0 to (Array.length bins - 1) do
+	for y = 0 to (Array.length bins.(0) - 1) do
+	  (let x_min = x_min +. (float x) *. bin_width
+	   and y_min = y_min +. (float y) *. bin_height
+	   and x_max = x_min +. (float (x+1)) *. bin_width
+	   and y_max = y_min +. (float (y+1)) *. bin_height in
+	     fill_rectangle ctx ~color:(gradient bins.(x).(y))
+	       (tr_rect (rectangle ~x_min ~x_max ~y_min ~y_max)))
+	done
+      done
+
+  method avg_slope =
+    nan
+
+  method draw_legend ctx ~x ~y = ()
+
+  method legend_dimensions ctx =
+    0., (ctx.units width)
+
+end
+
+
+let valuemap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient ?name triples=
+  new valuemap_dataset ~width ?bin_size ?gradient ?name triples
 
 (* EOF *)
