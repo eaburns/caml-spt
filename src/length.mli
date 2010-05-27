@@ -19,6 +19,8 @@ val as_pt : t -> float
 
 val to_string : t -> string
 
+val of_string : string -> t
+
 val convert : t -> units -> float
 
 val get_type : t -> units

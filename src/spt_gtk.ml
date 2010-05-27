@@ -19,6 +19,27 @@ let file_dialog ~title ~callback () =
   sel#show ()
 
 
+let dimension_dialog ~title ~plot () =
+  let sel = GWindow.dialog ~title ~modal:true ~width:200 ~height:200 () in
+  let vbox = sel#vbox in
+  let v_dim = GBroken.text ~editable:true ~packing:vbox#add ~show:true ()
+  and h_dim = GBroken.text ~editable:true ~packing:vbox#add ~show:true ()
+  and accept = GButton.button ~label:"Resize" ~packing:sel#action_area#add ()in
+    (* prefill v_dim, h_dim, and put the teeth into accept *)
+    v_dim#insert (Length.to_string plot#height);
+    h_dim#insert (Length.to_string plot#width);
+    let resize () =
+      try
+	(let new_v = Length.of_string (v_dim#get_chars ~start:0
+					 ~stop:v_dim#length)
+	 and new_h = Length.of_string (h_dim#get_chars ~start:0
+					 ~stop:h_dim#length) in
+	   ()(*plot#set_size ~w:new_h ~h:new_v*))
+      with _ -> () in
+      ignore (accept#connect#clicked ~callback:resize);
+      sel#show ()
+
+
 let save_dialog plot =
   file_dialog ~title:"Save"
     ~callback:(fun file ->
@@ -32,6 +53,9 @@ let save_dialog plot =
 		    ignore (mwindow#run ());
 		      mwindow#destroy ()))()
 
+
+let edit_dialog plot =
+  dimension_dialog ~title:"Edit Dimensions" ~plot ()
 
 let draw_plot_to_gtk_area plot area =
   (** [draw_plot plot area] draws the plot to a GTK drawing area. *)
@@ -66,13 +90,18 @@ let create_display plot title =
   let factory = new GMenu.factory ~accel_path:"<MLPLOT>/" menu_bar in
   let accel_group = factory#accel_group in
   let file_menu = factory#add_submenu "File" in
+  let edit_menu = factory#add_submenu "Edit" in
   let factory = new GMenu.factory ~accel_path:"<MLPLOT File>///" file_menu
+    ~accel_group in
+  let efactory = new GMenu.factory ~accel_path:"<MLPLOT Edit>///" edit_menu
     ~accel_group in
   let area = GMisc.drawing_area ~width ~height
     ~packing:(vbox#pack ~expand:true) () in
   let draw = draw_plot_to_gtk_area plot in
     ignore (factory#add_item "Save as..." ~key:_S ~callback:
 	      (fun _ -> (save_dialog plot)));
+    ignore (efactory#add_item "Dimensions" ~key:_D ~callback:
+	      (fun _ -> (edit_dialog plot)));
     area#misc#realize ();
     ignore (factory#add_item "Quit" ~key:_Q ~callback:w#destroy);
     ignore (area#event#connect#expose (fun _ -> draw area; true));
