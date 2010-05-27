@@ -93,8 +93,7 @@ object (self)
   method avg_slope =
     nan
 
-  method draw_legend ctx ~x ~y =
-    ()
+  method draw_legend ctx ~x ~y = ()
 
   method legend_dimensions ctx =
     0., (ctx.units width)

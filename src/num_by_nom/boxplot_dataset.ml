@@ -95,3 +95,15 @@ object(self)
 	~x:center ~y:q1 ~mag:(q1 -. min);
 
 end
+
+let boxplot_dataset ?radius name values =
+  (** [boxplot_dataset ?radius name values] makes a boxplot dataset. *)
+  new boxplot_dataset ?radius name values
+
+
+let boxplot_datasets ?radius name_vl_list =
+  (** [boxplot_datasets ?radius name_vl_list] makes a set of boxplot
+      datasets. *)
+  List.map
+    (fun (name, values) -> new boxplot_dataset ?radius name values)
+    name_vl_list

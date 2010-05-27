@@ -20,21 +20,19 @@ let between_padding = Length.Pt 10.
 let data_dimensions ~y_min ~y_max datasets =
   (** [data_dimensions ~y_min ~y_max datasets] computes the dimension
       of the y-axis. *)
-  let r = match y_min, y_max with
-    | Some min, Some max -> range ~min ~max
-    | _ ->
-	let min, max =
-	  List.fold_left (fun (min, max) ds ->
-			    let r = ds#dimensions in
-			    let ds_min = r.min and ds_max = r.max in
-			    let min' = if ds_min < min then ds_min else min
-			    and max' = if ds_max > max then ds_max else max
-			    in min', max')
-	    (infinity, neg_infinity) datasets
-	in
-	let pad = range_padding ~max ~min 0.01 in
-	  range ~min:(min -. pad) ~max:(max +. pad)
+  let min, max =
+    List.fold_left (fun (min, max) ds ->
+		      let r = ds#dimensions in
+		      let ds_min = r.min and ds_max = r.max in
+		      let min' = if ds_min < min then ds_min else min
+		      and max' = if ds_max > max then ds_max else max
+		      in min', max')
+      (infinity, neg_infinity) datasets
   in
+  let pad = range_padding ~max ~min 0.01 in
+  let min = match y_min with None -> (min -. pad) | Some m -> m in
+  let max = match y_max with None -> (max +. pad) | Some m -> m in
+  let r = range ~min ~max in
     vprintf verb_normal "data dimensions: y=[%f, %f]\n" r.min r.max;
     r
 
@@ -107,7 +105,7 @@ object (self)
       range
 	((snd (self#size ctx)) -. data_label_height
 	 -. (ctx.units x_axis_padding))
-	(title_height +. (ctx.units Spt.text_padding))
+	(title_height +. (2. *. (ctx.units Spt.text_padding)))
 
 
 

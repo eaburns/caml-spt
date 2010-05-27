@@ -1,1 +1,4 @@
 <eval.ml>: use_unix
+
+<*.byte> or <*.native>: use_unix, use_str, use_bigarray, use_lacaml, \
+         use_lablgtk, use_cairo_lablgtk, use_cairo
