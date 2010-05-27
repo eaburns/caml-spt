@@ -214,7 +214,7 @@ let stacked_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
 
 class layered_barchart_dataset fill_factory ?(width=Length.Pt 1.) values =
 
-  let next_pattern = fill_factory ()
+  let next_pattern = fill_factory
   and values = Array.to_list values
   and neg_compare (_,v1) (_,v2) = compare v1 v2
   and pos_compare (_,v1) (_,v2) = compare v2 v1 in
@@ -269,12 +269,13 @@ end
 
 
 let layered_barchart_dataset ?(width=Length.Pt 1.)
-    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array =
+    ?(fill_factory=Factories.default_fill_pattern_factory ()) nm_data_array =
   new layered_barchart_dataset fill_factory ~width nm_data_array
 
 
 let layered_barchart_datasets ?(width=Length.Pt 1.) ?(gname = "")
-    ?(fill_factory=Factories.default_fill_pattern_factory) nm_data_array_list =
+    ?(fill_factory=Factories.default_fill_pattern_factory())
+    nm_data_array_list =
   let bars = List.map
     (fun  nm_data_array ->
        new layered_barchart_dataset fill_factory ~width nm_data_array)
