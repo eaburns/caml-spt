@@ -11,10 +11,10 @@ open Verbosity
 let y_axis_padding = Length.Pt 10.
   (** The amount of room to separate the y-axis from the data. *)
 
-let x_axis_padding = Length.Pt 10.
+let x_axis_padding = Length.Pt 5.
   (** The amount of room to separate the x-axis from the data. *)
 
-let between_padding = Length.Pt 20.
+let between_padding = Length.Pt 10.
   (** Padding between each dataset. *)
 
 let data_dimensions ~y_min ~y_max datasets =

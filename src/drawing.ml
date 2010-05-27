@@ -103,9 +103,9 @@ let set_text_style_option ctx = function
   | Some style -> set_text_style ctx style
 
 
-let draw_text ctx ?style ?(angle=0.) x y str =
-  (** [draw_text ctx ?style ?angle x y str] displays the text at
-      the given center point. *)
+let draw_text ctx ?style ?(angle=0.) ~x ~y str =
+  (** [draw_text ctx ?style ?angle ~x ~y str] displays
+      the text at the given center point. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
   let w = te.Cairo.text_width and h = te.Cairo.text_height in
@@ -155,7 +155,7 @@ let draw_text_centered_below ctx ?style ?(angle=0.) x y str =
       given string centered below the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
-    draw_text ctx ~angle x (y +. te.Cairo.text_height /. 2.) str
+    draw_text ctx ~angle ~x ~y:(y +. te.Cairo.text_height /. 2.) str
 
 
 let draw_text_centered_above ctx ?style ?(angle=0.) x y str =
@@ -163,7 +163,7 @@ let draw_text_centered_above ctx ?style ?(angle=0.) x y str =
       given string centered above the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
-    draw_text ctx ~angle x (y -. te.Cairo.text_height /. 2.) str
+    draw_text ctx ~angle ~x ~y:(y -. te.Cairo.text_height /. 2.) str
 
 
 let draw_text_centered_before ctx ?style ?(angle=0.) x y str =
@@ -171,7 +171,7 @@ let draw_text_centered_before ctx ?style ?(angle=0.) x y str =
       given string centered before the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
-    draw_text ctx ~angle (x -. te.Cairo.text_width /. 2.) y str
+    draw_text ctx ~angle ~x:(x -. te.Cairo.text_width /. 2.) ~y str
 
 
 let draw_text_centered_after ctx ?style ?(angle=0.) x y str =
@@ -179,7 +179,7 @@ let draw_text_centered_after ctx ?style ?(angle=0.) x y str =
       given string centered after the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
-    draw_text ctx ~angle (x +. te.Cairo.text_width /. 2.) y str
+    draw_text ctx ~angle ~x:(x +. te.Cairo.text_width /. 2.) ~y str
 
 
 (** {2 Formatted text} ****************************************)
@@ -187,7 +187,7 @@ let draw_text_centered_after ctx ?style ?(angle=0.) x y str =
 let drawf ctx ?style ?(angle=0.) x y fmt =
   (** [drawf ctx ?style ?angle x y fmt] displays the formatted text at
       the given center point. *)
-    Printf.kprintf (draw_text ctx ?style ~angle x y) fmt
+    Printf.kprintf (draw_text ctx ?style ~angle ~x:x ~y:y) fmt
 
 
 let dimensionsf ctx ?style fmt =
@@ -258,6 +258,26 @@ let fixed_width_text_height ctx ?style width string =
     line_height *. (float (List.length lines))
 
 
+type text_alignment = Centered_text | Left_aligned_text | Right_aligned_text
+
+let draw_text_line ctx ?style ~center ~top string =
+  (** [draw_text_line ctx ?style ~center ~top string] draws a line of
+      text.  This function makes lines of text look better than the
+      general draw_text_centered_XXX routines because this function
+      does vertical alignment based on the font instead of the text
+      string. *)
+  set_text_style_option ctx style;
+  let te = Cairo.text_extents ctx.cairo string in
+  let fe = Cairo.font_extents ctx.cairo in
+  let x_bearing = te.Cairo.x_bearing and w = te.Cairo.text_width in
+  let font_height = fe.Cairo.font_height and descent = fe.Cairo.descent in
+  let x = center -. (w /. 2.) -. x_bearing
+  and y = top +. font_height -. descent in
+    Cairo.move_to ctx.cairo x y;
+    Cairo.show_text ctx.cairo string
+
+
+
 let draw_fixed_width_text ctx ?style ~x ~y ~width string =
   (** [draw_fixed_width_text ctx ?style ~x ~y ~width
       string] displays the given fixed-width text where [x], [y] is
@@ -266,9 +286,8 @@ let draw_fixed_width_text ctx ?style ~x ~y ~width string =
   let line_height = font_suggested_line_height ctx in
   let lines = fixed_width_lines ctx width string in
     ignore (List.fold_left (fun y line ->
-			      let w, h = text_dimensions ctx line in
-				draw_text ctx x (y +. h /. 2.) line;
-				y +. line_height)
+			      draw_text_line ctx ~center:x ~top:y line;
+			      y +. line_height)
 	      y lines)
 
 (** {1 Lines} ****************************************)

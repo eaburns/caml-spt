@@ -106,7 +106,7 @@ let draw ctx text_loc style datasets =
 		   (icon_width +. padding +. (tw /. 2.),
 		    icon_width /. 2.)
 	     in
-	       draw_text ctx ~style tx y txt;
+	       draw_text_line ctx ~style ~center:tx ~top:y_top txt;
 	       ds#draw_legend ctx ~x:ix ~y;
 	       y_top +. entry_height)
       0. datasets in

@@ -14,43 +14,56 @@ open Spt
 open GMain
 
 let num_by_nom_plot () =
-(*
-  let barchart =
+  (*
+    let barchart =
     Barchart_dataset.barchart_datasets
-      ~use_color:true
-      ["jan", 10.; "feb", 40.; "mar", 20.; "apr", -10.;
-       "may", 10.; "jun", 10.; "jul", 10.; "aug", 10.;
-       "sep", 10.; "oct", 10.; "nov", 10.; "dec", 10.;
-      ]
-  in
-*)
+    ~use_color:true
+    ["jan", 10.; "feb", 40.; "mar", 20.; "apr", -10.;
+    "may", 10.; "jun", 10.; "jul", 10.; "aug", 10.;
+    "sep", 10.; "oct", 10.; "nov", 10.; "dec", 10.;
+    ]
+    in
+  *)
   let bar_err =
-    Barchart_dataset.barchart_errbar_datasets
-      ~use_color:true
-      ["jan", (Array.init 100 (fun _ -> Random.float 100.));
-       "feb", (Array.init 100 (fun _ -> Random.float 100.));
-       "mar", (Array.init 100 (fun _ -> Random.float 100.));
-       "apr", (Array.init 100 (fun _ -> Random.float 100.));
-       "may", (Array.init 100 (fun _ -> Random.float 100.));
-       "jun", (Array.init 100 (fun _ -> Random.float 100.));
-       "jul", (Array.init 100 (fun _ -> Random.float 100.));
-       "aug", (Array.init 100 (fun _ -> Random.float 100.));
-       "sep", (Array.init 100 (fun _ -> Random.float 100.));
-       "oct", (Array.init 100 (fun _ -> Random.float 100.));
-       "nov", (Array.init 100 (fun _ -> Random.float 100.));
-       "dec", (Array.init 100 (fun _ -> Random.float 100.));
-      ]
+    (Barchart_dataset.barchart_errbar_datasets
+       ~group:"Winter"
+       ~use_color:true
+       [
+	 "dec", (Array.init 1 (fun _ -> Random.float 1000.));
+	 "jan", (Array.init 1 (fun _ -> Random.float 1000.));
+	 "feb", (Array.init 1 (fun _ -> Random.float 1000.));
+       ]) @
+      (Barchart_dataset.barchart_errbar_datasets
+	 ~group:"Spring"
+	 ~use_color:true
+	 [
+	   "mar", (Array.init 10 (fun _ -> Random.float 1000.));
+	   "apr", (Array.init 10 (fun _ -> Random.float 1000.));
+	   "may", (Array.init 10 (fun _ -> Random.float 1000.));
+	 ]) @
+      (Barchart_dataset.barchart_errbar_datasets
+	 ~group:"Summer"
+	 ~use_color:true
+	 [
+	   "jun", (Array.init 100 (fun _ -> Random.float 1000.));
+	   "jul", (Array.init 100 (fun _ -> Random.float 1000.));
+	   "aug", (Array.init 100 (fun _ -> Random.float 1000.));
+	 ]) @
+      (Barchart_dataset.barchart_errbar_datasets
+	 ~group:"Autumn"
+	 ~use_color:true
+	 [
+	   "sep", (Array.init 1000 (fun _ -> Random.float 1000.));
+	   "oct", (Array.init 1000 (fun _ -> Random.float 1000.));
+	   "nov", (Array.init 1000 (fun _ -> Random.float 1000.));
+	 ])
   in
     new Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text" bar_err
 
 let num_by_num_plot () =
-(*
   let next_dash = Factories.default_dash_factory () in
-*)
   let next_glyph = Factories.default_glyph_factory () in
-(*
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
-*)
 
     (*
       let histogram = new Num_by_num.histogram_dataset (next_dash ())
@@ -66,25 +79,6 @@ let num_by_num_plot () =
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
       [
-	Num_by_num.scatter_errbar_dataset
-	  ~name:"Scatter with error bars"
-	  ~color:green (next_glyph ())
-	  [|
-	    [|
-	      point 3.524080 92.450000;
-	      point 5.912676 150000044.360000;
-	      point 4.587590 58.890000;
-	      point 3.579893 85.190000;
-	      point 5.044204 10000054.910000;
-	      point 4.369472 62.330000;
-	      point 6.206105 320000034.490000;
-	      point 3.722864 74.230000;
-
-	    |], Some "one";
-	  |];
-
-
-(*
 	Num_by_num.bestfit_dataset
 	  (next_glyph ()) (next_dash ())
 	  ~color:green ~name:"Best fit"
@@ -115,7 +109,6 @@ let num_by_num_plot () =
 
 	new Num_by_num.function_dataset (next_dash ())
 	  ~name:"y=x^2" (fun x -> x ** 2.);
-*)
       ]
 
 
