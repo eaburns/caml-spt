@@ -232,7 +232,7 @@ let stacked_barchart_datasets ?(width=Length.Pt 1.) ?group
       | None -> bars
 
 
-(** {1 Stacked barcharts} ****************************************)
+(** {1 Layered barcharts} ****************************************)
 
 
 class layered_barchart_dataset next_pattern ?name ?(width=Length.Pt 1.)
