@@ -41,6 +41,8 @@ Datasets
   - Make axis drawing optional.
   - Make room for non-drawn axes, but then don't draw them.
 
+* Labels may be backwards in layered barcharts
+
 ------------------------------------------------------------
 Documentation
 ------------------------------------------------------------
