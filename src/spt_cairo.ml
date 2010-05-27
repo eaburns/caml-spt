@@ -9,12 +9,6 @@ type files =
   | Unknown of string
 
 
-let resize context plot w h =
-  (* Scale so that drawing can take place between 0. and 1. *)
-    Drawing.fill_rectangle context ~color:Drawing.white
-      (Geometry.rectangle 0. w 0. h)
-
-
 (* saving functionality *)
 let as_png width height plot filename =
   let width_px = Length.as_px width and height_px = Length.as_px height in
@@ -25,7 +19,6 @@ let as_png width height plot filename =
       Length.as_px_float ~w:width ~h:height
   in
     plot#set_size ~w:width ~h:height;
-    resize ctx plot (float width_px) (float height_px);
     plot#draw ctx;
     Cairo_png.surface_write_to_file surface filename
 
@@ -40,7 +33,6 @@ let as_ps width height plot filename =
       Length.as_pt ~w:width ~h:height
   in
     plot#set_size ~w:width ~h:height;
-    resize ctx plot width_pt height_pt;
     plot#draw ctx;
     Cairo.surface_finish surface;
     close_out chan
@@ -56,7 +48,6 @@ let as_pdf width height plot filename =
       Length.as_pt ~w:width ~h:height
   in
     plot#set_size ~w:width ~h:height;
-    resize ctx plot width_pt height_pt;
     plot#draw ctx;
     Cairo.surface_finish surface;
     close_out chan
