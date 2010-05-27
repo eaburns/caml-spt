@@ -47,7 +47,7 @@ let default_label_style =
   }
 
 
-let text_padding = Length.Pt 8.
+let text_padding = Length.Pt 6.
   (** Padding around text *)
 
 
