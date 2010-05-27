@@ -65,7 +65,7 @@ end
 
 open Lacaml.Impl.D
 
-let bestfit_dataset glyph dashes ?color ?width ?radius ?name points =
+let bestfit_dataset ~glyph ~dashes ?color ?width ?radius ?name points =
   let scatter =
     new Scatter_dataset.scatter_dataset glyph ?color ?radius ?name points in
   let xs = Mat.of_array (Array.map (fun p -> [| p.x; 1. |]) points) in
@@ -85,13 +85,17 @@ let bestfit_datasets ?(uses_color=false)
     if uses_color
     then (let next_color = Factories.default_color_factory () in
 	    List.map (fun (name, point_list) ->
-			bestfit_dataset (next_glyph ())
-			  (next_dash ()) ~color:(next_color()) ?width ?radius
+			bestfit_dataset
+			  ~glyph:(next_glyph ())
+			  ~dashes:(next_dash ())
+			  ~color:(next_color())
+			  ?width ?radius
 			  ?name point_list) name_by_point_list_list)
     else
       List.map (fun (name, point_list) ->
-		  bestfit_dataset (next_glyph ())
-		    (next_dash ()) ?width ?radius ?name point_list)
+		  bestfit_dataset ~glyph:(next_glyph ())
+		    ~dashes:(next_dash ())
+		    ?width ?radius ?name point_list)
 	name_by_point_list_list
 
 (* EOF *)

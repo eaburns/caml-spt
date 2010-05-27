@@ -95,7 +95,7 @@ let num_by_num_plot () =
       ~legend_loc:Legend.Upper_right
       [
 	Num_by_num.bestfit_dataset
-	  (next_glyph ()) (next_dash ())
+	  ~glyph:(next_glyph ()) ~dashes:(next_dash ())
 	  ~color:green ~name:"Best fit"
 	  [|
 	    point 0. 0.;
