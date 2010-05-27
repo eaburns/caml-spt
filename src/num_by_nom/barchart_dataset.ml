@@ -142,7 +142,7 @@ let barchart_errbar_datasets
 (** {1 Stacked barcharts} ****************************************)
 
 
-class stacked_barchart_dataset next_pattern ?nm ?(width=Length.Pt 1.)
+class stacked_barchart_dataset next_pattern ?name ?(width=Length.Pt 1.)
   values =
   let values = Array.to_list values in
 
@@ -156,23 +156,25 @@ class stacked_barchart_dataset next_pattern ?nm ?(width=Length.Pt 1.)
   and minor = (List.fold_left (fun accum (nm,_) -> nm ^ "," ^ accum) ""
 		(List.rev values)) in
   let minor = String.sub minor 0 ((String.length minor - 1)) in
+  let major_name = name in
 
 object(self)
 
-  inherit Num_by_nom_dataset.dataset minor
+  inherit Num_by_nom_dataset.dataset
+    (match major_name with None -> "" | Some n -> n)
 
 
   val style = { default_line_style with line_width = width; }
 
   method x_label_height ctx style width =
-    match nm with
+    match major_name with
       |	None -> fixed_width_text_height ctx ~style width minor
       | Some major -> ((fixed_width_text_height ctx ~style width minor) +.
 			 (fixed_width_text_height ctx ~style width major))
 
   method draw_x_label ctx ~x ~y style ~width =
     let half_width = width /. 2. in
-      match nm with
+      match major_name with
 	| None -> (draw_fixed_width_text
 		     ctx ~x:(x +. half_width) ~y ~style ~width minor)
 	| Some major ->(let height = self#x_label_height ctx style width in
@@ -210,17 +212,17 @@ object(self)
 end
 
 
-let stacked_barchart_dataset ?(width=Length.Pt 1.) ?nm
+let stacked_barchart_dataset ?(width=Length.Pt 1.) ?name
     ?(fill_factory=Factories.default_fill_pattern_factory ()) nm_data_array =
-  new stacked_barchart_dataset fill_factory ?nm ~width nm_data_array
+  new stacked_barchart_dataset fill_factory ?name ~width nm_data_array
 
 
 let stacked_barchart_datasets ?(width=Length.Pt 1.) ?group
     ?(fill_factory=Factories.default_fill_pattern_factory())
     mjr_by_nm_data_array_list =
   let bars = List.map
-    (fun  (nm,nm_data_array) ->
-       new stacked_barchart_dataset fill_factory ?nm ~width nm_data_array)
+    (fun  (name,nm_data_array) ->
+       new stacked_barchart_dataset fill_factory ?name ~width nm_data_array)
     mjr_by_nm_data_array_list in
 
     match group with
@@ -231,7 +233,7 @@ let stacked_barchart_datasets ?(width=Length.Pt 1.) ?group
 (** {1 Stacked barcharts} ****************************************)
 
 
-class layered_barchart_dataset next_pattern ?nm ?(width=Length.Pt 1.)
+class layered_barchart_dataset next_pattern ?name ?(width=Length.Pt 1.)
   values =
 
   let values = Array.to_list values
@@ -247,24 +249,25 @@ class layered_barchart_dataset next_pattern ?nm ?(width=Length.Pt 1.)
   let minor = (List.fold_left (fun accum (nm,_,_) -> nm ^ "," ^ accum) ""
 		(List.rev (neg @ pos))) in
   let minor = String.sub minor 0 ((String.length minor - 1)) in
-
+  let major_name = name in
 object(self)
 
-  inherit Num_by_nom_dataset.dataset minor
+  inherit Num_by_nom_dataset.dataset
+    (match major_name with None -> "" | Some n -> n)
 
 
   val style = { default_line_style with line_width = width; }
 
 
   method x_label_height ctx style width =
-    match nm with
+    match major_name with
       |	None -> fixed_width_text_height ctx ~style width minor
       | Some major -> ((fixed_width_text_height ctx ~style width minor) +.
 			 (fixed_width_text_height ctx ~style width major))
 
   method draw_x_label ctx ~x ~y style ~width =
     let half_width = width /. 2. in
-      match nm with
+      match major_name with
 	| None -> (draw_fixed_width_text
 		     ctx ~x:(x +. half_width) ~y ~style ~width minor)
 	| Some major ->(let height = self#x_label_height ctx style width in
@@ -305,17 +308,17 @@ object(self)
 end
 
 
-let layered_barchart_dataset ?(width=Length.Pt 1.) ?nm
+let layered_barchart_dataset ?(width=Length.Pt 1.) ?name
     ?(fill_factory=Factories.default_fill_pattern_factory ()) nm_data_array =
-  new layered_barchart_dataset fill_factory ?nm ~width nm_data_array
+  new layered_barchart_dataset fill_factory ?name ~width nm_data_array
 
 
 let layered_barchart_datasets ?(width=Length.Pt 1.) ?group
     ?(fill_factory=Factories.default_fill_pattern_factory())
     nm_data_array_list =
   let bars = List.map
-    (fun (nm,nm_data_array) ->
-       new layered_barchart_dataset fill_factory ?nm ~width nm_data_array)
+    (fun (name,nm_data_array) ->
+       new layered_barchart_dataset fill_factory ?name ~width nm_data_array)
     nm_data_array_list in
     match group with
       | Some name -> [ new Num_by_nom_dataset.dataset_group name bars ]
