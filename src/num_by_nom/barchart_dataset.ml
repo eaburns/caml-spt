@@ -144,16 +144,18 @@ let barchart_errbar_datasets
 
 class stacked_barchart_dataset next_pattern ?name ?(width=Length.Pt 1.)
   values =
-  let values = Array.to_list values in
+  let values = (List.map (fun (nm,value) -> next_pattern(), nm, value)
+		  (Array.to_list values)) in
 
-  let pos = List.filter (fun (_,v) -> v >= 0.) values
-  and neg = List.filter (fun (_,v) -> v < 0.) values in
+  let pos = List.filter (fun (_,_,v) -> v >= 0.) values
+  and neg = List.filter (fun (_,_,v) -> v < 0.) values in
 
-  let min_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. neg
-  and max_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. pos in
-  let pos = List.map (fun (nm,value) -> value, next_pattern ()) pos
-  and neg = List.map (fun (nm,value) -> value, next_pattern ()) neg
-  and minor = (List.fold_left (fun accum (nm,_) -> nm ^ "," ^ accum) ""
+  let min_val = List.fold_left (fun accum (_,_,value) -> accum +. value) 0. neg
+  and max_val = List.fold_left (fun accum (_,_,value) -> accum +. value) 0. pos
+  in
+  let pos = List.map (fun (pt,nm,value) -> value, pt) pos
+  and neg = List.map (fun (pt,nm,value) -> value, pt) neg
+  and minor = (List.fold_left (fun accum (_,nm,_) -> nm ^ "," ^ accum) ""
 		(List.rev values)) in
   let minor = String.sub minor 0 ((String.length minor - 1)) in
   let major_name = name in
@@ -236,18 +238,20 @@ let stacked_barchart_datasets ?(width=Length.Pt 1.) ?group
 class layered_barchart_dataset next_pattern ?name ?(width=Length.Pt 1.)
   values =
 
-  let values = Array.to_list values
-  and neg_compare (_,v1) (_,v2) = compare v1 v2
-  and pos_compare (_,v1) (_,v2) = compare v2 v1 in
-  let pos = List.sort pos_compare (List.filter (fun (_,v) -> v >= 0.) values)
-  and neg = List.sort neg_compare (List.filter (fun (_,v) -> v < 0.) values) in
-
-  let min_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. neg
-  and max_val = List.fold_left (fun accum (_,value) -> accum +. value) 0. pos in
-  let pos = List.map (fun (nm,value) -> nm,value, next_pattern ()) pos
-  and neg = List.map (fun (nm,value) -> nm,value, next_pattern ()) neg in
-  let minor = (List.fold_left (fun accum (nm,_,_) -> nm ^ "," ^ accum) ""
-		(List.rev (neg @ pos))) in
+  let values = List.map (fun (nm,value) ->
+			   next_pattern(), nm,value) (Array.to_list values)
+  and neg_compare (_,_,v1) (_,_,v2) = compare v1 v2
+  and pos_compare (_,_,v1) (_,_,v2) = compare v2 v1 in
+  let pos = List.sort pos_compare (List.filter (fun (_,_,v) -> v >= 0.) values)
+  and neg = List.sort neg_compare (List.filter (fun (_,_,v) -> v < 0.) values)
+  in
+  let min_val = List.fold_left (fun accum (_,_,value) -> accum +. value) 0. neg
+  and max_val = List.fold_left (fun accum (_,_,value) -> accum +. value) 0. pos
+  in
+  let minor = (List.fold_left (fun accum (_,nm,_) -> nm ^ "," ^ accum) ""
+		 (List.rev (neg @ pos)))
+  and pos = List.map (fun (pt,nm,value) -> value, pt) pos
+  and neg = List.map (fun (pt,nm,value) -> value, pt) neg in
   let minor = String.sub minor 0 ((String.length minor - 1)) in
   let major_name = name in
 object(self)
@@ -290,7 +294,7 @@ object(self)
     let tr = range_transform ~src ~dst
     and max_offset = max (List.length pos) (List.length neg) in
     let width = width -. ((float max_offset) *. offset) in
-    let d x_min (_,value,fill) =
+    let d x_min (value,fill) =
       let x_max = x_min +. width
       and y_max = tr value
       and y_min = tr 0. in
