@@ -59,6 +59,21 @@ let to_string = function
   | Pt p -> sprintf "%f pt" p
 
 
+let of_string str =
+  let strs = Str.split (Str.regexp " ") str in
+    if List.length strs > 2
+    then failwith (sprintf "Bad parse of length %s" str)
+    else (match strs with
+	      [vl;unit] -> (match unit with
+			      | "in" -> In (float_of_string vl)
+			      | "cm" -> Cm (float_of_string vl)
+			      | "px" -> Px (int_of_string vl)
+			      | "pt" -> Pt (float_of_string vl)
+			      | _ -> failwith
+				  (sprintf "Bad parse of length %s" str))
+	    | _ -> failwith (sprintf "Bad parse of length %s" str))
+
+
 let convert t unit =
   match unit with
     | Inches -> as_in t
