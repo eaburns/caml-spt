@@ -36,6 +36,23 @@ let default_glyph_factory =
   in make_glyph_factory glyph_set
 
 
+let overlapping_glyph_factory =
+  (** [overlapping_glyph_factory] gets a glyph factory builder that
+      makes glyphs that look good with overlapping data.
+
+      This set is similar to the set recommended in ps_plot for
+      overlapping data. *)
+  let glyph_set =
+    [|
+      Plus_glyph;
+      Char_glyph '<';
+      Char_glyph 'S';
+      Char_glyph 'W';
+      Cross_glyph;
+    |]
+  in make_glyph_factory glyph_set
+
+
 let numbered_glyph_factory =
   (** [numbered_glyph_factory] gets a glyph factory builder that
       returns numbers as the glyphs. *)

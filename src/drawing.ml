@@ -369,7 +369,7 @@ type glyph =
   | Char_glyph of char
 
 
-let default_glyph_line_width = Length.Pt 1.
+let default_glyph_line_width = Length.Pt 0.5
   (** The default line width when drawing glyphs. *)
 
 
@@ -454,6 +454,8 @@ let make_draw_glyph ctx radius = function
   | Char_glyph ch ->
       let str = " " in
 	str.[0] <- ch;
+	Cairo.select_font_face ctx.cairo
+	  "Sans Serif" font_slant_normal font_weight_normal;
 	Cairo.set_font_size ctx.cairo (radius *. 2.);
 	(fun pt -> draw_text ctx pt.x pt.y str)
 
