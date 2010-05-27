@@ -90,6 +90,12 @@ object (self)
     | None -> "<no title>"
 
 
+  method private fill_background ctx =
+    (** [fill_background ctx] fill the background white. *)
+    Drawing.fill_rectangle ctx ~color:white
+      (rectangle 0. (ctx.units width) 0. (ctx.units height))
+
+
   method display =
     (** [display] opens a lablgtk window showing the plot. *)
     Spt_gtk.create_display self self#title
