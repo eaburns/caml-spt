@@ -41,8 +41,6 @@ Datasets
   - Make axis drawing optional.
   - Make room for non-drawn axes, but then don't draw them.
 
-* Layered Barcharts -- Bar charts layered in z-space
-
 ------------------------------------------------------------
 Documentation
 ------------------------------------------------------------
