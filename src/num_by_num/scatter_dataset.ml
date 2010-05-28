@@ -14,7 +14,7 @@ let default_radius = Length.Pt 4.
 
 
 class scatter_dataset
-  glyph ?(color=black) ?(radius=default_radius) ?name points =
+  glyph ?(color=black) ?(point_radius=default_radius) ?name points =
   (** A scatter plot dataset. *)
 object (self)
   inherit points_dataset ?name points
@@ -27,7 +27,9 @@ object (self)
       Array.fold_left
 	(fun r pt ->
 	   if rectangle_contains src pt
-	   then rectangle_max r (point_residual dst (tr pt) (ctx.units radius))
+	   then
+	     rectangle_max r (point_residual dst (tr pt)
+				(ctx.units point_radius))
 	   else r)
 	zero_rectangle points
 
@@ -39,38 +41,41 @@ object (self)
 	let pt = points.(i) in
 	  if rectangle_contains src pt then pts := (tr pt) :: !pts;
       done;
-      draw_points ctx ~color radius glyph !pts
+      draw_points ctx ~color point_radius glyph !pts
 
-  method draw_legend ctx ~x ~y = draw_point ctx ~color radius glyph (point x y)
+  method draw_legend ctx ~x ~y =
+    draw_point ctx ~color point_radius glyph (point x y)
 
   method legend_dimensions ctx =
-    let r2 = (ctx.units radius) *. 2. in r2, r2
+    let r2 = (ctx.units point_radius) *. 2. in r2, r2
 
   method avg_slope = rectangle_to_slope self#dimensions
 
 end
 
 
-let scatter_dataset glyph ?color ?radius ?name point_list =
-  new scatter_dataset glyph ?color ?radius ?name point_list
+let scatter_dataset glyph ?color ?point_radius ?name point_list =
+  new scatter_dataset glyph ?color ?point_radius ?name point_list
 
 
-let scatter_datasets ?(uses_color=false) ?radius name_by_point_list_list =
+let scatter_datasets
+    ?(uses_color=false) ?point_radius name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
     if uses_color
     then (let next_color = Factories.default_color_factory () in
 	    List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
-			~color:(next_color()) ?radius ~name point_list)
+			~color:(next_color()) ?point_radius ~name point_list)
 	      name_by_point_list_list)
     else List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
-		     ?radius ~name point_list) name_by_point_list_list
+		     ?point_radius ~name point_list) name_by_point_list_list
 
 
 (** {2 Scatter plot with error bars} ****************************************)
 
 
-let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
-  (** [scatter_errbara_dataset glyph ?color ?radius ?name sets]
+let scatter_errbar_dataset
+    glyph ?color ?(point_radius=default_radius) ?name sets =
+  (** [scatter_errbara_dataset glyph ?color ?point_radius ?name sets]
       creates a new composite dataset that is as scatter plot with
       error bars and optionally labels on each point. *)
   let pts, lbls, x_errs, y_errs =
@@ -81,19 +86,20 @@ let scatter_errbar_dataset glyph ?color ?(radius=default_radius) ?name sets =
 		       and mu_y, int_y = Statistics.mean_and_interval ys in
 		       let pt = point mu_x mu_y in
 			 Printf.eprintf "%f x %f\n" mu_x mu_y;
-		       let lbls' = match name with
-			 | Some txt -> (pt, txt) :: lbls
-			 | None -> lbls
-		       in
-			 (pt :: pts,
-			  lbls',
-			  triple mu_x mu_y int_x :: x_errs,
-			  triple mu_x mu_y int_y :: y_errs))
+			 let lbls' = match name with
+			   | Some txt -> (pt, txt) :: lbls
+			   | None -> lbls
+			 in
+			   (pt :: pts,
+			    lbls',
+			    triple mu_x mu_y int_x :: x_errs,
+			    triple mu_x mu_y int_y :: y_errs))
       ([], [], [], []) sets in
-  let scatter = new scatter_dataset glyph ?color ~radius (Array.of_list pts)
+  let scatter =
+    new scatter_dataset glyph ?color ~point_radius (Array.of_list pts)
   and labels =
     new Label_dataset.label_dataset
-      ~yoff:(Length.Pt ~-.(Length.as_pt radius)) ~xoff:radius
+      ~yoff:(Length.Pt ~-.(Length.as_pt point_radius)) ~xoff:point_radius
       ~xloc:Label_dataset.Label_after
       ~yloc:Label_dataset.Label_above
       (Array.of_list lbls)

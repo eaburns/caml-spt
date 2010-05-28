@@ -72,9 +72,11 @@ end
 
 open Lacaml.Impl.D
 
-let bestfit_dataset ~glyph ~dashes ?color ?line_width ?radius ?name points =
+let bestfit_dataset
+    ~glyph ~dashes ?color ?line_width ?point_radius ?name points =
   let scatter =
-    new Scatter_dataset.scatter_dataset glyph ?color ?radius ?name points in
+    new Scatter_dataset.scatter_dataset
+      glyph ?color ?point_radius ?name points in
   let xs = Mat.of_array (Array.map (fun p -> [| p.x; 1. |]) points) in
   let ys = Mat.of_array (Array.map (fun p -> [| p.y |]) points) in
     ignore (gelsd ~rcond:1e-4 xs ys);
@@ -86,7 +88,7 @@ let bestfit_dataset ~glyph ~dashes ?color ?line_width ?radius ?name points =
       new composite_dataset ?name [scatter; line;]
 
 let bestfit_datasets ?(uses_color=false)
-    ?radius ?line_width name_by_point_list_list =
+    ?point_radius ?line_width name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
   let next_dash = Factories.default_dash_factory () in
     if uses_color
@@ -96,13 +98,13 @@ let bestfit_datasets ?(uses_color=false)
 			  ~glyph:(next_glyph ())
 			  ~dashes:(next_dash ())
 			  ~color:(next_color())
-			  ?line_width ?radius
+			  ?line_width ?point_radius
 			  ?name point_list) name_by_point_list_list)
     else
       List.map (fun (name, point_list) ->
 		  bestfit_dataset ~glyph:(next_glyph ())
 		    ~dashes:(next_dash ())
-		    ?line_width ?radius ?name point_list)
+		    ?line_width ?point_radius ?name point_list)
 	name_by_point_list_list
 
 (* EOF *)

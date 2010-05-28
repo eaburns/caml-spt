@@ -221,8 +221,8 @@ let default_radius =
   Length.Pt ((Length.as_pt Scatter_dataset.default_radius) /. 2.)
 
 
-let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
-    ?line_width ?name sets =
+let scatter_errbar_lines_dataset
+    glyph dash ?color ?(point_radius=default_radius) ?line_width ?name sets =
   let pts, lbls, x_errs, y_errs =
     Array.fold_left (fun (pts, lbls, x_errs, y_errs) (vls, name) ->
 		       let xs = Array.map (fun p -> p.x) vls
@@ -241,10 +241,11 @@ let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
 			  triple mu_x mu_y int_y :: y_errs))
       ([], [], [], []) sets in
   let scatter =
-    Scatter_dataset.scatter_dataset glyph ?color ~radius (Array.of_list pts)
+    Scatter_dataset.scatter_dataset glyph ?color
+      ~point_radius (Array.of_list pts)
   and labels =
     new Label_dataset.label_dataset
-      ~yoff:(Length.Pt ~-.(Length.as_pt radius)) ~xoff:radius
+      ~yoff:(Length.Pt ~-.(Length.as_pt point_radius)) ~xoff:point_radius
       ~xloc:Label_dataset.Label_after
       ~yloc:Label_dataset.Label_above
       (Array.of_list lbls)
