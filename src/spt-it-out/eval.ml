@@ -623,8 +623,8 @@ and eval_line env operands =
 	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "line-width") :: len :: []) ->
+	     set_once width l "line-width" (eval_length env len)
 	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -637,7 +637,7 @@ and eval_line env operands =
       (new Num_by_num.line_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?color:!color
-	 ?width:!width
+	 ?line_width:!width
 	 ?name:!name
 	 !data)
 
@@ -664,8 +664,8 @@ and eval_line_points env operands =
 	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "line-width") :: len :: []) ->
+	     set_once width l "line-width" (eval_length env len)
 	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
 	     set_once radius l "radius" (eval_length env len)
 	 | points ->
@@ -681,7 +681,7 @@ and eval_line_points env operands =
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
 	 ?color:!color
-	 ?width:!width
+	 ?line_width:!width
 	 ?radius:!radius
 	 ?name:!name
 	 !data)
@@ -705,8 +705,8 @@ and eval_line_errbar env operands =
 	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "line_width") :: len :: []) ->
+	     set_once width l "line_width" (eval_length env len)
 	 | S.List (l, point_sets) ->
 	     List.iter
 	       (fun points -> match eval env points with
@@ -729,7 +729,7 @@ and eval_line_errbar env operands =
 	(new Num_by_num.line_errbar_dataset
 	   style
 	   ?color:!color
-	   ?width:!width
+	   ?line_width:!width
 	   ?name:!name
 	   (Array.of_list !data))
 
@@ -753,8 +753,8 @@ and eval_histogram env line operands =
 	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "line-width") :: len :: []) ->
+	     set_once width l "line-width" (eval_length env len)
 	 | S.List (_, S.Ident (l, "bin-width") :: S.Number(_, w) :: []) ->
 	     set_once bin_width l "bin-width" w
 	 | floats ->
@@ -768,7 +768,7 @@ and eval_histogram env line operands =
     Num_by_num_dataset
       (new Num_by_num.histogram_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
-	 ?width:!width ?bg_color:!color ?bin_width:!bin_width ?name:!name
+	 ?line_width:!width ?bg_color:!color ?bin_width:!bin_width ?name:!name
 	 !data)
 
 
@@ -790,8 +790,8 @@ and eval_cdf env line operands =
 	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env len)
+	 | S.List (_, S.Ident (l, "line_width") :: len :: []) ->
+	     set_once width l "line_width" (eval_length env len)
 	 | floats ->
 	     begin match eval env floats with
 	       | Scalars vls ->
@@ -803,7 +803,7 @@ and eval_cdf env line operands =
     Num_by_num_dataset
       (new Num_by_num.cdf_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
-	 ?width:!width ?color:!color ?name:!name !data)
+	 ?line_width:!width ?color:!color ?name:!name !data)
 
 
 and eval_num_by_num_composite env operands =

@@ -31,7 +31,7 @@ let make_default_gradient min max =
        else {r = 1.; g = 1.; b = src -. 2.; a = 1.})
 
 
-class countmap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient points =
+class countmap_dataset ?(line_width=Length.Pt 1.) ?bin_size ?gradient points =
 
   let x_min, y_min, x_max, y_max =
     Array.fold_left
@@ -97,18 +97,19 @@ object (self)
   method draw_legend ctx ~x ~y = ()
 
   method legend_dimensions ctx =
-    0., (ctx.units width)
+    0., (ctx.units line_width)
 
 end
 
 
-let countmap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient points =
-  new countmap_dataset ~width ?bin_size ?gradient points
+let countmap_dataset ?(line_width = Length.Pt 1.) ?bin_size ?gradient points =
+  new countmap_dataset ~line_width ?bin_size ?gradient points
 
 
 
 
-class valuemap_dataset ?(width=Length.Pt 1.) ?bin_size ?gradient ?name triples=
+class valuemap_dataset
+  ?(line_width=Length.Pt 1.) ?bin_size ?gradient ?name triples=
 
   let x_min, y_min, x_max, y_max =
     Array.fold_left
@@ -174,12 +175,12 @@ object (self)
   method draw_legend ctx ~x ~y = ()
 
   method legend_dimensions ctx =
-    0., (ctx.units width)
+    0., (ctx.units line_width)
 
 end
 
 
-let valuemap_dataset ?(width = Length.Pt 1.) ?bin_size ?gradient triples=
-  new valuemap_dataset ~width ?bin_size ?gradient triples
+let valuemap_dataset ?(line_width = Length.Pt 1.) ?bin_size ?gradient triples=
+  new valuemap_dataset ~line_width ?bin_size ?gradient triples
 
 (* EOF *)

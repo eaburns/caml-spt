@@ -17,7 +17,8 @@ let f_compare a b =
     if v < 0. then ~-1 else if v > 0. then 1 else 0
 
 
-class cdf_dataset dashes ?(width=Length.Pt 1.) ?(color=black) ?name vals =
+class cdf_dataset
+  dashes ?(line_width=Length.Pt 1.) ?(color=black) ?name vals =
   (** A line plot dataset. *)
 
   let values = Array.sort f_compare vals; vals in
@@ -39,7 +40,7 @@ object (self)
     {
       line_color = color;
       line_dashes = dashes;
-      line_width = width;
+      line_width = line_width;
     }
 
 
@@ -65,7 +66,7 @@ object (self)
 
 
   method legend_dimensions ctx =
-    (ctx.units line_legend_length), (ctx.units width)
+    (ctx.units line_legend_length), (ctx.units line_width)
 
   method avg_slope =
     if Array.length points < 2 then nan
@@ -86,8 +87,8 @@ end
 
 
 
-let cdf_dataset dashes ?width ?color ?name points =
-  new cdf_dataset dashes ?width ?color ?name points
+let cdf_dataset dashes ?line_width ?color ?name points =
+  new cdf_dataset dashes ?line_width ?color ?name points
 
 let cdf_datasets ?(uses_color=false) name_by_values_list =
   let next_dash = Factories.default_dash_factory () in
