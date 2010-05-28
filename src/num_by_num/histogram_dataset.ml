@@ -143,4 +143,9 @@ object(self)
 end
 
 
+let histogram dashes ?width ?bg_color ?bin_width ?name values =
+  (** [histogram dashes ?width ?bg_color ?bin_width ?name values]
+      makes a histogram. *)
+  new histogram_dataset dashes ?width ?bg_color ?bin_width ?name values
+
 (* EOF *)
