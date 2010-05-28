@@ -10,7 +10,7 @@ open Geometry
 
 (** {1 Simple barcharts} ****************************************)
 
-class barchart_dataset fill_pattern ?(width=Length.Pt 1.) name value =
+class barchart_dataset fill_pattern ?(line_width=Length.Pt 1.) name value =
   (** A simple barchart.  This is one bar with a name and a height. *)
   let min_val = min 0. value
   and max_val = max 0. value in
@@ -18,7 +18,7 @@ object(self)
 
   inherit Num_by_nom_dataset.dataset name
 
-  val style = { default_line_style with line_width = width; }
+  val style = { default_line_style with line_width = line_width; }
 
 
   method dimensions =
@@ -44,16 +44,16 @@ object(self)
 end
 
 
-let barchart_dataset fill_pattern ?(width=Length.Pt 1.) name data =
-  (** [barchart_dataset fill_pattern ?width name data] makes a
+let barchart_dataset fill_pattern ?(line_width=Length.Pt 1.) name data =
+  (** [barchart_dataset fill_pattern ?line_width name data] makes a
       barchart dataset. *)
-  new barchart_dataset fill_pattern ~width name data
+  new barchart_dataset fill_pattern ~line_width name data
 
 
 let barchart_datasets
     ?(use_color=false)
-    ?(width=Length.Pt 1.) ?group values =
-  (** [barchart_datasets ?use_color ?width ?group values] makes a
+    ?(line_width=Length.Pt 1.) ?group values =
+  (** [barchart_datasets ?use_color ?line_width ?group values] makes a
       group of bars datasets. *)
   let next_fill =
     if use_color
@@ -61,7 +61,7 @@ let barchart_datasets
     else Factories.default_fill_pattern_factory () in
   let bars =
     List.map
-      (fun (nm,dt) -> new barchart_dataset (next_fill ()) ~width nm dt)
+      (fun (nm,dt) -> new barchart_dataset (next_fill ()) ~line_width nm dt)
       values
   in
     match group with
@@ -72,7 +72,8 @@ let barchart_datasets
 (** {1 Barcharts with error bars} ****************************************)
 
 
-class barchart_errbar_dataset fill_pattern ?(width=Length.Pt 1.) name values =
+class barchart_errbar_dataset
+  fill_pattern ?(line_width=Length.Pt 1.) name values =
   (** A barchart where the height of the bar is the mean of a set of
       values and error bars are computed to the 95\% confidence
       intervals. *)
@@ -83,7 +84,7 @@ object(self)
 
   inherit Num_by_nom_dataset.dataset name
 
-  val style = { default_line_style with line_width = width; }
+  val style = { default_line_style with line_width = line_width; }
 
 
   method dimensions =
@@ -113,16 +114,16 @@ object(self)
 
 end
 
-let barchart_errbar_dataset fill_pattern ?(width=Length.Pt 1.) name data =
-  (** [barchart_errbar_dataset fill_pattern ?width name data] makes a
+let barchart_errbar_dataset fill_pattern ?(line_width=Length.Pt 1.) name data =
+  (** [barchart_errbar_dataset fill_pattern ?line_width name data] makes a
       barchart dataset where the bar is the mean value with error
       bars. *)
-  new barchart_errbar_dataset fill_pattern ~width name data
+  new barchart_errbar_dataset fill_pattern ~line_width name data
 
 
 let barchart_errbar_datasets
-    ?(use_color=false) ?(width=Length.Pt 1.) ?group values =
-  (** [barchart_errbar_datasets ?use_color ?width ?gname values] makes
+    ?(use_color=false) ?(line_width=Length.Pt 1.) ?group values =
+  (** [barchart_errbar_datasets ?use_color ?line_width ?gname values] makes
       a set of barcharts with error bars. *)
   let next_fill =
     if use_color
@@ -131,7 +132,7 @@ let barchart_errbar_datasets
   let bars =
     List.map
       (fun (nm,dt) ->
-	 new barchart_errbar_dataset (next_fill ()) ~width nm dt)
+	 new barchart_errbar_dataset (next_fill ()) ~line_width nm dt)
       values
   in
     match group with
@@ -142,7 +143,7 @@ let barchart_errbar_datasets
 (** {1 Stacked barcharts} ****************************************)
 
 
-class stacked_barchart_dataset next_pattern ?name ?(width=Length.Pt 1.)
+class stacked_barchart_dataset next_pattern ?name ?(line_width=Length.Pt 1.)
   values =
   let values = (List.map (fun (nm,value) -> next_pattern(), nm, value)
 		  (Array.to_list values)) in
@@ -166,7 +167,7 @@ object(self)
     (match major_name with None -> "" | Some n -> n)
 
 
-  val style = { default_line_style with line_width = width; }
+  val style = { default_line_style with line_width = line_width; }
 
   method x_label_height ctx style width =
     match major_name with
@@ -215,21 +216,22 @@ end
 
 
 let stacked_barchart_dataset
-    ?(width=Length.Pt 1.) ?name ?fill_factory nm_data_array =
+    ?(line_width=Length.Pt 1.) ?name ?fill_factory nm_data_array =
   let fill_factory = match fill_factory with
     | None -> Factories.default_fill_pattern_factory ()
     | Some f -> f in
-  new stacked_barchart_dataset fill_factory ?name ~width nm_data_array
+  new stacked_barchart_dataset fill_factory ?name ~line_width nm_data_array
 
 
 let stacked_barchart_datasets
-    ?(width=Length.Pt 1.) ?group ?fill_factory mjr_by_nm_data_array_list =
+    ?(line_width=Length.Pt 1.) ?group ?fill_factory mjr_by_nm_data_array_list =
   let fill_factory = match fill_factory with
     | None -> Factories.default_fill_pattern_factory ()
     | Some f -> f in
   let bars = List.map
     (fun  (name,nm_data_array) ->
-       new stacked_barchart_dataset fill_factory ?name ~width nm_data_array)
+       new stacked_barchart_dataset fill_factory ?name
+	 ~line_width nm_data_array)
     mjr_by_nm_data_array_list in
 
     match group with

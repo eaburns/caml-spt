@@ -137,8 +137,8 @@ module Style_cache = Weak.Make(struct
 
 
 
-class line_errbar_dataset style ?color ?width ?name lines =
-  (** [line_errbar_dataset style ?color ?width ?name lines] makes a
+class line_errbar_dataset style ?color ?line_width ?name lines =
+  (** [line_errbar_dataset style ?color ?line_width ?name lines] makes a
       line and error bar dataset. *)
 object (self)
   inherit dataset ?name ()
@@ -154,7 +154,7 @@ object (self)
     in
       new composite_dataset ?name
 	[(new Line_dataset.line_dataset style.dashes
-	    ?color ?width ?name points);
+	    ?color ?line_width ?name points);
 	 (new Errbar_dataset.vertical_errbar_dataset ?color bars)]
 
 
@@ -199,8 +199,8 @@ object (self)
 end
 
 
-let line_errbar_dataset dashes ?width ?color ?name lines =
-  new line_errbar_dataset dashes ?width ?color ?name lines
+let line_errbar_dataset dashes ?line_width ?color ?name lines =
+  new line_errbar_dataset dashes ?line_width ?color ?name lines
 
 
 let line_errbar_datasets ?(uses_color=false) name_by_lines_list =
@@ -222,7 +222,7 @@ let default_radius =
 
 
 let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
-    ?width ?name sets =
+    ?line_width ?name sets =
   let pts, lbls, x_errs, y_errs =
     Array.fold_left (fun (pts, lbls, x_errs, y_errs) (vls, name) ->
 		       let xs = Array.map (fun p -> p.x) vls
@@ -253,7 +253,7 @@ let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
   and vert_err =
     new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs)
   and line =
-    Line_dataset.line_dataset dash ?color ?name ?width (Array.of_list pts)
+    Line_dataset.line_dataset dash ?color ?name ?line_width (Array.of_list pts)
   in
     new composite_dataset ?name [scatter; line; horiz_err; vert_err; labels;]
 

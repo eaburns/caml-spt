@@ -12,7 +12,8 @@ let line_legend_length = Length.Cm 0.75
   (** The length of the line drawn in the legend. *)
 
 
-class line_dataset dashes ?(width=Length.Pt 1.) ?(color=black) ?name points =
+class line_dataset
+  dashes ?(line_width=Length.Pt 1.) ?(color=black) ?name points =
   (** A line plot dataset. *)
 
 object (self)
@@ -23,7 +24,7 @@ object (self)
     {
       line_color = color;
       line_dashes = dashes;
-      line_width = width;
+      line_width = line_width;
     }
 
   method draw ctx ~src ~dst =
@@ -44,7 +45,7 @@ object (self)
 
 
   method legend_dimensions ctx =
-    (ctx.units line_legend_length), (ctx.units width)
+    (ctx.units line_legend_length), (ctx.units line_width)
 
   method avg_slope =
     let pts = points in
@@ -69,17 +70,17 @@ let default_radius =
 
 
 let line_points_dataset dashes glyph ?(radius=default_radius)
-    ?width ?color ?name points =
-  (** [line_points_dataset dashes glyph ?radius ?width ?color ?name
+    ?line_width ?color ?name points =
+  (** [line_points_dataset dashes glyph ?radius ?line_width ?color ?name
       points] makes a dataset that is a line with glyphs at each
       point. *)
   new composite_dataset ?name
-    [new line_dataset dashes ?width ?color ?name points;
+    [new line_dataset dashes ?line_width ?color ?name points;
      new Scatter_dataset.scatter_dataset glyph ~radius ?color ?name points;]
 
 
-let line_dataset dashes ?width ?color ?name points =
-  new line_dataset dashes ?width ?color ?name points
+let line_dataset dashes ?line_width ?color ?name points =
+  new line_dataset dashes ?line_width ?color ?name points
 
 
 let line_datasets ?(uses_color=false) name_by_points_list =

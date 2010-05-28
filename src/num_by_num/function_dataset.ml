@@ -10,7 +10,7 @@ open Geometry
 
 
 class function_dataset
-  dashes ?(samples=200) ?(width=Length.Pt 1.) ?(color=black) ?name f =
+  dashes ?(samples=200) ?(line_width=Length.Pt 1.) ?(color=black) ?name f =
   (** A line plot dataset. *)
 object (self)
   inherit Num_by_num_dataset.dataset ?name ()
@@ -19,7 +19,7 @@ object (self)
     {
       line_color = color;
       line_dashes = dashes;
-      line_width = width;
+      line_width = line_width;
     }
 
 
@@ -62,7 +62,7 @@ object (self)
       draw_line ctx ~style [ point x0 y; point x1 y]
 
   method legend_dimensions ctx =
-    (ctx.units Line_dataset.line_legend_length), (ctx.units width)
+    (ctx.units Line_dataset.line_legend_length), (ctx.units line_width)
 
   method avg_slope = nan
 
@@ -72,7 +72,7 @@ end
 
 open Lacaml.Impl.D
 
-let bestfit_dataset ~glyph ~dashes ?color ?width ?radius ?name points =
+let bestfit_dataset ~glyph ~dashes ?color ?line_width ?radius ?name points =
   let scatter =
     new Scatter_dataset.scatter_dataset glyph ?color ?radius ?name points in
   let xs = Mat.of_array (Array.map (fun p -> [| p.x; 1. |]) points) in
@@ -80,13 +80,13 @@ let bestfit_dataset ~glyph ~dashes ?color ?width ?radius ?name points =
     ignore (gelsd ~rcond:1e-4 xs ys);
     let m = ys.{1, 1} and b = ys.{2, 1} in
     let line =
-      new function_dataset dashes ~samples:2 ?width ?color ?name
+      new function_dataset dashes ~samples:2 ?line_width ?color ?name
 	(fun x -> x *. m +. b)
     in
       new composite_dataset ?name [scatter; line;]
 
 let bestfit_datasets ?(uses_color=false)
-    ?radius ?width name_by_point_list_list =
+    ?radius ?line_width name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
   let next_dash = Factories.default_dash_factory () in
     if uses_color
@@ -96,13 +96,13 @@ let bestfit_datasets ?(uses_color=false)
 			  ~glyph:(next_glyph ())
 			  ~dashes:(next_dash ())
 			  ~color:(next_color())
-			  ?width ?radius
+			  ?line_width ?radius
 			  ?name point_list) name_by_point_list_list)
     else
       List.map (fun (name, point_list) ->
 		  bestfit_dataset ~glyph:(next_glyph ())
 		    ~dashes:(next_dash ())
-		    ?width ?radius ?name point_list)
+		    ?line_width ?radius ?name point_list)
 	name_by_point_list_list
 
 (* EOF *)

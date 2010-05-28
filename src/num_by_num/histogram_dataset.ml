@@ -61,7 +61,7 @@ let make_width ~bin_width ~max_value ~min_value =
 
 
 class histogram_dataset
-  dashes ?(width=Length.Pt 1.) ?(bg_color=gray) ?bin_width ?name vals =
+  dashes ?(line_width=Length.Pt 1.) ?(bg_color=gray) ?bin_width ?name vals =
   let values = Array.sort compare vals ; vals in
   let min_value, max_value =
     if (Array.length values) > 0
@@ -76,7 +76,7 @@ object(self)
 
   val style = { line_color = black;
 		line_dashes = dashes;
-		line_width = width; }
+		line_width = line_width; }
 
 
   method dimensions =
@@ -142,16 +142,16 @@ object(self)
   method legend_dimensions ctx =
     (ctx.units line_legend_length),
   (max ((ctx.units line_legend_length) /. 4.)
-     (ctx.units width))
+     (ctx.units line_width))
 
 
   method avg_slope = nan
 end
 
 
-let histogram_dataset dashes ?width ?bg_color ?bin_width ?name values =
-  (** [histogram_dataset dashes ?width ?bg_color ?bin_width ?name
+let histogram_dataset dashes ?line_width ?bg_color ?bin_width ?name values =
+  (** [histogram_dataset dashes ?line_width ?bg_color ?bin_width ?name
       values] makes a histogram. *)
-  new histogram_dataset dashes ?width ?bg_color ?bin_width ?name values
+  new histogram_dataset dashes ?line_width ?bg_color ?bin_width ?name values
 
 (* EOF *)
