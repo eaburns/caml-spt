@@ -69,14 +69,15 @@ let default_radius =
   Length.Pt ((Length.as_pt Scatter_dataset.default_radius) /. 2.)
 
 
-let line_points_dataset dashes glyph ?(radius=default_radius)
+let line_points_dataset dashes glyph ?(point_radius=default_radius)
     ?line_width ?color ?name points =
-  (** [line_points_dataset dashes glyph ?radius ?line_width ?color ?name
+  (** [line_points_dataset dashes glyph ?point_radius ?line_width ?color ?name
       points] makes a dataset that is a line with glyphs at each
       point. *)
   new composite_dataset ?name
     [new line_dataset dashes ?line_width ?color ?name points;
-     new Scatter_dataset.scatter_dataset glyph ~radius ?color ?name points;]
+     new Scatter_dataset.scatter_dataset glyph ~point_radius
+       ?color ?name points;]
 
 
 let line_dataset dashes ?line_width ?color ?name points =

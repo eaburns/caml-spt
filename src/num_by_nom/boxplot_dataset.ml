@@ -12,7 +12,7 @@ let maxf a b = if (a:float) > b then a else b
 
 let line_style = { default_line_style with line_width = Length.Pt 1. }
 
-class boxplot_dataset ?(radius=Length.Pt 2.) name values =
+class boxplot_dataset ?(point_radius=Length.Pt 2.) name values =
   let outliers, data = Statistics.separate_outliers values in
   let mean, conf_interval = Statistics.mean_and_interval data in
 object(self)
@@ -51,7 +51,7 @@ object(self)
 
 
   method residual ctx ~src ~dst ~width ~x =
-    let r = ctx.units radius in
+    let r = ctx.units point_radius in
     let tr = range_transform ~src ~dst in
       Array.fold_left
 	(fun res v ->
@@ -77,7 +77,7 @@ object(self)
 	(infinity, neg_infinity) data
     in
     let mean' = tr mean in
-      draw_points ctx radius ~color:black Ring_glyph
+      draw_points ctx point_radius ~color:black Ring_glyph
 	(Array.fold_left (fun a v ->
 			    if v >= src.min && v <= src.max
 			    then (point center (tr v)) :: a
@@ -96,14 +96,14 @@ object(self)
 
 end
 
-let boxplot_dataset ?radius name values =
-  (** [boxplot_dataset ?radius name values] makes a boxplot dataset. *)
-  new boxplot_dataset ?radius name values
+let boxplot_dataset ?point_radius name values =
+  (** [boxplot_dataset ?point_radius name values] makes a boxplot dataset. *)
+  new boxplot_dataset ?point_radius name values
 
 
-let boxplot_datasets ?radius name_vl_list =
-  (** [boxplot_datasets ?radius name_vl_list] makes a set of boxplot
+let boxplot_datasets ?point_radius name_vl_list =
+  (** [boxplot_datasets ?point_radius name_vl_list] makes a set of boxplot
       datasets. *)
   List.map
-    (fun (name, values) -> new boxplot_dataset ?radius name values)
+    (fun (name, values) -> new boxplot_dataset ?point_radius name values)
     name_vl_list

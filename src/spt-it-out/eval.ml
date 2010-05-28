@@ -506,8 +506,8 @@ and eval_scatter env operands =
 	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
-	     set_once radius l "radius" (eval_length env len)
+	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
+	     set_once radius l "point-radius" (eval_length env len)
 	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -520,7 +520,7 @@ and eval_scatter env operands =
       (new Num_by_num.scatter_dataset
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
 	 ?color:!color
-	 ?radius:!radius
+	 ?point_radius:!radius
 	 ?name:!name
 	 !data)
 
@@ -546,8 +546,8 @@ and eval_bestfit env operands =
 	     set_once dashes l "dashes" (eval_dashes env ds)
 	 | S.List (_, S.Ident (l, "color") :: operands) ->
 	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
-	     set_once radius l "radius" (eval_length env len)
+	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
+	     set_once radius l "point-radius" (eval_length env len)
 	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -561,7 +561,7 @@ and eval_bestfit env operands =
 	 ~glyph:(match !glyph with | Some g -> g | None -> env.next_glyph ())
 	 ~dashes:(match !dashes with | Some d -> d | None -> env.next_dash ())
 	 ?color:!color
-	 ?radius:!radius
+	 ?point_radius:!radius
 	 ?name:!name
 	 !data)
 
@@ -666,8 +666,8 @@ and eval_line_points env operands =
 	     set_once color l "color" (eval_color env l operands)
 	 | S.List (_, S.Ident (l, "line-width") :: len :: []) ->
 	     set_once width l "line-width" (eval_length env len)
-	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
-	     set_once radius l "radius" (eval_length env len)
+	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
+	     set_once radius l "point-radius" (eval_length env len)
 	 | points ->
 	     begin match eval env points with
 	       | Points pts ->
@@ -682,7 +682,7 @@ and eval_line_points env operands =
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
 	 ?color:!color
 	 ?line_width:!width
-	 ?radius:!radius
+	 ?point_radius:!radius
 	 ?name:!name
 	 !data)
 
@@ -903,8 +903,8 @@ and eval_boxplot env line operands =
       (fun op -> match op with
 	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
 	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "radius") :: len :: []) ->
-	     set_once radius l "radius" (eval_length env len)
+	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
+	     set_once radius l "point-radius" (eval_length env len)
 	 | floats ->
 	     begin match eval env floats with
 	       | Scalars vls ->
@@ -919,7 +919,7 @@ and eval_boxplot env line operands =
 	    (sprintf "line %d: Invalid boxplot dataset, no name given" line)
       | Some n ->
 	  Num_by_nom_dataset
-	    (new Num_by_nom.boxplot_dataset ?radius:!radius n !data)
+	    (new Num_by_nom.boxplot_dataset ?point_radius:!radius n !data)
 
 
 and eval_barchart env line operands =
