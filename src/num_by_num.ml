@@ -181,7 +181,7 @@ object (self)
       List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets;
       save_transforms ctx;
       translate ctx legend_x legend_y;
-      Legend.draw ctx legend_txt_loc legend_text_style datasets;
+      Legend.draw ctx src legend_txt_loc legend_text_style datasets;
       restore_transforms ctx
 
 end

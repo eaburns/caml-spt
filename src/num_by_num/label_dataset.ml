@@ -49,6 +49,9 @@ object (self)
       points_rectangle pts
 
 
+  method mean_y_value _ = nan, 0
+
+
   method private position ctx pt' txt =
     (** [position ctx pt' txt] position the label in the plot
 	coordinate system. *)

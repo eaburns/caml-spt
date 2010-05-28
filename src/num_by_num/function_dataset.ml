@@ -44,6 +44,13 @@ object (self)
       ~y_min:infinity ~y_max:neg_infinity
 
 
+  method mean_y_value src =
+    let points = self#points src in
+    let s, n =
+      List.fold_left (fun (s, n) p -> s +. p.y, n + 1) (0., 0) points
+    in s /. (float n), n
+
+
   method draw ctx ~src ~dst =
     let tr = point_transform ~src ~dst in
       draw_line ctx ~box:src ~tr ~style (self#points src)

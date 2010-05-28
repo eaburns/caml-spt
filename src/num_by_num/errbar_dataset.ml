@@ -61,6 +61,9 @@ object (self)
       triples
 
 
+  method mean_y_value _ = nan, 0
+
+
   method draw ctx ~src ~dst =
     (** [draw ctx ~src ~dst] draws the data to the plot. *)
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
@@ -125,6 +128,9 @@ object (self)
 	 ~x_min:infinity ~x_max:neg_infinity
 	 ~y_min:infinity ~y_max:neg_infinity)
       triples
+
+
+  method mean_y_value _ = nan, 0
 
 
   method draw ctx ~src ~dst =

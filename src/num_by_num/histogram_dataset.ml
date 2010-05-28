@@ -86,6 +86,12 @@ object(self)
       ~y_min:0. ~y_max:(float (Array.fold_left max 0 bins))
 
 
+  method mean_y_value _ =
+    let s, n =
+      Array.fold_left (fun (s, n) y -> s +. (float y), n + y) (0., 0) bins
+    in s /. (float n), n
+
+
   method residual ctx ~src ~dst = zero_rectangle
 
 

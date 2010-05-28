@@ -79,11 +79,13 @@ let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
   let next_glyph = Factories.default_glyph_factory () in
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
+(*
   let count_map = Num_heatmap_dataset.countmap_dataset
     ~bin_size:(Geometry.point 1. 1.)
     (Array.init 10000 (fun i ->
 			 { x = Random.float 100.;
 			   y = Random.float 100.;})) in
+*)
     (*
       let histogram = new Num_by_num.histogram_dataset (next_dash ())
       ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
@@ -97,7 +99,7 @@ let num_by_num_plot () =
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Lower_right
-      [(*
+      [
 	 Num_by_num.bestfit_dataset
 	 ~glyph:(next_glyph ()) ~dashes:(next_dash ())
 	 ~color:green ~name:"Best fit"
@@ -107,10 +109,6 @@ let num_by_num_plot () =
 	 point 2. 2.;
 	 point 3. 1.;
 	 |];
-
-	 Num_by_num.line_points_dataset (next_dash ()) (next_glyph ())
-	 ~name:"Lines and points"
-	 [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
 
 	 new Num_by_num.line_errbar_dataset
 	 ~name:"Lines with error bars"
@@ -127,8 +125,12 @@ let num_by_num_plot () =
 	 |];
 
 	 new Num_by_num.function_dataset (next_dash ())
-	 ~name:"y=x^2" (fun x -> x ** 2.);*)
-	count_map
+	 ~name:"y=x^2" (fun x -> x ** 2.);
+
+
+	 Num_by_num.line_points_dataset (next_dash ()) (next_glyph ())
+	 ~name:"Lines and points"
+	 [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
       ]
 
 

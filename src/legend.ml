@@ -84,9 +84,22 @@ let locate ctx style dst datasets = function
 
 
 
-let draw ctx text_loc style datasets =
-  (** [draw_legend ctx text_loc style datasets] draws the legend into
-      the upper right corner of the unit square. *)
+let draw ctx src text_loc style datasets =
+  (** [draw_legend ctx src text_loc style datasets] draws the legend
+      into the upper right corner of the unit square. *)
+  let datasets =
+    (* Sort the datasets in descending order. *)
+    List.sort (fun a b ->
+		 let ay, _ = a#mean_y_value src
+		 and by, _ = b#mean_y_value src in
+		   match classify_float ay, classify_float by with
+		     | FP_nan, FP_nan -> 0
+		     | _, FP_nan -> 1
+		     | FP_nan, _ -> ~-1
+		     | _, _ ->
+			 if ay > by then ~-1 else if ay < by then 1 else 0)
+      datasets
+  in
   let padding = ctx.units padding in
   let text_width, icon_width = max_widths ctx style datasets in
   let width = text_width +. icon_width +. padding in

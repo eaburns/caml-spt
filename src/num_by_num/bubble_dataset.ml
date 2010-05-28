@@ -24,6 +24,11 @@ object (self)
     let pts = Array.map (fun t -> point t.i t.j) triples in
       points_rectangle pts
 
+  method mean_y_value _ =
+    let s, n =
+      Array.fold_left (fun (s, n) t -> s +. t.j, n + 1) (0., 0) triples
+    in s /. (float n), n
+
 
   method private z_range =
     (** [z_range] is the minimum and maximum z value of all triples.
