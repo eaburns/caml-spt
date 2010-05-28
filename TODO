@@ -55,12 +55,6 @@ Documentation
 Usability
 ------------------------------------------------------------
 
-* Add an edit menu to the gtk gui allowing for
-      * Specify the size of the plot -- make sure to pre-populate dialogue
-      * Turn color on / off
-
-* Minimum Plot size requirement in Gtk window needs removed
-
 * Generate .mli files where possible / appropriate
 
 * Bindings
