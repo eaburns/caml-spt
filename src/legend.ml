@@ -61,7 +61,7 @@ let locate ctx style dst datasets = function
     (** [locate ctx style dst datasest legend_loc] gets the location
 	for drawing the plot legend of the given datasets. *)
   | At (txt_loc, x, y) ->
-      vprintf verb_optional "legend location: text %s icons (%f, %f)\n"
+      vprintf verb_debug "legend location: text %s icons (%f, %f)\n"
 	(match txt_loc with Text_after -> "after" | _ -> "before")
 	x y;
       txt_loc, x, y
@@ -77,7 +77,7 @@ let locate ctx style dst datasets = function
 	| Upper_left | Upper_right -> dst.y_max
 	| _ -> dst.y_min -. h
       in
-	vprintf verb_optional "legend location: text %s icons (%f, %f)\n"
+	vprintf verb_debug "legend location: text %s icons (%f, %f)\n"
 	  (match txt_loc with Text_after -> "after" | _ -> "before")
 	  x_loc y_loc;
 	txt_loc, x_loc, y_loc
