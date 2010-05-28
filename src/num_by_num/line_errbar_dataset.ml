@@ -219,7 +219,7 @@ let default_radius =
 
 
 let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
-    ?name sets =
+    ?width ?name sets =
   let pts, lbls, x_errs, y_errs =
     Array.fold_left (fun (pts, lbls, x_errs, y_errs) (vls, name) ->
 		       let xs = Array.map (fun p -> p.x) vls
@@ -237,8 +237,8 @@ let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
 			  triple mu_x mu_y int_x :: x_errs,
 			  triple mu_x mu_y int_y :: y_errs))
       ([], [], [], []) sets in
-  let scatter = new Scatter_dataset.scatter_dataset
-    glyph ?color ~radius (Array.of_list pts)
+  let scatter =
+    Scatter_dataset.scatter_dataset glyph ?color ~radius (Array.of_list pts)
   and labels =
     new Label_dataset.label_dataset
       ~yoff:(Length.Pt ~-.(Length.as_pt radius)) ~xoff:radius
@@ -249,7 +249,8 @@ let scatter_errbar_lines_dataset glyph dash ?color ?(radius=default_radius)
     new Errbar_dataset.horizontal_errbar_dataset (Array.of_list x_errs)
   and vert_err =
     new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs)
-  and line = Line_dataset.line_dataset dash ?color ?name (Array.of_list pts)
+  and line =
+    Line_dataset.line_dataset dash ?color ?name ?width (Array.of_list pts)
   in
     new composite_dataset ?name [scatter; line; horiz_err; vert_err; labels;]
 
