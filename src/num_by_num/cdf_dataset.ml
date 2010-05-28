@@ -22,9 +22,17 @@ class cdf_dataset dashes ?(width=Length.Pt 1.) ?(color=black) ?name vals =
 
   let values = Array.sort f_compare vals; vals in
 
+  let points =
+    (** The points that form the CDF.  This is computed now because we
+	need it to compute the mean_y_value. *)
+    let size = float (Array.length values) in
+      Array.init (truncate size)
+	(fun i -> point values.(i) ((float i) /. size))
+  in
+
 object (self)
 
-  inherit dataset ?name ()
+  inherit points_dataset ?name points
 
 
   val style =
@@ -60,23 +68,19 @@ object (self)
     (ctx.units line_legend_length), (ctx.units width)
 
   method avg_slope =
-    let size = float (Array.length values) in
-    let pts = (Array.init (truncate size)
-		 (fun i ->
-		    point values.(i) ((float i) /. size))) in
-      if Array.length pts < 2 then nan
-      else
-	(let accum = ref 0.
-	 and count = (Array.length pts - 2) in
-	   for i = 0 to count
-	   do
-	     (let pt1 = pts.(i)
-	      and pt2 = pts.(i+1) in
-	      let dy = pt2.y -. pt1.y
-	      and dx = pt2.x -. pt1.x in
-		accum := !accum +. (abs_float (dy /. dx)))
-	   done;
-	   !accum /. (float count))
+    if Array.length points < 2 then nan
+    else
+      (let accum = ref 0.
+       and count = (Array.length points) - 2 in
+	 for i = 0 to count
+	 do
+	   (let pt1 = points.(i)
+	    and pt2 = points.(i+1) in
+	    let dy = pt2.y -. pt1.y
+	    and dx = pt2.x -. pt1.x in
+	      accum := !accum +. (abs_float (dy /. dx)))
+	 done;
+	 !accum /. (float count))
 
 end
 

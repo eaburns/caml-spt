@@ -25,7 +25,6 @@ object
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction. *)
 
-
   method virtual draw_legend : context -> x:float -> y:float -> unit
     (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
 	given location. *)
@@ -44,6 +43,13 @@ object
   method virtual dimensions : rectangle
     (** [dimensions] is the dimensions of this dataset in
 	data-coordinates. *)
+
+
+  method virtual mean_y_value : rectangle -> float * int
+    (** [mean_y_value src] gets the mean y-value and the number of
+	values this mean is over in the source coordinate system.
+	This is used for sorting the legend. *)
+
 
   method virtual avg_slope : float
     (** [avg_slope} returns the average rate of change across an
@@ -66,6 +72,12 @@ object
 
   method dimensions = points_rectangle points
     (** [dimensions] gets the rectangle around the points. *)
+
+  method mean_y_value _ =
+    let s, n =
+      Array.fold_left (fun (s, n) p -> s +. p.y, n + 1) (0., 0) points
+    in s /. (float n), n
+
 end
 
 (** {1 Composite datasets} ****************************************)
@@ -83,6 +95,20 @@ object
     List.fold_left (fun r ds -> rectangle_extremes r ds#dimensions)
       (rectangle ~x_min:infinity ~x_max:neg_infinity
 	 ~y_min:infinity ~y_max:neg_infinity) datasets
+
+
+  method mean_y_value src =
+    let s, n =
+      List.fold_left (fun (s, n) ds ->
+			let mean, number = ds#mean_y_value src in
+			  match classify_float mean with
+			    | FP_nan | _ when number <= 0 -> s, n
+			    | _ ->
+				assert (number > 0);
+				s +. (mean *. (float number)), n + number)
+	(0., 0) datasets
+    in s /. (float n), n
+
 
   method residual ctx ~src ~dst =
     List.fold_left (fun r ds ->

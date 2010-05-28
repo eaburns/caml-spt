@@ -184,6 +184,8 @@ object (self)
 
   method dimensions = self#composite#dimensions
 
+  method mean_y_value src = self#composite#mean_y_value src
+
   method residual ctx ~src ~dst = self#composite#residual ctx ~src ~dst
 
   method draw ctx ~src ~dst = self#composite#draw ctx ~src ~dst

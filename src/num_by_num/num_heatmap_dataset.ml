@@ -76,6 +76,8 @@ object (self)
     rectangle ~x_min ~x_max:(x_min +. bin_width *. (float (Array.length bins)))
       ~y_min ~y_max:(y_min +. bin_height *. (float (Array.length bins.(0))))
 
+  method mean_y_value _ = nan, 0
+
   method draw ctx ~src ~dst =
     let tr_rect = rectangle_transform ~src ~dst in
       for x = 0 to (Array.length bins - 1) do
@@ -150,6 +152,8 @@ object (self)
   method dimensions =
     rectangle ~x_min ~x_max:(x_min +. bin_width *. (float (Array.length bins)))
       ~y_min ~y_max:(y_min +. bin_height *. (float (Array.length bins.(0))))
+
+  method mean_y_value _ = nan, 0
 
   method draw ctx ~src ~dst =
     let tr_rect = rectangle_transform ~src ~dst in
