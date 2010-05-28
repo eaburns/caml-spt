@@ -33,7 +33,7 @@ let data_dimensions ~y_min ~y_max datasets =
   let min = match y_min with None -> (min -. pad) | Some m -> m in
   let max = match y_max with None -> (max +. pad) | Some m -> m in
   let r = range ~min ~max in
-    vprintf verb_normal "data dimensions: y=[%f, %f]\n" r.min r.max;
+    vprintf verb_optional "data dimensions: y=[%f, %f]\n" r.min r.max;
     r
 
 (** {1 Numeric by nomeric plot} ****************************************)
@@ -46,7 +46,7 @@ class plot
   (** [plot ?label_style ?legend_style ?tick_style ?title ?ylabel
       ?y_min ?y_max datasets] a plot that has a nominal x axis and a
       numeric y axis. *)
-  let _ = vprintf verb_normal "creating a numeric by nominal plot\n" in
+  let _ = vprintf verb_optional "creating a numeric by nominal plot\n" in
 object (self)
   inherit Spt.plot title
 
@@ -128,13 +128,13 @@ object (self)
 
 
   method draw ctx =
-    vprintf verb_optional "drawing numeric by nominal plot\n";
+    vprintf verb_debug "drawing numeric by nominal plot\n";
     self#fill_background ctx;
     let between_padding = ctx.units between_padding in
     let yaxis = self#yaxis in
     let xrange, width = self#x_axis_dimensions ctx yaxis in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:width in
-      vprintf verb_optional
+      vprintf verb_debug
 	"plot dimensions: x=[%f, %f], y=[%f, %f]\ntext width=%f\n"
 	xrange.min xrange.max dst.min dst.max width;
       begin match title with

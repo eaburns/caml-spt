@@ -80,7 +80,7 @@ object (self)
 
   method set_size ~w ~h =
     (** [set_size ~w ~h] resizes the plot. *)
-    vprintf verb_optional "setting size to %s by %s\n"
+    vprintf verb_debug "setting size to %s by %s\n"
       (Length.to_string w) (Length.to_string h);
     width <- w;
     height <- h

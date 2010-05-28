@@ -31,7 +31,7 @@ let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
   and y_min' = match y_min with None -> (r.y_min -. y_pad) | Some m -> m
   and y_max' = match y_max with None -> (r.y_max +. y_pad) | Some m -> m in
   let r = rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max' in
-    vprintf verb_normal "data dimensions: x=[%f, %f], y=[%f, %f]\n"
+    vprintf verb_optional "data dimensions: x=[%f, %f], y=[%f, %f]\n"
       r.x_min r.x_max r.y_min r.y_max;
     r
 
@@ -43,13 +43,13 @@ class plot
   ?(legend_text_style=Spt.default_legend_style)
   ?(tick_text_style=Spt.default_tick_style)
   ?title ?xlabel ?ylabel
-  ?(legend_loc=Legend.Lower_right)
+  ?(legend_loc=Legend.Upper_right)
   ?x_min ?x_max ?y_min ?y_max
   datasets =
   (** [plot ?label_style ?legend_style ?tick_style ?title ?xlabel
       ?ylabel ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a
       numeric x and y axis. *)
-  let _ = vprintf verb_normal "creating a numeric by numeric plot\n" in
+  let _ = vprintf verb_optional "creating a numeric by numeric plot\n" in
 object (self)
   inherit Spt.plot title
 
@@ -106,7 +106,7 @@ object (self)
 	       ~y_min:(dst.y_min -. residual.y_min)
 	       ~y_max:(dst.y_max +. residual.y_max))
     in
-      vprintf verb_optional "plot dimensions: x=[%f, %f], y=[%f, %f]\n"
+      vprintf verb_debug "plot dimensions: x=[%f, %f], y=[%f, %f]\n"
 	r.x_min r.x_max r.y_min r.y_max;
       r
 
@@ -158,7 +158,7 @@ object (self)
 
 
   method draw ctx =
-    vprintf verb_optional "drawing numeric by numeric plot\n";
+    vprintf verb_debug "drawing numeric by numeric plot\n";
     self#fill_background ctx;
     let axis_padding = ctx.units axis_padding in
     let xaxis = self#xaxis and yaxis = self#yaxis in
