@@ -23,7 +23,8 @@ object
     (_:context) ~(src:rectangle) ~(dst:rectangle) = zero_rectangle
     (** [residual ctx ~src ~dst] get a rectangle containing the
 	maximum amount the dataset will draw off of the destination
-	rectangle in each direction. *)
+	rectangle in each direction in plot-coordinates. *)
+
 
   method virtual draw_legend : context -> x:float -> y:float -> unit
     (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
@@ -32,7 +33,7 @@ object
 
   method virtual legend_dimensions : context -> float * float
     (** [legend_dimensions ctx] gets the dimensions of the legend
-	icon. *)
+	icon in plot-coordinates. *)
 
 
   method virtual draw :
@@ -41,14 +42,16 @@ object
 
 
   method virtual dimensions : rectangle
-    (** [dimensions] is the dimensions of this dataset in
+    (** [dimensions] gets the dimensions of this dataset in
 	data-coordinates. *)
 
 
   method virtual mean_y_value : rectangle -> float * int
     (** [mean_y_value src] gets the mean y-value and the number of
 	values this mean is over in the source coordinate system.
-	This is used for sorting the legend. *)
+	This is used for sorting the legend.  If a dataset will not
+	contribute to the competition over the legend locations then
+	this should result in (nan, 0) .*)
 
 
   method virtual avg_slope : float
