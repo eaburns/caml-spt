@@ -107,7 +107,7 @@ let make_color_factory color_list =
        match !colors with
 	   hd::tl -> (colors := tl @ [hd];
 		      hd)
-	 | _ -> failwith "Couldn't get next color")
+	 | _ -> failwith "Unpossible")
 
 
 let default_color_factory () =
