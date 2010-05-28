@@ -25,15 +25,15 @@ Extra features
 Datasets
 ------------------------------------------------------------
 
+* Line errorbar plots should throw out a *nasty* warning if the data
+  is not sorted by x-value (since the errorbars may not center on the
+  mean line).
+
 * Normal quantile plots
 
 * CDF's need error bars
 
-* Make sure we present a consistent type to the world for all datasets
-
 * Heatmaps - Nominal by Nominal
-
-* Make sure that everything is colorable
 
 * Montages: more complex than simple ps-montage style.
   - Make axis drawing optional.
