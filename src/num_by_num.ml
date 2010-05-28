@@ -196,3 +196,4 @@ include Line_errbar_dataset
 include Function_dataset
 include Histogram_dataset
 include Cdf_dataset
+include Num_heatmap_dataset
