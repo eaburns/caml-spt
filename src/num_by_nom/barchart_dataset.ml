@@ -214,14 +214,19 @@ object(self)
 end
 
 
-let stacked_barchart_dataset ?(width=Length.Pt 1.) ?name
-    ?(fill_factory=Factories.default_fill_pattern_factory ()) nm_data_array =
+let stacked_barchart_dataset
+    ?(width=Length.Pt 1.) ?name ?fill_factory nm_data_array =
+  let fill_factory = match fill_factory with
+    | None -> Factories.default_fill_pattern_factory ()
+    | Some f -> f in
   new stacked_barchart_dataset fill_factory ?name ~width nm_data_array
 
 
-let stacked_barchart_datasets ?(width=Length.Pt 1.) ?group
-    ?(fill_factory=Factories.default_fill_pattern_factory())
-    mjr_by_nm_data_array_list =
+let stacked_barchart_datasets
+    ?(width=Length.Pt 1.) ?group ?fill_factory mjr_by_nm_data_array_list =
+  let fill_factory = match fill_factory with
+    | None -> Factories.default_fill_pattern_factory ()
+    | Some f -> f in
   let bars = List.map
     (fun  (name,nm_data_array) ->
        new stacked_barchart_dataset fill_factory ?name ~width nm_data_array)
@@ -312,14 +317,19 @@ object(self)
 end
 
 
-let layered_barchart_dataset ?(width=Length.Pt 1.) ?name
-    ?(fill_factory=Factories.default_fill_pattern_factory ()) nm_data_array =
-  new layered_barchart_dataset fill_factory ?name ~width nm_data_array
+let layered_barchart_dataset
+    ?(width=Length.Pt 1.) ?name ?fill_factory nm_data_array =
+  let fill_factory = match fill_factory with
+    | None -> Factories.default_fill_pattern_factory ()
+    | Some f -> f
+  in new layered_barchart_dataset fill_factory ?name ~width nm_data_array
 
 
-let layered_barchart_datasets ?(width=Length.Pt 1.) ?group
-    ?(fill_factory=Factories.default_fill_pattern_factory())
-    nm_data_array_list =
+let layered_barchart_datasets
+    ?(width=Length.Pt 1.) ?group ?fill_factory nm_data_array_list =
+  let fill_factory = match fill_factory with
+    | None -> Factories.default_fill_pattern_factory ()
+    | Some f -> f in
   let bars = List.map
     (fun (name,nm_data_array) ->
        new layered_barchart_dataset fill_factory ?name ~width nm_data_array)
