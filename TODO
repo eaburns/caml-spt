@@ -1,15 +1,4 @@
 ------------------------------------------------------------
-Things that we need before anyone can begin beta testing
-------------------------------------------------------------
-
-* Decide on a final API
-  two basic types of functions, on for generating single datalests,
-  one for making list of related datasets that dispatches to the first
-  type.  One of these calls for each dataset type.  Each inside of its
-  own file.
-  -- Num by num datasets are done
-
-------------------------------------------------------------
 Extra features
 ------------------------------------------------------------
 
@@ -71,6 +60,10 @@ spt-it-out
 * scatter with errbar datasets
 
 * Including other spt-it-out files
+
+* Barchat datasets of various kinds
+
+* The two kinds of heatmap datasets
 
 * Simple arithmetic... mapping log10 over things, etc.
 
