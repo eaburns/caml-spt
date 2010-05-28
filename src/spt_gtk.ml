@@ -34,12 +34,8 @@ let dimension_dialog ~title ~plot ~window () =
 					 ~stop:v_dim#length)
 	 and new_h = Length.of_string (h_dim#get_chars ~start:0
 					 ~stop:h_dim#length) in
-	   window#set_default_size
-	     ~width:(Length.as_px new_h)
-	     ~height:((Length.as_px new_v) + 40);
-	   ignore (window#resize);
-	   Printf.eprintf "Window resized! %i x %i\n%!"
-	     (Length.as_px new_h) ((Length.as_px new_v) + 40))
+	   window#resize ~width:(Length.as_px new_h)
+	     ~height:((Length.as_px new_v) + 40))
       with _ -> () in
       ignore (accept#connect#clicked ~callback:resize);
       sel#show ()
@@ -89,7 +85,7 @@ let create_display plot title =
       showing the specified plot *)
   let width = Length.as_px plot#width
   and height = Length.as_px plot#height in
-  let w = GWindow.window ~title ~width ~height:(height + 40) () in
+  let w = GWindow.window ~title ~allow_grow:true ~allow_shrink:true () in
   let vbox = GPack.vbox ~packing:w#add () in
   let menu_bar = GMenu.menu_bar ~packing:vbox#pack () in
   let factory = new GMenu.factory ~accel_path:"<MLPLOT>/" menu_bar in
@@ -103,6 +99,7 @@ let create_display plot title =
   let area = GMisc.drawing_area ~width ~height
     ~packing:(vbox#pack ~expand:true) () in
   let draw = draw_plot_to_gtk_area plot in
+    w#resize ~width ~height:(height + 40);
     ignore (factory#add_item "Save as..." ~key:_S ~callback:
 	      (fun _ -> (save_dialog plot)));
     ignore (efactory#add_item "Dimensions" ~key:_D ~callback:
