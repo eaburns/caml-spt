@@ -114,7 +114,8 @@ let mean_line_and_errbars ~num ~count lines =
       the error bars. *)
   let domain = common_domain lines in
   let errbars = errbars ~xrange:domain ~num ~count ~domain lines in
-    mean_line domain lines, errbars
+  let mean = mean_line domain lines in
+    mean, errbars
 
 
 type style_cache_entry =
