@@ -18,6 +18,12 @@ Datasets
   is not sorted by x-value (since the errorbars may not center on the
   mean line).
 
+* "real" kernel density estimation datasets
+   - make an object for it that will find dimensions
+   - find the bandwidth automatically (optional)
+
+* "boxplots with density estimations"
+
 * Normal quantile plots
 
 * CDF's need error bars
