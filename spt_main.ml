@@ -95,7 +95,10 @@ let num_by_num_plot () =
       ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
       in
     *)
+(*
   let values = Array.init 1000 (fun _ -> Random.float 25.) in
+*)
+  let values = [| ~-.2.1; ~-.1.3; ~-.0.4; 1.9; 5.1; 6.2; |] in
 
     new Num_by_num.plot
       ~title:"Title text"
@@ -104,8 +107,8 @@ let num_by_num_plot () =
       ~legend_loc:Legend.Upper_right
       ~y_max:1.
       ~y_min:0.
-      ~x_min:(~-.10.)
-      ~x_max:35.
+      ~x_min:(~-.3.)
+      ~x_max:8.
       [
 	Num_by_num.function_dataset (next_dash ())
 	  ~name:"density estimate"
@@ -114,9 +117,9 @@ let num_by_num_plot () =
 	     1.
 	     values);
 
-(*
-	Num_by_num.histogram_dataset (next_dash ()) ~name:"histogram" values;
-*)
+	Num_by_num.histogram_dataset (next_dash ())
+	  ~normalize:true
+	  ~name:"histogram" values;
 
 (*
 	 Num_by_num.bestfit_dataset
