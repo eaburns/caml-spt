@@ -105,7 +105,7 @@ let num_by_num_plot () =
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
-      ~y_max:1.
+      ~y_max:0.4
       ~y_min:0.
       ~x_min:(~-.3.)
       ~x_max:8.
