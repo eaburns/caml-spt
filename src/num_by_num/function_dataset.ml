@@ -68,6 +68,13 @@ object (self)
 
 end
 
+
+let function_dataset dashes ?samples ?line_width ?color ?name f =
+  (** [function_dataset dashes ?samples ?line_width ?color ?name f]
+      makes a new function dataset. *)
+  new function_dataset dashes ?samples ?line_width ?color ?name f
+
+
 (** {2 Scatter plot with best fit} ****************************************)
 
 open Lacaml.Impl.D
