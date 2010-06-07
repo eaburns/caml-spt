@@ -71,15 +71,16 @@ let draw_up ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
       point for the error bar is within the destination rectangle. *)
   let errbar_cap_size = ctx.units errbar_cap_size in
   let tr = range_transform ~src ~dst in
-  let y0' = tr y and y1 = y +. mag in
-  let y1', clip =
-    if y1 > src.max then tr src.max, true else tr y1, false
-  in
-    draw_line ctx ~style [point x y0'; point x y1'];
-    if not clip
+  let y1 = y +. mag in
+  let y1_clipped = y1 > src.max || y1 < src.min in
+    if y <= src.max && y1 >= src.min
     then begin
-      draw_line ctx ~style [ point (x -. errbar_cap_size) y1';
-			     point (x +. errbar_cap_size) y1' ]
+      let y0' = tr y and y1 = y +. mag in
+      let y1' = if y1 > src.max then tr src.max else tr y1 in
+	draw_line ctx ~style [point x y0'; point x y1'];
+	if not y1_clipped
+	then draw_line ctx ~style [ point (x -. errbar_cap_size) y1';
+				    point (x +. errbar_cap_size) y1' ]
     end
 
 
