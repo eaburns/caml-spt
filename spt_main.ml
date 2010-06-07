@@ -77,8 +77,10 @@ let num_by_nom_plot () =
 
 let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
+(*
   let next_glyph = Factories.default_glyph_factory () in
   let next_line_err = Num_by_num.line_errbar_factory next_dash () in
+*)
 (*
   let count_map = Num_heatmap_dataset.countmap_dataset
     ~bin_size:(Geometry.point 1. 1.)
@@ -93,13 +95,33 @@ let num_by_num_plot () =
       ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
       in
     *)
+(*
+  let values = Array.init 1000 (fun _ -> Random.float 25.) in
+*)
+  let values = [| ~-.2.1; ~-.1.3; ~-.0.4; 1.9; 5.1; 6.2; |] in
 
     new Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
-      ~legend_loc:Legend.Lower_right
+      ~legend_loc:Legend.Upper_right
+      ~y_max:0.4
+      ~y_min:0.
+      ~x_min:(~-.3.)
+      ~x_max:8.
       [
+	Num_by_num.function_dataset (next_dash ())
+	  ~name:"density estimate"
+	  (Statistics.make_kernel_density_estimator
+	     Statistics.gaussian_kernel
+	     1.
+	     values);
+
+	Num_by_num.histogram_dataset (next_dash ())
+	  ~normalize:true
+	  ~name:"histogram" values;
+
+(*
 	 Num_by_num.bestfit_dataset
 	 ~glyph:(next_glyph ()) ~dashes:(next_dash ())
 	 ~color:green ~name:"Best fit"
@@ -131,6 +153,7 @@ let num_by_num_plot () =
 	 Num_by_num.line_points_dataset (next_dash ()) (next_glyph ())
 	 ~name:"Lines and points"
 	 [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
+*)
       ]
 
 

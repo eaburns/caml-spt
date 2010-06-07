@@ -46,11 +46,11 @@ let bucket ~min ~bin_width value =
 let make_bins ~min_value ~max_value ~bin_width values =
   let range = max_value -. min_value in
   let bin_count = truncate (ceil (range /. bin_width)) in
-  let bins = Array.create (bin_count + 1) 0 in
+  let bins = Array.create (bin_count + 1) 0. in
     Array.iter
       (fun ele ->
 	 let bi = truncate ((ele -. min_value) /. bin_width) in
-	   bins.(bi) <- bins.(bi) + 1) values;
+	   bins.(bi) <- bins.(bi) +. 1.) values;
     bins
 
 
@@ -60,16 +60,27 @@ let make_width ~bin_width ~max_value ~min_value =
     | Some w -> w
 
 
+let normalize_bins bins =
+  (** [normalize_bins bins] normalizes the bins to sum to 1. *)
+  let sum = Array.fold_left (+.) 0. bins in
+    Array.map (fun w -> w /. sum) bins
+
+
 class histogram_dataset
-  dashes ?(line_width=Length.Pt 1.) ?(bg_color=gray) ?bin_width ?name vals =
+  dashes ?(normalize=false) ?(line_width=Length.Pt 1.) ?(bg_color=gray)
+  ?bin_width ?name vals =
   let values = Array.sort compare vals ; vals in
   let min_value, max_value =
     if (Array.length values) > 0
     then values.(0), values.((Array.length values) - 1)
     else nan, nan in
   let bin_width = make_width ~bin_width ~max_value ~min_value in
-  let bins = make_bins ~max_value ~min_value ~bin_width values in
-
+  let bins =
+    let bs = make_bins ~max_value ~min_value ~bin_width values in
+      if normalize
+      then normalize_bins bs
+      else bs
+  in
 object(self)
 
   inherit dataset ?name ()
@@ -83,12 +94,12 @@ object(self)
     rectangle
       ~x_min:(min_value -. (bin_width /. 2.))
       ~x_max:(max_value +. (bin_width /. 2.))
-      ~y_min:0. ~y_max:(float (Array.fold_left max 0 bins))
+      ~y_min:0. ~y_max:(Array.fold_left max neg_infinity bins)
 
 
   method mean_y_value _ =
     let s, n =
-      Array.fold_left (fun (s, n) y -> s +. (float y), n + y) (0., 0) bins
+      Array.fold_left (fun (s, n) y -> s +. y, n + 1) (0., 0) bins
     in s /. (float n), n
 
 
@@ -100,9 +111,9 @@ object(self)
     let tr_pt = point_transform ~src ~dst in
       Array.iteri
 	(fun index count ->
-	   if count > 0
+	   if count > 0.
 	   then begin
-	     let y_max = float count
+	     let y_max = count
 	     and x_min = min_value +. ((float index) -. 0.5) *. bin_width
 	     and x_max = min_value +. ((float index) +. 0.5) *. bin_width
 	     in
@@ -149,9 +160,9 @@ object(self)
 end
 
 
-let histogram_dataset dashes ?line_width ?bg_color ?bin_width ?name values =
-  (** [histogram_dataset dashes ?line_width ?bg_color ?bin_width ?name
-      values] makes a histogram. *)
-  new histogram_dataset dashes ?line_width ?bg_color ?bin_width ?name values
+let histogram_dataset dashes ?normalize ?line_width ?bg_color ?bin_width ?name values =
+  (** [histogram_dataset dashes ?normalize ?line_width ?bg_color
+      ?bin_width ?name values] makes a histogram. *)
+  new histogram_dataset dashes ?normalize ?line_width ?bg_color ?bin_width ?name values
 
 (* EOF *)
