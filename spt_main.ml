@@ -76,98 +76,22 @@ let num_by_nom_plot () =
       (stacked @ layered)
 
 let num_by_num_plot () =
-  let next_dash = Factories.default_dash_factory () in
-(*
   let next_glyph = Factories.default_glyph_factory () in
-  let next_line_err = Num_by_num.line_errbar_factory next_dash () in
-*)
-(*
-  let count_map = Num_heatmap_dataset.countmap_dataset
-    ~bin_size:(Geometry.point 1. 1.)
-    (Array.init 10000 (fun i ->
-			 { x = Random.float 100.;
-			   y = Random.float 100.;})) in
-*)
-    (*
-      let histogram = new Num_by_num.histogram_dataset (next_dash ())
-      ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
-      and histogram2 = new Num_by_num.histogram_dataset (next_dash ())
-      ~name:"histo" (Array.init 100 (fun i -> Random.float 1000.))
-      in
-    *)
-(*
-  let values = Array.init 1000 (fun _ -> Random.float 25.) in
-*)
-  let values = [| ~-.2.1; ~-.1.3; ~-.0.4; 1.9; 5.1; 6.2; |] in
-
     new Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
-      ~y_max:0.4
-      ~y_min:0.
-      ~x_min:(~-.3.)
-      ~x_max:8.
       [
-	Num_by_num.function_dataset (next_dash ())
-	  ~name:"density estimate"
-	  (Statistics.make_kernel_density_estimator
-	     Statistics.gaussian_kernel
-	     1.
-	     values);
-
-	Num_by_num.histogram_dataset (next_dash ())
-	  ~normalize:true
-	  ~name:"histogram" values;
-
-(*
-	 Num_by_num.bestfit_dataset
-	 ~glyph:(next_glyph ()) ~dashes:(next_dash ())
-	 ~color:green ~name:"Best fit"
-	 [|
-	 point 0. 0.;
-	 point 1. 1.;
-	 point 2. 2.;
-	 point 3. 1.;
-	 |];
-
-	 new Num_by_num.line_errbar_dataset
-	 ~name:"Lines with error bars"
-	 ~color:blue (next_line_err ())
-	 [|
-	 [| point 0.5 17.5; point 1.0 11.4;
-	 point 2.0 17.0; point 10.0 13.5; |];
-	 [| point 8.5 17.5; point 1.8 17.1;
-	 point 5.7 12.6; point 20.7 13.5; |];
-	 [| point 3.2 17.6; point 4.7 12.1;
-	 point 3.6 17.7; point 10.0 13.7; |];
-	 [| point 1.9 17.5; point 9.2 18.0;
-	 point 8.5 17.1; point 10.1 13.9; |];
-	 |];
-
-	 new Num_by_num.function_dataset (next_dash ())
-	 ~name:"y=x^2" (fun x -> x ** 2.);
-
-
-	 Num_by_num.line_points_dataset (next_dash ()) (next_glyph ())
-	 ~name:"Lines and points"
-	 [| point 0.5 7.5; point 1.0 1.4; point 2.0 7.0; point 10.0 3.5; |];
-*)
+	Num_by_num.scatter_errbar_dataset
+	  (next_glyph ())
+	  [| ([| point 0. 0.; point 1. 1. |], Some "0"); |]
       ]
 
 
 let main () =
-(*
-    Random.init 17;
-*)
   Random.self_init ();
   let plot = num_by_num_plot () in
-(*
-    Printf.eprintf "Suggested Ratio: %f\n%!"
-      plot#suggest_aspect;
-    plot#use_suggested_aspect;
-*)
     plot#display
 
 let _ = main ()

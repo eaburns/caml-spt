@@ -68,13 +68,10 @@ object (self)
     (** [draw ctx ~src ~dst] draws the data to the plot. *)
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
       Array.iter (fun t ->
-		    if rectangle_contains src (point t.i t.j)
-		    then begin
-		      let src = yrange src and dst = yrange dst in
-		      let x = tr t.i and y = t.j and mag = t.k in
-			Errbar.draw_up ctx ~style ~src ~dst ~x ~y ~mag;
-			Errbar.draw_down ctx ~style ~src ~dst ~x ~y ~mag;
-		    end)
+		    let src = yrange src and dst = yrange dst in
+		    let x = tr t.i and y = t.j and mag = t.k in
+		      Errbar.draw_up ctx ~style ~src ~dst ~x ~y ~mag;
+		      Errbar.draw_down ctx ~style ~src ~dst ~x ~y ~mag;)
 	triples
 
 
@@ -137,13 +134,10 @@ object (self)
     (** [draw ctx ~src ~dst] draws the data to the plot. *)
     let tr = range_transform ~src:(yrange src) ~dst:(yrange dst) in
       Array.iter (fun t ->
-		    if rectangle_contains src (point t.i t.j)
-		    then begin
-		      let src = xrange src and dst = xrange dst in
-		      let x = t.i and y = tr t.j and mag = t.k in
-			Errbar.draw_left ctx ~style ~src ~dst ~x ~y ~mag;
-			Errbar.draw_right ctx ~style ~src ~dst ~x ~y ~mag;
-		    end)
+		    let src = xrange src and dst = xrange dst in
+		    let x = t.i and y = tr t.j and mag = t.k in
+		      Errbar.draw_left ctx ~style ~src ~dst ~x ~y ~mag;
+		      Errbar.draw_right ctx ~style ~src ~dst ~x ~y ~mag;)
 	triples
 
 
