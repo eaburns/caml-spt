@@ -85,4 +85,27 @@ let separate_outliers vls =
       ([], []) vls
   in Array.of_list out_lst, Array.of_list dat_lst
 
+
+(** {1 Density estimation} ****************************************)
+
+let gaussian_kernel =
+  (** [gaussian_kernel] makes a gaussian kernel function. *)
+  let coeff = 1. /. (sqrt (2. *. Geometry.pi)) in
+    (fun u -> coeff *. (exp (~-.(u ** 2.) /. 2.)))
+
+
+let make_kernel_density_estimator kernel bandwidth data =
+  (** [make_kernel_density_estimator kernel bandwidth data] makes a
+      density estimation function. *)
+  let n = Array.length data in
+  let nf = float n in
+    (fun x ->
+       let sum = float_ref 0. in
+	 for i = 0 to n - 1 do
+	   let diff = x -. data.(i) in
+	     sum <-- !!sum +. (kernel (diff /. bandwidth)) /. bandwidth;
+	 done;
+	 !!sum /. nf)
+
+
 (* EOF *)

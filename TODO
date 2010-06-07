@@ -10,6 +10,8 @@ Extra features
 
 * Scatter plot matrix
 
+* Increase/decrease the number of error bars with the size of the plot?
+
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
@@ -17,6 +19,12 @@ Datasets
 * Line errorbar plots should throw out a *nasty* warning if the data
   is not sorted by x-value (since the errorbars may not center on the
   mean line).
+
+* "real" kernel density estimation datasets
+   - make an object for it that will find dimensions
+   - find the bandwidth automatically (optional)
+
+* "boxplots with density estimations"
 
 * Normal quantile plots
 
