@@ -1,0 +1,82 @@
+* Proper clipping for error bars.
+
+------------------------------------------------------------
+Extra features
+------------------------------------------------------------
+
+* Drawing legends off of the plot.
+
+* Change text size based on plot size
+
+* Scatter plot matrix
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+
+* Line errorbar plots should throw out a *nasty* warning if the data
+  is not sorted by x-value (since the errorbars may not center on the
+  mean line).
+
+* Normal quantile plots
+
+* CDF's need error bars
+
+* Heatmaps - Nominal by Nominal
+
+* Montages: more complex than simple ps-montage style.
+  - Make axis drawing optional.
+  - Make room for non-drawn axes, but then don't draw them.
+
+* Labels may be backwards in layered barcharts
+
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
+
+* Write a real README file
+
+* Document the code
+
+* Generate OCaml docs
+
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
+
+* Generate .mli files where possible / appropriate
+
+* Bindings
+  - C
+  - Python
+  - Java?
+
+------------------------------------------------------------
+spt-it-out
+------------------------------------------------------------
+
+* Grouping num by nom datasets in spt-it-out
+
+* label datasets
+
+* scatter with errbar datasets
+
+* Including other spt-it-out files
+
+* Barchat datasets of various kinds
+
+* The two kinds of heatmap datasets
+
+* Simple arithmetic... mapping log10 over things, etc.
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
+
+* Nominal by nominal plots
+
+* Numeric by Ordinal (or Ranked) plots
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
