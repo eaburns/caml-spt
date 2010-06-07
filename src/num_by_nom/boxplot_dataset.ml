@@ -17,7 +17,7 @@ let draw_mean_line ctx style src tr ~x0 ~x1 ~mean =
   (** [draw_mean_line cxt style src tr ~x0 ~x1 ~mean] draws the mean
       line if it is not clipped.  *)
   let mean' = tr mean in
-    if mean < src.max && mean > src.min
+    if mean <= src.max && mean >= src.min
     then draw_line ctx ~style [ point x0 mean'; point x1 mean' ]
 
 
@@ -29,7 +29,7 @@ let draw_box ctx style src tr ~x0 ~x1 ~q1 ~q3 =
   and q1_clipped = q1 > src.max || q1 < src.min in
   if not q3_clipped then draw_line ctx ~style [ point x0 q3'; point x1 q3'];
   if not q1_clipped then draw_line ctx ~style [ point x0 q1'; point x1 q1'];
-  if not q1_clipped || not q3_clipped
+  if q1 <= src.max && q3 >= src.min
   then begin
     let y0 = if q1 < src.min then tr src.min else q1'
     and y1 = if q3 > src.max then tr src.max else q3' in
@@ -41,10 +41,13 @@ let draw_box ctx style src tr ~x0 ~x1 ~q1 ~q3 =
 let fill_ci_box ctx color src tr ~x0 ~x1 ~lower ~upper =
   (** [fill_ci_box ctx color src tr ~x0 ~x1 ~lower ~upper] fills in
       the confidence interval box if it is not clipped. *)
-  let y_min = if lower < src.min then tr src.min else tr lower in
-  let y_max = if upper > src.max then tr src.max else tr upper in
-  let r = rectangle ~x_min:x0 ~x_max:x1 ~y_min ~y_max in
-    fill_rectangle ctx ~color r
+  if lower <= src.max && upper > src.min
+  then begin
+    let y_min = if lower < src.min then tr src.min else tr lower in
+    let y_max = if upper > src.max then tr src.max else tr upper in
+    let r = rectangle ~x_min:x0 ~x_max:x1 ~y_min ~y_max in
+      fill_rectangle ctx ~color r
+  end
 
 
 class boxplot_dataset ?(point_radius=Length.Pt 2.) name values =
@@ -132,9 +135,8 @@ object(self)
       if q3 > src.min && q3 < src.max
       then (Errbar.draw_up ctx ~style:line_style ~src ~dst
 	      ~x:center ~y:q3 ~mag:(max -. q3));
-      if q1 > src.min && q1 < src.max
-      then (Errbar.draw_down ctx ~style:line_style ~src ~dst
-	      ~x:center ~y:q1 ~mag:(q1 -. min));
+      Errbar.draw_down ctx ~style:line_style ~src ~dst
+	~x:center ~y:q1 ~mag:(q1 -. min)
 
 end
 
