@@ -15,8 +15,8 @@ type t =
   | Scalars of float array
   | Points of point array
   | Triples of triple array
-  | Num_by_num_dataset of Num_by_num.dataset
-  | Num_by_num_plot of Num_by_num.plot
+  | Num_by_num_dataset of Num_by_num.dataset_type
+  | Num_by_num_plot of Num_by_num.plot_type
   | Num_by_nom_dataset of Num_by_nom.dataset
   | Num_by_nom_plot of Num_by_nom.plot
 
@@ -25,7 +25,7 @@ type env = {
   bindings : (string * t) list;
   next_glyph : unit -> Drawing.glyph;
   next_dash : unit -> Length.t array;
-  next_line_errbar : unit -> Line_errbar_dataset.style;
+  next_line_errbar : unit -> Num_by_num.line_errbar_style;
   next_fill : unit -> Drawing.fill_pattern;
 }
 
@@ -35,7 +35,7 @@ let init_env =
       bindings = [];
       next_glyph = Factories.default_glyph_factory ();
       next_dash = next_dash;
-      next_line_errbar = Line_errbar_dataset.line_errbar_factory next_dash ();
+      next_line_errbar = Num_by_num.line_errbar_factory next_dash ();
       next_fill = Factories.default_fill_pattern_factory ();
     }
 
@@ -478,7 +478,7 @@ and eval_num_by_num env operands =
 	     failwith (sprintf "line %d: Invalid option to a num-by-num plot"
 			 (Sexpr.line_number e))
       ) operands;
-    let plot = (new Num_by_num.plot ?title:!title ?xlabel:!xlabel
+    let plot = (Num_by_num.plot ?title:!title ?xlabel:!xlabel
 		  ?legend_loc:!legend_loc
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
 		  ?y_min:!y_min ?y_max:!y_max !datasets)
@@ -517,7 +517,7 @@ and eval_scatter env operands =
 	     end
       ) operands;
     Num_by_num_dataset
-      (new Num_by_num.scatter_dataset
+      (Num_by_num.scatter_dataset
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
 	 ?color:!color
 	 ?point_radius:!radius
@@ -597,7 +597,7 @@ and eval_bubble env operands =
 	     end
       ) operands;
     Num_by_num_dataset
-      (new Num_by_num.bubble_dataset
+      (Num_by_num.bubble_dataset
 	 ?glyph:!glyph
 	 ?color:!color
 	 ?min_radius:!min_radius
@@ -634,7 +634,7 @@ and eval_line env operands =
 	     end
       ) operands;
     Num_by_num_dataset
-      (new Num_by_num.line_dataset
+      (Num_by_num.line_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?color:!color
 	 ?line_width:!width
@@ -721,12 +721,11 @@ and eval_line_errbar env operands =
 			 (Sexpr.line_number e))
       ) operands;
     let style = match !dashes with
-      | Some d -> { (env.next_line_errbar ())
-		    with Line_errbar_dataset.dashes = d }
+      | Some d -> { (env.next_line_errbar ()) with Num_by_num.dashes = d }
       | None -> env.next_line_errbar ()
     in
       Num_by_num_dataset
-	(new Num_by_num.line_errbar_dataset
+	(Num_by_num.line_errbar_dataset
 	   style
 	   ?color:!color
 	   ?line_width:!width
@@ -766,7 +765,7 @@ and eval_histogram env line operands =
 	     end
       ) operands;
     Num_by_num_dataset
-      (new Num_by_num.histogram_dataset
+      (Num_by_num.histogram_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?line_width:!width ?bg_color:!color ?bin_width:!bin_width ?name:!name
 	 !data)
@@ -801,7 +800,7 @@ and eval_cdf env line operands =
 	     end
       ) operands;
     Num_by_num_dataset
-      (new Num_by_num.cdf_dataset
+      (Num_by_num.cdf_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?line_width:!width ?color:!color ?name:!name !data)
 

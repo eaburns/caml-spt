@@ -7,7 +7,7 @@
 open Num_by_num_dataset
 open Geometry
 
-type style = {
+type line_errbar_style = {
   dashes : Length.t array;
   (* The dash pattern for the line. *)
   number : int;

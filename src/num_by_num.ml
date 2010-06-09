@@ -35,8 +35,88 @@ let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
       r.x_min r.x_max r.y_min r.y_max;
     r
 
+(** {1 Numeric by numeric datasets} ****************************************)
+
+class type dataset_type =
+object
+  (** The type of a numeric by numeric dataset. *)
+
+  val name : string option
+    (** The name of the dataset.  If there is no name then the dataset
+	doesn't appear in the legend. *)
+
+  method name : string option
+    (** [name] gets the (optional) name of the dataset. *)
+
+  method avg_slope : float
+    (** [avg_slope} returns the average rate of change across an
+	entire num by num dataset.  Used for setting default axis skew
+	(avg 45 slope for all elements of the plot) *)
+
+
+  method dimensions : Geometry.rectangle
+    (** [dimensions] gets the dimensions of this dataset in
+	data-coordinates. *)
+
+  method draw :
+    Drawing.context ->
+    src:Geometry.rectangle -> dst:Geometry.rectangle -> unit
+    (** [draw ctx ~src ~dst] draws the data to the plot. *)
+
+  method draw_legend :
+    Drawing.context -> x:float -> y:float -> unit
+    (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
+	given location. *)
+
+  method legend_dimensions : Drawing.context -> float * float
+    (** [legend_dimensions ctx] gets the dimensions of the legend
+	icon in plot-coordinates. *)
+
+  method mean_y_value : Geometry.rectangle -> float * int
+    (** [mean_y_value src] gets the mean y-value and the number of
+	values this mean is over in the source coordinate system.
+	This is used for sorting the legend.  If a dataset will not
+	contribute to the competition over the legend locations then
+	this should result in (nan, 0) .*)
+
+
+  method residual :
+    Drawing.context ->
+    src:Geometry.rectangle -> dst:Geometry.rectangle -> Geometry.rectangle
+    (** [residual ctx ~src ~dst] get a rectangle containing the
+	maximum amount the dataset will draw off of the destination
+	rectangle in each direction in plot-coordinates. *)
+end
+
+include Num_by_num_dataset
+include Label_dataset
+include Errbar_dataset
+include Scatter_dataset
+include Line_dataset
+include Bubble_dataset
+include Line_errbar_dataset
+include Function_dataset
+include Histogram_dataset
+include Cdf_dataset
+include Num_heatmap_dataset
+
 
 (** {1 Numeric by numeric plot} ****************************************)
+
+class type plot_type =
+  object
+    val mutable height : Length.t
+    val src : Geometry.rectangle
+    val mutable width : Length.t
+    method display : unit
+    method draw : Drawing.context -> unit
+    method height : Length.t
+    method output : string -> unit
+    method set_size : w:Length.t -> h:Length.t -> unit
+    method suggest_aspect : float
+    method use_suggested_aspect : unit
+    method width : Length.t
+  end
 
 class plot
   ?(label_text_style=Spt.default_label_style)
@@ -45,7 +125,7 @@ class plot
   ?title ?xlabel ?ylabel
   ?(legend_loc=Legend.Upper_right)
   ?x_min ?x_max ?y_min ?y_max
-  datasets =
+  (datasets : dataset_type list) =
   (** [plot ?label_style ?legend_style ?tick_style ?title ?xlabel
       ?ylabel ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a
       numeric x and y axis. *)
@@ -186,14 +266,9 @@ object (self)
 
 end
 
-include Num_by_num_dataset
-include Label_dataset
-include Errbar_dataset
-include Scatter_dataset
-include Line_dataset
-include Bubble_dataset
-include Line_errbar_dataset
-include Function_dataset
-include Histogram_dataset
-include Cdf_dataset
-include Num_heatmap_dataset
+let plot ?label_text_style ?legend_text_style ?tick_text_style
+    ?title ?xlabel ?ylabel ?legend_loc
+    ?x_min ?x_max ?y_min ?y_max datasets =
+  new plot ?label_text_style ?legend_text_style ?tick_text_style
+    ?title ?xlabel ?ylabel ?legend_loc
+    ?x_min ?x_max ?y_min ?y_max datasets
