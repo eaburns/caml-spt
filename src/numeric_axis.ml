@@ -106,7 +106,6 @@ let tick_locations ?(suggested_number=2.) rng =
 	| 9 -> 10
 	| x -> x in
       let f = match m with
-	| 1 -> 1.
 	| 3 -> 1. /. 3.
 	| 5 -> 1. /. 5.
 	| 7 | 9 -> assert false
