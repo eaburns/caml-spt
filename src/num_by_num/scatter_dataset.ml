@@ -54,20 +54,21 @@ object (self)
 end
 
 
-let scatter_dataset glyph ?color ?point_radius ?name point_list =
-  new scatter_dataset glyph ?color ?point_radius ?name point_list
+let scatter_dataset glyph ?color ?point_radius ?name point_array =
+  new scatter_dataset glyph ?color ?point_radius ?name point_array
 
 
 let scatter_datasets
-    ?(uses_color=false) ?point_radius name_by_point_list_list =
+    ?(uses_color=false) ?point_radius name_by_point_array_list =
   let next_glyph = Factories.default_glyph_factory () in
     if uses_color
     then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
-			~color:(next_color()) ?point_radius ~name point_list)
-	      name_by_point_list_list)
-    else List.map (fun (name, point_list) -> scatter_dataset (next_glyph())
-		     ?point_radius ~name point_list) name_by_point_list_list
+	    List.map (fun (name, point_array) -> scatter_dataset (next_glyph())
+			~color:(next_color()) ?point_radius ~name point_array)
+	      name_by_point_array_list)
+    else List.map (fun (name, point_array) -> scatter_dataset (next_glyph())
+		     ?point_radius ~name point_array)
+      name_by_point_array_list
 
 
 (** {2 Scatter plot with error bars} ****************************************)
@@ -79,7 +80,7 @@ let scatter_errbar_dataset
       creates a new composite dataset that is as scatter plot with
       error bars and optionally labels on each point. *)
   let pts, lbls, x_errs, y_errs =
-    Array.fold_left (fun (pts, lbls, x_errs, y_errs) (vls, name) ->
+    Array.fold_left (fun (pts, lbls, x_errs, y_errs) (name, vls) ->
 		       let xs = Array.map (fun p -> p.x) vls
 		       and ys = Array.map (fun p -> p.y) vls in
 		       let mu_x, int_x = Statistics.mean_and_interval xs
