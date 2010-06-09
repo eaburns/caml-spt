@@ -26,7 +26,7 @@ and stats = {
   conf_lower : float;
 }
 
-let line_style = { default_line_style with line_width = Length.Pt 1. }
+let box_line_style = { default_line_style with line_width = Length.Pt 1. }
 
 let minf a b = if (a:float) < b then a else b
 let maxf a b = if (a:float) > b then a else b
@@ -151,7 +151,7 @@ let draw ctx ~src ~dst ~width ~x box =
       [x] with the given [width].  [src] and [dst] are the source and
       destination ranges for the y-axis. *)
   let tr = range_transform ~src ~dst in
-  let lwidth = ctx.units line_style.line_width in
+  let lwidth = ctx.units box_line_style.line_width in
   let x0 = x -. (width /. 2.) +. lwidth
   and x1 = x +. (width /. 2.) -. lwidth in
   let color = box.color and radius = box.point_radius and glyph = box.glyph in
@@ -167,9 +167,10 @@ let draw ctx ~src ~dst ~width ~x box =
       ~x0:(x -. (width /. 16.)) ~x1:(x +. (width /. 16.))
       ~lower:box.stats.conf_lower
       ~upper:box.stats.conf_upper;
-    draw_mean_line ctx line_style src tr ~x0 ~x1 ~mean:box.stats.mean;
-    draw_box ctx line_style src tr ~x0 ~x1 ~q1:box.stats.q1 ~q3:box.stats.q3;
-    Errbar.draw_up ctx ~style:line_style
+    draw_mean_line ctx box_line_style src tr ~x0 ~x1 ~mean:box.stats.mean;
+    draw_box ctx box_line_style src tr ~x0 ~x1
+      ~q1:box.stats.q1 ~q3:box.stats.q3;
+    Errbar.draw_up ctx ~style:box_line_style ?cap_size:None
       ~src ~dst ~x ~y:q3 ~mag:(upper -. q3);
-    Errbar.draw_down ctx ~style:line_style
+    Errbar.draw_down ctx ~style:box_line_style ?cap_size:None
       ~src ~dst ~x ~y:q1 ~mag:(q1 -. lower)
