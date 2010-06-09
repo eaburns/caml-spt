@@ -59,7 +59,7 @@ let green = { r = 0.; g = 1.; b = 0.; a = 1.; }
 let blue = { r = 0.; g = 0.; b = 1.; a = 1.; }
   (** The color blue. *)
 
-let gray = { r = 0.4; g = 0.4; b = 0.4; a = 0.4; }
+let gray = { r = 0.5; g = 0.5; b = 0.5; a = 1.; }
 
 let purple = { r = 0.4; g = 0.; b = 0.4; a = 1.; }
 

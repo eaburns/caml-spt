@@ -74,14 +74,22 @@ class type plot_type =
     method width : Length.t
   end
 
+let horiz_line_style =
+  (** The line style of a horizontal line. *)
+  {
+    line_color = gray;
+    line_dashes = [| |];
+    line_width = Length.Pt 1.;
+  }
+
 class plot
   ?(label_text_style=Spt.default_label_style)
   ?(legend_text_style=Spt.default_legend_style)
-  ?(tick_text_style=Spt.default_tick_style)
+  ?(tick_text_style=Spt.default_tick_style) ?(horiz_lines=[])
   ?title ?ylabel ?y_min ?y_max (datasets : dataset_type list) =
-  (** [plot ?label_style ?legend_style ?tick_style ?title ?ylabel
-      ?y_min ?y_max datasets] a plot that has a nominal x axis and a
-      numeric y axis. *)
+  (** [plot ?label_style ?legend_style ?tick_style ?horiz_lines ?title
+      ?ylabel ?y_min ?y_max datasets] a plot that has a nominal x axis
+      and a numeric y axis. *)
   let _ = vprintf verb_optional "creating a numeric by nominal plot\n" in
 object (self)
   inherit Spt.plot title
@@ -172,6 +180,7 @@ object (self)
     let yaxis = self#yaxis in
     let xrange, width = self#x_axis_dimensions ctx yaxis in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:width in
+    let tr = range_transform ~src ~dst in
       vprintf verb_debug
 	"plot dimensions: x=[%f, %f], y=[%f, %f]\ntext width=%f\n"
 	xrange.min xrange.max dst.min dst.max width;
@@ -181,6 +190,12 @@ object (self)
 	    let x = (fst (self#size ctx)) /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_text_style ctx x y t
       end;
+      ignore (List.iter (fun v ->
+			   if v >= src.min && v <= src.max
+			   then (draw_line ctx ~style:horiz_line_style
+				   [ point xrange.min (tr v);
+				     point xrange.max (tr v); ]))
+		horiz_lines);
       ignore (List.fold_left (fun x ds ->
 				ds#draw ctx ~src ~dst ~width ~x;
 				x +. width +. between_padding)
@@ -191,6 +206,6 @@ object (self)
 end
 
 let plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?ylabel ?y_min ?y_max datasets =
+    ?horiz_lines ?title ?ylabel ?y_min ?y_max datasets =
   new plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?ylabel ?y_min ?y_max datasets
+    ?horiz_lines ?title ?ylabel ?y_min ?y_max datasets
