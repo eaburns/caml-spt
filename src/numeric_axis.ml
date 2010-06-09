@@ -7,6 +7,7 @@
 open Printf
 open Geometry
 open Drawing
+open Verbosity
 
 type axis = {
   src : range;
@@ -73,38 +74,48 @@ let sprintf_float n =
 *)
 
 
-let rec tick_list major delta min max =
-  (** [tick_list major delta min max] gets a list of the tick
+let rec tick_list delta min max =
+  (** [tick_list delta min max] gets a list of the tick
       marks. *)
   let fst = (floor (min /. delta)) *. delta in
   let next = ref fst in
-  let lst = ref [] in
+  let even = ref [] and odd = ref [] in
+  let i = ref 0 in
     while !next < max do
       let n = !next in
 	if n >= min && n <= max
 	then begin
-	  let t = n, if major then Some (sprintf_float n) else None in
-	    lst := t :: !lst;
+	  let t = n, Some (sprintf_float n) in
+	    if !i mod 2 = 0
+	    then even := t :: !even
+	    else odd := t :: !odd;
+	    incr i;
 	end;
 	next := delta +. n;
     done;
-    !lst
+    !even, !odd
 
 
 let tick_locations ?(suggested_number=2.) rng =
   (** [tick_locations ?suggested_number rng] computes the location of
       tick marks on a numeric axis with the given range. *)
+  let nticks = suggested_number *. 2. in
   let min = rng.min and max = rng.max in
-  let group_width = (max -. min) /. suggested_number in
+  let group_width = (max -. min) /. nticks in
   let tens = 10. ** (floor (log10 group_width)) in
   let ntens = (max -. min) /. tens in
-  let delta = (floor (ntens /. suggested_number)) *. tens in
-  let major_ticks = tick_list true delta min max in
-  let minor_ticks =
-    List.filter (fun (minor_vl, _) ->
-		   List.exists (fun (major_vl, _) -> major_vl <> minor_vl)
-		     major_ticks)
-      (tick_list false (delta /. 2.) min max) in
+  let delta = (floor (ntens /. nticks)) *. tens in
+  let even_ticks, odd_ticks = tick_list delta min max in
+  let neven = List.length even_ticks and nodd = List.length odd_ticks in
+  let major_ticks, minor_ticks' =
+    if (abs_float ((float nodd) -. suggested_number))
+      < (abs_float ((float neven) -. suggested_number))
+    then odd_ticks, even_ticks
+    else even_ticks, odd_ticks
+  in
+  let minor_ticks = List.map (fun (v, _) -> v, None) minor_ticks' in
+    vprintf verb_debug "suggested=%f, nmajor=%d, nminor=%d\n"
+      suggested_number (List.length major_ticks) (List.length minor_ticks);
     major_ticks @ minor_ticks
 
 
