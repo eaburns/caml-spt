@@ -98,15 +98,34 @@ let tick_locations ?(suggested_number=2.) rng =
       marks. *)
   let nticks = suggested_number in
   let min = rng.min and max = rng.max in
-  let group_width = (max -. min) /. nticks in
-  let tens = 10. ** (floor (log10 group_width)) in
+  let tens = 10. ** (floor (log10 ((max -. min) /. nticks))) in
   let ntens = (max -. min) /. tens in
-  let delta = (floor (ntens /. nticks)) *. tens in
+  let multiple, minor_fact =
+      let m = match truncate (ntens /. nticks) with
+	| 7 -> 6
+	| 9 -> 10
+	| x -> x in
+      let f = match m with
+	| 1 -> 1.
+	| 3 -> 1. /. 3.
+	| 5 -> 1. /. 5.
+	| 7 | 9 -> assert false
+	| x -> 1. /. 2.
+      in float m, f
+  in
+  let delta = multiple *. tens in
   let major_ticks = tick_list delta min max in
-  let minor_ticks' = tick_list (delta /. 2.) min max in
-  let minor_ticks = List.map (fun (v, _) -> v, None) minor_ticks' in
+  let minor_ticks' = tick_list (delta *. minor_fact) min max in
+  let minor_ticks =
+    List.fold_left (fun l (v, s) ->
+		      if List.exists (fun (_, r) -> r = s) major_ticks
+		      then l
+		      else (v, None) :: l)
+      [] minor_ticks'
+  in
     vprintf verb_debug "suggested=%f, nmajor=%d, nminor=%d\n"
       suggested_number (List.length major_ticks) (List.length minor_ticks);
+    vprintf verb_debug "multiple=%f, minor_fact=%f\n" multiple minor_fact;
     major_ticks @ minor_ticks
 
 
