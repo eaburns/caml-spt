@@ -5,7 +5,7 @@
 (display (num-by-nom-plot
 	  (title "Test plot")
 ;          (y-max 26)
-           (y-min 0.5)
+;           (y-min 0.5)
 	  (y-label "The y variable")
 	   ((boxplot-dataset (name "Dataset two")
                              (scalars 38 1 -19 4 29 10)

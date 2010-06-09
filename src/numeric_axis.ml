@@ -78,21 +78,17 @@ let rec tick_list delta min max =
   (** [tick_list delta min max] gets a list of the tick marks. *)
   let fst = (floor (min /. delta)) *. delta in
   let next = ref fst in
-  let even = ref [] and odd = ref [] in
-  let i = ref 0 in
+  let lst = ref [] in
     while !next < max do
       let n = !next in
 	if n >= min && n <= max
 	then begin
 	  let t = n, Some (sprintf_float n) in
-	    if !i mod 2 = 0
-	    then even := t :: !even
-	    else odd := t :: !odd;
-	    incr i;
+	    lst := t :: !lst;
 	end;
 	next := delta +. n;
     done;
-    !even, !odd
+    !lst
 
 
 let tick_locations ?(suggested_number=2.) rng =
@@ -100,23 +96,14 @@ let tick_locations ?(suggested_number=2.) rng =
       tick marks on a numeric axis with the given range.
       [suggested_number] is the suggested number of major tick
       marks. *)
-  let nticks = suggested_number *. 2. in
+  let nticks = suggested_number in
   let min = rng.min and max = rng.max in
   let group_width = (max -. min) /. nticks in
   let tens = 10. ** (floor (log10 group_width)) in
   let ntens = (max -. min) /. tens in
   let delta = (floor (ntens /. nticks)) *. tens in
-  let even_ticks, odd_ticks = tick_list delta min max in
-  let neven = List.length even_ticks and nodd = List.length odd_ticks in
-  let major_ticks, minor_ticks' =
-    if (abs_float ((float nodd) -. suggested_number))
-      < (abs_float ((float neven) -. suggested_number))
-      (* Major ticks are either the even or odd ticks depending on
-	 which set has a closer number to the suggested number.  The
-	 other set is the used as minor ticks. *)
-    then odd_ticks, even_ticks
-    else even_ticks, odd_ticks
-  in
+  let major_ticks = tick_list delta min max in
+  let minor_ticks' = tick_list (delta /. 2.) min max in
   let minor_ticks = List.map (fun (v, _) -> v, None) minor_ticks' in
     vprintf verb_debug "suggested=%f, nmajor=%d, nminor=%d\n"
       suggested_number (List.length major_ticks) (List.length minor_ticks);
