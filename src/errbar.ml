@@ -16,19 +16,20 @@ let errbar_line_style =
     line_dashes = [| |];
   }
 
-let errbar_cap_size = Length.Pt 3.
+let default_cap_size = Length.Pt 3.
   (** The size of the cap on an error bar. *)
 
 
-let residual_vert ctx up ~src_y ~dst_x ~x ~y ~mag =
-  (** [residual_vert ctx up ~src_y ~dst_x ~x ~y ~mag] computes the
-      residual for a vertical error bar.  The [x] coordinate is in the
-      destination coordinate system and the [y] coordinate is in the
-      data coordinate system.  [src_y] and [dst_x] are the range of
-      the source and destination y-axis and x-axis values
-      respectively.  This assumes that the center point for the error
-      bar is within the destination rectangle. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
+let residual_vert ctx up ?(cap_size=default_cap_size)
+    ~src_y ~dst_x ~x ~y ~mag =
+  (** [residual_vert ctx up ?cap_size ~src_y ~dst_x ~x ~y ~mag]
+      computes the residual for a vertical error bar.  The [x]
+      coordinate is in the destination coordinate system and the [y]
+      coordinate is in the data coordinate system.  [src_y] and
+      [dst_x] are the range of the source and destination y-axis and
+      x-axis values respectively.  This assumes that the center point
+      for the error bar is within the destination rectangle. *)
+  let errbar_cap_size = ctx.units cap_size in
   let y1 = if up then y +. mag else y -. mag in
   let clip = if up then y1 > src_y.max else y1 < src_y.min in
     if clip
@@ -41,15 +42,16 @@ let residual_vert ctx up ~src_y ~dst_x ~x ~y ~mag =
     end
 
 
-let residual_horiz ctx left ~src_x ~dst_y ~x ~y ~mag =
-  (** [residual_horiz ctx up ~src_x ~dst_y ~x ~y ~mag] computes the
-      residual for a horizontal error bar.  The [x] coordinate is in
-      the destination coordinate system and the [y] coordinate is in
-      the data coordinate system.  [src_x] and [dst_y] are the range
-      of the source and destination x-axis and y-axis values
-      respectively.  This assumes that the center point for the error
-      bar is within the destination rectangle. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
+let residual_horiz ctx left ?(cap_size=default_cap_size)
+    ~src_x ~dst_y ~x ~y ~mag =
+  (** [residual_horiz ctx left ?cap_size ~src_x ~dst_y ~x ~y ~mag]
+      computes the residual for a horizontal error bar.  The [x]
+      coordinate is in the destination coordinate system and the [y]
+      coordinate is in the data coordinate system.  [src_x] and
+      [dst_y] are the range of the source and destination x-axis and
+      y-axis values respectively.  This assumes that the center point
+      for the error bar is within the destination rectangle. *)
+  let errbar_cap_size = ctx.units cap_size in
   let x1 = if left then x -. mag else x +. mag in
   let clip = if left then x1 < src_x.min else x1 > src_x.max in
     if clip
@@ -62,14 +64,16 @@ let residual_horiz ctx left ~src_x ~dst_y ~x ~y ~mag =
     end
 
 
-let draw_up ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
-  (** [draw_up ctx ?style ~src ~dst ~x ~y ~mag] draws the top half of
-      a vertical error bar.  The [x] coordinate is in the destination
-      coordinate system and the [y] coordinate is in the data
-      coordinate system.  [src] and [dst] are the range of the source
-      and destination y-axis values.  This assumes that the center
-      point for the error bar is within the destination rectangle. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
+let draw_up ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
+    ~src ~dst ~x ~y ~mag =
+  (** [draw_up ctx ?style ?cap_size ~src ~dst ~x ~y ~mag] draws the
+      top half of a vertical error bar.  The [x] coordinate is in the
+      destination coordinate system and the [y] coordinate is in the
+      data coordinate system.  [src] and [dst] are the range of the
+      source and destination y-axis values.  This assumes that the
+      center point for the error bar is within the destination
+      rectangle. *)
+  let errbar_cap_size = ctx.units cap_size in
   let tr = range_transform ~src ~dst in
   let y1 = y +. mag in
     if y <= src.max && y1 >= src.min
@@ -83,15 +87,16 @@ let draw_up ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
     end
 
 
-let draw_down ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
-  (** [draw_down ctx ?style ~src ~dst ~x ~y ~mag] draws the bottom half
-      of a vertical error bar.  The [x] coordinate is in the
-      destination coordinate system and the [y] coordinate is in the
-      data coordinate system.  [src] and [dst] are the range of the
-      source and destination y-axis values.  This assumes that the
+let draw_down ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
+    ~src ~dst ~x ~y ~mag =
+  (** [draw_down ctx ?style ?cap_size ~src ~dst ~x ~y ~mag] draws the
+      bottom half of a vertical error bar.  The [x] coordinate is in
+      the destination coordinate system and the [y] coordinate is in
+      the data coordinate system.  [src] and [dst] are the range of
+      the source and destination y-axis values.  This assumes that the
       center point for the error bar is within the destination
       rectangle. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
+  let errbar_cap_size = ctx.units cap_size in
   let tr = range_transform ~src ~dst in
   let y1 = y -. mag in
     if y >= src.min && y1 < src.max
@@ -105,14 +110,16 @@ let draw_down ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
     end
 
 
-let draw_left ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
-  (** [draw_left ctx ?style ~src ~dst ~x ~y ~mag] draws the top half of
-      a vertical error bar.  The [y] coordinate is in the destination
-      coordinate system and the [x] coordinate is in the data
-      coordinate system.  [src] and [dst] are the range of the source
-      and destination x-axis values.  This assumes that the center
-      point for the error bar is within the destination rectangle. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
+let draw_left ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
+    ~src ~dst ~x ~y ~mag =
+  (** [draw_left ctx ?style ?cap_size ~src ~dst ~x ~y ~mag] draws the
+      top half of a vertical error bar.  The [y] coordinate is in the
+      destination coordinate system and the [x] coordinate is in the
+      data coordinate system.  [src] and [dst] are the range of the
+      source and destination x-axis values.  This assumes that the
+      center point for the error bar is within the destination
+      rectangle. *)
+  let errbar_cap_size = ctx.units cap_size in
   let tr = range_transform ~src ~dst in
   let x1 = x -. mag in
     if x >= src.min && x1 <= src.max
@@ -126,15 +133,16 @@ let draw_left ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
     end
 
 
-let draw_right ctx ?(style=errbar_line_style) ~src ~dst ~x ~y ~mag =
-  (** [draw_right ctx ?style ~src ~dst ~x ~y ~mag] draws the top half
-      of a vertical error bar.  The [y] coordinate is in the
+let draw_right ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
+    ~src ~dst ~x ~y ~mag =
+  (** [draw_right ctx ?style ?cap_size ~src ~dst ~x ~y ~mag] draws the
+      top half of a vertical error bar.  The [y] coordinate is in the
       destination coordinate system and the [x] coordinate is in the
       data coordinate system.  [src] and [dst] are the range of the
       source and destination x-axis values.  This assumes that the
       center point for the error bar is within the destination
       rectangle. *)
-  let errbar_cap_size = ctx.units errbar_cap_size in
+  let errbar_cap_size = ctx.units cap_size in
   let tr = range_transform ~src ~dst in
   let x1 = x +. mag in
     if x <= src.max && x1 >= src.min

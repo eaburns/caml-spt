@@ -107,9 +107,9 @@ object(self)
 			    point (x +. width) y_max;
 			    point (x +. width) y_min;
 			    point x y_min;];
-      Errbar.draw_up ctx ~style ~src ~dst
+      Errbar.draw_up ctx ~style ?cap_size:None ~src ~dst
 	~x:center ~y:mean ~mag:conf_interval;
-      Errbar.draw_down ctx ~style ~src ~dst
+      Errbar.draw_down ctx ~style ?cap_size:None ~src ~dst
 	~x:center ~y:mean ~mag:conf_interval;
 
 end

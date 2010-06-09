@@ -38,9 +38,11 @@ object (self)
 	     let src_y = yrange src and dst_x = xrange dst in
 	     let x = tr t.i and y = t.j and mag = t.k in
 	     let up_residue =
-	       Errbar.residual_vert ctx true ~src_y ~dst_x ~x ~y ~mag
+	       Errbar.residual_vert ctx true ?cap_size:None
+		 ~src_y ~dst_x ~x ~y ~mag
 	     and down_residue =
-	       Errbar.residual_vert ctx false ~src_y ~dst_x ~x ~y ~mag
+	       Errbar.residual_vert ctx false ?cap_size:None
+		 ~src_y ~dst_x ~x ~y ~mag
 	     in
 	       rectangle_extremes r
 		 (rectangle_extremes up_residue down_residue)
@@ -70,8 +72,10 @@ object (self)
       Array.iter (fun t ->
 		    let src = yrange src and dst = yrange dst in
 		    let x = tr t.i and y = t.j and mag = t.k in
-		      Errbar.draw_up ctx ~style ~src ~dst ~x ~y ~mag;
-		      Errbar.draw_down ctx ~style ~src ~dst ~x ~y ~mag;)
+		      Errbar.draw_up ctx ~style ?cap_size:None
+			~src ~dst ~x ~y ~mag;
+		      Errbar.draw_down ctx ~style ?cap_size:None
+			~src ~dst ~x ~y ~mag;)
 	triples
 
 
@@ -104,9 +108,11 @@ object (self)
 	     let src_x = xrange src and dst_y = yrange dst in
 	     let x = t.i and y = tr t.j and mag = t.k in
 	     let left_residue =
-	       Errbar.residual_horiz ctx true ~src_x ~dst_y ~x ~y ~mag
+	       Errbar.residual_horiz ctx true ?cap_size:None
+		 ~src_x ~dst_y ~x ~y ~mag
 	     and right_residue =
-	       Errbar.residual_horiz ctx false ~src_x ~dst_y ~x ~y ~mag
+	       Errbar.residual_horiz ctx false ?cap_size:None
+		 ~src_x ~dst_y ~x ~y ~mag
 	     in
 	       rectangle_extremes r (rectangle_extremes
 				       left_residue right_residue)
@@ -136,8 +142,10 @@ object (self)
       Array.iter (fun t ->
 		    let src = xrange src and dst = xrange dst in
 		    let x = t.i and y = tr t.j and mag = t.k in
-		      Errbar.draw_left ctx ~style ~src ~dst ~x ~y ~mag;
-		      Errbar.draw_right ctx ~style ~src ~dst ~x ~y ~mag;)
+		      Errbar.draw_left ctx ~style ?cap_size:None
+			~src ~dst ~x ~y ~mag;
+		      Errbar.draw_right ctx ~style ?cap_size:None
+			~src ~dst ~x ~y ~mag;)
 	triples
 
 
