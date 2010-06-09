@@ -92,7 +92,7 @@ let num_by_num_plot () =
 let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
-  let plot = num_by_num_plot () in
+  let plot = num_by_nom_plot () in
     plot#display
 
 let _ = main ()
