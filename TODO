@@ -25,6 +25,8 @@ Datasets
 
 * "boxplots with density estimations"
 
+* Boxplots: 'jitter' outliers that overlap
+
 * Normal quantile plots
 
 * CDF's need error bars
