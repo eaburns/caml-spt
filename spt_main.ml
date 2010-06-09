@@ -85,7 +85,8 @@ let num_by_num_plot () =
       [
 	Num_by_num.scatter_dataset
 	  (next_glyph ())
-	  [| point 0. 0.; point 1. 1. |]
+	  [| point (Random.float 100.) (Random.float 100.);
+	     point (Random.float 100.) (Random.float 100.) |]
       ]
 
 
