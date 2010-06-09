@@ -79,8 +79,10 @@ object(self)
 
 
   method x_label_height ctx style width =
-    (self#dataset_name_height ctx style width)
-    +. (fixed_width_text_height ctx ~style width group_name)
+    let text_height = font_suggested_line_height ~style ctx in
+      (self#dataset_name_height ctx style width)
+      +. text_height			(* padding *)
+      +. (fixed_width_text_height ctx ~style width group_name)
 
 
   method draw_x_label ctx ~x ~y style ~width =
@@ -88,13 +90,15 @@ object(self)
     let ds_name_height = self#dataset_name_height ctx style width in
     let ds_width = self#dataset_width ctx width in
     let center = x +. (width /. 2.) in
+    let text_height = font_suggested_line_height ~style ctx in
       ignore
 	(List.fold_left
 	   (fun x ds ->
 	      ds#draw_x_label ctx ~x ~y style ~width:ds_width;
 	      x +. ds_width +. between_padding)
 	   x datasets);
-      draw_fixed_width_text ctx ~x:center ~y:(y +. ds_name_height)
+      draw_fixed_width_text ctx ~x:center
+	~y:(y +. ds_name_height +. text_height)
 	~style ~width group_name
 
 
