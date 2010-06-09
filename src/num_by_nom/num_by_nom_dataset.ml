@@ -49,6 +49,18 @@ end
 (** {6 Grouped datasets} ****************************************)
 
 let between_padding = Length.Pt 5.
+  (** Padding between elements of the same group. *)
+
+let overline_style =
+  (** The line style of the line showing the group. *)
+  {
+    line_color = black;
+    line_dashes = [| |];
+    line_width = Length.Pt 1.;
+  }
+
+let overline_padding = Length.Pt 4.
+  (** Padding between the overline and the x-axis text. *)
 
 class dataset_group group_name datasets =
 object(self)
@@ -80,7 +92,9 @@ object(self)
 
   method x_label_height ctx style width =
     let text_height = font_suggested_line_height ~style ctx in
-      (self#dataset_name_height ctx style width)
+    let overline_height = ctx.units overline_style.line_width in
+      overline_height /. 2. +. (ctx.units overline_padding)
+      +. (self#dataset_name_height ctx style width)
       +. text_height			(* padding *)
       +. (fixed_width_text_height ctx ~style width group_name)
 
@@ -91,10 +105,13 @@ object(self)
     let ds_width = self#dataset_width ctx width in
     let center = x +. (width /. 2.) in
     let text_height = font_suggested_line_height ~style ctx in
+    let overline_height = ctx.units overline_style.line_width in
+    let y' = y +. (overline_height /. 2. +. (ctx.units overline_padding)) in
+      draw_line ctx ~style:overline_style [point x y; point (x +. width) y];
       ignore
 	(List.fold_left
 	   (fun x ds ->
-	      ds#draw_x_label ctx ~x ~y style ~width:ds_width;
+	      ds#draw_x_label ctx ~x ~y:y' style ~width:ds_width;
 	      x +. ds_width +. between_padding)
 	   x datasets);
       draw_fixed_width_text ctx ~x:center
