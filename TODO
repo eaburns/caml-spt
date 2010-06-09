@@ -6,9 +6,6 @@
 
 * Increase/decrease the number of error bars with the size of the plot?
 
-* Change minor ticks to be at intervals other than the center of major
-  ticks.
-
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
