@@ -122,3 +122,5 @@ object(self)
 		   x +. ds_width +. between_padding)
 		x datasets)
 end
+
+let dataset_group name datasets = new dataset_group name datasets

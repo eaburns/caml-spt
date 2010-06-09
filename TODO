@@ -43,8 +43,6 @@ Documentation
 * Document all functions
   - Generate OCaml docs
 
-* Make an interface file for non-AI-group users?
-
 * Manual for spt-it-out
 
 * How to use within AI group
