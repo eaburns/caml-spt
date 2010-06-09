@@ -55,20 +55,7 @@ object
 	rectangle in each direction in plot-coordinates. *)
 end
 
-class plot :
-  (** A numeric by numeric plot. *)
-  ?label_text_style:Drawing.text_style ->
-  ?legend_text_style:Drawing.text_style ->
-  ?tick_text_style:Drawing.text_style ->
-  ?title:string ->
-  ?xlabel:string ->
-  ?ylabel:string ->
-  ?legend_loc:Legend.location ->
-  ?x_min:float ->
-  ?x_max:float ->
-  ?y_min:float ->
-  ?y_max:float ->
-  dataset_type list ->
+class type plot_type =
   object
     val mutable height : Length.t
     val src : Geometry.rectangle
@@ -83,6 +70,23 @@ class plot :
     method width : Length.t
   end
 
+val plot :
+  ?label_text_style:Drawing.text_style ->
+  ?legend_text_style:Drawing.text_style ->
+  ?tick_text_style:Drawing.text_style ->
+  ?title:string ->
+  ?xlabel:string ->
+  ?ylabel:string ->
+  ?legend_loc:Legend.location ->
+  ?x_min:float ->
+  ?x_max:float ->
+  ?y_min:float ->
+  ?y_max:float ->
+  dataset_type list ->
+  plot_type
+(** [plot ?label_text_style ?legend_text_style ?tick_text_style ?title
+    ?xlabel ?ylabel ?legend_loc ?x_min ?x_max ?y_min ?y_max datasets]
+    creates a numeric by numeric plot. *)
 
 class composite_dataset : ?name:string -> dataset_type list -> dataset_type
   (** A numeric by numeric dataset that is a composite of another set
