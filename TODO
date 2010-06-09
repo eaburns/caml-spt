@@ -1,7 +1,3 @@
-------------------------------------------------------------
-Extra features
-------------------------------------------------------------
-
 * Drawing legends off of the plot.
 
 * Change text size based on plot size
@@ -17,6 +13,8 @@ Datasets
 * Line errorbar plots should throw out a *nasty* warning if the data
   is not sorted by x-value (since the errorbars may not center on the
   mean line).
+
+* Find a better way to denote groups in numeric by nominal plots.
 
 * "real" kernel density estimation datasets
    - make an object for it that will find dimensions
@@ -42,13 +40,22 @@ Documentation
 
 * Write a real README file
 
-* Document the code
+* Document all functions
+  - Generate OCaml docs
 
-* Generate OCaml docs
+* Make an interface file for non-AI-group users?
+
+* Manual for spt-it-out
+
+* How to use within AI group
 
 ------------------------------------------------------------
 Usability
 ------------------------------------------------------------
+
+* GUI dialog for changing plot sizes could be better
+
+* Function wrappers for creating plots (instead of using 'new')
 
 * Generate .mli files where possible / appropriate
 
