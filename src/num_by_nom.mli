@@ -144,6 +144,7 @@ val plot :
   ?label_text_style:Drawing.text_style ->
   ?legend_text_style:Drawing.text_style ->
   ?tick_text_style:Drawing.text_style ->
+  ?horiz_lines:float list ->
   ?title:string ->
   ?ylabel:string ->
   ?y_min:float ->
@@ -151,5 +152,5 @@ val plot :
   dataset_type list ->
   plot_type
     (** [plot ?label_text_style ?legend_text_style ?tick_text_style
-	?title ?ylabel ?y_min ?y_max datasets] creates an numeric by
-	nominal plot. *)
+	?horiz_lines ?title ?ylabel ?y_min ?y_max datasets] creates an
+	numeric by nominal plot. *)
