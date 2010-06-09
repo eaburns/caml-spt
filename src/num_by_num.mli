@@ -55,54 +55,9 @@ object
 	rectangle in each direction in plot-coordinates. *)
 end
 
-class type plot_type =
-  object
-    val mutable height : Length.t
-    val src : Geometry.rectangle
-    val mutable width : Length.t
-    method display : unit
-    method draw : Drawing.context -> unit
-    method height : Length.t
-    method output : string -> unit
-    method set_size : w:Length.t -> h:Length.t -> unit
-    method suggest_aspect : float
-    method use_suggested_aspect : unit
-    method width : Length.t
-  end
-
-val plot :
-  ?label_text_style:Drawing.text_style ->
-  ?legend_text_style:Drawing.text_style ->
-  ?tick_text_style:Drawing.text_style ->
-  ?title:string ->
-  ?xlabel:string ->
-  ?ylabel:string ->
-  ?legend_loc:Legend.location ->
-  ?x_min:float ->
-  ?x_max:float ->
-  ?y_min:float ->
-  ?y_max:float ->
-  dataset_type list ->
-  plot_type
-(** [plot ?label_text_style ?legend_text_style ?tick_text_style ?title
-    ?xlabel ?ylabel ?legend_loc ?x_min ?x_max ?y_min ?y_max datasets]
-    creates a numeric by numeric plot. *)
-
-class composite_dataset : ?name:string -> dataset_type list -> dataset_type
+val composite_dataset : ?name:string -> dataset_type list -> dataset_type
   (** A numeric by numeric dataset that is a composite of another set
       of numeric by numeric datasets. *)
-
-type label_x_location =
-  | Label_xat
-  | Label_before
-  | Label_after
-
-
-type label_y_location =
-  | Label_yat
-  | Label_above
-  | Label_below
-
 
 val scatter_dataset :
   Drawing.glyph -> ?color:Drawing.color -> ?point_radius:Length.t ->
@@ -348,3 +303,38 @@ val valuemap_dataset :
     (** [value_dataset ?line_width ?bin_size ?gradient triples]
 	creates a heatmap where the 3rd point of the triple desides
 	the color. *)
+
+
+class type plot_type =
+  object
+    val mutable height : Length.t
+    val src : Geometry.rectangle
+    val mutable width : Length.t
+    method display : unit
+    method draw : Drawing.context -> unit
+    method height : Length.t
+    method output : string -> unit
+    method set_size : w:Length.t -> h:Length.t -> unit
+    method suggest_aspect : float
+    method use_suggested_aspect : unit
+    method width : Length.t
+  end
+
+val plot :
+  ?label_text_style:Drawing.text_style ->
+  ?legend_text_style:Drawing.text_style ->
+  ?tick_text_style:Drawing.text_style ->
+  ?title:string ->
+  ?xlabel:string ->
+  ?ylabel:string ->
+  ?legend_loc:Legend.location ->
+  ?x_min:float ->
+  ?x_max:float ->
+  ?y_min:float ->
+  ?y_max:float ->
+  dataset_type list ->
+  plot_type
+(** [plot ?label_text_style ?legend_text_style ?tick_text_style ?title
+    ?xlabel ?ylabel ?legend_loc ?x_min ?x_max ?y_min ?y_max datasets]
+    creates a numeric by numeric plot. *)
+

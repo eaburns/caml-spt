@@ -17,8 +17,8 @@ type t =
   | Triples of triple array
   | Num_by_num_dataset of Num_by_num.dataset_type
   | Num_by_num_plot of Num_by_num.plot_type
-  | Num_by_nom_dataset of Num_by_nom.dataset
-  | Num_by_nom_plot of Num_by_nom.plot
+  | Num_by_nom_dataset of Num_by_nom.dataset_type
+  | Num_by_nom_plot of Num_by_nom.plot_type
 
 
 type env = {
@@ -834,7 +834,7 @@ and eval_num_by_num_composite env operands =
 		  (Sexpr.line_number e)))
       operands;
     Num_by_num_dataset
-      (new Num_by_num.composite_dataset ?name:!name (List.rev !dss))
+      (Num_by_num.composite_dataset ?name:!name (List.rev !dss))
 
 (************************************************************)
 (* Num-by-nom                                               *)
@@ -882,7 +882,7 @@ and eval_num_by_nom env operands =
 	     failwith (sprintf "line %d: Invalid option to a num-by-nom plot"
 			 (Sexpr.line_number e))
       ) operands;
-    let plot = (new Num_by_nom.plot ?title:!title ?ylabel:!ylabel
+    let plot = (Num_by_nom.plot ?title:!title ?ylabel:!ylabel
 		  ?y_min:!y_min ?y_max:!y_max !datasets)
     in
     let width = match !width with None -> plot#width | Some w -> w in
@@ -918,7 +918,7 @@ and eval_boxplot env line operands =
 	    (sprintf "line %d: Invalid boxplot dataset, no name given" line)
       | Some n ->
 	  Num_by_nom_dataset
-	    (new Num_by_nom.boxplot_dataset ?point_radius:!radius n !data)
+	    (Num_by_nom.boxplot_dataset ?point_radius:!radius n !data)
 
 
 and eval_barchart env line operands =
@@ -946,7 +946,7 @@ and eval_barchart env line operands =
       | Some n -> n
     in
       Num_by_nom_dataset
-	(new Num_by_nom.barchart_dataset (env.next_fill()) name data)
+	(Num_by_nom.barchart_dataset (env.next_fill()) name data)
 
 
 and eval_barchart_errbar env line operands =
@@ -975,5 +975,4 @@ and eval_barchart_errbar env line operands =
 	       line "no name given")
       | Some n ->
 	  Num_by_nom_dataset
-	    (new Num_by_nom.barchart_errbar_dataset
-	       (env.next_fill()) n !data)
+	    (Num_by_nom.barchart_errbar_dataset (env.next_fill()) n !data)

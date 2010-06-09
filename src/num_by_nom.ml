@@ -36,13 +36,52 @@ let data_dimensions ~y_min ~y_max datasets =
     vprintf verb_optional "data dimensions: y=[%f, %f]\n" r.min r.max;
     r
 
+
+(** {1 Numeric by nomeric datasets} ****************************************)
+
+class type dataset_type =
+  object
+    val name : string
+    method dimensions : Geometry.range
+    method draw :
+      Drawing.context ->
+      src:Geometry.range ->
+      dst:Geometry.range -> width:float -> x:float -> unit
+    method draw_x_label :
+      Drawing.context ->
+      x:float -> y:float -> Drawing.text_style -> width:float -> unit
+    method residual :
+      Drawing.context ->
+      src:Geometry.range ->
+      dst:Geometry.range -> width:float -> x:float -> Geometry.range
+    method x_label_height :
+      Drawing.context -> Drawing.text_style -> float -> float
+  end
+
+include Num_by_nom_dataset
+include Boxplot_dataset
+include Barchart_dataset
+
 (** {1 Numeric by nomeric plot} ****************************************)
+
+class type plot_type =
+  object
+    val mutable height : Length.t
+    val src : Geometry.range
+    val mutable width : Length.t
+    method display : unit
+    method draw : Drawing.context -> unit
+    method height : Length.t
+    method output : string -> unit
+    method set_size : w:Length.t -> h:Length.t -> unit
+    method width : Length.t
+  end
 
 class plot
   ?(label_text_style=Spt.default_label_style)
   ?(legend_text_style=Spt.default_legend_style)
   ?(tick_text_style=Spt.default_tick_style)
-  ?title ?ylabel ?y_min ?y_max datasets =
+  ?title ?ylabel ?y_min ?y_max (datasets : dataset_type list) =
   (** [plot ?label_style ?legend_style ?tick_style ?title ?ylabel
       ?y_min ?y_max datasets] a plot that has a nominal x axis and a
       numeric y axis. *)
@@ -152,6 +191,7 @@ object (self)
 	~xrange ~text_width:width
 end
 
-include Num_by_nom_dataset
-include Boxplot_dataset
-include Barchart_dataset
+let plot ?label_text_style ?legend_text_style ?tick_text_style
+    ?title ?ylabel ?y_min ?y_max datasets =
+  new plot ?label_text_style ?legend_text_style ?tick_text_style
+    ?title ?ylabel ?y_min ?y_max datasets

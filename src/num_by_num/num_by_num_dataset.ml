@@ -142,3 +142,5 @@ object
        0. datasets) /. (float (List.length datasets))
 
 end
+
+let composite_dataset ?name datasets = new composite_dataset ?name datasets
