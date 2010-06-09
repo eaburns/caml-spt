@@ -7,6 +7,7 @@ Files:
 "src/drawing"
 "src/numeric_axis"
 "src/statistics"
+"src/boxplot"
 "src/errbar"
 "src/legend"
 "src/num_by_num/num_by_num_dataset"
