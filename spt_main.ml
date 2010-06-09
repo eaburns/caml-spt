@@ -83,9 +83,9 @@ let num_by_num_plot () =
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
       [
-	Num_by_num.scatter_errbar_dataset
+	Num_by_num.scatter_dataset
 	  (next_glyph ())
-	  [| (Some "0", [| point 0. 0.; point 1. 1. |]); |]
+	  [| point 0. 0.; point 1. 1. |]
       ]
 
 
