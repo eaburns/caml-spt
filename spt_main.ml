@@ -72,12 +72,12 @@ let num_by_nom_plot () =
 	(Some "b"), [|"b1", 10.; "b2", 2.; "b3", 9.;|];
 	None, [|"c1", 8.; "c2", 13.; "c3", 1.;|]]
   in
-    new Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text"
+    Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text"
       (stacked @ layered)
 
 let num_by_num_plot () =
   let next_glyph = Factories.default_glyph_factory () in
-    new Num_by_num.plot
+    Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
@@ -85,12 +85,13 @@ let num_by_num_plot () =
       [
 	Num_by_num.scatter_errbar_dataset
 	  (next_glyph ())
-	  [| ([| point 0. 0.; point 1. 1. |], Some "0"); |]
+	  [| (Some "0", [| point 0. 0.; point 1. 1. |]); |]
       ]
 
 
 let main () =
   Random.self_init ();
+  Verbosity.Verb_level.set Verbosity.verb_debug;
   let plot = num_by_num_plot () in
     plot#display
 

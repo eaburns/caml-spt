@@ -62,6 +62,16 @@ let recommended_ticks length =
 
 (** {1 Tick marks} ****************************************)
 
+let sprintf_float n =
+  sprintf "%g" n
+(*
+  let str = sprintf "%f" n in
+  let non_zero = ref ((String.length str) - 1) in
+    while str.[!non_zero] = '0' do decr non_zero done;
+    if str.[!non_zero] = '.' then decr non_zero;
+    String.sub str 0 (!non_zero + 1)
+*)
+
 
 let rec tick_list major delta min max =
   (** [tick_list major delta min max] gets a list of the tick
@@ -71,15 +81,12 @@ let rec tick_list major delta min max =
   let lst = ref [] in
     while !next < max do
       let n = !next in
-      if n >= min && n <= max
-      then begin
-	let pv =
-	  let lg = truncate (log10 n) in if lg <= 0 then (~-lg + 1) else 0
-	in
-	let t = n, if major then Some (sprintf "%.*f" pv n) else None in
-	  lst := t :: !lst;
-      end;
-      next := delta +. n;
+	if n >= min && n <= max
+	then begin
+	  let t = n, if major then Some (sprintf_float n) else None in
+	    lst := t :: !lst;
+	end;
+	next := delta +. n;
     done;
     !lst
 
