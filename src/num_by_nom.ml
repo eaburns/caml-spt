@@ -14,9 +14,6 @@ let y_axis_padding = Length.Pt 10.
 let x_axis_padding = Length.Pt 5.
   (** The amount of room to separate the x-axis from the data. *)
 
-let between_padding = Length.Pt 10.
-  (** Padding between each dataset. *)
-
 let data_dimensions ~y_min ~y_max datasets =
   (** [data_dimensions ~y_min ~y_max datasets] computes the dimension
       of the y-axis. *)
@@ -118,7 +115,9 @@ object (self)
     in
     let n = float (List.length datasets) in
     let text_width =
-      let total_padding = (n -. 1.) *. (ctx.units between_padding) in
+      let total_padding =
+	(n -. 1.) *. (ctx.units Num_by_nom_dataset.between_padding)
+      in
 	if n > 1.
 	then ((x_max -. x_min) -. total_padding) /. n
 	else (x_max -. x_min)
@@ -157,7 +156,7 @@ object (self)
 
   method private draw_x_axis ctx ~y ~xrange ~text_width =
     (** [draw_x_axis ctx ~y ~xrange ~text_width] draws the x-axis. *)
-    let between_padding = ctx.units between_padding in
+    let between_padding = ctx.units Num_by_nom_dataset.between_padding in
       ignore
 	(List.fold_left
 	   (fun x ds ->
@@ -169,7 +168,7 @@ object (self)
   method draw ctx =
     vprintf verb_debug "drawing numeric by nominal plot\n";
     self#fill_background ctx;
-    let between_padding = ctx.units between_padding in
+    let between_padding = ctx.units Num_by_nom_dataset.between_padding in
     let yaxis = self#yaxis in
     let xrange, width = self#x_axis_dimensions ctx yaxis in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:width in
