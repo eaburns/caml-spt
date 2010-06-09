@@ -196,6 +196,7 @@ object (self)
     let src = xrange src in
     let nticks = Numeric_axis.recommended_ticks width in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
+(*
       verb_eval verb_debug
 	(fun () ->
 	   vprintf verb_debug "x-ticks:\n";
@@ -203,6 +204,7 @@ object (self)
 			| None -> vprintf verb_debug "\tminor: %f\n" vl
 			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
 	     ticks);
+*)
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks xlabel
 
 
@@ -211,6 +213,7 @@ object (self)
     let src = yrange src in
     let nticks = Numeric_axis.recommended_ticks height in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
+(*
       verb_eval verb_debug
 	(fun () ->
 	   vprintf verb_debug "y-ticks:\n";
@@ -218,6 +221,7 @@ object (self)
 			| None -> vprintf verb_debug "\tminor: %f\n" vl
 			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
 	     ticks);
+*)
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks ylabel
 
 

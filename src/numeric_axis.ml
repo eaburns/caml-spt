@@ -125,6 +125,8 @@ let tick_locations ?(suggested_number=2.) rng =
     vprintf verb_debug "suggested=%f, nmajor=%d, nminor=%d\n"
       suggested_number (List.length major_ticks) (List.length minor_ticks);
     vprintf verb_debug "multiple=%f, minor_fact=%f\n" multiple minor_fact;
+    vprintf verb_debug "delta=%f, minor_delta=%f\n"
+      delta (delta *. minor_fact);
     major_ticks @ minor_ticks
 
 
