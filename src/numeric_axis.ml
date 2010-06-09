@@ -75,8 +75,7 @@ let sprintf_float n =
 
 
 let rec tick_list delta min max =
-  (** [tick_list delta min max] gets a list of the tick
-      marks. *)
+  (** [tick_list delta min max] gets a list of the tick marks. *)
   let fst = (floor (min /. delta)) *. delta in
   let next = ref fst in
   let even = ref [] and odd = ref [] in
@@ -98,7 +97,9 @@ let rec tick_list delta min max =
 
 let tick_locations ?(suggested_number=2.) rng =
   (** [tick_locations ?suggested_number rng] computes the location of
-      tick marks on a numeric axis with the given range. *)
+      tick marks on a numeric axis with the given range.
+      [suggested_number] is the suggested number of major tick
+      marks. *)
   let nticks = suggested_number *. 2. in
   let min = rng.min and max = rng.max in
   let group_width = (max -. min) /. nticks in
@@ -110,6 +111,9 @@ let tick_locations ?(suggested_number=2.) rng =
   let major_ticks, minor_ticks' =
     if (abs_float ((float nodd) -. suggested_number))
       < (abs_float ((float neven) -. suggested_number))
+      (* Major ticks are either the even or odd ticks depending on
+	 which set has a closer number to the suggested number.  The
+	 other set is the used as minor ticks. *)
     then odd_ticks, even_ticks
     else even_ticks, odd_ticks
   in
