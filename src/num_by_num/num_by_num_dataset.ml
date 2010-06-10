@@ -6,6 +6,7 @@
 
 open Geometry
 open Drawing
+open Verbosity
 
 class virtual dataset ?name () =
   (** [dataset name] is a dataset that is plottable on a numeric x and
@@ -81,6 +82,17 @@ object
       Array.fold_left (fun (s, n) p -> s +. p.y, n + 1) (0., 0) points
     in s /. (float n), n
 
+  initializer
+    Array.iter (fun p ->
+		  begin match classify_float p.x with
+		    | FP_nan -> vprintf verb_normal "warning: x value is NAN\n"
+		    | _ -> ()
+		  end;
+		  begin match classify_float p.y with
+		    | FP_nan -> vprintf verb_normal "warning: y value is NAN\n"
+		    | _ -> ()
+		  end)
+      points
 end
 
 (** {1 Composite datasets} ****************************************)
