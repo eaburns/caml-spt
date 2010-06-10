@@ -23,7 +23,8 @@ object(self)
 
 
   method draw ctx ~src ~dst ~width ~x =
-    Boxplot.draw ctx ~src ~dst ~width ~x:(x +. (width /. 2.)) box
+    Boxplot.draw ctx ~src ~dst ~width:(width *. 0.66)
+      ~x:(x +. (width /. 2.)) box
 
 end
 
