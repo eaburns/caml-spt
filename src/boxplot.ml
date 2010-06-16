@@ -81,12 +81,12 @@ let create
     }
 
 
-let draw_mean_line ctx style src tr ~x0 ~x1 ~mean =
-  (** [draw_mean_line cxt style src tr ~x0 ~x1 ~mean] draws the mean
-      line if it is not clipped.  *)
-  let mean' = tr mean in
-    if mean <= src.max && mean >= src.min
-    then draw_line ctx ~style [ point x0 mean'; point x1 mean' ]
+let draw_median_line ctx style src tr ~x0 ~x1 ~median =
+  (** [draw_median_line cxt style src tr ~x0 ~x1 ~median] draws the
+      median line if it is not clipped.  *)
+  let median' = tr median in
+    if median <= src.max && median >= src.min
+    then draw_line ctx ~style [ point x0 median'; point x1 median' ]
 
 
 let draw_box ctx style src tr ~x0 ~x1 ~q1 ~q3 =
@@ -167,7 +167,7 @@ let draw ctx ~src ~dst ~width ~x box =
       ~x0:(x -. (width /. 16.)) ~x1:(x +. (width /. 16.))
       ~lower:box.stats.conf_lower
       ~upper:box.stats.conf_upper;
-    draw_mean_line ctx box_line_style src tr ~x0 ~x1 ~mean:box.stats.mean;
+    draw_median_line ctx box_line_style src tr ~x0 ~x1 ~median:box.stats.q2;
     draw_box ctx box_line_style src tr ~x0 ~x1
       ~q1:box.stats.q1 ~q3:box.stats.q3;
     Errbar.draw_up ctx ~style:box_line_style ?cap_size:None
