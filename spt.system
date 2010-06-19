@@ -33,6 +33,7 @@ Files:
 "src/factories"
 
 "src/spt-it-out/sexpr"
+"src/spt-it-out/options"
 "src/spt-it-out/eval"
 
 Libraries:
