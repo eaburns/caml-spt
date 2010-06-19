@@ -119,7 +119,7 @@ module Lexer = struct
 	  | ')' -> Stream.junk l.stream; Close_paren l.line_no
 	  | ';' -> junk_comment l; token l
 	  | '"' -> Stream.junk l.stream; lex_string l
-	  | 'a' .. 'z' | 'A' .. 'Z' -> lex_ident l
+	  | ':' | 'a' .. 'z' | 'A' .. 'Z' -> lex_ident l
 	  | '-' | '0' .. '9' -> lex_number l
 	  | ' ' | '\t' -> Stream.junk l.stream; token l
 	  | c -> failwith (sprintf

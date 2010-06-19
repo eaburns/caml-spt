@@ -361,65 +361,6 @@ and eval_triples_cmd env line = function
 	points
   | _ -> failwith (sprintf "line %d: Malformed triples-cmd expression"
 		     line)
-
-(************************************************************)
-(* Plot look-and-feel items.                                *)
-(************************************************************)
-
-and eval_dashes env ds =
-  let lst =
-    List.map
-      (function
-	 | (Sexpr.List (l, _)) as len -> eval_length env len
-	 | x -> failwith (sprintf "line %d: Expected a length"
-			    (Sexpr.line_number x)))
-      ds
-  in Array.of_list lst
-
-
-and eval_color env line operands =
-  (** [eval_color env line operands] evaluates a color. *)
-  let r, g, b, a = match operands with
-    | Sexpr.Number (_, r) :: Sexpr.Number (_, g)
-      :: Sexpr.Number (_, b) :: [] ->
-	r, g, b, 1.
-    | Sexpr.Number (_, r) :: Sexpr.Number (_, g)
-      :: Sexpr.Number (_, b) :: Sexpr.Number (_, a) :: [] ->
-	r, g, b, a
-    | _ -> failwith (sprintf "line %d: Malformed color" line)
-  in Drawing.color ~r:r ~g:g ~b:b ~a:a
-
-
-and eval_length env = function
-    (** [eval_length env operands] evaluates a length. *)
-  | Sexpr.List (_, Sexpr.Ident (_, "in") :: Sexpr.Number (_, i) :: []) ->
-      Length.In i
-  | Sexpr.List (_, Sexpr.Ident (_, "cm") :: Sexpr.Number (_, c) :: []) ->
-      Length.Cm c
-  | Sexpr.List (_, Sexpr.Ident (_, "pt") :: Sexpr.Number (_, p) :: []) ->
-      Length.Pt p
-  | Sexpr.List (_, Sexpr.Ident (_, "px") :: Sexpr.Number (_, p) :: []) ->
-      Length.Px (truncate p)
-  | x -> failwith (sprintf "line %d: Malformed length" (Sexpr.line_number x))
-
-
-and eval_legend_loc env = function
-  | Sexpr.Ident (l, "upper-right") -> Legend.Upper_right
-  | Sexpr.Ident (l, "upper-left") -> Legend.Upper_left
-  | Sexpr.Ident (l, "lower-right") -> Legend.Lower_right
-  | Sexpr.Ident (l, "lower-left") -> Legend.Lower_left
-  | Sexpr.List (_, Sexpr.Ident(_, "at") :: Sexpr.Ident(l, txt_loc)
-		  :: Sexpr.Number(_, x) :: Sexpr.Number(_, y) :: []) ->
-      let txt_loc = match String.lowercase txt_loc with
-	| "text-before" -> Legend.Text_before
-	| "text-after" -> Legend.Text_after
-	| _ -> failwith (sprintf
-			   "line %d: Malformed text location %s"
-			   l "try one of 'text-before' or 'text-after'")
-      in Legend.At (txt_loc, x, y)
-  | x -> failwith (sprintf "line %d: Malformed legend location"
-		     (Sexpr.line_number x))
-
 (************************************************************)
 (* Num-by-num                                               *)
 (************************************************************)
@@ -427,57 +368,30 @@ and eval_legend_loc env = function
 and eval_num_by_num env operands =
   (** [eval_num_by_num env operands] evaluates a num_by_num plot. *)
   let module S = Sexpr in
-  let title = ref None
-  and legend_loc = ref None
-  and xlabel = ref None
-  and ylabel = ref None
-  and x_min = ref None
-  and x_max = ref None
-  and y_min = ref None
-  and y_max = ref None
-  and width = ref None
-  and height = ref None
-  and datasets = ref []
+  let title = ref None and legend_loc = ref None and xlabel = ref None
+  and ylabel = ref None and x_min = ref None and x_max = ref None
+  and y_min = ref None and y_max = ref None and width = ref None
+  and height = ref None and datasets = ref [] in
+  let opts = [
+    Options.legend_loc legend_loc;
+    Options.string_option_ref ":title" title;
+    Options.string_option_ref ":x-label" xlabel;
+    Options.string_option_ref ":y-label" ylabel;
+    Options.length_option_ref ":width" width;
+    Options.length_option_ref ":height" height;
+    Options.number_option_ref ":x-min" x_min;
+    Options.number_option_ref ":x-max" x_max;
+    Options.number_option_ref ":y-min" y_min;
+    Options.number_option_ref ":y-max" y_max;
+    ":dataset", Options.Expr
+      (fun l e -> match eval env e with
+	 | Num_by_num_dataset ds -> datasets := ds :: !datasets
+	 | x ->
+	     failwith (sprintf "line %d: Expected num-by-num dataset got %s"
+			 l (to_string x)))
+  ]
   in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "legend-location") :: loc :: []) ->
-	     set_once legend_loc l "legend-location" (eval_legend_loc env loc)
-	 | S.List (_, S.Ident (l, "title") :: S.String (_, t) :: []) ->
-	     set_once title l "title" t
-	 | S.List (_, S.Ident (l, "x-label") :: S.String (_, t) :: []) ->
-	     set_once xlabel l "x-label" t
-	 | S.List (_, S.Ident (l, "y-label") :: S.String (_, t) :: []) ->
-	     set_once ylabel l "y-label" t
-	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env len)
-	 | S.List (_, S.Ident (l, "height") :: len :: []) ->
-	     set_once height l "height" (eval_length env len)
-	 | S.List (_, S.Ident (l, "x-min") :: S.Number (_, t) :: []) ->
-	     set_once x_min l "x-min" t
-	 | S.List (_, S.Ident (l, "x-max") :: S.Number (_, t) :: []) ->
-	     set_once x_max l "x-max" t
-	 | S.List (_, S.Ident (l, "y-min") :: S.Number (_, t) :: []) ->
-	     set_once y_min l "y-min" t
-	 | S.List (_, S.Ident (l, "y-max") :: S.Number (_, t) :: []) ->
-	     set_once y_max l "y-max" t
-	 | S.List (l, dss) ->
-	     datasets :=
-	       !datasets @
-		 (List.map
-		    (fun e ->
-		       match eval env e with
-			 | Num_by_num_dataset ds -> ds
-			 | x ->
-			     failwith
-			       (sprintf
-				  "line %d: Expected num-by-num dataset got %s"
-				  l (to_string x)))
-		    dss);
-	 | e ->
-	     failwith (sprintf "line %d: Invalid option to a num-by-num plot"
-			 (Sexpr.line_number e))
-      ) operands;
+    Options.handle opts operands;
     let plot = (Num_by_num.plot ?title:!title ?xlabel:!xlabel
 		  ?legend_loc:!legend_loc
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
@@ -492,30 +406,21 @@ and eval_num_by_num env operands =
 and eval_scatter env operands =
   (** [eval_scatter env operands] evaluates a scatter plot dataset. *)
   let module S = Sexpr in
-  let glyph = ref None
-  and color = ref None
-  and radius = ref None
-  and name = ref None
-  and data = ref [| |]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "glyph") :: S.String (_, t) :: []) ->
-	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
-	     set_once radius l "point-radius" (eval_length env len)
-	 | points ->
-	     begin match eval env points with
-	       | Points pts ->
-		   data := Array.append !data pts
-	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  (S.line_number points) (to_string x))
-	     end
-      ) operands;
+  let glyph = ref None and color = ref None and radius = ref None
+  and name = ref None and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.glyph glyph;
+    Options.color color;
+    Options.length_option_ref ":point-radius" radius;
+    ":points", Options.Expr (fun l e -> match eval env e with
+			      | Points pts ->
+				  data := Array.append !data pts
+			      | x -> failwith
+				  (sprintf "line %d: Expected points got %s"
+				     l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.scatter_dataset
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
@@ -529,33 +434,22 @@ and eval_bestfit env operands =
   (** [eval_bestfit env operands] evaluates a line-of-bestfit
       dataset. *)
   let module S = Sexpr in
-  let glyph = ref None
-  and dashes = ref None
-  and color = ref None
-  and radius = ref None
-  and name = ref None
-  and data = ref [| |]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "glyph") :: S.String (_, t) :: []) ->
-	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
-	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	     set_once dashes l "dashes" (eval_dashes env ds)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
-	     set_once radius l "point-radius" (eval_length env len)
-	 | points ->
-	     begin match eval env points with
-	       | Points pts ->
-		   data := Array.append !data pts
-	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  (S.line_number points) (to_string x))
-	     end
-      ) operands;
+  let glyph = ref None and dashes = ref None and color = ref None
+  and radius = ref None and name = ref None and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.glyph glyph;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":point-radius" radius;
+    ":points", Options.Expr (fun l e -> match eval env e with
+			      | Points pts ->
+				  data := Array.append !data pts
+			      | x -> failwith
+				  (sprintf "line %d: Expected points got %s"
+				     l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.bestfit_dataset
 	 ~glyph:(match !glyph with | Some g -> g | None -> env.next_glyph ())
@@ -569,33 +463,22 @@ and eval_bestfit env operands =
 and eval_bubble env operands =
   (** [eval_bubble env operands] evaluates a bubble plot dataset. *)
   let module S = Sexpr in
-  let glyph = ref None
-  and color = ref None
-  and min_radius = ref None
-  and max_radius = ref None
-  and name = ref None
-  and data = ref [| |]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "glyph") :: S.String (_, t) :: []) ->
-	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "min-radius") :: len :: []) ->
-	     set_once min_radius l "min-radius" (eval_length env len)
-	 | S.List (_, S.Ident (l, "max-radius") :: len :: []) ->
-	     set_once max_radius l "max-radius" (eval_length env len)
-	 | triples ->
-	     begin match eval env triples with
-	       | Triples pts ->
-		   data := Array.append !data pts
-	       | x -> failwith (sprintf "line %d: Expected triples got %s"
-				  (S.line_number triples) (to_string x))
-	     end
-      ) operands;
+  let glyph = ref None and color = ref None and min_radius = ref None
+  and max_radius = ref None and name = ref None and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.glyph glyph;
+    Options.color color;
+    Options.length_option_ref ":min-radius" min_radius;
+    Options.length_option_ref ":max-radius" max_radius;
+    ":triples", Options.Expr (fun l e -> match eval env e with
+			       | Triples trps ->
+				  data := Array.append !data trps
+			      | x -> failwith
+				  (sprintf "line %d: Expected triples got %s"
+				     l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.bubble_dataset
 	 ?glyph:!glyph
@@ -609,30 +492,21 @@ and eval_bubble env operands =
 and eval_line env operands =
   (** [eval_line env operands] evaluates a line dataset. *)
   let module S = Sexpr in
-  let dashes = ref None
-  and color = ref None
-  and width = ref None
-  and name = ref None
-  and data = ref [| |]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	     set_once dashes l "dashes" (eval_dashes env ds)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "line-width") :: len :: []) ->
-	     set_once width l "line-width" (eval_length env len)
-	 | points ->
-	     begin match eval env points with
-	       | Points pts ->
-		   data := Array.append !data pts
-	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  (S.line_number points) (to_string x))
-	     end
-      ) operands;
+  let dashes = ref None and color = ref None and width = ref None
+  and name = ref None and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    ":points", Options.Expr (fun l e -> match eval env e with
+			      | Points pts ->
+				  data := Array.append !data pts
+			      | x -> failwith
+				  (sprintf "line %d: Expected points got %s"
+				     l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.line_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -646,36 +520,24 @@ and eval_line_points env operands =
   (** [eval_line_points env operands] evaluates a line and points
       dataset. *)
   let module S = Sexpr in
-  let dashes = ref None
-  and glyph = ref None
-  and radius = ref None
-  and color = ref None
-  and width = ref None
-  and name = ref None
-  and data = ref [| |]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "glyph") :: S.String (_, t) :: []) ->
-	     set_once glyph l "glyph" (Drawing.glyph_of_string t)
-	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	     set_once dashes l "dashes" (eval_dashes env ds)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "line-width") :: len :: []) ->
-	     set_once width l "line-width" (eval_length env len)
-	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
-	     set_once radius l "point-radius" (eval_length env len)
-	 | points ->
-	     begin match eval env points with
-	       | Points pts ->
-		   data := Array.append !data pts
-	       | x -> failwith (sprintf "line %d: Expected points got %s"
-				  (S.line_number points) (to_string x))
-	     end
-      ) operands;
+  let dashes = ref None and glyph = ref None and radius = ref None
+  and color = ref None and width = ref None and name = ref None
+  and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.glyph glyph;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    Options.length_option_ref ":point-radius" radius;
+    ":points", Options.Expr (fun l e -> match eval env e with
+			      | Points pts ->
+				  data := Array.append !data pts
+			      | x -> failwith
+				  (sprintf "line %d: Expected points got %s"
+				     l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.line_points_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -691,35 +553,24 @@ and eval_line_errbar env operands =
   (** [eval_line_errbar env operands] evaluates a line and error bar
       dataset. *)
   let module S = Sexpr in
-  let dashes = ref None
-  and color = ref None
-  and width = ref None
-  and name = ref None
-  and data = ref [ ]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	     set_once dashes l "dashes" (eval_dashes env ds)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "line_width") :: len :: []) ->
-	     set_once width l "line_width" (eval_length env len)
-	 | S.List (l, point_sets) ->
-	     List.iter
-	       (fun points -> match eval env points with
-		  | Points pts ->
-		      data := pts :: !data
-		  | x -> failwith (sprintf "line %d: Expected points got %s"
-				     (Sexpr.line_number points) (to_string x)))
-	       point_sets
-	 | e ->
-	     failwith (sprintf
-			 "line %d: Invalid option to a line-errbar dataset"
-			 (Sexpr.line_number e))
-      ) operands;
+  let dashes = ref None and color = ref None and width = ref None
+  and name = ref None and data = ref [ ] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    ":lines",
+    Options.List
+      (fun l lines ->
+	 List.iter (fun e -> match eval env e with
+		      | Points pts -> data := pts :: !data
+		      | x -> failwith
+			  (sprintf "line %d: Expected points got %s"
+			     l (to_string x)))
+	   lines);
+  ] in
+    Options.handle opts operands;
     let style = match !dashes with
       | Some d -> { (env.next_line_errbar ()) with Num_by_num.dashes = d }
       | None -> env.next_line_errbar ()
@@ -737,33 +588,22 @@ and eval_histogram env line operands =
   (** [eval_histogram env line operands] evaluates a histogram
       dataset. *)
   let module S = Sexpr in
-  let dashes = ref None
-  and color = ref None
-  and width = ref None
-  and bin_width = ref None
-  and name = ref None
-  and data = ref [| |]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	     set_once dashes l "dashes" (eval_dashes env ds)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "line-width") :: len :: []) ->
-	     set_once width l "line-width" (eval_length env len)
-	 | S.List (_, S.Ident (l, "bin-width") :: S.Number(_, w) :: []) ->
-	     set_once bin_width l "bin-width" w
-	 | floats ->
-	     begin match eval env floats with
-	       | Scalars vls ->
-		   data := Array.append !data vls
-	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
-				  (S.line_number floats) (to_string x))
-	     end
-      ) operands;
+  let dashes = ref None and color = ref None and width = ref None
+  and bin_width = ref None and name = ref None and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    Options.number_option_ref ":bin-width" bin_width;
+    ":values", Options.Expr (fun l e -> match eval env e with
+			      | Scalars vls ->
+				  data := Array.append !data vls
+			      | x -> failwith
+				  (sprintf "line %d: Expected values got %s"
+				     l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.histogram_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -775,30 +615,21 @@ and eval_cdf env line operands =
   (** [eval_cdf env line operands] evaluates a cumulative density
       dataset. *)
   let module S = Sexpr in
-  let dashes = ref None
-  and color = ref None
-  and width = ref None
-  and name = ref None
-  and data = ref [| |]
-  in
-    List.iter
-      (fun op -> match op with
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
-	     set_once name l "name" t
-	 | S.List (_, S.Ident (l, "dashes") :: S.List (_, ds) :: []) ->
-	     set_once dashes l "dashes" (eval_dashes env ds)
-	 | S.List (_, S.Ident (l, "color") :: operands) ->
-	     set_once color l "color" (eval_color env l operands)
-	 | S.List (_, S.Ident (l, "line_width") :: len :: []) ->
-	     set_once width l "line_width" (eval_length env len)
-	 | floats ->
-	     begin match eval env floats with
-	       | Scalars vls ->
-		   data := Array.append !data vls
-	       | x -> failwith (sprintf "line %d: Expected scalars got %s"
-				  (S.line_number floats) (to_string x))
-	     end
-      ) operands;
+  let dashes = ref None and color = ref None and width = ref None
+  and name = ref None and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    ":values", Options.Expr (fun l e -> match eval env e with
+			      | Scalars vls ->
+				  data := Array.append !data vls
+			      | x -> failwith
+				  (sprintf "line %d: Expected values got %s"
+				     l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.cdf_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -809,30 +640,17 @@ and eval_num_by_num_composite env operands =
   (** [eval_num_by_num_composite env operands] evaluates a composite
       num-by-num dataset. *)
   let module S = Sexpr in
-  let name = ref None
-  and dss = ref [] in
-    List.iter
-      (function
-	 | S.List (_, S.Ident (l, "name") :: S.String (_, n) :: []) ->
-	     set_once name l "name" n
-	 | S.List (_, datasets) ->
-	     dss := !dss @
-	       (List.map
-		  (fun expr -> match eval env expr with
-		     | Num_by_num_dataset ds -> ds
-		     | e ->
-			 failwith
-			   (sprintf
-			      "line %d: Expected a num-by-num dataset got %s"
-			      (Sexpr.line_number expr) (to_string e))
-		  )
-		  datasets)
-	 | e ->
-	     failwith
-	       (sprintf
-		  "line %d: Invalid option to a num-by-num-composite dataset"
-		  (Sexpr.line_number e)))
-      operands;
+  let name = ref None and dss = ref [] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    ":dataset",
+    Options.Expr (fun l e -> match eval env e with
+		   | Num_by_num_dataset ds -> dss := ds :: !dss
+		   | x -> failwith
+		       (sprintf "line %d: Expected num-by-num dataset got %s"
+			  l (to_string x)));
+  ] in
+    Options.handle opts operands;
     Num_by_num_dataset
       (Num_by_num.composite_dataset ?name:!name (List.rev !dss))
 
@@ -862,9 +680,9 @@ and eval_num_by_nom env operands =
 	 | S.List (_, S.Ident (l, "y-max") :: S.Number (_, t) :: []) ->
 	     set_once y_max l "y-max" t
 	 | S.List (_, S.Ident (l, "width") :: len :: []) ->
-	     set_once width l "width" (eval_length env len)
+	     set_once width l "width" (Options.eval_length len)
 	 | S.List (_, S.Ident (l, "height") :: len :: []) ->
-	     set_once height l "height" (eval_length env len)
+	     set_once height l "height" (Options.eval_length len)
 	 | S.List (l, dss) ->
 	     datasets :=
 	       !datasets @
@@ -903,7 +721,7 @@ and eval_boxplot env line operands =
 	 | S.List (_, S.Ident (l, "name") :: S.String (_, t) :: []) ->
 	     set_once name l "name" t
 	 | S.List (_, S.Ident (l, "point-radius") :: len :: []) ->
-	     set_once radius l "point-radius" (eval_length env len)
+	     set_once radius l "point-radius" (Options.eval_length len)
 	 | floats ->
 	     begin match eval env floats with
 	       | Scalars vls ->
