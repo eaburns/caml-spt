@@ -118,21 +118,6 @@ functions in \sio.  Example:
 Creates a plot with numeric x and y axes.
 \end{verbatim}
 
-\subsection{{\tt Output} and {\tt Display}}
-
-\begin{description}
-
-\item[{\tt (output <string> <plot>)}]
-Output the given plot to the given
-file.  The first argument is a file name string.  The extension given
-in the file name dictates the output file format.  The format can be
-any one supported by {\tt spt}: .pdf, .ps or .png.  The second
-argument is a plot expression.
-
-\item [{\tt (display <plot>)}] Displays the given plot using GTK.
-\end{description}
-
-
 \subsection{Lengths}
 
 Lengths can be used to specify the size of things.  Lengths can be
@@ -223,6 +208,20 @@ called ``data.dat'' that contained the numbers ``0 0 1 1 2 2 3 3 4 4 5
 Notice how it is now simple to specify a list of values, points or
 triples by simply reading in a file or executing a command that
 results in a stream of numbers.
+
+\section{Outputting and Displaying Plots}
+
+\begin{description}
+\item[{\tt (output <string> <plot>)}]
+Output the given plot to the given
+file.  The first argument is a file name string.  The extension given
+in the file name dictates the output file format.  The format can be
+any one supported by {\tt spt}: .pdf, .ps or .png.  The second
+argument is a plot expression.
+
+\item [{\tt (display <plot>)}] Displays the given plot using GTK.
+\end{description}
+
 
 \section{\label{sect:num-by-num} Numeric by Numeric Plots}
 
