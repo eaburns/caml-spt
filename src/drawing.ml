@@ -40,6 +40,10 @@ let scale ctx x y = Cairo.scale ctx.cairo x y
 
 type color = { r : float; g : float; b : float; a : float}
 
+
+let string_of_color c =
+  Printf.sprintf "r=%f,g=%f,b=%f,a=%f" c.r c.g c.b c.a
+
 let font_slant_normal = Cairo.FONT_SLANT_NORMAL
 
 let font_weight_normal = Cairo.FONT_WEIGHT_NORMAL

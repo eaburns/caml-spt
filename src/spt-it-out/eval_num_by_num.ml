@@ -354,7 +354,7 @@ let eval_num_by_num_composite eval_rec env line operands =
 		    | Num_by_num_dataset ds -> dss := ds :: !dss
 		    | x ->
 			printf "line %d: Expected num-by-num dataset got %s\n"
-			  l (value_to_string x);
+			  l (value_name x);
 			raise (Evaluate.Invalid_argument l));
   ] in
     Options.handle opts operands;
@@ -399,7 +399,7 @@ let eval_num_by_num_plot eval_rec env line operands =
 	 | Num_by_num_dataset ds -> datasets := ds :: !datasets
 	 | x ->
 	     printf "line %d: Expected num-by-num dataset got %s\n"
-	       l (value_to_string x);
+	       l (value_name x);
 	     raise (Evaluate.Invalid_argument l))
   ]
   in

@@ -1,18 +1,15 @@
-(let* ((line0 (points (0 0) (1 0)))
-       (line1 (points (1 1) (2 1)))
-       (line2 (points (2 2) (3 2)))
-       (line-ds0 (line-dataset :dashes () :points line0))
-       (line-ds1 (line-dataset :dashes () :points line1))
-       (line-ds2 (line-dataset :dashes () :points line2))
-       (dataset0 (num-by-num-composite
-		  :name "Step function"
-		  :dataset line-ds0
-		  :dataset line-ds1
-		  :dataset line-ds2))
+(let* ((values0 (0 0 1 1 2 2 3 3 4 4 5 5))
+       (points0 ((0 0) (1 1) (2 2) (3 3) (4 4) (5 5)))
+       (triples0 ((0 0 1) (1 2 2) (3 3 4) (4 5 5)))
+       (dataset0 (histogram-dataset :values values0))
+       (dataset1 (line-points-dataset :points points0))
+       (dataset2 (bubble-dataset :triples triples0))
        (plot0 (num-by-num-plot
 	       :legend (legend-location :lower-right)
-	       :dataset dataset0)))
-  (output "step_func.pdf" plot0))
+	       :dataset dataset0
+	       :dataset dataset1
+	       :dataset dataset2)))
+  (print values0 "\n" points0 "\n" triples0 "\n"))
 
 
 

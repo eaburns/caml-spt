@@ -43,7 +43,7 @@ expression:
          :dataset (line-dataset
                    :name "Line0"
                    :color (color :r 1.)
-                   :points (points (0 0) (1 1) (2 2)))))
+                   :points ((0 0) (1 1) (2 2)))))
 \end{verbatim}
 
 The base expression is an {\tt output} expression.  The {\tt output}
@@ -68,7 +68,7 @@ could be re-written:
 (let* ((dataset0 (line-dataset
                   :name "Line0"
                   :color (color :r 1.)
-                  :points (points (0 0) (1 1) (2 2))))
+                  :points ((0 0) (1 1) (2 2))))
        (plot0 (num-by-num-plot
                :title "The Title"
                :x-label "X Variable"
@@ -264,9 +264,9 @@ As an example, the following expression will create the plot shown in
 Figure~\ref{fig:line_err}:
 
 \begin{verbatim}
-(let* ((line0 (points (0 0) (1 1) (2 2)))
-       (line1 (points (0 -1) (1 0) (2 1)))
-       (line2 (points (0 1) (1 2) (2 3)))
+(let* ((line0 ((0 0) (1 1) (2 2)))
+       (line1 ((0 -1) (1 0) (2 1)))
+       (line2 ((0 1) (1 2) (2 3)))
        (dataset0 (line-errbar-dataset
                   :name "Line with errar bars"
                   :lines (line0 line1 line2)))
@@ -319,9 +319,9 @@ example, the following expression will create a step function shown in
 Figure~\ref{fig:step} by compositing three line datasets:
 
 \begin{verbatim}
-(let* ((line0 (points (0 0) (1 0)))
-       (line1 (points (1 1) (2 1)))
-       (line2 (points (2 2) (3 2)))
+(let* ((line0 ((0 0) (1 0)))
+       (line1 ((1 1) (2 1)))
+       (line2 ((2 2) (3 2)))
        (line-ds0 (line-dataset :dashes () :points line0))
        (line-ds1 (line-dataset :dashes () :points line1))
        (line-ds2 (line-dataset :dashes () :points line2))

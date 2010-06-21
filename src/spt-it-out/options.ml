@@ -106,7 +106,7 @@ let length_option_ref eval_rec env opt r =
 	       | Length length -> set_once r l opt length
 	       | x ->
 		   printf "line %d: Expected length, get %s\n"
-		     (Sexpr.line_number e) (value_to_string x);
+		     (Sexpr.line_number e) (value_name x);
 		   raise (Invalid_argument (Sexpr.line_number e));)
 
 
@@ -119,7 +119,7 @@ let dashes eval_rec env r =
 			    | Evaluate.Length n -> n
 			    | x ->
 				printf "line %d: Expected length, got %s\n"
-				  (Sexpr.line_number e) (value_to_string x);
+				  (Sexpr.line_number e) (value_name x);
 				raise (Invalid_argument (Sexpr.line_number e)))
 		  ds)))
 
@@ -133,7 +133,7 @@ let color eval_rec env r =
 		    | Color color -> set_once r l ":color" color
 		    | x ->
 			printf "line %d: Expected color, got %s\n"
-			  (Sexpr.line_number e) (value_to_string x);
+			  (Sexpr.line_number e) (value_name x);
 			raise (Invalid_argument (Sexpr.line_number e));)
 
 let legend eval_rec env r =
@@ -142,7 +142,7 @@ let legend eval_rec env r =
 	  | Evaluate.Legend_loc loc -> set_once r l ":legend" loc
 	  | x ->
 	      printf "line %d: Expected legend location, got %s\n"
-		(Sexpr.line_number e) (value_to_string x);
+		(Sexpr.line_number e) (value_name x);
 	      raise (Invalid_argument (Sexpr.line_number e)))
 
 

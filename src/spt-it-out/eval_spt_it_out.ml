@@ -19,9 +19,9 @@ let eval_display eval_rec env line operands =
        | (Num_by_nom_plot p) as vl -> p#display; vl
        | x ->
 	   printf "line %d: Expected plot, got %s\n"
-	     (Sexpr.line_number p) (value_to_string x);
+	     (Sexpr.line_number p) (value_name x);
 	   raise (Evaluate.Invalid_argument (Sexpr.line_number p)))
-    Unit operands
+    unit_value operands
 
 let help_str_display =
   "(display <plot>+)\n\
@@ -39,7 +39,7 @@ let eval_output eval_rec env line = function
 	| (Num_by_nom_plot p) as vl -> p#output filename; vl
        | x ->
 	   printf "line %d: Expected plot, got %s\n"
-	     (Sexpr.line_number p) (value_to_string x);
+	     (Sexpr.line_number p) (value_name x);
 	   raise (Evaluate.Invalid_argument (Sexpr.line_number p))
       end
   | x :: _ -> raise (Evaluate.Invalid_argument (Sexpr.line_number x))
@@ -76,11 +76,11 @@ and eval_help eval_rec env line = function
 	      List.find (fun (n, _, _) -> n = id) fs
 	    in
 	      printf "%s\n" help_str;
-	      Unit
+	      unit_value
 	  with Not_found ->
 	    printf "%s is not a function name, try one of:\n" id;
 	    List.iter (fun (n, _, _) -> Printf.printf "\t%s\n" n) fs;
-	    Unit
+	    unit_value
 	end
   | x :: _ ->
       printf "line %d: Expected identifier\n" (Sexpr.line_number x);
