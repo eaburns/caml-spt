@@ -14,7 +14,7 @@ let eval_legend_location eval_rec env line = function
   | Sexpr.Ident (l, ":upper-left") :: [] -> Legend_loc Legend.Upper_left
   | Sexpr.Ident (l, ":lower-right") :: [] -> Legend_loc Legend.Lower_right
   | Sexpr.Ident (l, ":lower-left") :: [] -> Legend_loc Legend.Lower_left
-  | Sexpr.List (_, Sexpr.Ident(_, ":legend-at") :: Sexpr.Ident(l, txt_loc)
+  | Sexpr.List (_, Sexpr.Ident(_, "legend-at") :: Sexpr.Ident(l, txt_loc)
 		  :: Sexpr.Number(_, x) :: Sexpr.Number(_, y) :: []) :: [] ->
       let txt_loc = match String.lowercase txt_loc with
 	| ":text-before" -> Legend.Text_before
@@ -39,7 +39,7 @@ Creates a legend location, one of:\n\
 \t:upper-left\n\
 \t:lower-right\n\
 \t:lower-left\n\
-\t:legend-at [:text-before|:text-after]"
+\t(legend-at [:text-before|:text-after] <number> <number>)"
 
 
 let eval_scatter eval_rec env line operands =
@@ -419,7 +419,7 @@ let help_str_num_by_num_plot =
   "(num-by-num-plot [:title <string>] [:x-label <string>]\n\
  [:y-label <string>] [:width <length>] [:height <length>]\n\
  [:x-min <number>] [:x-max <number>] [:y-min <number>] [:y-max <number>]\n\
- [:dataset <num-by-num-dataset>]+)\n\
+ [:legend <legend location>] [:dataset <num-by-num-dataset>]+)\n\
 Creates a plot with numeric x and y axes."
 
 

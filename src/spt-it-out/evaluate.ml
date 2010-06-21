@@ -103,15 +103,15 @@ let eval_let eval_rec env line = function
 	of a let expression. *)
   | Sexpr.List (_, bindings) :: (Sexpr.List (_, _) as expr) :: [] ->
       let binds =
-	List.fold_right
-	  (fun b l ->
+	List.fold_left
+	  (fun lst b ->
 	     match b with
 	       | Sexpr.List (_, Sexpr.Ident (_, name) :: value :: []) ->
-		   (name, eval_rec env value) :: l
+		   (name, eval_rec env value) :: lst
 	       | e ->
 		   failwith (sprintf "line %d: Malformed binding"
 			       (Sexpr.line_number e)))
-	  bindings []
+	  [] bindings
       in
 	eval_rec {env with bindings = (binds @ env.bindings)} expr
   | e :: _ ->
@@ -127,6 +127,37 @@ let help_str_let =
 Binds the value of <expr#> to the identifier <ident#> and then \n\
 evaluates <expr> with the given set of bindings.  The result is \n\
 the result of <expr>."
+
+
+let eval_letstar eval_rec env line = function
+    (** [eval_letstar eval_rec env line operands] evaluates the
+	operands of a letrec expression. *)
+  | Sexpr.List (_, bindings) :: (Sexpr.List (_, _) as expr) :: [] ->
+      let env' =
+	List.fold_left
+	  (fun env' b ->
+	     match b with
+	       | Sexpr.List (_, Sexpr.Ident (_, name) :: value :: []) ->
+		   let b = name, eval_rec env' value in
+		     {env with bindings =  b :: env'.bindings}
+	       | e ->
+		   failwith (sprintf "line %d: Malformed binding"
+			       (Sexpr.line_number e)))
+	  env bindings
+      in
+	eval_rec env' expr
+  | e :: _ ->
+      printf "line %d: Malformed let* statement\n" line;
+      raise (Invalid_argument line)
+  | [] ->
+      printf "line %d: let* expression: Unexpected end of file\n" line;
+      raise (Invalid_argument line)
+
+
+let help_str_letstar =
+  "(letrec ([(<ident#> <expr#>)]+) (<expr>))\n\
+The same as a let function except that expressions in the binding\n\
+list can refer to previous bindings in the same list."
 
 
 let eval_print eval_rec env line operands =
@@ -187,5 +218,6 @@ information."
 
 let functions = [
   "let", eval_let, help_str_let;
+  "let*", eval_letstar, help_str_letstar;
   "print", eval_print, help_str_print;
 ]
