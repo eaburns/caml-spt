@@ -21,18 +21,29 @@ let parse_args () =
 	 if !file <> ""
 	 then invalid_arg "Specify only one input file (-h for help)"
 	 else file := s)
-      "./spt-it-out [-v <level 0-3>] <input file>";
-    !file, !verb
+      "./spt-it-out [-v <level 0-3>] [<input file>]";
+    let ichan = if !file = "" then stdin else open_in !file in
+      ichan, !verb
 
 
 let main () =
-  let file, verb = parse_args () in
+  let ichan, verb = parse_args () in
     vprintf verb_normal "spt-it-out version %3.1f\n" version;
     Verb_level.set verb;
-    let inch = open_in file in
-    let ast = Sexpr.parse (Stream.of_channel inch) in
-      ignore (Eval_spt_it_out.eval Evaluate.init_environment ast);
-      close_in inch
+    if ichan = stdin
+    then begin
+      try
+	while true do
+	  Printf.printf "> %!";
+	  let ast = Sexpr.parse (Stream.of_channel ichan) in
+	    ignore (Eval_spt_it_out.eval Evaluate.init_environment ast);
+	done;
+      with End_of_file -> ()
+    end else begin
+      let ast = Sexpr.parse (Stream.of_channel ichan) in
+	ignore (Eval_spt_it_out.eval Evaluate.init_environment ast);
+	close_in ichan
+    end
 
 
 let _ = main ()

@@ -51,10 +51,15 @@ let help_str_output =
 The resulting value is the last plot that was output."
 
 
-let functions =
+let rec functions () =
   [
     "display", eval_display, help_str_display;
     "output", eval_output, help_str_output;
+
+    "help", eval_help,
+    "(help <ident>)\nOutputs help information for a function";
+
+    "quit", (fun _ _ _ _ -> raise End_of_file), "(quit)\nQuits";
   ]
   @ Evaluate.functions
   @ Options.functions
@@ -62,6 +67,28 @@ let functions =
   @ Eval_num_by_num.functions
   @ Eval_num_by_nom.functions
 
+and eval_help eval_rec env line = function
+  | Sexpr.Ident (lid, id) :: [] ->
+      let fs = functions () in
+	begin
+	  try
+	    let _, _, help_str =
+	      List.find (fun (n, _, _) -> n = id) fs
+	    in
+	      printf "%s\n" help_str;
+	      Unit
+	  with Not_found ->
+	    printf "%s is not a function name, try one of:\n" id;
+	    List.iter (fun (n, _, _) -> Printf.printf "\t%s\n" n) fs;
+	    Unit
+	end
+  | x :: _ ->
+      printf "line %d: Expected identifier\n" (Sexpr.line_number x);
+      raise (Invalid_argument (Sexpr.line_number x));
+  | [] ->
+      printf "line %d: Expected identifier\n" line;
+      raise (Invalid_argument line)
 
-let rec eval env expr = Evaluate.evaluate functions eval env expr
+
+let rec eval env expr = Evaluate.evaluate (functions ()) eval env expr
   (** [eval env expr] evaluates a spt-it-out expression. *)
