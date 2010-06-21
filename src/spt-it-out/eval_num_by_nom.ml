@@ -109,7 +109,7 @@ let eval_num_by_nom_group eval_rec env line operands =
 		    | Num_by_nom_dataset ds -> dss := ds :: !dss
 		    | x ->
 			printf "line %d: Expected num-by-nom dataset got %s\n"
-			  l (value_to_string x);
+			  l (value_name x);
 			raise (Evaluate.Invalid_argument l));
   ]
   in
@@ -154,7 +154,7 @@ let eval_num_by_nom_plot eval_rec env line operands =
 	 | Num_by_nom_dataset ds -> datasets := ds :: !datasets
 	 | x ->
 	     printf "line %d: Expected num-by-nom dataset got %s\n"
-	       l (value_to_string x);
+	       l (value_name x);
 	     raise (Evaluate.Invalid_argument l))
   ]
   in
