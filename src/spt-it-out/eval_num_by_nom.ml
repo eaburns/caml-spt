@@ -121,7 +121,7 @@ let eval_num_by_nom_group eval_rec env line operands =
 	  raise (Evaluate.Invalid_argument line)
       | Some n ->
 	  Num_by_nom_dataset
-	    (Num_by_nom.dataset_group n !dss)
+	    (Num_by_nom.dataset_group n (List.rev !dss))
 
 
 let help_str_num_by_nom_group =
@@ -141,6 +141,7 @@ let eval_num_by_nom_plot eval_rec env line operands =
   and y_max = ref None
   and width = ref None
   and height = ref None
+  and horizs = ref []
   and datasets = ref [] in
   let opts = [
     Options.string_option_ref ":title" title;
@@ -149,6 +150,13 @@ let eval_num_by_nom_plot eval_rec env line operands =
     Options.length_option_ref eval_rec env ":height" height;
     Options.number_option_ref ":y-min" y_min;
     Options.number_option_ref ":y-max" y_max;
+    ":horiz-line", Options.Expr
+      (fun l e -> match eval_rec env e with
+	 | Number n -> horizs := n :: !horizs
+	 | x ->
+	     printf "line %d: Expected number, got %s\n"
+	       l (value_name x);
+	     raise (Evaluate.Invalid_argument l));
     ":dataset", Options.Expr
       (fun l e -> match eval_rec env e with
 	 | Num_by_nom_dataset ds -> datasets := ds :: !datasets
@@ -160,7 +168,7 @@ let eval_num_by_nom_plot eval_rec env line operands =
   in
     Options.handle opts operands;
     let plot = (Num_by_nom.plot ?title:!title ?ylabel:!ylabel
-		  ?y_min:!y_min ?y_max:!y_max !datasets)
+		  ?y_min:!y_min ?y_max:!y_max (List.rev !datasets))
     in
     let width = match !width with None -> plot#width | Some w -> w in
     let height = match !height with None -> plot#height | Some h -> h in
@@ -171,8 +179,10 @@ let eval_num_by_nom_plot eval_rec env line operands =
 let help_str_num_by_nom_plot =
   "(num-by-nom-plot [:title <string>] [:y-label <string>]\n\
  [:width <length>] [:height <length>] [:y-max <number>]\n\
- [:y-min <number>] [:dataset <dataset>]+)\n\
-Creates a new plot with a numeric y-axis and a nominal x-axis."
+ [:y-min <number>] [:horiz-line <number>] [:dataset <dataset>]+)\n\
+Creates a new plot with a numeric y-axis and a nominal x-axis.\n\
+The :horiz-line allows horizontal lines to be drawn across the\n\
+with of the plot for reference."
 
 
 let functions = [

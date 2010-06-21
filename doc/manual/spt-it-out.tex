@@ -12,7 +12,7 @@
 \begin{document}
 \maketitle
 
-\section{Introduction}
+\section{\label{sect:intro} Introduction}
 \begin{center}
 {\tt spt-it-out [<infile>]}
 \end{center}
@@ -222,11 +222,19 @@ argument is a plot expression.
 \item [{\tt (display <plot>)}] Displays the given plot using GTK.
 \end{description}
 
+\section{Functions with Option Lists}
+
+Some functions take their arguments as options lists in the form: {\tt
+  [<option> <value>]*} where {\tt <option>} is an identifier beginning
+with a ``:'' and {\tt <value>} is an expression that is the value of
+the given option.  The simple plot in Figure~\ref{fig:simp} is created
+using the {\tt num-by-num-plot} and {\tt line-dataset} functions.
+Both of these are examples of functions that use option lists.
 
 \section{\label{sect:num-by-num} Numeric by Numeric Plots}
 
-Numeric by numeric plots are standard plots with numeric x and y
-axes.  They are created using the {\tt num-by-num-plot} function.  The
+Numeric by numeric plots are standard plots with numeric x and y axes.
+These plots are created using the {\tt num-by-num-plot} function.  The
 {\tt num-by-num-plot} function has the following options:
 
 \begin{center}
@@ -448,6 +456,116 @@ Figure~\ref{fig:step} by compositing three line datasets:
 
 Numeric by nominal plots are plots with an numeric y-axis but a
 nominal x axis.  In this type if plot, each dataset is allocated a
-fixed width of the x axis into which it will be displayed.
+fixed width of the x axis into which it will be displayed.  These
+types of plots are created using the {\tt num-by-nom-plot} function
+that takes the following options:
+
+
+\begin{center}
+\begin{tabular}{lll}
+Option & Default & Notes \\
+\hline
+:title & & Plot title text\\
+:y-label & & Y label text\\
+:width & 4in & The width of the plot\\
+:height & 4in & The height of the plot\\
+:y-min & & The minimum y-axis value\\
+:y-max & & The maximum y-axis value\\
+:horiz-line & & The y-value of an optional horizontal line\\
+:dataset & & A dataset to add to the plot.  (See below for available
+datasets).\\
+\end{tabular}
+\end{center}
+
+\subsection{Numeric by Nominal Datasets}
+
+The following are the available numeric by nominal datasets:
+
+\subsubsection{\tt boxplot-dataset}
+
+Makes a boxplot dataset.
+
+\begin{center}
+\begin{tabular}{lll}
+Option & Default & Notes \\
+\hline
+:name & & The name (required)\\
+:point-radius & 2pt & The radius of the glyphs\\
+:values & & The data values as a list of numbers\\
+\end{tabular}
+\end{center}
+
+\subsubsection{\tt barchart-dataset}
+
+Makes a single bar for a barchart.
+
+\begin{center}
+\begin{tabular}{lll}
+Option & Default & Notes \\
+\hline
+:name & & The name (required)\\
+:value & & The data value as a number\\
+\end{tabular}
+\end{center}
+
+\subsubsection{\tt barchart-errbar-dataset}
+
+Makes a single bar for a barchart where the height of the bar is the
+mean of a set of values and an error bar shows the 95\% confidence
+interval.
+
+\begin{center}
+\begin{tabular}{lll}
+Option & Default & Notes \\
+\hline
+:name & & The name (required)\\
+:values & & The data values as a list of numbers\\
+\end{tabular}
+\end{center}
+
+\subsubsection{\tt num-by-num-group}
+
+Groups a set of numeric by nominal datasets.  This will draw an
+over-bar above the names of the datasets in the group and an optional
+group name centered beneath the names in the group.
+
+\begin{center}
+\begin{tabular}{lll}
+Option & Default & Notes \\
+\hline
+:name & & The name\\
+:dataset & & A data set to group\\
+\end{tabular}
+\end{center}
+
+For example, the following expression creates a numeric by nominal
+plot with two groups, one of boxplots and one of bar charts with error
+bars shown in Figure~\ref{fig:num_by_nom}:
+\begin{verbatim}
+(let* ((values0 (0 0 1 1 2 2 3 3 4 4 5 5))
+       (group-0-0 (boxplot-dataset :name "box0" :values values0))
+       (group-0-1 (boxplot-dataset :name "box1" :values values0))
+       (group-0-2 (boxplot-dataset :name "box2" :values values0))
+       (group-1-0 (barchart-errbar-dataset :name "box0" :values values0))
+       (group-1-1 (barchart-errbar-dataset :name "box1" :values values0))
+       (group-1-2 (barchart-errbar-dataset :name "box2" :values values0))
+       (dataset0 (num-by-nom-group :name "group0"
+                                   :dataset group-0-0
+                                   :dataset group-0-1
+                                   :dataset group-0-2))
+       (dataset1 (num-by-nom-group :name "group1"
+                                   :dataset group-1-0
+                                   :dataset group-1-1
+                                   :dataset group-1-2))
+       (plot0 (num-by-nom-plot :dataset dataset0 :dataset dataset1)))
+  (output "num_by_nom.pdf" plot0))
+\end{verbatim}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics{num_by_nom}
+\caption{\label{fig:num_by_nom}A numeric by nominal plot with groups.}
+\end{center}
+\end{figure}
 
 \end{document}
