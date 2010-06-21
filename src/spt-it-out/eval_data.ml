@@ -20,37 +20,6 @@ let read_floats inch =
       List (Array.of_list (List.rev !floats))
 
 
-let read_points inch =
-  (** [read_points inch] reads the points from the given channel. *)
-  let points = ref [] in
-    try (while true do
-	   let p =
-	     Scanf.fscanf inch " %f %f"
-	       (fun x y  -> List [| Number x; Number y |])
-	   in
-	     points := p :: !points
-	 done;
-	 failwith "Impossible")
-    with End_of_file ->
-      List (Array.of_list (List.rev !points))
-
-
-let read_triples inch =
-  (** [read_triples inch] reads the triples from the given channel. *)
-  let triples = ref [] in
-    try (while true do
-	   let t =
-	     Scanf.fscanf inch " %f %f %f"
-	       (fun i j k  -> List [| Number i; Number j; Number k |])
-	   in
-	     triples := t :: !triples
-	 done;
-	 failwith "Impossible")
-    with End_of_file ->
-      List (Array.of_list (List.rev !triples))
-
-
-
 (** {1 Convenience} ****************************************)
 
 let scalars eval_rec env exp = match eval_rec env exp with
@@ -89,8 +58,9 @@ let rec triples eval_rec env exp = match eval_rec env exp with
 
 (** {1 Functions} ****************************************)
 
-let eval_scalars_file eval_rec env line = function
-    (** [eval_scalars_file eval_rec env line operands] evaluates a
+
+let eval_data_file eval_rec env line = function
+    (** [eval_data_file eval_rec env line operands] evaluates a
 	scalar file. *)
   | Sexpr.String (l, file) :: [] ->
       let inch = open_in file in
@@ -98,19 +68,18 @@ let eval_scalars_file eval_rec env line = function
 	close_in inch;
 	floats
   | _ ->
-      printf "line %d: Malformed scalar-file expression" line;
+      printf "line %d: Malformed data-file expression" line;
       raise (Evaluate.Invalid_argument line)
 
 
-let help_str_scalars_file =
+let help_str_data_file =
   "(scalars-file <string>)\n\
 Opens the given file and reads in floating point numbers in ASCII\n\
 format."
 
 
-
-let eval_scalars_cmd eval_rec env line = function
-    (** [eval_scalars_cmd eval_rec env line operands] evaluates a
+let eval_data_cmd eval_rec env line = function
+    (** [eval_data_cmd eval_rec env line operands] evaluates a
 	scalar command. *)
   | Sexpr.String (l, cmd) :: [] ->
       let inch = Unix.open_process_in cmd in
@@ -118,98 +87,61 @@ let eval_scalars_cmd eval_rec env line = function
 	ignore (Unix.close_process_in inch);
 	floats
   | _ ->
-      printf "line %d: Malformed scalar-cmd expression" line;
+      printf "line %d: Malformed data-cmd expression" line;
       raise (Evaluate.Invalid_argument line)
 
 
-let help_str_scalars_cmd =
-  "(scalars-cmd <string>)\n\
+let help_str_data_cmd =
+  "(data-cmd <string>)\n\
 Evaluates the given command-line using a shell.  The output\n\
 of the command is read as a list of floating point numbers."
 
 
-let eval_points_file eval_rec env line = function
-    (** [eval_points_file eval_rec env line operands] evaluates a
-	points file. *)
-  | Sexpr.String (l, file) :: [] ->
-      let inch = open_in file in
-      let points = read_points inch in
-	close_in inch;
-	points
-  | _ ->
-      printf "line %d: Malformed points-file expression" line;
-      raise (Evaluate.Invalid_argument line)
+let eval_group eval_rec env line operands =
+  let rec get_n n accum = function
+    | [] ->
+	printf "line %d: List is not groupable by %d\n" line n;
+	raise (Invalid_argument line)
+    | hd :: tl ->
+	let accum' = hd :: accum in
+	  if (List.length accum') = n
+	  then List.rev accum', tl
+	  else get_n n accum' tl
+  in
+  let do_group n ary =
+    let lst = ref (Array.to_list ary) in
+    let groups = ref [] in
+      while !lst <> [] do
+	let group, rest = get_n n [] !lst in
+	  groups := (List (Array.of_list group)) :: !groups;
+	  lst := rest
+      done;
+      List (Array.of_list (List.rev !groups))
+ in
+  match operands with
+    | Sexpr.Number(ln, n) :: expr :: [] ->
+	begin match eval_rec env expr with
+	  | List l ->
+	      let n = truncate n in
+		if n >= 2
+		then do_group n l
+		else begin
+		  printf "line %d: Groups must be >= 2" ln;
+		  raise (Invalid_argument ln);
+		end
+	  | x ->
+	      printf "line %d: Expected a list, got %s\n"
+		(Sexpr.line_number expr) (value_name x);
+	      raise (Invalid_argument line)
+	end;
+    | x -> raise (Invalid_argument line)
 
 
-let help_str_points_file =
-  "(points-file <string>)\n\
-Opens the given file and reads in floating point numbers in ASCII\n\
-format.  It is assumed that there will be an even number of values\n\
-in the file and each pair is taken to be a point x, y."
-
-
-let eval_points_cmd eval_rec env line = function
-    (** [eval_points_cmd eval_rec env line operands] evaluates a
-	points command. *)
-  | Sexpr.String (l, cmd) :: [] ->
-      let inch = Unix.open_process_in cmd in
-      let points = read_points inch in
-	ignore (Unix.close_process_in inch);
-	points
-  | _ ->
-      printf "line %d: Malformed points-cmd expression" line;
-      raise (Evaluate.Invalid_argument line)
-
-
-let help_str_points_cmd =
-  "(points-cmd <string>)\n\
-Evaluates the given command-line using a shell.  The output\n\
-of the command is read as a list of floating point numbers.\n\
-It is assumed that there will be an even number of values\n\
-and each pair is taken to be a point x, y."
-
-
-let eval_triples_file eval_rec env line = function
-    (** [eval_triples_file eval_rec env line operands] evaluates a
-	triples file. *)
-  | Sexpr.String (l, file) :: [] ->
-      let inch = open_in file in
-      let trips = read_triples inch in
-	close_in inch;
-	trips
-  | _ ->
-      printf "line %d: Malformed triples-file expression\n" line;
-      raise (Evaluate.Invalid_argument line)
-
-
-let help_str_triples_file =
-  "(triples-file <string>)\n\
-Opens the given file and reads in floating point numbers in ASCII\n\
-format.  It is assumed that there will be a number of values that\n\
-is divisable by three.  Each set of three values is taken to be a\n\
-triple i, j, k."
-
-
-let eval_triples_cmd eval_rec env line = function
-    (** [eval_triples_cmd eval_rec env line operands] evaluates a
-	triples command. *)
-  | Sexpr.String (l, cmd) :: [] ->
-      let inch = Unix.open_process_in cmd in
-      let trips = read_triples inch in
-	ignore (Unix.close_process_in inch);
-	trips
-  | _ ->
-      printf "line %d: Malformed triples-cmd expression\n" line;
-      raise (Evaluate.Invalid_argument line)
-
-
-let help_str_triples_cmd =
-  "(points-cmd <string>)\n\
-Evaluates the given command-line using a shell.  The output\n\
-of the command is read as a list of floating point numbers.\n\
-It is assumed that there will be a number of values that is \n\
-divisable by three.  Each set of three values is taken to be a\n\
-triple i, j, k."
+let help_str_group =
+  "(group <number> <expr>)\n\
+Groups the values in the list resulting from the expression into\n\
+a list of n-lists each of the size by the given number.  Groups must\n\
+be at least 2 elemens."
 
 
 let eval_log10 eval_rec env line operands =
@@ -238,12 +170,8 @@ Gets the log base 10 of the values.  If the argument is a composite\n\
 
 
 let functions = [
-  "scalars-file", eval_scalars_file, help_str_scalars_file;
-  "scalars-cmd", eval_scalars_cmd, help_str_scalars_cmd;
-  "points-file", eval_points_file, help_str_points_file;
-  "points-cmd", eval_points_cmd, help_str_points_cmd;
-  "triples-file", eval_triples_file, help_str_triples_file;
-  "triples-cmd", eval_triples_cmd, help_str_triples_cmd;
-
+  "data-file", eval_data_file, help_str_data_file;
+  "data-cmd", eval_data_cmd, help_str_data_cmd;
+  "group", eval_group, help_str_group;
   "log10", eval_log10, help_str_log10;
 ]
