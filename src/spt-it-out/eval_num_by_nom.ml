@@ -97,6 +97,40 @@ of the bar is the mean value of :values and the error bars\n\
 show the 95% confidence intervals."
 
 
+let eval_num_by_nom_group eval_rec env line operands =
+  (** [eval_num_by_nom_group eval_rec env line operands] evaluates a
+      numeric by numeric plot group dataset. *)
+  let module S = Sexpr in
+  let name = ref None and dss = ref [ ] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    ":dataset",
+    Options.Expr (fun l e -> match eval_rec env e with
+		    | Num_by_nom_dataset ds -> dss := ds :: !dss
+		    | x ->
+			printf "line %d: Expected num-by-nom dataset got %s\n"
+			  l (value_to_string x);
+			raise (Evaluate.Invalid_argument l));
+  ]
+  in
+    Options.handle opts operands;
+    match !name with
+      | None ->
+	  printf "line %d: Invalid numeric by nominal group dataset, %s\n"
+	    line "no name given";
+	  raise (Evaluate.Invalid_argument line)
+      | Some n ->
+	  Num_by_nom_dataset
+	    (Num_by_nom.dataset_group n !dss)
+
+
+let help_str_num_by_nom_group =
+  "(num-by-num-group :name <string> [:dataset <num-by-nom-dataset>]+)\n\
+Creates a new numberic by nominal dataset that is a group of other\n\
+datasets."
+
+
+
 let eval_num_by_nom_plot eval_rec env line operands =
   (** [eval_num_by_nom_plot eval_rec env line operands] evaluates a
       num_by_nom plot. *)
@@ -145,5 +179,6 @@ let functions = [
   "boxplot-dataset", eval_boxplot, help_str_boxplot;
   "barchart-dataset", eval_barchart, help_str_barchart;
   "barchart-errbar-dataset", eval_barchart_errbar, help_str_barchart_errbar;
+  "num-by-nom-group", eval_num_by_nom_group, help_str_num_by_nom_group;
   "num-by-nom-plot", eval_num_by_nom_plot, help_str_num_by_nom_plot;
 ]
