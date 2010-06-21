@@ -3,7 +3,7 @@
 ;;
 (let ((line0 (line-dataset :name "Line plot"
 			   :color (color :r 1)
-			   :points (points (38 1) (-19 4) (29 10))))
+			   :points (log10 (points (38 1) (19 4) (29 10)))))
       (pts0 (scatter-dataset :name "Scatter plot"
 			     :points (points (8 1) (9 3) (2 1))))
       )
