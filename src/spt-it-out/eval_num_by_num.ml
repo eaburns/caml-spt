@@ -23,13 +23,21 @@ let eval_scatter eval_rec env line operands =
 				 data := Array.append !data p);
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.scatter_dataset
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
 	 ?color:!color
 	 ?point_radius:!radius
 	 ?name:!name
 	 !data)
+
+
+let help_str_scatter =
+  "(scatter-dataset [:name <string>] [:glyph <string>] [:color <color>]\n\
+ [:point-radius <length>] [:points <points>]+)\n\
+Creates a scatter plot datatset of the sets of points.  All points\n\
+in the dataset use the same glyph.  If specified :point-radius\n\
+selects the size of the glyphs."
 
 
 let eval_bestfit eval_rec env line operands =
@@ -53,7 +61,7 @@ let eval_bestfit eval_rec env line operands =
 				 data := Array.append !data p);
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.bestfit_dataset
 	 ~glyph:(match !glyph with | Some g -> g | None -> env.next_glyph ())
 	 ~dashes:(match !dashes with | Some d -> d | None -> env.next_dash ())
@@ -61,6 +69,15 @@ let eval_bestfit eval_rec env line operands =
 	 ?point_radius:!radius
 	 ?name:!name
 	 !data)
+
+
+let help_str_bestfit =
+  "(bestfit-dataset [:name <string>] [:glyph <string>] [:dashes <dashes>]
+ [:color <color>] [:point-radius <length>] [:points <points>]+)\n\
+Creates a scatter plot datatset with a bestfit line.  All points\n\
+in the dataset use the same glyph.  The :dashes option sets the dash\n\
+pattern for the bestfit line.  If specified :point-radius selects\n\
+the size of the glyphs."
 
 
 let eval_bubble eval_rec env line operands =
@@ -84,7 +101,7 @@ let eval_bubble eval_rec env line operands =
 				  data := Array.append !data t);
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.bubble_dataset
 	 ?glyph:!glyph
 	 ?color:!color
@@ -92,6 +109,14 @@ let eval_bubble eval_rec env line operands =
 	 ?max_radius:!max_radius
 	 ?name:!name
 	 !data)
+
+let help_str_bubble =
+  "(bubble-dataset [:name <string>] [:glyph <string>] [:color <color>]\n\
+ [:min-radius <length>] [:max-radius <length>] [:triples <triples>]+)\n\
+Creates a bubble plot datatset of the sets of points.  A bubble\n\
+plot is like a scatter plot except that each point is given a size\n\
+between :min-radius and :max-radius based on the third value in\n\
+each triple."
 
 
 let eval_line eval_rec env line operands =
@@ -113,13 +138,19 @@ let eval_line eval_rec env line operands =
 			       data := Array.append !data p);
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.line_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?color:!color
 	 ?line_width:!width
 	 ?name:!name
 	 !data)
+
+let help_str_line =
+  "(line-dataset [:name <string>] [:dashes <dashes>] [:color <color>]\n\
+ [:line-width <length>] [:points <points>]+)\n\
+Creates a line datatset. The :dashes option sets the dash pattern\n\
+for the line.  If specified :line-width selects the width of the line."
 
 
 let eval_line_points eval_rec env line operands =
@@ -145,7 +176,7 @@ let eval_line_points eval_rec env line operands =
 				 data := Array.append !data p);
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.line_points_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
@@ -154,6 +185,14 @@ let eval_line_points eval_rec env line operands =
 	 ?point_radius:!radius
 	 ?name:!name
 	 !data)
+
+
+let help_str_line_points =
+  "(line-points-dataset [:name <string>] [:dashes <dashes>]\n\
+ [:color <color>] [:point-radius <length>] [:line-width <length>]\n\
+ [:points <points>]+)\n\
+Creates a line datatset with a glyph at each specified point. The\n\
+:dashes option sets the dash pattern for the line."
 
 
 let eval_line_errbar eval_rec env line operands =
@@ -183,13 +222,23 @@ let eval_line_errbar eval_rec env line operands =
       | Some d -> { (env.next_line_errbar ()) with Num_by_num.dashes = d }
       | None -> env.next_line_errbar ()
     in
-      `Num_by_num_dataset
+      Num_by_num_dataset
 	(Num_by_num.line_errbar_dataset
 	   style
 	   ?color:!color
 	   ?line_width:!width
 	   ?name:!name
 	   (Array.of_list !data))
+
+
+let help_str_line_errbar =
+  "(line-errbar-dataset [:name <string>] [:dashes <dashes>]\n\
+ [:color <color>] [:line-width <length>] [:lines (<points>+)]+)\n\
+Creates a line datatset error bars.  Each set of points given by\n\
+the :lines option is taken to be an individual line.  The line\n\
+drawn by this dataset is the interpolated mean line for the given\n\
+lines.  Error bars are drawn to show the 95% confidence intervals."
+
 
 
 let eval_histogram eval_rec env line operands =
@@ -213,11 +262,17 @@ let eval_histogram eval_rec env line operands =
 				 data := Array.append !data s)
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.histogram_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?line_width:!width ?bg_color:!color ?bin_width:!bin_width ?name:!name
 	 !data)
+
+
+let help_str_histogram =
+  "(histogram-dataset [:name <string>] [:line-width <length>]\n\
+ [:bin-width <number>] [:values <scalars>]+)\n\
+Creates a histogram of the given values."
 
 
 let eval_cdf eval_rec env line operands =
@@ -239,10 +294,17 @@ let eval_cdf eval_rec env line operands =
 				 data := Array.append !data s)
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.cdf_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
 	 ?line_width:!width ?color:!color ?name:!name !data)
+
+
+let help_str_cdf =
+  "(cdf-dataset [:name <string>] [:line-width <length>]\n\
+ [:values <scalars>]+)\n\
+Creates a cumulative density plot of the given values."
+
 
 
 let eval_num_by_num_composite eval_rec env line operands =
@@ -254,14 +316,21 @@ let eval_num_by_num_composite eval_rec env line operands =
     Options.string_option_ref ":name" name;
     ":dataset",
     Options.Expr (fun l e -> match eval_rec env e with
-		    | `Num_by_num_dataset ds -> dss := ds :: !dss
-		    | x -> failwith
-			(sprintf "line %d: Expected num-by-num dataset got %s"
-			   l (value_to_string x)));
+		    | Num_by_num_dataset ds -> dss := ds :: !dss
+		    | x ->
+			printf "line %d: Expected num-by-num dataset got %s\n"
+			  l (value_to_string x);
+			raise (Evaluate.Invalid_argument l));
   ] in
     Options.handle opts operands;
-    `Num_by_num_dataset
+    Num_by_num_dataset
       (Num_by_num.composite_dataset ?name:!name (List.rev !dss))
+
+
+let help_str_num_by_num_composite =
+  "(num-by-num-composite [:name <string>] [:dataset <num-by-num-dataset]+)\n\
+Creates a single numeric by numbeic dataset that is the composite of\n\
+the given datasets."
 
 
 let eval_num_by_num_plot eval_rec env line operands =
@@ -292,10 +361,11 @@ let eval_num_by_num_plot eval_rec env line operands =
     Options.number_option_ref ":y-max" y_max;
     ":dataset", Options.Expr
       (fun l e -> match eval_rec env e with
-	 | `Num_by_num_dataset ds -> datasets := ds :: !datasets
+	 | Num_by_num_dataset ds -> datasets := ds :: !datasets
 	 | x ->
-	     failwith (sprintf "line %d: Expected num-by-num dataset got %s"
-			 l (value_to_string x)))
+	     printf "line %d: Expected num-by-num dataset got %s\n"
+	       l (value_to_string x);
+	     raise (Evaluate.Invalid_argument l))
   ]
   in
     Options.handle opts operands;
@@ -307,18 +377,30 @@ let eval_num_by_num_plot eval_rec env line operands =
     let width = match !width with None -> plot#width | Some w -> w in
     let height = match !height with None -> plot#height | Some h -> h in
       plot#set_size ~w:width ~h:height;
-      `Num_by_num_plot plot
+      Num_by_num_plot plot
+
+
+let help_str_num_by_num_plot =
+  "(num-by-num-plot [:title <string>] [:x-label <string>]\n\
+ [:y-label <string>] [:width <length>] [:height <length>]\n\
+ [:x-min <number>] [:x-max <number>] [:y-min <number>] [:y-max <number>]\n\
+ [:dataset <num-by-num-dataset>]+)\n\
+Creates a plot with numeric x and y axes."
 
 
 let functions = [
-  "scatter-dataset", eval_scatter;
-  "bestfit-dataset", eval_bestfit;
-  "bubble-dataset", eval_bubble;
-  "line-dataset", eval_line;
-  "line-points-dataset", eval_line_points;
-  "line-errbar-dataset", eval_line_errbar;
-  "histogram-dataset", eval_histogram;
-  "cdf-dataset", eval_cdf;
-  "num-by-num-composite", eval_num_by_num_composite;
-  "num-by-num-plot", eval_num_by_num_plot;
+  "scatter-dataset", eval_scatter, help_str_scatter;
+  "bestfit-dataset", eval_bestfit, help_str_bestfit;
+  "bubble-dataset", eval_bubble, help_str_bubble;
+  "line-dataset", eval_line, help_str_line;
+  "line-points-dataset", eval_line_points, help_str_line_points;
+  "line-errbar-dataset", eval_line_errbar, help_str_line_errbar;
+  "histogram-dataset", eval_histogram, help_str_histogram;
+  "cdf-dataset", eval_cdf, help_str_cdf;
+
+  "num-by-num-composite",
+  eval_num_by_num_composite,
+  help_str_num_by_num_composite;
+
+  "num-by-num-plot", eval_num_by_num_plot, help_str_num_by_num_plot;
 ]

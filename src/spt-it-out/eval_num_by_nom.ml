@@ -24,11 +24,18 @@ let eval_boxplot eval_rec env line operands =
     Options.handle opts operands;
     match !name with
       | None ->
-	  failwith
-	    (sprintf "line %d: Invalid boxplot dataset, no name given" line)
+	  printf "line %d: Invalid boxplot dataset, no name given\n" line;
+	  raise (Evaluate.Invalid_argument line)
       | Some n ->
-	  `Num_by_nom_dataset
+	  Num_by_nom_dataset
 	    (Num_by_nom.boxplot_dataset ?point_radius:!radius n !data)
+
+let help_str_boxplot =
+  "(boxplot-dataset :name <string> [:point-radius <length>])\n\
+ :values <scalars>)\n\
+Creates a new boxplot dataset with the given name over the given\n\
+values.  The :point-radius option specifies the size of the outlier\n\
+points."
 
 
 let eval_barchart eval_rec env line operands =
@@ -43,16 +50,22 @@ let eval_barchart eval_rec env line operands =
     Options.handle opts operands;
     let name = match !name with
       | None ->
-	  failwith (sprintf "line %d: Invalid barchart, no name given" line)
+	  printf "line %d: Invalid barchart, no name given\n" line;
+	  raise (Evaluate.Invalid_argument line)
       | Some n -> n
     and data = match !data with
       | None ->
-	  failwith (sprintf "line %d: Invalid barchart, no value given" line)
+	  printf "line %d: Invalid barchart, no value given\n" line;
+	  raise (Evaluate.Invalid_argument line)
       | Some n -> n
     in
-      `Num_by_nom_dataset
+      Num_by_nom_dataset
 	(Num_by_nom.barchart_dataset (env.next_fill()) name data)
 
+let help_str_barchart =
+  "(barchart-dataset :name <string> :value <number>)\n\
+Creates a new barchart dataset.  This will create a single bar with\n\
+the given name and value."
 
 let eval_barchart_errbar eval_rec env line operands =
   (** [eval_barchart_errbar eval_rec env line operands] evaluates a
@@ -69,12 +82,19 @@ let eval_barchart_errbar eval_rec env line operands =
     Options.handle opts operands;
     match !name with
       | None ->
-	  failwith
-	    (sprintf "line %d: Invalid barchart with errorbars dataset, %s"
-	       line "no name given")
+	  printf "line %d: Invalid barchart with errorbars dataset, %s\n"
+	    line "no name given";
+	  raise (Evaluate.Invalid_argument line)
       | Some n ->
-	  `Num_by_nom_dataset
+	  Num_by_nom_dataset
 	    (Num_by_nom.barchart_errbar_dataset (env.next_fill()) n !data)
+
+
+let help_str_barchart_errbar =
+  "(barchart-errbar-dataset :name <string> :values <scalars>)\n\
+Creates a new barchart dataset with error bars.  The height\n\
+of the bar is the mean value of :values and the error bars\n\
+show the 95% confidence intervals."
 
 
 let eval_num_by_nom_plot eval_rec env line operands =
@@ -97,10 +117,11 @@ let eval_num_by_nom_plot eval_rec env line operands =
     Options.number_option_ref ":y-max" y_max;
     ":dataset", Options.Expr
       (fun l e -> match eval_rec env e with
-	 | `Num_by_nom_dataset ds -> datasets := ds :: !datasets
+	 | Num_by_nom_dataset ds -> datasets := ds :: !datasets
 	 | x ->
-	     failwith (sprintf "line %d: Expected num-by-nom dataset got %s"
-			 l (value_to_string x)))
+	     printf "line %d: Expected num-by-nom dataset got %s\n"
+	       l (value_to_string x);
+	     raise (Evaluate.Invalid_argument l))
   ]
   in
     Options.handle opts operands;
@@ -110,13 +131,19 @@ let eval_num_by_nom_plot eval_rec env line operands =
     let width = match !width with None -> plot#width | Some w -> w in
     let height = match !height with None -> plot#height | Some h -> h in
       plot#set_size ~w:width ~h:height;
-      `Num_by_nom_plot plot
+      Num_by_nom_plot plot
 
+
+let help_str_num_by_nom_plot =
+  "(num-by-nom-plot [:title <string>] [:y-label <string>]\n\
+ [:width <length>] [:height <length>] [:y-max <number>]\n\
+ [:y-min <number>] [:dataset <dataset>]+)\n\
+Creates a new plot with a numeric y-axis and a nominal x-axis."
 
 
 let functions = [
-  "boxplot-dataset", eval_boxplot;
-  "barchart-dataset", eval_barchart;
-  "barchart-errbar-dataset", eval_barchart_errbar;
-  "num-by-nom-plot", eval_num_by_nom_plot;
+  "boxplot-dataset", eval_boxplot, help_str_boxplot;
+  "barchart-dataset", eval_barchart, help_str_barchart;
+  "barchart-errbar-dataset", eval_barchart_errbar, help_str_barchart_errbar;
+  "num-by-nom-plot", eval_num_by_nom_plot, help_str_num_by_nom_plot;
 ]
