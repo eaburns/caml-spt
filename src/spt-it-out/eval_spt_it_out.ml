@@ -57,6 +57,7 @@ let functions =
     "output", eval_output, help_str_output;
   ]
   @ Evaluate.functions
+  @ Options.functions
   @ Eval_data.functions
   @ Eval_num_by_num.functions
   @ Eval_num_by_nom.functions
