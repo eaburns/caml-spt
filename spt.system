@@ -34,7 +34,11 @@ Files:
 
 "src/spt-it-out/sexpr"
 "src/spt-it-out/options"
-"src/spt-it-out/eval"
+"src/spt-it-out/evaluate"
+"src/spt-it-out/eval_data"
+"src/spt-it-out/eval_num_by_num"
+"src/spt-it-out/eval_num_by_nom"
+"src/spt-it-out/eval_spt_it_out"
 
 Libraries:
 "unix"
