@@ -81,7 +81,31 @@ could be re-written:
 The following sections give detailed information on the functions
 available in \sio.
 
-\section{Getting Help}
+\section{\sio\ Expressions}
+
+The \sio\ expression language is similar to lisp or scheme (I think).
+The basic types or values are:
+\begin{itemize}
+\item Numbers (represented as floats)
+\item Strings (characters between `` '' marks)
+\item Identifiers (un-quoted strings)
+\item Lengths (created with the length functions described below)
+\item Colors (created with the color function)
+\item Legend locations (created with the legend-location function)
+\item Numeric by numeric plots (Section~\ref{sect:num-by-num})
+\item Numeric by numeric datasets (Section~\ref{sect:num-by-num})
+\item Numeric by nominal plots (Section~\ref{sect:num-by-nom})
+\item Numeric by nominal datasets (Section~\ref{sect:num-by-nom})
+\item A list of values (values inbetween '(' ')').  Lists beginning
+  with identifiers are functions.  All other lists are treated as
+  data.
+\begin{verbatim}
+("a data list" 5 7 4 9 "hello" ("foo") "baz")
+(this-is-a-function "because it starts with an identifier" 3 (in 5))
+\end{verbatim}
+\end{itemize}
+
+\subsection{Getting Help}
 
 The {\tt help} function can be used to get help on the available
 functions in \sio.  Example:
@@ -94,7 +118,7 @@ functions in \sio.  Example:
 Creates a plot with numeric x and y axes.
 \end{verbatim}
 
-\section{{\tt Output} and {\tt Display}}
+\subsection{{\tt Output} and {\tt Display}}
 
 \begin{description}
 
@@ -109,7 +133,98 @@ argument is a plot expression.
 \end{description}
 
 
-\section{Numeric by Numeric Plots}
+\subsection{Lengths}
+
+Lengths can be used to specify the size of things.  Lengths can be
+specified in inches, centimeters, points or pixels using the
+respective functions {\tt in}, {\tt cm}, {\tt pt} or {\tt px}.  For
+example:
+\begin{verbatim}
+(in 5)
+\end{verbatim}
+creates a length of 5 inches.
+
+\subsection{Colors}
+
+Colors can be used to specify the color of things.  Colors are created
+with the {\tt color} function.  The {\tt color} function has four
+options: {\tt :r}, {\tt :g}, {\tt :b} and {\tt :a} that specify the
+red, green, blue and alpha components of the color respectively.  The
+default for the all options is 0 except for {\tt :a} that defaults to
+1. For example:
+\begin{verbatim}
+(color :g 0.5 :a 0.5)
+\end{verbatim}
+creates a green color that is half opaque.
+
+
+\subsection{Legend locations}
+
+Legend locations are also values.  These can be used to specify the
+location of the legend in a numeric by numeric plot.  The available
+legend locations are:
+\begin{description}
+\item[{\tt :upper-right}] Upper right corner of the plot.
+\item[{\tt :upper-left}] Upper left corner of the plot.
+\item[{\tt :lower-right}] Lower right corner of the plot.
+\item[{\tt :lower-left}] Lower left corner of the plot.
+\item[{\tt (legend-at <text-placement> <number> <number>)}] Puts the
+  legend at a specified location.  <text-placement> is one of: {\tt
+    :text-before} or {\tt :text-after} and the numbers are the x and y
+  location of the legend.
+\end{description}
+For example, the this location
+\begin{verbatim}
+(legend-location :upper-right)
+\end{verbatim}
+puts the legend in the upper right corner of the plot and this
+location
+\begin{verbatim}
+(legend-location (legend-at :text-before 100 100))
+\end{verbatim}
+puts the legend at location 100,100 with the text before the icons.
+
+\section{Data}
+
+Data can be specified in-line in the spt input as lists of numbers (or
+lists of lists of numbers, etc.) depending on the required format.
+For example a list of points may be specified as:
+\begin{verbatim}
+((0 0) (1 1) (2 2))
+\end{verbatim}
+
+Sometimes it is convenient to specify data in a separate file.  A list
+of numbers can be read from a file using the {\tt data-file} function.
+This function takes one argument that is the name of the file to read.
+In addition, it is often useful to process data as the result of
+running an external program. The {\tt data-cmd} function takes a
+single argument that is a command to execute with the shell.  The
+standard output of the command is read as a list of numbers.
+Once a list of numbers has been read, either from a file or a command,
+it may be grouped into points, triples, etc. using the {\tt group}
+function.  This function takes two parameters: 1) a number that
+specifies the size of each group and 2) a list of numbers to group.
+
+For example the following trace of execution was given using a file
+called ``data.dat'' that contained the numbers ``0 0 1 1 2 2 3 3 4 4 5
+5'':
+\begin{verbatim}
+> (print (data-file "data.dat") "\n")
+( 0 0 1 1 2 2 3 3 4 4 5 5 )
+> (print (group 2 (data-file "data.dat")) "\n")
+( ( 0 0 ) ( 1 1 ) ( 2 2 ) ( 3 3 ) ( 4 4 ) ( 5 5 ) )
+> (print (group 3 (data-file "data.dat")) "\n")
+( ( 0 0 1 ) ( 1 2 2 ) ( 3 3 4 ) ( 4 5 5 ) )
+> (print (data-cmd "cat data.dat") "\n")
+( 0 0 1 1 2 2 3 3 4 4 5 5 )
+> (print (group 2 (data-cmd "sed s/0/-1/g data.dat")) "\n")
+( ( -1 -1 ) ( 1 1 ) ( 2 2 ) ( 3 3 ) ( 4 4 ) ( 5 5 ) )
+\end{verbatim}
+Notice how it is now simple to specify a list of values, points or
+triples by simply reading in a file or executing a command that
+results in a stream of numbers.
+
+\section{\label{sect:num-by-num} Numeric by Numeric Plots}
 
 Numeric by numeric plots are standard plots with numeric x and y
 axes.  They are created using the {\tt num-by-num-plot} function.  The
@@ -134,19 +249,6 @@ datasets).\\
 \end{tabular}
 \end{center}
 
-The available legend locations are:
-
-\begin{description}
-\item[{\tt :upper-right}] Upper right corner of the plot.
-\item[{\tt :upper-left}] Upper left corner of the plot.
-\item[{\tt :lower-right}] Lower right corner of the plot.
-\item[{\tt :lower-left}] Lower left corner of the plot.
-\item[{\tt (legend-at <text-placement> <number> <number>)}] Puts the
-  legend at a specified location.  <text-placement> is one of: {\tt
-    :text-before} or {\tt :text-after} and the numbers are the x and y
-  location of the legend.
-\end{description}
-
 \subsection{Numeric by Numeric Datasets}
 
 The following are the available numeric by numeric datasets:
@@ -165,7 +267,7 @@ the legend\\
 ``box'', ``triangle'' or string of len1\\
 :color & & The color of the glyphs\\
 :point-radius & 4pt & The radius of the glyphs\\
-:points & & The data points\\
+:points & & The data points as a list of 2-lists of numbers\\
 \end{tabular}
 \end{center}
 
@@ -210,7 +312,7 @@ Option & Default & Notes \\
 \hline
 :min-radius & 10pt & The minimum radius of a bubble\\
 :max-radius & 60pt & The maximum radius of a bubble\\
-:triples & & The data\\
+:triples & & The data as a list of 3-lists of numbers\\
 \end{tabular}
 \end{center}
 
@@ -255,8 +357,8 @@ the legend\\
 dash pattern of the line\\
 :color & & The color of the line\\
 :line-width & 1pt & The width of the line\\
-:lines & & A list of point lists (lines).  Each set of points should
-be sorted on x.\\
+:lines & & A list of lists of 2-lists of numbers.  Each list of
+2-lists is a line (x-sorted)\\
 \end{tabular}
 \end{center}
 
@@ -298,7 +400,7 @@ dash pattern of the line\\
 :color & & The color of the line\\
 :line-width & 1pt & The width of the line\\
 :bin-width &  & The width each bin\\
-:values & & A list of scalar values.\\
+:values & & A list of numbers\\
 \end{tabular}
 \end{center}
 
@@ -343,7 +445,7 @@ Figure~\ref{fig:step} by compositing three line datasets:
 \end{center}
 \end{figure}
 
-\section{Numeric by Nominal Plots}
+\section{\label{sect:num-by-nom} Numeric by Nominal Plots}
 
 Numeric by nominal plots are plots with an numeric y-axis but a
 nominal x axis.  In this type if plot, each dataset is allocated a
