@@ -11,4 +11,5 @@
 			    :y-label "The y variable"
 			    :legend (legend-location :lower-right)
 			    :dataset line0
+
 			    :dataset pts0)))
