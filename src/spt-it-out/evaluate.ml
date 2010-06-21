@@ -10,6 +10,9 @@ open Printf
 type value =
   | Unit
   | Number of float
+  | Length of Length.t
+  | Color of Drawing.color
+  | Legend_loc of Legend.location
   | String of string
   | Scalars of float array
   | Points of point array
@@ -52,6 +55,9 @@ let value_to_string = function
   | Unit -> "Unit"
   | Number _ -> "Number"
   | String _ -> "String"
+  | Length _ -> "Length"
+  | Legend_loc _ -> "Legend_loc"
+  | Color _ -> "Color"
   | Scalars _ -> "Scalars"
   | Points _ -> "Points"
   | Triples _ -> "Triples"
@@ -90,6 +96,7 @@ let evaluate functs eval_rec env = function
 
 
 (** {1 Default functions} *****************************)
+
 
 let eval_let eval_rec env line = function
     (** [eval_let eval_rec env line operands] evaluates the operands
@@ -131,6 +138,27 @@ let eval_print eval_rec env line operands =
 	 begin match vl with
 	   | Unit -> printf "()"
 	   | Number vl -> printf "%f" vl
+	   | Length vl ->
+	       begin match vl with
+		 | Length.In x -> printf "inches=%f" x
+		 | Length.Cm x -> printf "cents.=%f" x
+		 | Length.Pt x -> printf "points=%f" x
+		 | Length.Px x -> printf "pixels=%d" x
+	       end
+	   | Color c ->
+	       printf "color=(r=%f, g=%f, b=%f, a=%f)"
+		 c.Drawing.r c.Drawing.g c.Drawing.b c.Drawing.a
+	   | Legend_loc loc ->
+	       begin match loc with
+		 | Legend.At (Legend.Text_before, x, y) ->
+		     printf "Legend at (%f, %f), text before" x y
+		 | Legend.At (Legend.Text_after, x, y) ->
+		     printf "Legend at (%f, %f), text after" x y
+		 | Legend.Upper_left -> printf "Legend in upper left"
+		 | Legend.Upper_right -> printf "Legend in upper right"
+		 | Legend.Lower_left -> printf "Legend in lower left"
+		 | Legend.Lower_right -> printf "Legend in lower right"
+	       end
 	   | String s -> printf "%s" s
 	   | Scalars s ->
 	       printf "[| "; Array.iter (printf "%f; ") s; printf " |]"

@@ -15,7 +15,7 @@ let eval_boxplot eval_rec env line operands =
   let radius = ref None and name = ref None and data = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
-    Options.length_option_ref ":point-radius" radius;
+    Options.length_option_ref eval_rec env ":point-radius" radius;
     ":values", Options.Expr (fun l e ->
 			       let s = Eval_data.scalars eval_rec env e in
 				 data := Array.append !data s)
@@ -111,8 +111,8 @@ let eval_num_by_nom_plot eval_rec env line operands =
   let opts = [
     Options.string_option_ref ":title" title;
     Options.string_option_ref ":y-label" ylabel;
-    Options.length_option_ref ":width" width;
-    Options.length_option_ref ":height" height;
+    Options.length_option_ref eval_rec env ":width" width;
+    Options.length_option_ref eval_rec env ":height" height;
     Options.number_option_ref ":y-min" y_min;
     Options.number_option_ref ":y-max" y_max;
     ":dataset", Options.Expr

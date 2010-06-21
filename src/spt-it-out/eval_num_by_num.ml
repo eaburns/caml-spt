@@ -7,6 +7,41 @@
 open Printf
 open Evaluate
 
+let eval_legend_location eval_rec env line = function
+    (** [eval_legend_location eval_rec env line] evaluates a legend
+    location. *)
+  | Sexpr.Ident (l, ":upper-right") :: [] -> Legend_loc Legend.Upper_right
+  | Sexpr.Ident (l, ":upper-left") :: [] -> Legend_loc Legend.Upper_left
+  | Sexpr.Ident (l, ":lower-right") :: [] -> Legend_loc Legend.Lower_right
+  | Sexpr.Ident (l, ":lower-left") :: [] -> Legend_loc Legend.Lower_left
+  | Sexpr.List (_, Sexpr.Ident(_, ":legend-at") :: Sexpr.Ident(l, txt_loc)
+		  :: Sexpr.Number(_, x) :: Sexpr.Number(_, y) :: []) :: [] ->
+      let txt_loc = match String.lowercase txt_loc with
+	| ":text-before" -> Legend.Text_before
+	| ":text-after" -> Legend.Text_after
+	| _ ->
+	    printf "line %d: Malformed text location %s\n"
+	      l "try one of ':text-before' or ':text-after'";
+	    raise (Invalid_argument l)
+      in Legend_loc (Legend.At (txt_loc, x, y))
+  | x :: _ ->
+      printf "line %d: Malformed legend location\n" (Sexpr.line_number x);
+      raise (Invalid_argument (Sexpr.line_number x))
+  | [] ->
+      printf "line %d: Malformed legend location\n" line;
+      raise (Invalid_argument line)
+
+
+let help_str_legend_location =
+  "(legend-location <legend-loc>)\n\
+Creates a legend location, one of:\n\
+\t:upper-right\n\
+\t:upper-left\n\
+\t:lower-right\n\
+\t:lower-left\n\
+\t:legend-at [:text-before|:text-after]"
+
+
 let eval_scatter eval_rec env line operands =
   (** [eval_scatter eval_rec env line operands] evaluates a scatter
       plot dataset. *)
@@ -16,8 +51,8 @@ let eval_scatter eval_rec env line operands =
   let opts = [
     Options.string_option_ref ":name" name;
     Options.glyph glyph;
-    Options.color color;
-    Options.length_option_ref ":point-radius" radius;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":point-radius" radius;
     ":points", Options.Expr (fun l e ->
 			       let p = Eval_data.points eval_rec env e in
 				 data := Array.append !data p);
@@ -53,9 +88,9 @@ let eval_bestfit eval_rec env line operands =
   let opts = [
     Options.string_option_ref ":name" name;
     Options.glyph glyph;
-    Options.dashes dashes;
-    Options.color color;
-    Options.length_option_ref ":point-radius" radius;
+    Options.dashes eval_rec env dashes;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":point-radius" radius;
     ":points", Options.Expr (fun l e ->
 			       let p = Eval_data.points eval_rec env e in
 				 data := Array.append !data p);
@@ -93,9 +128,9 @@ let eval_bubble eval_rec env line operands =
   let opts = [
     Options.string_option_ref ":name" name;
     Options.glyph glyph;
-    Options.color color;
-    Options.length_option_ref ":min-radius" min_radius;
-    Options.length_option_ref ":max-radius" max_radius;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":min-radius" min_radius;
+    Options.length_option_ref eval_rec env ":max-radius" max_radius;
     ":triples", Options.Expr (fun l e ->
 				let t = Eval_data.triples eval_rec env e in
 				  data := Array.append !data t);
@@ -130,9 +165,9 @@ let eval_line eval_rec env line operands =
   and data = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
-    Options.dashes dashes;
-    Options.color color;
-    Options.length_option_ref ":line-width" width;
+    Options.dashes eval_rec env dashes;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":line-width" width;
     ":points", Options.Expr (fun l e ->
 			       let p = Eval_data.points eval_rec env e in
 			       data := Array.append !data p);
@@ -166,11 +201,11 @@ let eval_line_points eval_rec env line operands =
   and data = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
-    Options.dashes dashes;
+    Options.dashes eval_rec env dashes;
     Options.glyph glyph;
-    Options.color color;
-    Options.length_option_ref ":line-width" width;
-    Options.length_option_ref ":point-radius" radius;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":line-width" width;
+    Options.length_option_ref eval_rec env ":point-radius" radius;
     ":points", Options.Expr (fun l e ->
 			       let p = Eval_data.points eval_rec env e in
 				 data := Array.append !data p);
@@ -206,9 +241,9 @@ let eval_line_errbar eval_rec env line operands =
   and data = ref [ ] in
   let opts = [
     Options.string_option_ref ":name" name;
-    Options.dashes dashes;
-    Options.color color;
-    Options.length_option_ref ":line-width" width;
+    Options.dashes eval_rec env dashes;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":line-width" width;
     ":lines",
     Options.List
       (fun l lines ->
@@ -253,9 +288,9 @@ let eval_histogram eval_rec env line operands =
   and data = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
-    Options.dashes dashes;
-    Options.color color;
-    Options.length_option_ref ":line-width" width;
+    Options.dashes eval_rec env dashes;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":line-width" width;
     Options.number_option_ref ":bin-width" bin_width;
     ":values", Options.Expr (fun l e ->
 			       let s = Eval_data.scalars eval_rec env e in
@@ -286,9 +321,9 @@ let eval_cdf eval_rec env line operands =
   and data = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
-    Options.dashes dashes;
-    Options.color color;
-    Options.length_option_ref ":line-width" width;
+    Options.dashes eval_rec env dashes;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":line-width" width;
     ":values", Options.Expr (fun l e ->
 			       let s = Eval_data.scalars eval_rec env e in
 				 data := Array.append !data s)
@@ -349,12 +384,12 @@ let eval_num_by_num_plot eval_rec env line operands =
   and height = ref None
   and datasets = ref [] in
   let opts = [
-    Options.legend_loc legend_loc;
+    Options.legend eval_rec env legend_loc;
     Options.string_option_ref ":title" title;
     Options.string_option_ref ":x-label" xlabel;
     Options.string_option_ref ":y-label" ylabel;
-    Options.length_option_ref ":width" width;
-    Options.length_option_ref ":height" height;
+    Options.length_option_ref eval_rec env ":width" width;
+    Options.length_option_ref eval_rec env ":height" height;
     Options.number_option_ref ":x-min" x_min;
     Options.number_option_ref ":x-max" x_max;
     Options.number_option_ref ":y-min" y_min;
@@ -389,6 +424,7 @@ Creates a plot with numeric x and y axes."
 
 
 let functions = [
+  "legend-location", eval_legend_location, help_str_legend_location;
   "scatter-dataset", eval_scatter, help_str_scatter;
   "bestfit-dataset", eval_bestfit, help_str_bestfit;
   "bubble-dataset", eval_bubble, help_str_bubble;
