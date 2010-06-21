@@ -1,0 +1,324 @@
+(**
+
+   @author eaburns
+   @since 2010-06-19
+*)
+
+open Printf
+open Evaluate
+
+let eval_scatter eval_rec env line operands =
+  (** [eval_scatter eval_rec env line operands] evaluates a scatter
+      plot dataset. *)
+  let module S = Sexpr in
+  let glyph = ref None and color = ref None and radius = ref None
+					    and name = ref None and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.glyph glyph;
+    Options.color color;
+    Options.length_option_ref ":point-radius" radius;
+    ":points", Options.Expr (fun l e ->
+			       let p = Eval_data.points eval_rec env e in
+				 data := Array.append !data p);
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.scatter_dataset
+	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
+	 ?color:!color
+	 ?point_radius:!radius
+	 ?name:!name
+	 !data)
+
+
+let eval_bestfit eval_rec env line operands =
+  (** [eval_bestfit eval_rec env line operands] evaluates a
+      line-of-bestfit dataset. *)
+  let module S = Sexpr in
+  let glyph = ref None
+  and dashes = ref None
+  and color = ref None
+  and radius = ref None
+  and name = ref None
+  and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.glyph glyph;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":point-radius" radius;
+    ":points", Options.Expr (fun l e ->
+			       let p = Eval_data.points eval_rec env e in
+				 data := Array.append !data p);
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.bestfit_dataset
+	 ~glyph:(match !glyph with | Some g -> g | None -> env.next_glyph ())
+	 ~dashes:(match !dashes with | Some d -> d | None -> env.next_dash ())
+	 ?color:!color
+	 ?point_radius:!radius
+	 ?name:!name
+	 !data)
+
+
+let eval_bubble eval_rec env line operands =
+  (** [eval_bubble eval_rec env line operands] evaluates a bubble plot
+      dataset. *)
+  let module S = Sexpr in
+  let glyph = ref None
+  and color = ref None
+  and min_radius = ref None
+  and max_radius = ref None
+  and name = ref None
+  and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.glyph glyph;
+    Options.color color;
+    Options.length_option_ref ":min-radius" min_radius;
+    Options.length_option_ref ":max-radius" max_radius;
+    ":triples", Options.Expr (fun l e ->
+				let t = Eval_data.triples eval_rec env e in
+				  data := Array.append !data t);
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.bubble_dataset
+	 ?glyph:!glyph
+	 ?color:!color
+	 ?min_radius:!min_radius
+	 ?max_radius:!max_radius
+	 ?name:!name
+	 !data)
+
+
+let eval_line eval_rec env line operands =
+  (** [eval_line eval_rec env line operands] evaluates a line
+      dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and color = ref None
+  and width = ref None
+  and name = ref None
+  and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    ":points", Options.Expr (fun l e ->
+			       let p = Eval_data.points eval_rec env e in
+			       data := Array.append !data p);
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.line_dataset
+	 (match !dashes with | Some g -> g | None -> env.next_dash ())
+	 ?color:!color
+	 ?line_width:!width
+	 ?name:!name
+	 !data)
+
+
+let eval_line_points eval_rec env line operands =
+  (** [eval_line_points eval_rec env line operands] evaluates a line and points
+      dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and glyph = ref None
+  and radius = ref None
+  and color = ref None
+  and width = ref None
+  and name = ref None
+  and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.glyph glyph;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    Options.length_option_ref ":point-radius" radius;
+    ":points", Options.Expr (fun l e ->
+			       let p = Eval_data.points eval_rec env e in
+				 data := Array.append !data p);
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.line_points_dataset
+	 (match !dashes with | Some g -> g | None -> env.next_dash ())
+	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
+	 ?color:!color
+	 ?line_width:!width
+	 ?point_radius:!radius
+	 ?name:!name
+	 !data)
+
+
+let eval_line_errbar eval_rec env line operands =
+  (** [eval_line_errbar eval_rec env line operands] evaluates a line
+      and error bar dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and color = ref None
+  and width = ref None
+  and name = ref None
+  and data = ref [ ] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    ":lines",
+    Options.List
+      (fun l lines ->
+	 List.iter (fun e ->
+		      let p = Eval_data.points eval_rec env e in
+			data := p :: !data)
+	   lines);
+  ] in
+    Options.handle opts operands;
+    let style = match !dashes with
+      | Some d -> { (env.next_line_errbar ()) with Num_by_num.dashes = d }
+      | None -> env.next_line_errbar ()
+    in
+      `Num_by_num_dataset
+	(Num_by_num.line_errbar_dataset
+	   style
+	   ?color:!color
+	   ?line_width:!width
+	   ?name:!name
+	   (Array.of_list !data))
+
+
+let eval_histogram eval_rec env line operands =
+  (** [eval_histogram eval_rec env line operands] evaluates a histogram
+      dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and color = ref None
+  and width = ref None
+  and bin_width = ref None
+  and name = ref None
+  and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    Options.number_option_ref ":bin-width" bin_width;
+    ":values", Options.Expr (fun l e ->
+			       let s = Eval_data.scalars eval_rec env e in
+				 data := Array.append !data s)
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.histogram_dataset
+	 (match !dashes with | Some g -> g | None -> env.next_dash ())
+	 ?line_width:!width ?bg_color:!color ?bin_width:!bin_width ?name:!name
+	 !data)
+
+
+let eval_cdf eval_rec env line operands =
+  (** [eval_cdf eval_rec env line operands] evaluates a cumulative
+      density dataset. *)
+  let module S = Sexpr in
+  let dashes = ref None
+  and color = ref None
+  and width = ref None
+  and name = ref None
+  and data = ref [| |] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.dashes dashes;
+    Options.color color;
+    Options.length_option_ref ":line-width" width;
+    ":values", Options.Expr (fun l e ->
+			       let s = Eval_data.scalars eval_rec env e in
+				 data := Array.append !data s)
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.cdf_dataset
+	 (match !dashes with | Some g -> g | None -> env.next_dash ())
+	 ?line_width:!width ?color:!color ?name:!name !data)
+
+
+let eval_num_by_num_composite eval_rec env line operands =
+  (** [eval_num_by_num_composite eval_rec env line operands] evaluates
+      a composite num-by-num dataset. *)
+  let module S = Sexpr in
+  let name = ref None and dss = ref [] in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    ":dataset",
+    Options.Expr (fun l e -> match eval_rec env e with
+		    | `Num_by_num_dataset ds -> dss := ds :: !dss
+		    | x -> failwith
+			(sprintf "line %d: Expected num-by-num dataset got %s"
+			   l (value_to_string x)));
+  ] in
+    Options.handle opts operands;
+    `Num_by_num_dataset
+      (Num_by_num.composite_dataset ?name:!name (List.rev !dss))
+
+
+let eval_num_by_num_plot eval_rec env line operands =
+  (** [eval_num_by_num_plot eval_rec env line operands] evaluates a
+      num_by_num plot. *)
+  let module S = Sexpr in
+  let title = ref None
+  and legend_loc = ref None
+  and xlabel = ref None
+  and ylabel = ref None
+  and x_min = ref None
+  and x_max = ref None
+  and y_min = ref None
+  and y_max = ref None
+  and width = ref None
+  and height = ref None
+  and datasets = ref [] in
+  let opts = [
+    Options.legend_loc legend_loc;
+    Options.string_option_ref ":title" title;
+    Options.string_option_ref ":x-label" xlabel;
+    Options.string_option_ref ":y-label" ylabel;
+    Options.length_option_ref ":width" width;
+    Options.length_option_ref ":height" height;
+    Options.number_option_ref ":x-min" x_min;
+    Options.number_option_ref ":x-max" x_max;
+    Options.number_option_ref ":y-min" y_min;
+    Options.number_option_ref ":y-max" y_max;
+    ":dataset", Options.Expr
+      (fun l e -> match eval_rec env e with
+	 | `Num_by_num_dataset ds -> datasets := ds :: !datasets
+	 | x ->
+	     failwith (sprintf "line %d: Expected num-by-num dataset got %s"
+			 l (value_to_string x)))
+  ]
+  in
+    Options.handle opts operands;
+    let plot = (Num_by_num.plot ?title:!title ?xlabel:!xlabel
+		  ?legend_loc:!legend_loc
+		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
+		  ?y_min:!y_min ?y_max:!y_max !datasets)
+    in
+    let width = match !width with None -> plot#width | Some w -> w in
+    let height = match !height with None -> plot#height | Some h -> h in
+      plot#set_size ~w:width ~h:height;
+      `Num_by_num_plot plot
+
+
+let functions = [
+  "scatter-dataset", eval_scatter;
+  "bestfit-dataset", eval_bestfit;
+  "bubble-dataset", eval_bubble;
+  "line-dataset", eval_line;
+  "line-points-dataset", eval_line_points;
+  "line-errbar-dataset", eval_line_errbar;
+  "histogram-dataset", eval_histogram;
+  "cdf-dataset", eval_cdf;
+  "num-by-num-composite", eval_num_by_num_composite;
+  "num-by-num-plot", eval_num_by_num_plot;
+]

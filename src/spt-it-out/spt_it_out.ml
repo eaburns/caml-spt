@@ -31,7 +31,7 @@ let main () =
     Verb_level.set verb;
     let inch = open_in file in
     let ast = Sexpr.parse (Stream.of_channel inch) in
-      ignore (Eval.eval Eval.init_env ast);
+      ignore (Eval_spt_it_out.eval Evaluate.init_environment ast);
       close_in inch
 
 
