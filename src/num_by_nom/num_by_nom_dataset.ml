@@ -57,9 +57,6 @@ end
 
 (** {6 Grouped datasets} ****************************************)
 
-let group_padding = Length.Pt 10.
-  (** Padding on either side of a group. *)
-
 let overline_style =
   (** The line style of the line showing the group. *)
   {
@@ -79,9 +76,8 @@ object(self)
   method private dataset_width ctx width =
     let n = float (List.length datasets) in
     let between_padding_amt = (n -. 1.) *. (ctx.units between_padding) in
-    let group_padding = (ctx.units group_padding) *. 2. in
       if n > 1.
-      then (width -. between_padding_amt -. group_padding) /. n
+      then (width -. between_padding_amt) /. n
       else width
 
 
@@ -117,16 +113,14 @@ object(self)
     let text_height = font_suggested_line_height ~style ctx in
     let overline_height = ctx.units overline_style.line_width in
     let y' = y +. (overline_height /. 2. +. (ctx.units overline_padding)) in
-    let group_padding = ctx.units group_padding in
-    let x0 = x +. group_padding in
       draw_line ctx ~style:overline_style
-	[point x0 y; point (x +. width -. group_padding) y];
+	[point x y; point (x +. width) y];
       ignore
 	(List.fold_left
 	   (fun x ds ->
 	      ds#draw_x_label ctx ~x ~y:y' style ~width:ds_width;
 	      x +. ds_width +. between_padding)
-	   x0 datasets);
+	   x datasets);
       draw_fixed_width_text ctx ~x:center
 	~y:(y +. ds_name_height +. text_height)
 	~style ~width group_name
@@ -135,13 +129,12 @@ object(self)
   method residual ctx ~src ~dst ~width ~x =
     let ds_width = self#dataset_width ctx width in
     let between_padding = ctx.units between_padding in
-    let x0 = x +. (ctx.units group_padding) in
       fst (List.fold_left
 	     (fun (r, x) ds ->
 		(range_extremes r (ds#residual ctx ~src ~dst
 				     ~width:ds_width ~x),
 		 x +. ds_width +. between_padding))
-	     ((range ~min:infinity ~max:neg_infinity), x0) datasets)
+	     ((range ~min:infinity ~max:neg_infinity), x) datasets)
 
 
   method n_items = List.fold_left (fun s ds -> s + ds#n_items) 0 datasets
@@ -151,12 +144,15 @@ object(self)
   method draw ctx ~src ~dst ~width ~x =
     let ds_width = self#dataset_width ctx width in
     let between_padding = ctx.units between_padding in
-    let x0 = x +. (ctx.units group_padding) in
       ignore (List.fold_left
 		(fun x ds ->
+(*
+		   draw_rectangle ctx
+		     (rectangle x (x +. ds_width) dst.min dst.max);
+*)
 		   ds#draw ctx ~src ~dst ~width:ds_width ~x;
 		   x +. ds_width +. between_padding)
-		x0 datasets)
+		x datasets)
 end
 
 let dataset_group name datasets = new dataset_group name datasets
