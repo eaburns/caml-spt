@@ -113,6 +113,12 @@ object (self)
 	~src ticks ylabel
 
 
+  method private ds_width ctx item_width ds =
+    let n = float ds#n_items in
+    let pad = (n -. 1.) *. (ctx.units Num_by_nom_dataset.between_padding) in
+      (item_width *. n) +. pad
+
+
   method private x_axis_dimensions ctx yaxis =
     (** [x_axis_dimensions ctx] computes the x_min, x_max and
 	item_width for each dataset to display its name on the
@@ -145,9 +151,8 @@ object (self)
 	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
       List.fold_left (fun m ds ->
-			let width = (float ds#n_items) *. item_width in
-			let h =
-			  ds#x_label_height ctx legend_text_style width
+			let width = self#ds_width ctx item_width ds in
+			let h = ds#x_label_height ctx legend_text_style width
 			in if h > m then h else m)
 	0. datasets
     in
@@ -171,7 +176,7 @@ object (self)
       ignore
 	(List.fold_left
 	   (fun x ds ->
-	      let width = (float ds#n_items) *. item_width in
+	      let width = self#ds_width ctx item_width ds in
 		ds#draw_x_label ctx ~x ~y legend_text_style ~width;
 		x +. width +. between_padding)
 	   xrange.min datasets)
@@ -201,7 +206,11 @@ object (self)
 				     point xrange.max (tr v); ]))
 		horiz_lines);
       ignore (List.fold_left (fun x ds ->
-				let width = (float ds#n_items) *. item_width in
+				let width = self#ds_width ctx item_width ds in
+(*
+				  draw_rectangle ctx
+				    (rectangle x (x +. width) dst.min dst.max);
+*)
 				  ds#draw ctx ~src ~dst ~width ~x;
 				  x +. width +. between_padding)
 		xrange.min datasets);
