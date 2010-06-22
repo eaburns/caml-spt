@@ -33,6 +33,13 @@ object
     (** [x_label_height context style width] is the height of the
 	label on thesrc/ x-axis. *)
 
+
+  method n_items : int
+    (** [n_items] gets the number of dataset items.  Each item is
+	allocated a fixed width across the plot.  A dataset with more
+	than one item is allocated a proportion of the space that is
+	[n_items] times the size of the single item width. *)
+
 end
 
 

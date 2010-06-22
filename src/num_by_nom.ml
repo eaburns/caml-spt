@@ -53,6 +53,7 @@ class type dataset_type =
       dst:Geometry.range -> width:float -> x:float -> Geometry.range
     method x_label_height :
       Drawing.context -> Drawing.text_style -> float -> float
+    method n_items : int
   end
 
 include Num_by_nom_dataset
@@ -113,16 +114,17 @@ object (self)
 
 
   method private x_axis_dimensions ctx yaxis =
-    (** [x_axis_dimensions ctx] computes the x_min, x_max and width
-	for each dataset to display its name on the x-axis. *)
+    (** [x_axis_dimensions ctx] computes the x_min, x_max and
+	item_width for each dataset to display its name on the
+	x-axis. *)
     let x_max, _ = self#size ctx in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx
 	~pad:(ctx.units Spt.text_padding) ~x_min:(ctx.units y_axis_padding)
 	yaxis
     in
-    let n = float (List.length datasets) in
-    let text_width =
+    let n = float (List.fold_left (fun s ds -> s + ds#n_items) 0 datasets) in
+    let item_width =
       let total_padding =
 	(n -. 1.) *. (ctx.units Num_by_nom_dataset.between_padding)
       in
@@ -130,21 +132,22 @@ object (self)
 	then ((x_max -. x_min) -. total_padding) /. n
 	else (x_max -. x_min)
     in
-      range x_min x_max, text_width
+      range x_min x_max, item_width
 
 
-  method private dst_y_range ctx ~y_min ~y_max ~text_width =
-    (** [dst_y_range ctx ~y_min ~y_max ~text_width] get the range on
-	the y-axis.  [text_width] is the amount of width afforded to
-	each dataset on the x-axis. *)
+  method private dst_y_range ctx ~y_min ~y_max ~item_width =
+    (** [dst_y_range ctx ~y_min ~y_max ~item_width] get the range on
+	the y-axis.  [item_width] is the amount of width afforded to a
+	single item for each dataset. *)
     let title_height =
       match title with
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
       List.fold_left (fun m ds ->
+			let width = (float ds#n_items) *. item_width in
 			let h =
-			  ds#x_label_height ctx legend_text_style text_width
+			  ds#x_label_height ctx legend_text_style width
 			in if h > m then h else m)
 	0. datasets
     in
@@ -162,14 +165,15 @@ object (self)
 	~width:xsize ~height:ysize ~dst yaxis;
 
 
-  method private draw_x_axis ctx ~y ~xrange ~text_width =
-    (** [draw_x_axis ctx ~y ~xrange ~text_width] draws the x-axis. *)
+  method private draw_x_axis ctx ~y ~xrange ~item_width =
+    (** [draw_x_axis ctx ~y ~xrange ~item_width] draws the x-axis. *)
     let between_padding = ctx.units Num_by_nom_dataset.between_padding in
       ignore
 	(List.fold_left
 	   (fun x ds ->
-	      ds#draw_x_label ctx ~x ~y legend_text_style ~width:text_width;
-	      x +. text_width +. between_padding)
+	      let width = (float ds#n_items) *. item_width in
+		ds#draw_x_label ctx ~x ~y legend_text_style ~width;
+		x +. width +. between_padding)
 	   xrange.min datasets)
 
 
@@ -178,12 +182,12 @@ object (self)
     self#fill_background ctx;
     let between_padding = ctx.units Num_by_nom_dataset.between_padding in
     let yaxis = self#yaxis in
-    let xrange, width = self#x_axis_dimensions ctx yaxis in
-    let dst = self#dst_y_range ctx ~y_min ~y_max ~text_width:width in
+    let xrange, item_width = self#x_axis_dimensions ctx yaxis in
+    let dst = self#dst_y_range ctx ~y_min ~y_max ~item_width in
     let tr = range_transform ~src ~dst in
       vprintf verb_debug
 	"plot dimensions: x=[%f, %f], y=[%f, %f]\ntext width=%f\n"
-	xrange.min xrange.max dst.min dst.max width;
+	xrange.min xrange.max dst.min dst.max item_width;
       begin match title with
 	| None -> ()
 	| Some t ->
@@ -197,12 +201,13 @@ object (self)
 				     point xrange.max (tr v); ]))
 		horiz_lines);
       ignore (List.fold_left (fun x ds ->
-				ds#draw ctx ~src ~dst ~width ~x;
-				x +. width +. between_padding)
+				let width = (float ds#n_items) *. item_width in
+				  ds#draw ctx ~src ~dst ~width ~x;
+				  x +. width +. between_padding)
 		xrange.min datasets);
       self#draw_y_axis ctx ~dst yaxis;
       self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding))
-	~xrange ~text_width:width
+	~xrange ~item_width
 end
 
 let plot ?label_text_style ?legend_text_style ?tick_text_style

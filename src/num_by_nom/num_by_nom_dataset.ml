@@ -43,6 +43,12 @@ object
 	the maximum amount the dataset will draw off of the
 	destination rectangle in each direction. *)
 
+  method n_items = 1		 (* Most things just have one item. *)
+    (** [n_items] gets the number of dataset items.  Each item is
+	allocated a fixed width across the plot.  A dataset with more
+	than one item is allocated a proportion of the space that is
+	[n_items] times the size of the single item width. *)
+
   method virtual draw :
     context -> src:range -> dst:range -> width:float -> x:float ->unit
     (** [draw ctx ~src ~dst width x] draws the dataset to the
@@ -136,6 +142,10 @@ object(self)
 				     ~width:ds_width ~x),
 		 x +. ds_width +. between_padding))
 	     ((range ~min:infinity ~max:neg_infinity), x0) datasets)
+
+
+  method n_items = List.fold_left (fun s ds -> s + ds#n_items) 0 datasets
+    (* Sums the number of items in the group. *)
 
 
   method draw ctx ~src ~dst ~width ~x =
