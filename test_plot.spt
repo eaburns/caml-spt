@@ -1,4 +1,5 @@
 (let* ((values0 (0 0 1 1 2 2 3 3 4 4 5 5))
+       (no-group (boxplot-dataset :name "boxX" :values values0))
        (group-0-0 (boxplot-dataset :name "box0" :values values0))
        (group-0-1 (boxplot-dataset :name "box1" :values values0))
        (group-0-2 (boxplot-dataset :name "box2" :values values0))
@@ -13,5 +14,8 @@
 				   :dataset group-1-0
 				   :dataset group-1-1
 				   :dataset group-1-2))
-       (plot0 (num-by-nom-plot :dataset dataset0 :dataset dataset1)))
-  (output "num_by_nom.pdf" plot0))
+       (plot0 (num-by-nom-plot
+	       :dataset no-group
+	       :dataset dataset0
+	       :dataset dataset1)))
+  (display plot0))
