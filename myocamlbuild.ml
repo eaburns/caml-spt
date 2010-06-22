@@ -7,17 +7,17 @@
 open Ocamlbuild_plugin
 open Command
 
-let static = true;;
-
 dispatch begin function
   | After_rules ->
-      (* If `static' is true then every ocaml link in bytecode will
-	 add -custom *)
-      if static then flag ["link"; "ocaml"; "byte"] (A"-custom");
+      flag ["link"; "ocaml"; "byte"] (A"-custom");
 
-      ocaml_lib ~extern:true ~dir:"+lacaml" "lacaml";
       ocaml_lib ~extern:true ~dir:"+cairo" "cairo";
       ocaml_lib ~extern:true ~dir:"+cairo" "cairo_lablgtk";
       ocaml_lib ~extern:true ~dir:"+lablgtk2" "lablgtk";
+
+      ocaml_lib ~extern:true ~dir:"+lacaml" "lacaml";
+      (* link with fortran when using lacaml. *);
+      flag ["link"; "ocaml"; "use_lacaml"] (S[A "-cclib"; A "-lgfortran" ]);
+
   | _ -> ()
 end
