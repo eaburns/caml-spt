@@ -10,6 +10,13 @@
 Datasets
 ------------------------------------------------------------
 
+* Histograms: bins draw overlapping
+
+* Histograms: when clamping the x-axis, change the bin_width to
+   display the default number of bins.
+
+* Histograms: up the default number of bins.
+
 * Line errorbar plots should throw out a *nasty* warning if the data
   is not sorted by x-value (since the errorbars may not center on the
   mean line).
