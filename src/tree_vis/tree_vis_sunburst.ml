@@ -1,4 +1,4 @@
-(** A plot type for drawing a tree.
+(** A "sunburst" style tree.
 
     @author eaburns
     @since 2010-06-23
@@ -7,20 +7,9 @@
 open Drawing
 open Geometry
 open Verbosity
-open Printf
-
-type node = {
-  color : color;
-  succs : node array;
-}
-
+open Tree_vis_dataset
 
 let slice_line_style = { default_line_style with line_width = Length.Pt 1. }
-
-let rec max_depth ?(depth=0) n =
-  (Array.fold_left
-     (fun m n' -> max (max_depth ~depth:(depth+1) n') m)
-     0 n.succs) + 1
 
 
 let rec draw_tree ctx center ?(depth=0) ~r ~dr ~t ~dt node =
@@ -41,25 +30,16 @@ let rec draw_tree ctx center ?(depth=0) ~r ~dr ~t ~dt node =
       ~theta:t ~dtheta:dt black
 
 
-(** {1 Tree Plots} ****************************************)
-
-
-class plot ?title tree_dataset =
+class sunburst (root : node) =
 object
-
-  inherit Spt.plot title
-
-  method draw ctx =
+  method draw ctx ~width ~height =
     let w = ctx.units width and h = ctx.units height in
     let cx = w /. 2. and cy = h /. 2. in
+    let center = point cx cy in
     let max_radius = min cx cy in
-      tree_dataset#draw ctx (point cx cy) max_radius
-
-end
-
-and wheeler_tree (root : node) =
-object
-  method draw ctx center max_radius =
     let dr = max_radius /. (float (max_depth root)) in
       draw_tree ctx center ~r:dr ~dr ~t:0. ~dt:two_pi root
 end
+
+
+let sunburst root = new sunburst root

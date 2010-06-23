@@ -99,21 +99,21 @@ let rand_color () =
 let rec rand_tree d max_depth max_br =
   let color = rand_color () in
     if d = max_depth
-    then { Tree_plot.color = color;
-	   Tree_plot.succs = [||] }
+    then { Tree_vis.color = color;
+	   Tree_vis.succs = [||] }
     else begin
       let br = if max_br <= 2 then 2 else (Random.int (max_br - 2)) + 2 in
       let succs =
 	Array.init br (fun _ -> rand_tree (d + 1) max_depth max_br)
       in
-	{ Tree_plot.color = color;
-	  Tree_plot.succs = succs;
+	{ Tree_vis.color = color;
+	  Tree_vis.succs = succs;
 	}
     end
 
 
 let tree_plot () =
-  new Tree_plot.plot (new Tree_plot.wheeler_tree (rand_tree 0 5 5))
+  Tree_vis.plot (Tree_vis.sunburst (rand_tree 0 5 5))
 
 
 let main () =
