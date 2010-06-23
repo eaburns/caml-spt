@@ -17,5 +17,7 @@
        (plot0 (num-by-nom-plot
 	       :dataset no-group
 	       :dataset dataset0
-	       :dataset dataset1)))
+	       :dataset dataset1
+	       :dataset no-group
+	       :dataset no-group)))
   (display plot0))

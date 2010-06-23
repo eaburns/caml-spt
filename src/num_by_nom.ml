@@ -113,10 +113,32 @@ object (self)
 	~src ticks ylabel
 
 
-  method private ds_width ctx item_width ds =
+  (*
+    method private ds_width ctx item_width ds =
     let n = float ds#n_items in
     let pad = (n -. 1.) *. (ctx.units Num_by_nom_dataset.between_padding) in
-      (item_width *. n) +. pad
+    (item_width *. n) +. pad
+  *)
+
+
+  method private fold_datasets ctx init f =
+    (** [fold_datasets ctx init f] folds [f] over each dataset with
+	the before padding, number of items and the dataset. *)
+    let padding = ctx.units Num_by_nom_dataset.between_padding in
+    let _, _, vl =
+      (List.fold_left
+	 (fun (first, pgroup, vl) ds ->
+	    let nitems = ds#n_items in
+	    let group = nitems > 1 in
+	    let pad' =
+	      if first then 0.
+	      else
+		if pgroup || ((not pgroup) && group)
+		then padding *. 3.
+		else padding
+	    in false, group, f vl pad' nitems ds)
+	 (true, false, init) datasets)
+    in vl
 
 
   method private x_axis_dimensions ctx yaxis =
@@ -130,13 +152,13 @@ object (self)
 	yaxis
     in
     let n = float (List.fold_left (fun s ds -> s + ds#n_items) 0 datasets) in
+    let total_padding =
+      self#fold_datasets ctx 0. (fun s pad _ _ -> pad +. s);
+    in
     let item_width =
-      let total_padding =
-	(n -. 1.) *. (ctx.units Num_by_nom_dataset.between_padding)
-      in
-	if n > 1.
-	then ((x_max -. x_min) -. total_padding) /. n
-	else (x_max -. x_min)
+      if n > 1.
+      then ((x_max -. x_min) -. total_padding) /. n
+      else (x_max -. x_min)
     in
       range x_min x_max, item_width
 
@@ -150,16 +172,16 @@ object (self)
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
-      List.fold_left (fun m ds ->
-			let width = self#ds_width ctx item_width ds in
-			let h = ds#x_label_height ctx legend_text_style width
-			in if h > m then h else m)
-	0. datasets
+      self#fold_datasets ctx 0.
+	(fun m _ nitems ds ->
+	   let width = item_width *. (float nitems) in
+	   let h = ds#x_label_height ctx legend_text_style width
+	   in if h > m then h else m)
     in
       range
-	((snd (self#size ctx)) -. data_label_height
-	 -. (ctx.units x_axis_padding))
-	(title_height +. (2. *. (ctx.units Spt.text_padding)))
+	~min:((snd (self#size ctx)) -. data_label_height
+	      -. (ctx.units x_axis_padding))
+	~max:(title_height +. (2. *. (ctx.units Spt.text_padding)))
 
 
 
@@ -172,20 +194,18 @@ object (self)
 
   method private draw_x_axis ctx ~y ~xrange ~item_width =
     (** [draw_x_axis ctx ~y ~xrange ~item_width] draws the x-axis. *)
-    let between_padding = ctx.units Num_by_nom_dataset.between_padding in
-      ignore
-	(List.fold_left
-	   (fun x ds ->
-	      let width = self#ds_width ctx item_width ds in
-		ds#draw_x_label ctx ~x ~y legend_text_style ~width;
-		x +. width +. between_padding)
-	   xrange.min datasets)
+    ignore
+      (self#fold_datasets ctx xrange.min
+	 (fun x pad nitems ds ->
+	    let x = x +. pad in
+	    let width = item_width *. (float nitems) in
+	      ds#draw_x_label ctx ~x ~y legend_text_style ~width;
+	      x +. width))
 
 
   method draw ctx =
     vprintf verb_debug "drawing numeric by nominal plot\n";
     self#fill_background ctx;
-    let between_padding = ctx.units Num_by_nom_dataset.between_padding in
     let yaxis = self#yaxis in
     let xrange, item_width = self#x_axis_dimensions ctx yaxis in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~item_width in
@@ -205,15 +225,16 @@ object (self)
 				   [ point xrange.min (tr v);
 				     point xrange.max (tr v); ]))
 		horiz_lines);
-      ignore (List.fold_left (fun x ds ->
-				let width = self#ds_width ctx item_width ds in
+      ignore (self#fold_datasets ctx xrange.min
+		(fun x pad nitems ds ->
+		   let width = item_width *. (float nitems) in
+		   let x = x +. pad in
 (*
-				  draw_rectangle ctx
-				    (rectangle x (x +. width) dst.min dst.max);
+		     draw_rectangle ctx (rectangle x (x +. width)
+					   dst.min dst.max);
 *)
-				  ds#draw ctx ~src ~dst ~width ~x;
-				  x +. width +. between_padding)
-		xrange.min datasets);
+		     ds#draw ctx ~src ~dst ~width ~x;
+		     x +. width));
       self#draw_y_axis ctx ~dst yaxis;
       self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding))
 	~xrange ~item_width
