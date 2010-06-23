@@ -89,11 +89,37 @@ let num_by_num_plot () =
 	     point (Random.float 100.) (Random.float 100.) |]
       ]
 
+let rand_color () =
+  let color = { Drawing.r = Random.float 1.;
+		Drawing.g = Random.float 1.;
+		Drawing.b = Random.float 1.;
+		Drawing.a = 1. }
+  in color
+
+let rec rand_tree d max_depth max_br =
+  let color = rand_color () in
+    if d = max_depth
+    then { Tree_plot.color = color;
+	   Tree_plot.succs = [||] }
+    else begin
+      let br = if max_br <= 2 then 2 else (Random.int (max_br - 2)) + 2 in
+      let succs =
+	Array.init br (fun _ -> rand_tree (d + 1) max_depth max_br)
+      in
+	{ Tree_plot.color = color;
+	  Tree_plot.succs = succs;
+	}
+    end
+
+
+let tree_plot () =
+  new Tree_plot.plot (new Tree_plot.wheeler_tree (rand_tree 0 3 5))
+
 
 let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
-  let plot = num_by_num_plot () in
+  let plot = tree_plot () in
     plot#display
 
 let _ = main ()

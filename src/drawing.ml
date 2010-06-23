@@ -614,3 +614,67 @@ let fill_rectangle ctx ?(color=black) r =
   Cairo.rectangle ctx.cairo
     r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
   Cairo.fill ctx.cairo
+
+
+(** {6 Circles} ****************************************)
+
+let fill_circle ctx center r color =
+  (** [fill_circle ctx center r color] draws a filled in circle. *)
+  let cairo = ctx.cairo in
+  let cx = center.x and cy = center.y in
+    set_color ctx color;
+    Cairo.new_path cairo;
+    Cairo.arc cairo cx cy r 0. (2. *. pi);
+    Cairo.fill cairo
+
+
+let slice_path ctx center ~radius ~theta ~dtheta =
+  (** [slice_path ctx center ~radius ~theta ~dtheta ] makes the
+      path for a slice.  (see [draw_silce] and [fill_slice]. *)
+  let cairo = ctx.cairo in
+  let cx = center.x and cy = center.y in
+    Cairo.new_path cairo;
+    if dtheta < two_pi
+    then Cairo.move_to cairo cx cy;
+    Cairo.arc cairo cx cy radius theta (theta +. dtheta);
+    Cairo.close_path cairo
+
+
+let draw_slice ctx ?style center ~radius ~theta ~dtheta color =
+  (** [draw_sector ctx ?style center ~radius ~theta ~dtheta color]
+      draws an outline around a pie-slice centered at [center] with a
+      radius [radius] beginning at angle [theta] (in radians) and
+      continuing for [dtheta] radians. *)
+  set_line_style_option ctx style;
+  set_color ctx color;
+  slice_path ctx center ~radius ~theta ~dtheta;
+  Cairo.stroke ctx.cairo
+
+
+let fill_slice ctx center ~radius ~theta ~dtheta color =
+  (** [fill_sector ctx center ~radius ~theta ~dtheta color] fills in a
+      pie-slice centered at [center] with a radius [radius] beginning
+      at angle [theta] (in radians) and continuing for [dtheta]
+      radians. *)
+  set_color ctx color;
+  slice_path ctx center ~radius ~theta ~dtheta;
+  Cairo.fill ctx.cairo
+
+
+let fill_sector ctx center ~r0 ~r1 ~t0 ~t1 color =
+  (** [fill_sector ctx center ~r0 ~r1 ~t0 ~t1 color] draws a sector of
+      a circle.  [center] gives the coordinate for the center point of
+      the circle.  [r0] is the distance along the radius of the circle
+      to begin drawing the sector, r1 is the distance along the radius
+      to finish drawing the sector.  [t0] is the angle (in radians)
+      around the circle to begin drawing and [t1] is the distance
+      around the circle to finish drawing.  [color] is the color of
+      the sector. *)
+  let cairo = ctx.cairo in
+  let cx = center.x and cy = center.y in
+    set_color ctx color;
+    Cairo.new_path cairo;
+    Cairo.arc cairo cx cy r0 t0 t1;
+    Cairo.arc_negative cairo cx cy r1 t1 t0;
+    Cairo.close_path cairo;
+    Cairo.fill cairo

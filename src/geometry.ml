@@ -41,6 +41,10 @@ let pi = 3.1415926535
   (** The constant pi. *)
 
 
+let two_pi = 2. *. pi
+  (** Two times pi... *)
+
+
 let point ~x ~y = { x = x; y = y }
   (** [point ~x ~y] makes a new point *)
 
