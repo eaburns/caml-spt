@@ -62,11 +62,11 @@ module Sunburst = struct
 		   draw_tree ctx center ~depth:depth' ~r:r' ~dr ~t ~dt:dt' s;
 		   t +. dt')
 		t node.succs);
-      fill_slice ctx center ~radius:r ~theta:t ~dtheta:dt node.color
-(*
-      draw_slice ctx ~style:slice_line_style center ~radius:r
-	~theta:t ~dtheta:dt black
-*)
+      let dt = dt +. (epsilon_float *. dt) in
+      let dr = dr +. (epsilon_float *. dr) in
+	(* extra padding attempts to get rid of space-artifacts
+	   between sectors. *)
+      fill_sector ctx center ~r ~dr ~t ~dt node.color
 
 
   let style ctx ~width ~height root =
@@ -74,6 +74,5 @@ module Sunburst = struct
     let center = point cx cy in
     let max_radius = min cx cy in
     let dr = max_radius /. (float (max_depth root)) in
-      draw_tree ctx center ~r:dr ~dr ~t:0. ~dt:two_pi root
+      draw_tree ctx center ~r:0. ~dr ~t:0. ~dt:two_pi root;
 end
-

@@ -628,50 +628,45 @@ let fill_circle ctx center r color =
     Cairo.fill cairo
 
 
-let slice_path ctx center ~radius ~theta ~dtheta =
-  (** [slice_path ctx center ~radius ~theta ~dtheta ] makes the
-      path for a slice.  (see [draw_silce] and [fill_slice]. *)
+let slice_path ctx center ~r ~t ~dt =
+  (** [slice_path ctx center ~r ~t ~dt ] makes the path for a slice.
+      (see [draw_silce] and [fill_slice]. *)
   let cairo = ctx.cairo in
   let cx = center.x and cy = center.y in
     Cairo.new_path cairo;
-    if dtheta < two_pi
+    if dt < two_pi
     then Cairo.move_to cairo cx cy;
-    Cairo.arc cairo cx cy radius theta (theta +. dtheta);
+    Cairo.arc cairo cx cy r t (t +. dt);
     Cairo.close_path cairo
 
 
-let draw_slice ctx ?style center ~radius ~theta ~dtheta color =
-  (** [draw_sector ctx ?style center ~radius ~theta ~dtheta color]
-      draws an outline around a pie-slice centered at [center] with a
-      radius [radius] beginning at angle [theta] (in radians) and
-      continuing for [dtheta] radians. *)
+let draw_slice ctx ?style center ~r ~t ~dt color =
+  (** [draw_sector ctx ?style center ~r ~t ~dt color] draws an outline
+      around a pie-slice centered at [center] with a radius [r]
+      beginning at angle [t] (in radians) and continuing for [dt]
+      radians. *)
   set_line_style_option ctx style;
   set_color ctx color;
-  slice_path ctx center ~radius ~theta ~dtheta;
+  slice_path ctx center ~r ~t ~dt;
   Cairo.stroke ctx.cairo
 
 
-let fill_slice ctx center ~radius ~theta ~dtheta color =
-  (** [fill_sector ctx center ~radius ~theta ~dtheta color] fills in a
-      pie-slice centered at [center] with a radius [radius] beginning
-      at angle [theta] (in radians) and continuing for [dtheta]
-      radians. *)
+let fill_slice ctx center ~r ~t ~dt color =
+  (** [fill_sector ctx center ~r ~t ~d color] fills in a pie-slice
+      centered at [center] with a radius [r] beginning at angle
+      [t] (in radians) and continuing for [dt] radians. *)
   set_color ctx color;
-  slice_path ctx center ~radius ~theta ~dtheta;
+  slice_path ctx center ~r ~t ~dt;
   Cairo.fill ctx.cairo
 
 
-let fill_sector ctx center ~r0 ~r1 ~t0 ~t1 color =
-  (** [fill_sector ctx center ~r0 ~r1 ~t0 ~t1 color] draws a sector of
-      a circle.  [center] gives the coordinate for the center point of
-      the circle.  [r0] is the distance along the radius of the circle
-      to begin drawing the sector, r1 is the distance along the radius
-      to finish drawing the sector.  [t0] is the angle (in radians)
-      around the circle to begin drawing and [t1] is the distance
-      around the circle to finish drawing.  [color] is the color of
-      the sector. *)
+let fill_sector ctx center ~r ~dr ~t ~dt color =
+  (** [fill_sector ctx center ~r ~dr ~t ~dt color] fills a sector of a
+      circle beginning at radius [r] at a width of [dr] beginning at
+      angle [t] for a span of [dt]. *)
   let cairo = ctx.cairo in
   let cx = center.x and cy = center.y in
+  let r0 = r and r1 = r +. dr and t0 = t and t1 = t +. dt in
     set_color ctx color;
     Cairo.new_path cairo;
     Cairo.arc cairo cx cy r0 t0 t1;
