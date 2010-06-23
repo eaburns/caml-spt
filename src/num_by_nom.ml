@@ -60,6 +60,26 @@ include Num_by_nom_dataset
 include Boxplot_dataset
 include Barchart_dataset
 
+let fold_datasets ctx init f datasets =
+  (** [fold_datasets ctx init f datasets] folds [f] over each dataset
+      with the before padding, number of items and the dataset. *)
+  let padding = ctx.units Num_by_nom_dataset.between_padding in
+  let _, _, vl =
+    (List.fold_left
+       (fun (first, pgroup, vl) ds ->
+	  let nitems = ds#n_items in
+	  let group = nitems > 1 in
+	  let pad' =
+	    if first then 0.
+	    else
+	      if pgroup || ((not pgroup) && group)
+	      then padding *. 3.
+	      else padding
+	  in false, group, f vl pad' nitems ds)
+       (true, false, init) datasets)
+  in vl
+
+
 (** {1 Numeric by nomeric plot} ****************************************)
 
 class type plot_type =
@@ -113,34 +133,6 @@ object (self)
 	~src ticks ylabel
 
 
-  (*
-    method private ds_width ctx item_width ds =
-    let n = float ds#n_items in
-    let pad = (n -. 1.) *. (ctx.units Num_by_nom_dataset.between_padding) in
-    (item_width *. n) +. pad
-  *)
-
-
-  method private fold_datasets ctx init f =
-    (** [fold_datasets ctx init f] folds [f] over each dataset with
-	the before padding, number of items and the dataset. *)
-    let padding = ctx.units Num_by_nom_dataset.between_padding in
-    let _, _, vl =
-      (List.fold_left
-	 (fun (first, pgroup, vl) ds ->
-	    let nitems = ds#n_items in
-	    let group = nitems > 1 in
-	    let pad' =
-	      if first then 0.
-	      else
-		if pgroup || ((not pgroup) && group)
-		then padding *. 3.
-		else padding
-	    in false, group, f vl pad' nitems ds)
-	 (true, false, init) datasets)
-    in vl
-
-
   method private x_axis_dimensions ctx yaxis =
     (** [x_axis_dimensions ctx] computes the x_min, x_max and
 	item_width for each dataset to display its name on the
@@ -153,7 +145,7 @@ object (self)
     in
     let n = float (List.fold_left (fun s ds -> s + ds#n_items) 0 datasets) in
     let total_padding =
-      self#fold_datasets ctx 0. (fun s pad _ _ -> pad +. s);
+      fold_datasets ctx 0. (fun s pad _ _ -> pad +. s) datasets
     in
     let item_width =
       if n > 1.
@@ -172,11 +164,12 @@ object (self)
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
-      self#fold_datasets ctx 0.
+      fold_datasets ctx 0.
 	(fun m _ nitems ds ->
 	   let width = item_width *. (float nitems) in
 	   let h = ds#x_label_height ctx legend_text_style width
 	   in if h > m then h else m)
+	datasets
     in
       range
 	~min:((snd (self#size ctx)) -. data_label_height
@@ -195,12 +188,13 @@ object (self)
   method private draw_x_axis ctx ~y ~xrange ~item_width =
     (** [draw_x_axis ctx ~y ~xrange ~item_width] draws the x-axis. *)
     ignore
-      (self#fold_datasets ctx xrange.min
+      (fold_datasets ctx xrange.min
 	 (fun x pad nitems ds ->
 	    let x = x +. pad in
 	    let width = item_width *. (float nitems) in
 	      ds#draw_x_label ctx ~x ~y legend_text_style ~width;
-	      x +. width))
+	      x +. width)
+	 datasets)
 
 
   method draw ctx =
@@ -225,16 +219,17 @@ object (self)
 				   [ point xrange.min (tr v);
 				     point xrange.max (tr v); ]))
 		horiz_lines);
-      ignore (self#fold_datasets ctx xrange.min
+      ignore (fold_datasets ctx xrange.min
 		(fun x pad nitems ds ->
 		   let width = item_width *. (float nitems) in
 		   let x = x +. pad in
-(*
-		     draw_rectangle ctx (rectangle x (x +. width)
-					   dst.min dst.max);
-*)
+		     (*
+		       draw_rectangle ctx (rectangle x (x +. width)
+		       dst.min dst.max);
+		     *)
 		     ds#draw ctx ~src ~dst ~width ~x;
-		     x +. width));
+		     x +. width)
+		datasets);
       self#draw_y_axis ctx ~dst yaxis;
       self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding))
 	~xrange ~item_width
