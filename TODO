@@ -14,6 +14,10 @@ Datasets
   is not sorted by x-value (since the errorbars may not center on the
   mean line).
 
+* Make the line_errbar style just be an error bar style.  Maybe errbar
+  datasets should compute the confidence interval (using interpolation)
+  themselves?
+
 * Find a better way to denote groups in numeric by nominal plots.
 
 * "real" kernel density estimation datasets
