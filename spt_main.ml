@@ -113,7 +113,7 @@ let rec rand_tree d max_depth max_br =
 
 
 let tree_plot () =
-  new Tree_plot.plot (new Tree_plot.wheeler_tree (rand_tree 0 3 5))
+  new Tree_plot.plot (new Tree_plot.wheeler_tree (rand_tree 0 5 5))
 
 
 let main () =
