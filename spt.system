@@ -26,6 +26,7 @@ Files:
 "src/num_by_num/num_heatmap_dataset"
 "src/num_by_num/cdf_dataset"
 "src/num_by_nom"
+"src/tree_plot"
 "src/spt"
 "src/spt_gtk"
 "src/spt_cairo"
