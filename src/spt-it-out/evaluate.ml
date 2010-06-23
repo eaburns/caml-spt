@@ -6,6 +6,7 @@
 
 open Geometry
 open Printf
+open Verbosity
 
 type value =
   | List of value array
@@ -99,13 +100,13 @@ let evaluate functs eval_rec env = function
 	  begin
 	    try f eval_rec env line operands
 	    with Invalid_argument line ->
-	      Printf.printf "%s\n" help_str;
+	      vprintf verb_normal "%s\n" help_str;
 	      failwith (sprintf "line %d: Invalid arguments to %s\n"
 			  line func_name)
 	  end
       with Not_found ->
-	Printf.printf "Available functions:\n";
-	List.iter (fun (n, _, _) -> Printf.printf "\t%s\n" n) functs;
+	vprintf verb_optional "Available functions:\n";
+	List.iter (fun (n, _, _) -> vprintf verb_optional "\t%s\n" n) functs;
 	failwith (sprintf "line %d: Unknown function %s" line func_name)
       end
   | Sexpr.Number (_, vl) -> Number vl
