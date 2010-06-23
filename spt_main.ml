@@ -113,7 +113,7 @@ let rec rand_tree d max_depth max_br =
 
 
 let tree_plot () =
-  Tree_vis.plot Tree_vis.Sunburst.style (rand_tree 0 5 5)
+  Tree_vis.plot Tree_vis.Sunburst.style (rand_tree 0 10 3)
 
 
 let main () =
