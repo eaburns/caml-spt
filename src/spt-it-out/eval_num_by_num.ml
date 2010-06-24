@@ -53,11 +53,11 @@ let eval_scatter eval_rec env line operands =
     Options.glyph glyph;
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":point-radius" radius;
-    ":points", Options.Expr (fun l e ->
-			       let p = Eval_data.points eval_rec env e in
+    ":points", Options.List (fun l e ->
+			       let p = Eval_data.points eval_rec env l e in
 				 data := Array.append !data p);
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.scatter_dataset
 	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
@@ -91,11 +91,11 @@ let eval_bestfit eval_rec env line operands =
     Options.dashes eval_rec env dashes;
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":point-radius" radius;
-    ":points", Options.Expr (fun l e ->
-			       let p = Eval_data.points eval_rec env e in
+    ":points", Options.List (fun l e ->
+			       let p = Eval_data.points eval_rec env l e in
 				 data := Array.append !data p);
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.bestfit_dataset
 	 ~glyph:(match !glyph with | Some g -> g | None -> env.next_glyph ())
@@ -131,11 +131,11 @@ let eval_bubble eval_rec env line operands =
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":min-radius" min_radius;
     Options.length_option_ref eval_rec env ":max-radius" max_radius;
-    ":triples", Options.Expr (fun l e ->
-				let t = Eval_data.triples eval_rec env e in
+    ":triples", Options.List (fun l e ->
+				let t = Eval_data.triples eval_rec env l e in
 				  data := Array.append !data t);
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.bubble_dataset
 	 ?glyph:!glyph
@@ -168,11 +168,11 @@ let eval_line eval_rec env line operands =
     Options.dashes eval_rec env dashes;
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":line-width" width;
-    ":points", Options.Expr (fun l e ->
-			       let p = Eval_data.points eval_rec env e in
+    ":points", Options.List (fun l e ->
+			       let p = Eval_data.points eval_rec env l e in
 			       data := Array.append !data p);
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.line_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -206,11 +206,11 @@ let eval_line_points eval_rec env line operands =
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":line-width" width;
     Options.length_option_ref eval_rec env ":point-radius" radius;
-    ":points", Options.Expr (fun l e ->
-			       let p = Eval_data.points eval_rec env e in
+    ":points", Options.List (fun l e ->
+			       let p = Eval_data.points eval_rec env l e in
 				 data := Array.append !data p);
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.line_points_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -247,12 +247,17 @@ let eval_line_errbar eval_rec env line operands =
     ":lines",
     Options.List
       (fun l lines ->
-	 List.iter (fun e ->
-		      let p = Eval_data.points eval_rec env e in
-			data := p :: !data)
+	 Array.iter (function
+		       | List lst ->
+			   let p = Eval_data.points eval_rec env l lst in
+			     data := p :: !data
+		       | x ->
+			   printf "line %d: Expected points, got %s\n"
+			     l (value_name x);
+			   raise (Invalid_argument l);)
 	   lines);
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     let style = match !dashes with
       | Some d -> { (env.next_line_errbar ()) with Num_by_num.dashes = d }
       | None -> env.next_line_errbar ()
@@ -292,11 +297,11 @@ let eval_histogram eval_rec env line operands =
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":line-width" width;
     Options.number_option_ref ":bin-width" bin_width;
-    ":values", Options.Expr (fun l e ->
-			       let s = Eval_data.scalars eval_rec env e in
+    ":values", Options.List (fun l e ->
+			       let s = Eval_data.scalars eval_rec env l e in
 				 data := Array.append !data s)
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.histogram_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -324,11 +329,11 @@ let eval_cdf eval_rec env line operands =
     Options.dashes eval_rec env dashes;
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":line-width" width;
-    ":values", Options.Expr (fun l e ->
-			       let s = Eval_data.scalars eval_rec env e in
+    ":values", Options.List (fun l e ->
+			       let s = Eval_data.scalars eval_rec env l e in
 				 data := Array.append !data s)
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.cdf_dataset
 	 (match !dashes with | Some g -> g | None -> env.next_dash ())
@@ -357,7 +362,7 @@ let eval_num_by_num_composite eval_rec env line operands =
 			  l (value_name x);
 			raise (Evaluate.Invalid_argument l));
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     Num_by_num_dataset
       (Num_by_num.composite_dataset ?name:!name (List.rev !dss))
 
@@ -403,7 +408,7 @@ let eval_num_by_num_plot eval_rec env line operands =
 	     raise (Evaluate.Invalid_argument l))
   ]
   in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     let plot = (Num_by_num.plot ?title:!title ?xlabel:!xlabel
 		  ?legend_loc:!legend_loc
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
