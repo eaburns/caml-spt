@@ -8,21 +8,15 @@ open Printf
 open Evaluate
 
 type t =
-  | Bool of (int -> bool -> unit)
   | Number of (int -> float -> unit)
-  | Ident of (int -> string -> unit)
   | String of (int -> string -> unit)
-  | List of (int -> Sexpr.sexpr list -> unit)
+  | List of (int -> Evaluate.value array -> unit)
   | Expr of (int -> Sexpr.sexpr -> unit)
 
 
 let option_error line opt = function
-  | Bool _ ->
-      failwith (sprintf "line %d: Expected a boolean after %s" line opt)
   | Number _ ->
       failwith (sprintf "line %d: Expected a number after %s" line opt)
-  | Ident _ ->
-      failwith (sprintf "line %d: Expected an identifier after %s" line opt)
   | String _ ->
       failwith (sprintf "line %d: Expected a string after %s" line opt)
   | List _ ->
@@ -31,42 +25,21 @@ let option_error line opt = function
       failwith (sprintf "line %d: Expected an expression after %s" line opt)
 
 
-let rec handle opt_spec exprs =
-  (** [handle opt_spec lst] handles parsing of options given a
-      specification. *)
+let rec handle eval_rec env opt_spec exprs =
+  (** [handle eval_rec env opt_spec lst] handles parsing of options
+      given a specification. *)
   try
     match exprs with
       | [] -> ()
-      | Sexpr.Ident(line, opt) :: (Sexpr.Number (l, n) as exp) :: tl ->
-	  begin match List.assoc opt opt_spec with
-	    | Number f -> f l n
-	    | Expr f -> f l exp
-	    | x -> option_error line opt x
+      | Sexpr.Ident(line, opt) :: exp :: tl ->
+	  begin match List.assoc opt opt_spec, eval_rec env exp with
+	    | Number f, Evaluate.Number n -> f (Sexpr.line_number exp) n
+	    | String f, Evaluate.String s -> f (Sexpr.line_number exp) s
+	    | List f, Evaluate.List lst -> f (Sexpr.line_number exp) lst
+	    | Expr f, _ -> f (Sexpr.line_number exp) exp
+	    | x, _ -> option_error line opt x
 	  end;
-	  handle opt_spec tl
-      | Sexpr.Ident(line, opt) :: (Sexpr.Ident (l, n) as exp) :: tl ->
-	  begin match List.assoc opt opt_spec with
-	    | Ident f -> f l n
-	    | Bool f when (n = "true" || n = "false") ->
-		f l (bool_of_string n);
-	    | Expr f -> f l exp
-	    | x -> option_error line opt x
-	  end;
-	  handle opt_spec tl
-      | Sexpr.Ident(line, opt) :: (Sexpr.String (l, n) as exp) :: tl ->
-	  begin match List.assoc opt opt_spec with
-	    | String f -> f l n
-	    | Expr f -> f l exp
-	    | x -> option_error line opt x
-	  end;
-	  handle opt_spec tl
-      | Sexpr.Ident(line, opt) :: (Sexpr.List (l, n) as exp) :: tl ->
-	  begin match List.assoc opt opt_spec with
-	    | List f -> f l n
-	    | Expr f -> f l exp
-	    | x -> option_error line opt x
-	  end;
-	  handle opt_spec tl
+	  handle eval_rec env opt_spec tl
       | Sexpr.Ident(line, opt) :: tl ->
 	  printf "line %d: Unknown option %s\n" line opt;
 	  raise (Invalid_argument line)
@@ -114,14 +87,13 @@ let dashes eval_rec env r =
   ":dashes",
   List (fun l ds ->
 	  set_once r l ":dashes"
-	    (Array.of_list
-	       (List.map (fun e -> match eval_rec env e with
-			    | Evaluate.Length n -> n
-			    | x ->
-				printf "line %d: Expected length, got %s\n"
-				  (Sexpr.line_number e) (value_name x);
-				raise (Invalid_argument (Sexpr.line_number e)))
-		  ds)))
+	    (Array.map (function
+			  | Evaluate.Length n -> n
+			  | x ->
+			      printf "line %d: Expected length, got %s\n"
+				l (value_name x);
+			      raise (Invalid_argument l))
+	       ds))
 
 
 let glyph r =
@@ -158,7 +130,7 @@ let eval_color eval_rec env line args =
     ":a", Number (fun _ n -> a := n);
   ]
   in
-    handle opts args;
+    handle eval_rec env opts args;
     Color (Drawing.color ~r:!r ~g:!g ~b:!b ~a:!a)
 
 

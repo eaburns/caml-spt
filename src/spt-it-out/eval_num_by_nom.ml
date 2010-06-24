@@ -16,12 +16,12 @@ let eval_boxplot eval_rec env line operands =
   let opts = [
     Options.string_option_ref ":name" name;
     Options.length_option_ref eval_rec env ":point-radius" radius;
-    ":values", Options.Expr (fun l e ->
-			       let s = Eval_data.scalars eval_rec env e in
+    ":values", Options.List (fun l e ->
+			       let s = Eval_data.scalars eval_rec env l e in
 				 data := Array.append !data s)
   ]
   in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     match !name with
       | None ->
 	  printf "line %d: Invalid boxplot dataset, no name given\n" line;
@@ -47,7 +47,7 @@ let eval_barchart eval_rec env line operands =
     Options.string_option_ref ":name" name;
     Options.number_option_ref ":value" data;
   ] in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     let name = match !name with
       | None ->
 	  printf "line %d: Invalid barchart, no name given\n" line;
@@ -74,12 +74,12 @@ let eval_barchart_errbar eval_rec env line operands =
   let name = ref None and data = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
-    ":values", Options.Expr (fun l e ->
-			       let s = Eval_data.scalars eval_rec env e in
+    ":values", Options.List (fun l e ->
+			       let s = Eval_data.scalars eval_rec env l e in
 				 data := Array.append !data s)
   ]
   in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     match !name with
       | None ->
 	  printf "line %d: Invalid barchart with errorbars dataset, %s\n"
@@ -113,7 +113,7 @@ let eval_num_by_nom_group eval_rec env line operands =
 			raise (Evaluate.Invalid_argument l));
   ]
   in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     match !name with
       | None ->
 	  printf "line %d: Invalid numeric by nominal group dataset, %s\n"
@@ -166,7 +166,7 @@ let eval_num_by_nom_plot eval_rec env line operands =
 	     raise (Evaluate.Invalid_argument l))
   ]
   in
-    Options.handle opts operands;
+    Options.handle eval_rec env opts operands;
     let plot = (Num_by_nom.plot ?title:!title ?ylabel:!ylabel
 		  ?y_min:!y_min ?y_max:!y_max (List.rev !datasets))
     in

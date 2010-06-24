@@ -22,38 +22,28 @@ let read_floats inch =
 
 (** {1 Convenience} ****************************************)
 
-let scalars eval_rec env exp = match eval_rec env exp with
-  | Number n -> [| n |]
-  | List l ->
-      Array.map (function
-		  | Number n -> n
-		  | x -> failwith (sprintf "line %d: Expected number, got %s"
-				     (Sexpr.line_number exp)
-				     (value_name x)))
-	l
-  | x -> failwith (sprintf "line %d: Expected numbers" (Sexpr.line_number exp))
+let scalars eval_rec env line lst =
+  Array.map (function
+	       | Number n -> n
+	       | x -> failwith (sprintf "line %d: Expected number, got %s"
+				  line (value_name x)))
+    lst
 
 
-let points eval_rec env exp = match eval_rec env exp with
-  | List l ->
-      Array.map (function
-		  | List [| Number x; Number y |] -> point x y
-		  | x -> failwith (sprintf "line %d: Expected point, got %s"
-				     (Sexpr.line_number exp)
-				     (value_name x)))
-	l
-  | x -> failwith (sprintf "line %d: Expected points" (Sexpr.line_number exp))
+let points eval_rec env line lst =
+    Array.map (function
+		 | List [| Number x; Number y |] -> point x y
+		 | x -> failwith (sprintf "line %d: Expected point, got %s"
+				    line (value_name x)))
+      lst
 
 
-let rec triples eval_rec env exp = match eval_rec env exp with
-  | List l ->
-      Array.map (function
-		  | List [| Number i; Number j; Number k |] -> triple i j k
-		  | x -> failwith (sprintf "line %d: Expected triple, got %s"
-				     (Sexpr.line_number exp)
-				     (value_name x)))
-	l
-  | x -> failwith (sprintf "line %d: Expected scalars" (Sexpr.line_number exp))
+let rec triples eval_rec env line lst =
+  Array.map (function
+	       | List [| Number i; Number j; Number k |] -> triple i j k
+	       | x -> failwith (sprintf "line %d: Expected triple, got %s"
+				  line (value_name x)))
+    lst
 
 
 (** {1 Functions} ****************************************)
@@ -169,9 +159,38 @@ Gets the log base 10 of the values.  If the argument is a composite\n\
 (points or triples) then the log is applied to all of the fields."
 
 
+let eval_mean eval_rec env line = function
+    (** [eval_mean eval_rec env line operands] computes the mean value
+	of the single argument that is a list of scalars. *)
+  | e :: [] ->
+      begin match eval_rec env e with
+	| List nums ->
+	    let sum =
+	      Array.fold_left
+		(fun s -> function
+		   | Number n -> s +. n
+		   | _ ->
+		       printf "line %d: Expects a list of numbers\n" line;
+		       raise (Invalid_argument line))
+		0. nums
+	    in Number (sum /. (float (Array.length nums)))
+	| _ ->
+	    printf "line %d: Expects a list of numbers\n" line;
+	    raise (Invalid_argument line)
+      end
+  | x :: _ -> raise (Invalid_argument (Sexpr.line_number x))
+  | [] -> raise (Invalid_argument line)
+
+
+let help_str_mean =
+  "(mean (<numbers>))\nComuputes the mean of a list of numbers."
+
+
+
 let functions = [
   "data-file", eval_data_file, help_str_data_file;
   "data-cmd", eval_data_cmd, help_str_data_cmd;
   "group", eval_group, help_str_group;
   "log10", eval_log10, help_str_log10;
+  "mean", eval_mean, help_str_mean;
 ]
