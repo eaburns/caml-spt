@@ -20,25 +20,25 @@ let line_legend_length = Length.Cm 0.75
 
 let default_line = { default_line_style with line_width = Length.Pt 1. }
 
-let bin_start ~min_value ~bin_width index =
+let bin_start ~bin_min ~bin_width index =
   (** value at the left edge of bin [i] in [h] *)
-  min_value +. (bin_width *. (float index))
+  bin_min +. (bin_width *. (float index))
 
 
-let bin_end ~min_value ~bin_width index =
+let bin_end ~bin_min ~bin_width index =
   (** Value at the right edge of bin [i] in [h].
       This is not implemented interms of bin_start because (even when
       inlined) OCaml boxes the return value of bin_start. *)
-  min_value +. (bin_width *. (float (index + 1)))
+  bin_min +. (bin_width *. (float (index + 1)))
 
 
-let bucket ~min_value ~bin_width value =
+let bucket ~bin_min ~bin_width value =
   (** the index of the bin that should contain [value].  Note that any
       value outside the range of representable integers, such as
       [infinity], may yield a garbage value, such as 0!  If you might pass
       such a value, test before calling!  (This routine is intended to be
       simple and fast.) *)
-  truncate ((value -. min_value) /. bin_width)
+  truncate ((value -. bin_min) /. bin_width)
 
 
 let get_bin_width bin_width ~min_value ~max_value count =
@@ -74,20 +74,26 @@ let make_bins ?(normalize=false) bin_width values =
   let range = max_value -. min_value in
   let bin_width = get_bin_width bin_width ~min_value ~max_value count in
   let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
+  let ave_per_bin = (float count) /. (float bin_count) in
+  let bin_min = min_value -. (bin_width /. ave_per_bin)  in
+  let bin_max = bin_end ~bin_min ~bin_width (bin_count - 1) in
   let bins = Array.create (bin_count + 1) 0. in
+  let max_weight = ref 0. in
     Array.iter
       (fun v ->
-	 let bi = bucket ~min_value ~bin_width v in
-	   bins.(bi) <- bins.(bi) +. 1.)
+	 let bi = bucket ~bin_min ~bin_width v in
+	 let c = bins.(bi) +. 1. in
+	   bins.(bi) <- c;
+	   if c > !max_weight then max_weight := c)
       values;
     if normalize then normalize_bins bins;
-    min_value, max_value, bin_width, bins
+    !max_weight, bin_min, bin_max, bin_width, bins
 
 
 class histogram_dataset
   dashes ?(normalize=false) ?(line_width=Length.Pt 1.) ?(bg_color=gray)
   ?bin_width ?name values =
-  let min_value, max_value, bin_width, bins =
+  let max_weight, bin_min, bin_max, bin_width, bins =
     make_bins ~normalize bin_width values
   in
 object(self)
@@ -100,10 +106,7 @@ object(self)
 
 
   method dimensions =
-    rectangle
-      ~x_min:(min_value -. (bin_width /. 2.))
-      ~x_max:(max_value +. (bin_width /. 2.))
-      ~y_min:0. ~y_max:(Array.fold_left max neg_infinity bins)
+    rectangle ~x_min:bin_min ~x_max:bin_max ~y_min:0. ~y_max:max_weight
 
 
   method mean_y_value _ =
@@ -123,8 +126,8 @@ object(self)
 	   if count > 0.
 	   then begin
 	     let y_max = count
-	     and x_min = bin_start ~min_value ~bin_width index
-	     and x_max = bin_end ~min_value ~bin_width index in
+	     and x_min = bin_start ~bin_min ~bin_width index
+	     and x_max = bin_end ~bin_min ~bin_width index in
 	     let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max in
 	     let outline = [ point x_min 0.;
 			     point x_min y_max;
@@ -160,8 +163,8 @@ object(self)
 
   method legend_dimensions ctx =
     (ctx.units line_legend_length),
-  (max ((ctx.units line_legend_length) /. 4.)
-     (ctx.units line_width))
+      (max ((ctx.units line_legend_length) /. 4.)
+	 (ctx.units line_width))
 
 
   method avg_slope = nan
