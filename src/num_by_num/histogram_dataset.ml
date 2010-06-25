@@ -19,67 +19,76 @@ let line_legend_length = Length.Cm 0.75
 
 
 let default_line = { default_line_style with line_width = Length.Pt 1. }
-and default_bins = 10.
 
-
-let bin_start ~min ~bin_width index =
+let bin_start ~min_value ~bin_width index =
   (** value at the left edge of bin [i] in [h] *)
-  min +. (bin_width *. (float index))
+  min_value +. (bin_width *. (float index))
 
 
-let bin_end ~min ~bin_width index =
+let bin_end ~min_value ~bin_width index =
   (** Value at the right edge of bin [i] in [h].
       This is not implemented interms of bin_start because (even when
       inlined) OCaml boxes the return value of bin_start. *)
-  min +. (bin_width *. (float (index + 1)))
+  min_value +. (bin_width *. (float (index + 1)))
 
 
-let bucket ~min ~bin_width value =
+let bucket ~min_value ~bin_width value =
   (** the index of the bin that should contain [value].  Note that any
       value outside the range of representable integers, such as
       [infinity], may yield a garbage value, such as 0!  If you might pass
       such a value, test before calling!  (This routine is intended to be
       simple and fast.) *)
-  truncate ((value -. min) /. bin_width)
+  truncate ((value -. min_value) /. bin_width)
 
 
-let make_bins ~min_value ~max_value ~bin_width values =
-  let range = max_value -. min_value in
-  let bin_count = truncate (ceil (range /. bin_width)) in
-  let bins = Array.create (bin_count + 1) 0. in
-    Array.iter
-      (fun ele ->
-	 let bi = truncate ((ele -. min_value) /. bin_width) in
-	   bins.(bi) <- bins.(bi) +. 1.) values;
-    bins
-
-
-let make_width ~bin_width ~max_value ~min_value =
+let get_bin_width bin_width ~min_value ~max_value count =
+  (** [get_bin_width bin_width ~min_value ~max_value count] gets the
+      width to use for each bin. *)
   match bin_width with
-      None -> (ceil (max_value -. min_value) /. (default_bins -. 1.))
+    | None ->
+	let nbins = sqrt (float count) in
+	  (* This is a common default bin number (used by Excel). *)
+	  (max_value -. min_value) /. nbins
     | Some w -> w
 
 
 let normalize_bins bins =
   (** [normalize_bins bins] normalizes the bins to sum to 1. *)
   let sum = Array.fold_left (+.) 0. bins in
-    Array.map (fun w -> w /. sum) bins
+  let n = Array.length bins in
+    for i = 0 to n - 1 do
+      bins.(i) <- bins.(i) /. sum;
+    done
+
+
+let make_bins ?(normalize=false) bin_width values =
+  (** [make_bins ?normalize bin_width values] creates an array of
+      bins. *)
+  let min_value, max_value, count =
+    Array.fold_left (fun (min, max, n) v ->
+		       let min' = if v < min then v else min
+		       and max' = if v > max then v else max
+		       in min', max', n + 1)
+      (infinity, neg_infinity, 0) values
+  in
+  let range = max_value -. min_value in
+  let bin_width = get_bin_width bin_width ~min_value ~max_value count in
+  let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
+  let bins = Array.create (bin_count + 1) 0. in
+    Array.iter
+      (fun v ->
+	 let bi = bucket ~min_value ~bin_width v in
+	   bins.(bi) <- bins.(bi) +. 1.)
+      values;
+    if normalize then normalize_bins bins;
+    min_value, max_value, bin_width, bins
 
 
 class histogram_dataset
   dashes ?(normalize=false) ?(line_width=Length.Pt 1.) ?(bg_color=gray)
-  ?bin_width ?name vals =
-  let values = Array.sort compare vals ; vals in
-  let min_value, max_value =
-    if (Array.length values) > 0
-    then values.(0), values.((Array.length values) - 1)
-    else nan, nan in
-  let bin_width = make_width ~bin_width ~max_value ~min_value in
-  let bins =
-    let bs = make_bins ~max_value ~min_value ~bin_width values in
-      if normalize
-      then normalize_bins bs
-      else bs
+  ?bin_width ?name values =
+  let min_value, max_value, bin_width, bins =
+    make_bins ~normalize bin_width values
   in
 object(self)
 
@@ -114,21 +123,20 @@ object(self)
 	   if count > 0.
 	   then begin
 	     let y_max = count
-	     and x_min = min_value +. ((float index) -. 0.5) *. bin_width
-	     and x_max = min_value +. ((float index) +. 0.5) *. bin_width
-	     in
-	     let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max
-	     in
+	     and x_min = bin_start ~min_value ~bin_width index
+	     and x_max = bin_end ~min_value ~bin_width index in
+	     let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max in
 	     let outline = [ point x_min 0.;
 			     point x_min y_max;
 			     point x_max y_max;
 			     point x_max 0.;
-			     point x_min 0.;];
+			     point x_min 0.; ]
 	     in
-	       draw_line ctx ~box:src ~tr:tr_pt ~style outline;
-	       match clip_rectangle ~box:src ~r with
+	       begin match clip_rectangle ~box:src ~r with
 		 | Some r -> fill_rectangle ctx ~color:bg_color (tr_rect r)
 		 | None -> ()
+	       end;
+	       draw_line ctx ~box:src ~tr:tr_pt ~style outline;
 	   end)
 	bins
 
@@ -146,8 +154,8 @@ object(self)
 		    point x_max y_max;
 		    point x_max y_min;
 		    point x_min y_min;] in
-      draw_line ctx ~style outline;
-      fill_rectangle ctx ~color:bg_color r
+      fill_rectangle ctx ~color:bg_color r;
+      draw_line ctx ~style outline
 
 
   method legend_dimensions ctx =
@@ -160,9 +168,11 @@ object(self)
 end
 
 
-let histogram_dataset dashes ?normalize ?line_width ?bg_color ?bin_width ?name values =
+let histogram_dataset
+    dashes ?normalize ?line_width ?bg_color ?bin_width ?name values =
   (** [histogram_dataset dashes ?normalize ?line_width ?bg_color
       ?bin_width ?name values] makes a histogram. *)
-  new histogram_dataset dashes ?normalize ?line_width ?bg_color ?bin_width ?name values
+  new histogram_dataset dashes ?normalize ?line_width ?bg_color
+    ?bin_width ?name values
 
 (* EOF *)

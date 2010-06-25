@@ -76,17 +76,16 @@ let num_by_nom_plot () =
       (stacked @ layered)
 
 let num_by_num_plot () =
-  let next_glyph = Factories.default_glyph_factory () in
+  let next_dash = Factories.default_dash_factory () in
     Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Upper_right
       [
-	Num_by_num.scatter_dataset
-	  (next_glyph ())
-	  [| point (Random.float 100.) (Random.float 100.);
-	     point (Random.float 100.) (Random.float 100.) |]
+	Num_by_num.histogram_dataset
+	  (next_dash ())
+	  (Array.init 1000 (fun _ -> Random.float 10000000.))
       ]
 
 let rand_color () =
@@ -119,7 +118,7 @@ let tree_plot () =
 let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
-  let plot = tree_plot () in
+  let plot = num_by_num_plot () in
     plot#display
 
 let _ = main ()

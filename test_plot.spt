@@ -1,4 +1,4 @@
-(let* ((values0 (0 0 1 1 2 2 3 3 4 4 5 5))
+(let* ((values0 (0 0 1 2 2 3 3 4 4 5 5))
        (no-group (boxplot-dataset :name "boxX" :values values0))
        (group-0-0 (boxplot-dataset :name "box0" :values values0))
        (group-0-1 (boxplot-dataset :name "box1" :values values0))
@@ -14,11 +14,16 @@
 				   :dataset group-1-0
 				   :dataset group-1-1
 				   :dataset group-1-2))
-       (plot0 (num-by-nom-plot
-	       :horiz-line 1
-	       :dataset no-group
-	       :dataset dataset0
-	       :dataset dataset1
-	       :dataset no-group
-	       :dataset no-group)))
+       ;; (plot0 (num-by-nom-plot
+       ;; 	       :horiz-line 1
+       ;; 	       :dataset no-group
+       ;; 	       :dataset dataset0
+       ;; 	       :dataset dataset1
+       ;; 	       :dataset no-group
+       ;; 	       :dataset no-group)))
+       (plot0 (num-by-num-plot
+	       :dataset (histogram-dataset
+			 :name "Histogram"
+			 :dashes ()
+			 :values values0))))
   (display plot0))
