@@ -15,6 +15,7 @@
 				   :dataset group-1-1
 				   :dataset group-1-2))
        (plot0 (num-by-nom-plot
+	       :horiz-line 1
 	       :dataset no-group
 	       :dataset dataset0
 	       :dataset dataset1

@@ -168,7 +168,8 @@ let eval_num_by_nom_plot eval_rec env line operands =
   in
     Options.handle eval_rec env opts operands;
     let plot = (Num_by_nom.plot ?title:!title ?ylabel:!ylabel
-		  ?y_min:!y_min ?y_max:!y_max (List.rev !datasets))
+		  ~horiz_lines:!horizs ?y_min:!y_min
+		  ?y_max:!y_max (List.rev !datasets))
     in
     let width = match !width with None -> plot#width | Some w -> w in
     let height = match !height with None -> plot#height | Some h -> h in
