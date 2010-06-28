@@ -60,7 +60,8 @@ let check_lines lines =
        ignore (Array.fold_left
 		 (fun min pt ->
 		    if pt.x <= min
-		    then vprintf verb_normal "Lines are not sorted on x-value";
+		    then
+		      vprintf verb_normal "Lines are not sorted on x-value\n";
 		    pt.x)
 		 neg_infinity line))
     lines
