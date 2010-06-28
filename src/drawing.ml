@@ -348,12 +348,18 @@ let draw_line ctx ?box ?(tr=(fun x -> x)) ?style points =
 	begin match clip_line box points with
 	  | [] -> ()
 	  | lst ->
-	      List.iter (fun (p0, p1) ->
-			   let p0 = tr p0 and p1 = tr p1 in
-			     Cairo.new_path ctx.cairo;
-			     Cairo.move_to ctx.cairo p0.x p0.y;
-			     Cairo.line_to ctx.cairo p1.x p1.y;
-			     Cairo.stroke ctx.cairo;)
+	      List.iter
+		(function
+		   | [] | _ :: [] -> ()
+		   | p :: ps ->
+		       let p' = tr p in
+			 Cairo.new_path ctx.cairo;
+			 Cairo.move_to ctx.cairo p'.x p'.y;
+			 List.iter (fun p ->
+				      let p' = tr p in
+					Cairo.line_to ctx.cairo p'.x p'.y)
+			   ps;
+			 Cairo.stroke ctx.cairo;)
 		lst;
 	end;
   end;

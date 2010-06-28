@@ -330,27 +330,43 @@ let clip_line_segment box ~p0 ~p1 =
     end else p0, p1
 
 
-let clip_line box = function
-    (** [clip_line box points] gets a list of line segments (point
-	pairs) that are within the bounding box.  This routine assumes
-	that [box] is facing backwards ([y_min > y_max]). *)
-  | p0 :: (p1 :: _) as tl ->
-      snd (List.fold_left
-	     (fun (p0, segs) p1 ->
-		if (p0.x < box.x_min && p1.x < box.x_min)
-		  || (p0.x > box.x_max && p1.x > box.x_max)
-		  || (if box.y_min > box.y_max
-		      then ((p0.y < box.y_max && p1.y < box.y_max)
-			    || (p0.y > box.y_min && p1.y > box.y_min))
-		      else ((p0.y > box.y_max && p1.y > box.y_max)
-			    || (p0.y < box.y_min && p1.y < box.y_min)))
-	   then p1, segs
-	   else begin
-	     let p0', p1' = clip_line_segment box ~p0 ~p1 in
-	       p1, (p0', p1') :: segs;
-	   end)
-	(p0, []) tl);
- | _ -> []
+let is_clipped_segment box ~p0 ~p1 =
+  (** [is_clipped_segment box ~p0 ~p1] tests if the segment of line
+      from [p0] to [p1] is completely clypped by the bounding box. *)
+  (p0.x < box.x_min && p1.x < box.x_min) (* before x-min *)
+  || (p0.x > box.x_max && p1.x > box.x_max) (* after x-max *)
+  || (if box.y_min > box.y_max		    (* is the box inverted? *)
+      then ((p0.y < box.y_max && p1.y < box.y_max) (* above *)
+	    || (p0.y > box.y_min && p1.y > box.y_min)) (* below *)
+      else ((p0.y > box.y_max && p1.y > box.y_max)     (* above *)
+	    || (p0.y < box.y_min && p1.y < box.y_min))) (* below *)
+
+
+let rec remove_clipped_prefix box = function
+    (** [remove_clipped_prefix box pts] scans through the points until
+	it finds a pair of points belonging to a segment that is not
+	completely clipped. *)
+  | p0 :: (p1 :: _ as tl) as ps ->
+      if is_clipped_segment box ~p0 ~p1
+      then remove_clipped_prefix box tl
+      else ps
+  | _ -> []
+
+
+let rec clip_line box pts =
+  (** [clip_line box pts] gets a list of line segments (point lists)
+      that are within the bounding box. *)
+  let rec do_clip ?(accum=[]) = function
+    | p0 :: ((p1 :: rest) as ps) ->
+	let p0', p1' = clip_line_segment box ~p0 ~p1 in
+	  if p1' != p1 || rest = []
+	  then List.rev (p1' :: p0' :: accum), ps
+	  else do_clip ~accum:(p0' :: accum) ps
+    | _ :: [] | [] -> List.rev accum, []
+  in
+  let pts = remove_clipped_prefix box pts in
+  let line, rest = do_clip pts in
+    if rest = [] then [ line ] else line :: clip_line box rest
 
 
 (*** Conversions ***********************************************)
