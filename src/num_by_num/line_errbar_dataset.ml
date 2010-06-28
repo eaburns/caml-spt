@@ -4,6 +4,7 @@
     @since 2010-04-30
 *)
 
+open Verbosity
 open Num_by_num_dataset
 open Geometry
 
@@ -51,6 +52,20 @@ let common_domain lines =
       (range neg_infinity infinity) domains
 
 
+let check_lines lines =
+  (** [check_lines lines] throws out a nasty warning if the lines are
+      not sorted on the x-value. *)
+  Array.iter
+    (fun line ->
+       ignore (Array.fold_left
+		 (fun min pt ->
+		    if pt.x <= min
+		    then vprintf verb_normal "Lines are not sorted on x-value";
+		    pt.x)
+		 neg_infinity line))
+    lines
+
+
 let mean_line ?(xs=[||]) domain lines =
   (** [mean_line ?xs domain lines] get a line that is the mean of all
       of the given lines.  [xs] is an array of x-values to ensure are
@@ -59,6 +74,7 @@ let mean_line ?(xs=[||]) domain lines =
 				    type t = float
 				    let compare (a:float) b = compare a b
 				  end) in
+    check_lines lines;
   let min = domain.min and max = domain.max in
   let init_xset =
       Array.fold_left (fun s x -> assert (x >= min); assert (x <= max);
