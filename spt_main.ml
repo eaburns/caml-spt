@@ -77,15 +77,30 @@ let num_by_nom_plot () =
 
 let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
+  let next_glyph = Factories.default_glyph_factory () in
+    ignore (next_dash ());
     Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
-      ~legend_loc:Legend.Upper_right
+      ~legend_loc:Legend.Lower_right
+      ~x_min:0. ~x_max:5. ~y_min:0. ~y_max:5.
       [
-	Num_by_num.histogram_dataset
+	(*
+	  Num_by_num.histogram_dataset
 	  (next_dash ())
 	  (Array.init 1000 (fun _ -> Random.float 10000000.))
+	*)
+	Num_by_num.line_points_dataset
+	  (next_dash ())
+	  (next_glyph ())
+	  [| point 0. 0.; point 1. 1.; point 6. 2.;
+	     point 3. 3.; point ~-.3. 4.; point 4. 5.; |];
+	Num_by_num.line_points_dataset
+	  (next_dash ())
+	  (next_glyph ())
+	  [| point 0. 0.; point 1. 1.; point 2. 6.;
+	     point 3. 3.; point 4. ~-.3.; point 5. 4.; |]
       ]
 
 let rand_color () =
