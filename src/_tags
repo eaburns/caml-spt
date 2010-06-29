@@ -3,3 +3,6 @@
 <spt.ml>: use_cairo
 <spt_cairo.ml>: use_cairo
 <spt_gtk.ml>: use_lablgtk, use_cairo_lablgtk, use_cairo
+
+
+<*.cmx> : for-pack(Simple_plotting_tool)
