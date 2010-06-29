@@ -2,9 +2,27 @@
 
 
 To build spt-it-out:
+--------------------
 
 ocamlbuild src/spt-it-out/spt_it_out.byte
 
-or
+or (for native)
 
 ocamlbuild src/spt-it-out/spt_it_out.native
+
+
+
+
+To build simple_plotting_tool the library
+-----------------------------------------
+
+ocamlbuild simple_plotting_tool.cma
+
+or (for native)
+
+ocamlbuild simple_plotting_tool.cmxa
+
+
+Install it with:
+mkdir <ocaml directory>/simple_plotting_tool
+cp _build/simple_plotting_tool* <ocaml directory>/simple_plotting_tool
