@@ -1,30 +1,10 @@
                       *S*imple *P*lotting *T*ool
 
 
-To build:
+To build spt-it-out:
 
-ocamlbuild spt_main.byte
+ocamlbuild src/spt-it-out/spt_it_out.byte
+
 or
-ocamlbuild spt_main.native
-or
-ocm
 
-
-Notes:
--------------------------------------------------
-
-Factories to decide style, giving a consistent feel to plots
-
-Try to avoid data sets which combine multiple data sets, use composite
-instead
-
-Composite datasets for representing multiple datasets in the same
-dataset, ensuring that the legends overlay properly
-
-Labels are probably their own thing, even though they are internal to
-one of the uml elements.
-
-
-Building cairo top level --
-
-You need to include a few c libraries
+ocamlbuild src/spt-it-out/spt_it_out.native
