@@ -4,7 +4,7 @@
 #
 
 # Use a directory based on the current date
-DIR=spt-`date +%d-%m-%Y`
+DIR=spt-`date +%Y-%m-%d`
 test -d $DIR && {
     echo "directory ${DIR} already exists"
     exit 1

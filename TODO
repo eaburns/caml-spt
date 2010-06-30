@@ -10,23 +10,23 @@
 Datasets
 ------------------------------------------------------------
 
-* Line errorbar plots should throw out a *nasty* warning if the data
-  is not sorted by x-value (since the errorbars may not center on the
-  mean line).
+* Datasets should somehow 'know' the size of the plot that they are
+  currently being drawn to.
+
+* Line and error bar plots should plot no more than 200 points.
 
 * Make the line_errbar style just be an error bar style.  Maybe errbar
   datasets should compute the confidence interval (using interpolation)
   themselves?
 
-* Find a better way to denote groups in numeric by nominal plots.
-
-* "real" kernel density estimation datasets
-   - make an object for it that will find dimensions
-   - find the bandwidth automatically (optional)
+* kernel density estimation datasets
+   - make the dataset object
+   - automatic bandwidth selection
 
 * "boxplots with density estimations"
 
 * Boxplots: 'jitter' outliers that overlap
+  (local search to minimize overlap among all outliers?)
 
 * Normal quantile plots
 
@@ -38,8 +38,6 @@ Datasets
   - Make axis drawing optional.
   - Make room for non-drawn axes, but then don't draw them.
 
-* Labels may be backwards in layered barcharts
-
 ------------------------------------------------------------
 Documentation
 ------------------------------------------------------------
@@ -49,8 +47,6 @@ Documentation
 * Document all functions
   - Generate OCaml docs
 
-* Manual for spt-it-out
-
 * How to use within AI group
 
 ------------------------------------------------------------
@@ -58,13 +54,11 @@ Usability
 ------------------------------------------------------------
 
 * GUI dialog for changing plot sizes could be better
-
-* Function wrappers for creating plots (instead of using 'new')
-
-* Generate .mli files where possible / appropriate
+  (drop-down menu for units, tab cycles fields, fields of the
+  appropriate size).
 
 * Bindings
-  - C
+  - C/C++
   - Python
   - Java?
 
@@ -76,13 +70,15 @@ spt-it-out
 
 * scatter with errbar datasets
 
-* Including other spt-it-out files
-
 * Barchat datasets of various kinds
+
+* Tree plots
 
 * The two kinds of heatmap datasets
 
-* Simple arithmetic... mapping log10 over things, etc.
+* Including other spt-it-out files
+
+* More simple numeric operations (plus, times, etc.)
 
 ------------------------------------------------------------
 Plot types
