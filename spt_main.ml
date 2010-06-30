@@ -25,72 +25,70 @@ let num_by_nom_plot () =
   *)
   (*let bar_err =
     (Barchart_dataset.barchart_errbar_datasets
-       ~group:"Winter"
-       ~use_color:true
-       [
-	 "dec", (Array.init 1 (fun _ -> Random.float 1000.));
-	 "jan", (Array.init 1 (fun _ -> Random.float 1000.));
-	 "feb", (Array.init 1 (fun _ -> Random.float 1000.));
-       ]) @
-      (Barchart_dataset.barchart_errbar_datasets
-	 ~group:"Spring"
-	 ~use_color:true
-	 [
-	   "mar", (Array.init 10 (fun _ -> Random.float 1000.));
-	   "apr", (Array.init 10 (fun _ -> Random.float 1000.));
-	   "may", (Array.init 10 (fun _ -> Random.float 1000.));
-	 ]) @
-      (Barchart_dataset.barchart_errbar_datasets
-	 ~group:"Summer"
-	 ~use_color:true
-	 [
-	   "jun", (Array.init 100 (fun _ -> Random.float 1000.));
-	   "jul", (Array.init 100 (fun _ -> Random.float 1000.));
-	   "aug", (Array.init 100 (fun _ -> Random.float 1000.));
-	 ]) @
-      (Barchart_dataset.barchart_errbar_datasets
-	 ~group:"Autumn"
-	 ~use_color:true
-	 [
-	   "sep", (Array.init 1000 (fun _ -> Random.float 1000.));
-	   "oct", (Array.init 1000 (fun _ -> Random.float 1000.));
-	   "nov", (Array.init 1000 (fun _ -> Random.float 1000.));
-	 ])*)
+    ~group:"Winter"
+    ~use_color:true
+    [
+    "dec", (Array.init 1 (fun _ -> Random.float 1000.));
+    "jan", (Array.init 1 (fun _ -> Random.float 1000.));
+    "feb", (Array.init 1 (fun _ -> Random.float 1000.));
+    ]) @
+    (Barchart_dataset.barchart_errbar_datasets
+    ~group:"Spring"
+    ~use_color:true
+    [
+    "mar", (Array.init 10 (fun _ -> Random.float 1000.));
+    "apr", (Array.init 10 (fun _ -> Random.float 1000.));
+    "may", (Array.init 10 (fun _ -> Random.float 1000.));
+    ]) @
+    (Barchart_dataset.barchart_errbar_datasets
+    ~group:"Summer"
+    ~use_color:true
+    [
+    "jun", (Array.init 100 (fun _ -> Random.float 1000.));
+    "jul", (Array.init 100 (fun _ -> Random.float 1000.));
+    "aug", (Array.init 100 (fun _ -> Random.float 1000.));
+    ]) @
+    (Barchart_dataset.barchart_errbar_datasets
+    ~group:"Autumn"
+    ~use_color:true
+    [
+    "sep", (Array.init 1000 (fun _ -> Random.float 1000.));
+    "oct", (Array.init 1000 (fun _ -> Random.float 1000.));
+    "nov", (Array.init 1000 (fun _ -> Random.float 1000.));
+    ])*)
   let stacked =
     Barchart_dataset.stacked_barchart_datasets
       ~group:"Stacked"
       ~fill_factory:(Factories.default_color_fill_pattern_factory ())
-      [ None,[|"a1", 10.; "a2", 5.; "a3", 7.;|];
-	(Some "b"), [|"b1", 10.; "b2", 2.; "b3", 9.;|];
-	(Some "c"), [|"c1", 8.; "c2", 13.; "c3", 1.;|]]
+      [
+	(Some "Stack A"), [|"a1", 10.; "a2", 2.; "a3", 9.;|];
+	(Some "Stack B"), [|"b1", 8.; "b2", 13.; "b3", 1.;|];
+	  None,[|"c1", 10.; "c2", 5.; "c3", 7.;|];
+      ]
 
   and layered =
     Barchart_dataset.layered_barchart_datasets
       ~group:"Layered"
       ~fill_factory:(Factories.default_color_fill_pattern_factory ())
-      [ (Some "a"), [|"a1", 10.; "a2", 5.; "a3", 7.;|];
-	(Some "b"), [|"b1", 10.; "b2", 2.; "b3", 9.;|];
-	None, [|"c1", 8.; "c2", 13.; "c3", 1.;|]]
+      [ (Some "Layer A"), [|"a1", 10.; "a2", 2.; "a3", 9.;|];
+	(Some "Layer B"), [|"b1", 8.; "b2", 13.; "b3", 1.;|];
+	None, [|"c1", 10.; "c2", 5.; "c3", 7.;|]]
   in
     Num_by_nom.plot ~title:"Title text" ~ylabel:"Y label text"
       (stacked @ layered)
 
 let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
-  let next_glyph = Factories.default_glyph_factory () in
-    ignore (next_dash ());
     Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
       ~legend_loc:Legend.Lower_right
-      ~x_min:0. ~x_max:5. ~y_min:0. ~y_max:5.
       [
-	(*
 	  Num_by_num.histogram_dataset
 	  (next_dash ())
 	  (Array.init 1000 (fun _ -> Random.float 10000000.))
-	*)
+	(*
 	Num_by_num.line_points_dataset
 	  (next_dash ())
 	  (next_glyph ())
@@ -101,6 +99,7 @@ let num_by_num_plot () =
 	  (next_glyph ())
 	  [| point 0. 0.; point 1. 1.; point 2. 6.;
 	     point 3. 3.; point 4. ~-.3.; point 5. 4.; |]
+	*)
       ]
 
 let rand_color () =
@@ -133,7 +132,8 @@ let tree_plot () =
 let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
-  let plot = num_by_num_plot () in
-    plot#display
+  let plot = num_by_nom_plot () in
+    plot#set_size ~w:(Length.In 10.) ~h:(Length.In 7.5);
+    plot#output "plot.png"
 
 let _ = main ()
