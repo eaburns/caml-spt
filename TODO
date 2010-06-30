@@ -6,6 +6,8 @@
 
 * Increase/decrease the number of error bars with the size of the plot?
 
+* Legend.At uses floats instead of Length.t's.
+
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
