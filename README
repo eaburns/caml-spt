@@ -34,8 +34,6 @@ or (for native)
 ocamlbuild src/spt-it-out/spt_it_out.native
 
 
-
-
 To build simple_plotting_tool the library
 -----------------------------------------
 
