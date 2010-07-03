@@ -54,9 +54,9 @@ end = struct
 
   let set l =
     if l < verb_critical
-    then printf "Warning: Attempting to set verbosity less than critical";
+    then printf "Warning: Attempting to set verbosity less than critical\n";
     if l > verb_debug
-    then printf "Warning: Attempting to set verbosity greater than debug";
+    then printf "Warning: Attempting to set verbosity greater than debug\n";
     verb_level := max (min l verb_debug) verb_critical
 
   let get () = !verb_level
