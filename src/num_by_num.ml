@@ -123,12 +123,12 @@ class plot
   ?(legend_text_style=Spt.default_legend_style)
   ?(tick_text_style=Spt.default_tick_style)
   ?title ?xlabel ?ylabel
-  ?(legend_loc=Legend.Upper_right)
+  ?(sort_legend=true) ?(legend_loc=Legend.Upper_right)
   ?x_min ?x_max ?y_min ?y_max
   (datasets : dataset_type list) =
   (** [plot ?label_style ?legend_style ?tick_style ?title ?xlabel
-      ?ylabel ?x_min ?x_max ?y_min ?y_max datasets] a plot that has a
-      numeric x and y axis. *)
+      ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min ?y_max
+      datasets] a plot that has a numeric x and y axis. *)
   let _ = vprintf verb_optional "creating a numeric by numeric plot\n" in
 object (self)
   inherit Spt.plot title
@@ -196,15 +196,15 @@ object (self)
     let src = xrange src in
     let nticks = Numeric_axis.recommended_ticks width in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
-(*
-      verb_eval verb_debug
+      (*
+	verb_eval verb_debug
 	(fun () ->
-	   vprintf verb_debug "x-ticks:\n";
-	   List.iter (fun (vl, name) -> match name with
-			| None -> vprintf verb_debug "\tminor: %f\n" vl
-			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
-	     ticks);
-*)
+	vprintf verb_debug "x-ticks:\n";
+	List.iter (fun (vl, name) -> match name with
+	| None -> vprintf verb_debug "\tminor: %f\n" vl
+	| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
+	ticks);
+      *)
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks xlabel
 
 
@@ -213,15 +213,15 @@ object (self)
     let src = yrange src in
     let nticks = Numeric_axis.recommended_ticks height in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
-(*
-      verb_eval verb_debug
+      (*
+	verb_eval verb_debug
 	(fun () ->
-	   vprintf verb_debug "y-ticks:\n";
-	   List.iter (fun (vl, name) -> match name with
-			| None -> vprintf verb_debug "\tminor: %f\n" vl
-			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
-	     ticks);
-*)
+	vprintf verb_debug "y-ticks:\n";
+	List.iter (fun (vl, name) -> match name with
+	| None -> vprintf verb_debug "\tminor: %f\n" vl
+	| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
+	ticks);
+      *)
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks ylabel
 
 
@@ -265,14 +265,15 @@ object (self)
       List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets;
       save_transforms ctx;
       translate ctx legend_x legend_y;
-      Legend.draw ctx src legend_txt_loc legend_text_style datasets;
+      Legend.draw ctx sort_legend src legend_txt_loc
+	legend_text_style datasets;
       restore_transforms ctx
 
 end
 
 let plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?xlabel ?ylabel ?legend_loc
+    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc
     ?x_min ?x_max ?y_min ?y_max datasets =
   new plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?xlabel ?ylabel ?legend_loc
+    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc
     ?x_min ?x_max ?y_min ?y_max datasets

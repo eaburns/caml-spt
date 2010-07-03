@@ -79,27 +79,31 @@ let num_by_nom_plot () =
 
 let num_by_num_plot () =
   let next_dash = Factories.default_dash_factory () in
+  let next_glyph = Factories.default_glyph_factory () in
     Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
       ~ylabel:"Y label text"
+      ~sort_legend:false
       ~legend_loc:Legend.Lower_right
       [
+	(*
 	  Num_by_num.histogram_dataset
 	  (next_dash ())
 	  (Array.init 1000 (fun _ -> Random.float 10000000.))
-	(*
+	*)
 	Num_by_num.line_points_dataset
 	  (next_dash ())
 	  (next_glyph ())
+	  ~name:"One"
+	  [| point 0. 0.; point 1. 1.; point 2. 6.;
+	     point 3. 3.; point 4. ~-.3.; point 5. 4.; |];
+	Num_by_num.line_points_dataset
+	  (next_dash ())
+	  (next_glyph ())
+	  ~name:"Zero"
 	  [| point 0. 0.; point 1. 1.; point 6. 2.;
 	     point 3. 3.; point ~-.3. 4.; point 4. 5.; |];
-	Num_by_num.line_points_dataset
-	  (next_dash ())
-	  (next_glyph ())
-	  [| point 0. 0.; point 1. 1.; point 2. 6.;
-	     point 3. 3.; point 4. ~-.3.; point 5. 4.; |]
-	*)
       ]
 
 let rand_color () =
@@ -132,8 +136,11 @@ let tree_plot () =
 let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
-  let plot = num_by_nom_plot () in
+  let plot = num_by_num_plot () in
     plot#set_size ~w:(Length.In 10.) ~h:(Length.In 7.5);
+(*
     plot#output "plot.png"
+*)
+    plot#display
 
 let _ = main ()
