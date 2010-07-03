@@ -28,8 +28,8 @@ let parse_args () =
 
 let main () =
   let ichan, verb = parse_args () in
-    vprintf verb_normal "spt-it-out version %3.1f\n" version;
     Verb_level.set verb;
+    vprintf verb_normal "spt-it-out version %3.1f\n" version;
     if ichan = stdin
     then begin
       try
