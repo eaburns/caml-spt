@@ -327,6 +327,7 @@ val plot :
   ?title:string ->
   ?xlabel:string ->
   ?ylabel:string ->
+  ?sort_legend:bool ->
   ?legend_loc:Legend.location ->
   ?x_min:float ->
   ?x_max:float ->
@@ -335,6 +336,6 @@ val plot :
   dataset_type list ->
   plot_type
 (** [plot ?label_text_style ?legend_text_style ?tick_text_style ?title
-    ?xlabel ?ylabel ?legend_loc ?x_min ?x_max ?y_min ?y_max datasets]
-    creates a numeric by numeric plot. *)
+    ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
+    ?y_max datasets] creates a numeric by numeric plot. *)
 
