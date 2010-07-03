@@ -8,9 +8,13 @@
 
 * Legend.At uses floats instead of Length.t's.
 
+* Disable sorting of the legend entries
+
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
+
+* Arbitrary degree bestfit.
 
 * Datasets should somehow 'know' the size of the plot that they are
   currently being drawn to.
