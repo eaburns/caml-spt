@@ -12,7 +12,7 @@
 Datasets
 ------------------------------------------------------------
 
-* Arbitrary degree bestfit.
+* Label bestfit lines with the polynomial.
 
 * Datasets should somehow 'know' the size of the plot that they are
   currently being drawn to.
