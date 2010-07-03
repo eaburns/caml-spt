@@ -92,18 +92,17 @@ let num_by_num_plot () =
 	  (next_dash ())
 	  (Array.init 1000 (fun _ -> Random.float 10000000.))
 	*)
-	Num_by_num.line_points_dataset
-	  (next_dash ())
-	  (next_glyph ())
-	  ~name:"One"
-	  [| point 0. 0.; point 1. 1.; point 2. 6.;
-	     point 3. 3.; point 4. ~-.3.; point 5. 4.; |];
-	Num_by_num.line_points_dataset
-	  (next_dash ())
-	  (next_glyph ())
+	Num_by_num.bestfit_dataset
+	  ~dashes:(next_dash ())
+	  ~glyph:(next_glyph ())
 	  ~name:"Zero"
-	  [| point 0. 0.; point 1. 1.; point 6. 2.;
-	     point 3. 3.; point ~-.3. 4.; point 4. 5.; |];
+	  [| point 0. 0.; point 1. 1.; point 2. 2.; point 3. 3.; |];
+	Num_by_num.bestfit_dataset
+	  ~dashes:(next_dash ())
+	  ~glyph:(next_glyph ())
+	  ~degree:2
+	  ~name:"One"
+	  [| point 0. 0.; point 1. 1.; point 2. 4.; point 3. 9.; |];
       ]
 
 let rand_color () =
