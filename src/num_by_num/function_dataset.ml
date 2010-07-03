@@ -7,6 +7,7 @@
 open Num_by_num_dataset
 open Drawing
 open Geometry
+open Verbosity
 
 
 class function_dataset
@@ -79,23 +80,53 @@ let function_dataset dashes ?samples ?line_width ?color ?name f =
 
 open Lacaml.Impl.D
 
+let poly_features degree x =
+  (** [poly_features degree x] get a polynomial feature array. *)
+  let nterms = degree + 1 in
+    Array.init nterms (function | 0 -> 1. | t -> x ** (float t))
+
+
+let compute_poly degree coeffs x =
+  (** [compute_poly degree coeffs x] compute a polynomial in [x] given
+      the coefficients in a bigarray. *)
+  let vl = ref coeffs.{1, 1} in
+  let x = ref x in
+    for i = 1 to degree do
+      vl := !vl +. (coeffs.{i + 1, 1} *. !x);
+      x := !x *. !x;
+    done;
+    !vl
+
+
+let poly_string degree coeffs =
+  (** [poly_string degree coeffs] get a string of the polynomial given
+      the coefficients. *)
+  let str = ref (Printf.sprintf "%g" coeffs.{1, 1}) in
+    for i = 1 to degree do
+      str := Printf.sprintf "%gx^%d + %s" coeffs.{i + 1, 1} i !str;
+    done;
+    "y = " ^ !str
+
+
 let bestfit_dataset
-    ~glyph ~dashes ?color ?line_width ?point_radius ?name points =
+    ~glyph ~dashes ?color ?line_width ?point_radius ?(degree=1) ?name points =
   let scatter =
     new Scatter_dataset.scatter_dataset
       glyph ?color ?point_radius ?name points in
-  let xs = Mat.of_array (Array.map (fun p -> [| p.x; 1. |]) points) in
+  let xs =
+    Mat.of_array (Array.map (fun p -> (poly_features degree p.x)) points) in
   let ys = Mat.of_array (Array.map (fun p -> [| p.y |]) points) in
     ignore (gelsd ~rcond:1e-4 xs ys);
-    let m = ys.{1, 1} and b = ys.{2, 1} in
-    let line =
-      new function_dataset dashes ~samples:2 ?line_width ?color ?name
-	(fun x -> x *. m +. b)
+    let samples = if degree = 1 then Some 2 else None in
+    let poly =
+      new function_dataset dashes ?samples ?line_width ?color ?name
+	(compute_poly degree ys)
     in
-      new composite_dataset ?name [scatter; line;]
+      vprintf verb_debug "Bestfit: %s\n" (poly_string degree ys);
+      new composite_dataset ?name [scatter; poly;]
 
 let bestfit_datasets ?(uses_color=false)
-    ?point_radius ?line_width name_by_point_list_list =
+    ?point_radius ?line_width ?degree name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
   let next_dash = Factories.default_dash_factory () in
     if uses_color
@@ -105,7 +136,7 @@ let bestfit_datasets ?(uses_color=false)
 			  ~glyph:(next_glyph ())
 			  ~dashes:(next_dash ())
 			  ~color:(next_color())
-			  ?line_width ?point_radius
+			  ?line_width ?point_radius ?degree
 			  ?name point_list) name_by_point_list_list)
     else
       List.map (fun (name, point_list) ->
