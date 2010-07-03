@@ -387,6 +387,7 @@ let eval_num_by_num_plot eval_rec env line operands =
   and y_max = ref None
   and width = ref None
   and height = ref None
+  and sort_legend = ref true
   and datasets = ref [] in
   let opts = [
     Options.legend eval_rec env legend_loc;
@@ -399,6 +400,7 @@ let eval_num_by_num_plot eval_rec env line operands =
     Options.number_option_ref ":x-max" x_max;
     Options.number_option_ref ":y-min" y_min;
     Options.number_option_ref ":y-max" y_max;
+    Options.bool_ref ":sort-legend" sort_legend;
     ":dataset", Options.Expr
       (fun l e -> match eval_rec env e with
 	 | Num_by_num_dataset ds -> datasets := ds :: !datasets
@@ -410,9 +412,10 @@ let eval_num_by_num_plot eval_rec env line operands =
   in
     Options.handle eval_rec env opts operands;
     let plot = (Num_by_num.plot ?title:!title ?xlabel:!xlabel
+		  ~sort_legend:!sort_legend
 		  ?legend_loc:!legend_loc
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
-		  ?y_min:!y_min ?y_max:!y_max !datasets)
+		  ?y_min:!y_min ?y_max:!y_max (List.rev !datasets))
     in
     let width = match !width with None -> plot#width | Some w -> w in
     let height = match !height with None -> plot#height | Some h -> h in
@@ -424,7 +427,8 @@ let help_str_num_by_num_plot =
   "(num-by-num-plot [:title <string>] [:x-label <string>]\n\
  [:y-label <string>] [:width <length>] [:height <length>]\n\
  [:x-min <number>] [:x-max <number>] [:y-min <number>] [:y-max <number>]\n\
- [:legend <legend location>] [:dataset <num-by-num-dataset>]+)\n\
+ [:sort-legend <bool>] [:legend <legend location>]\n\
+ [:dataset <num-by-num-dataset>]+)\n\
 Creates a plot with numeric x and y axes."
 
 

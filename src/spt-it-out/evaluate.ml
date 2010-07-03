@@ -10,6 +10,7 @@ open Verbosity
 
 type value =
   | List of value array
+  | Bool of bool
   | Number of float
   | String of string
   | Color of Drawing.color
@@ -51,6 +52,7 @@ let lookup_ident env l id =
 let value_name = function
     (** [to_string t] gets the string representation. *)
   | List _ -> "List"
+  | Bool _ -> "Bool"
   | Number _ -> "Number"
   | String _ -> "String"
   | Length _ -> "Length"
@@ -63,6 +65,7 @@ let value_name = function
 
 
 let rec string_of_value = function
+  | Bool b -> string_of_bool b
   | Number n -> sprintf "%g" n
   | String s -> sprintf "%s" s
   | Length l -> Length.to_string l
@@ -111,6 +114,8 @@ let evaluate functs eval_rec env = function
       end
   | Sexpr.Number (_, vl) -> Number vl
   | Sexpr.String (_, n) -> String n
+  | Sexpr.Ident (l, "true") -> Bool true
+  | Sexpr.Ident (l, "false") -> Bool false
   | Sexpr.Ident (l, id) -> lookup_ident env l id
   | Sexpr.List (l, exps) ->
       let n = List.length exps in

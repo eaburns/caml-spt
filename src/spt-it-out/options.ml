@@ -11,10 +11,13 @@ type t =
   | Number of (int -> float -> unit)
   | String of (int -> string -> unit)
   | List of (int -> Evaluate.value array -> unit)
+  | Bool of (int -> bool -> unit)
   | Expr of (int -> Sexpr.sexpr -> unit)
 
 
 let option_error line opt = function
+  | Bool _ ->
+      failwith (sprintf "line %d: Expected a boolean after %s" line opt)
   | Number _ ->
       failwith (sprintf "line %d: Expected a number after %s" line opt)
   | String _ ->
@@ -36,6 +39,7 @@ let rec handle eval_rec env opt_spec exprs =
 	    | Number f, Evaluate.Number n -> f (Sexpr.line_number exp) n
 	    | String f, Evaluate.String s -> f (Sexpr.line_number exp) s
 	    | List f, Evaluate.List lst -> f (Sexpr.line_number exp) lst
+	    | Bool f, Evaluate.Bool b -> f (Sexpr.line_number exp) b
 	    | Expr f, _ -> f (Sexpr.line_number exp) exp
 	    | x, _ -> option_error line opt x
 	  end;
@@ -68,11 +72,19 @@ let set_once reference line name vl =
   then reference := Some vl
   else failwith (sprintf "line %d: %s already specified" line name)
 
+
 let string_option_ref opt r =
   opt, String (fun l s -> set_once r l opt s)
 
+
 let number_option_ref opt r =
   opt, Number (fun l n -> set_once r l opt n)
+
+
+let bool_ref opt r =
+  opt, Bool (fun l b -> r := b)
+
+
 
 let length_option_ref eval_rec env opt r =
   opt, Expr (fun l e -> match eval_rec env e with
