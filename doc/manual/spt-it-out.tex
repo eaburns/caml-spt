@@ -289,7 +289,7 @@ behavior is to concatenate the points into one single list of points.
 \subsubsection{\tt bestfit-dataset}
 
 Makes a dataset that displays a glyph at each of the given points with
-a best linear fit line.  The options are the same as for {\tt
+a best polynomial fit.  The options are the same as for {\tt
   scatter-dataset} except the following additional option is
 available.
 
@@ -299,6 +299,9 @@ Option & Default & Notes \\
 \hline
 :dashes & & A list of lengths {\tt (<on> <off> ...)} that specify the
 dash pattern of the line\\
+:degree & 1 & The degree of the polynomial to fit. \\
+:fit-in-name & true & If true, the best fit function is added to the end
+of the dataset name.\\
 \end{tabular}
 \end{center}
 

@@ -84,6 +84,8 @@ let eval_bestfit eval_rec env line operands =
   and color = ref None
   and radius = ref None
   and name = ref None
+  and degree = ref None
+  and fit_in_name = ref None
   and data = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
@@ -91,6 +93,8 @@ let eval_bestfit eval_rec env line operands =
     Options.dashes eval_rec env dashes;
     Options.color eval_rec env color;
     Options.length_option_ref eval_rec env ":point-radius" radius;
+    Options.number_option_ref ":degree" degree;
+    Options.bool_option_ref ":fit-in-name" fit_in_name;
     ":points", Options.List (fun l e ->
 			       let p = Eval_data.points eval_rec env l e in
 				 data := Array.append !data p);
@@ -102,17 +106,25 @@ let eval_bestfit eval_rec env line operands =
 	 ~dashes:(match !dashes with | Some d -> d | None -> env.next_dash ())
 	 ?color:!color
 	 ?point_radius:!radius
+	 ?degree:(match !degree with
+		    | Some n -> Some (truncate n)
+		    | None -> None)
+	 ?fit_in_name:!fit_in_name
 	 ?name:!name
 	 !data)
 
 
 let help_str_bestfit =
   "(bestfit-dataset [:name <string>] [:glyph <string>] [:dashes <dashes>]
- [:color <color>] [:point-radius <length>] [:points <points>]+)\n\
+ [:color <color>] [:point-radius <length>] [:degree <int>]\n\
+ [fit-in-name <bool>] [:points <points>]+)\n\
 Creates a scatter plot datatset with a bestfit line.  All points\n\
 in the dataset use the same glyph.  The :dashes option sets the dash\n\
 pattern for the bestfit line.  If specified :point-radius selects\n\
-the size of the glyphs."
+the size of the glyphs. :degree specifies the degree of the polynomial\n\
+(default is 1, linear).  If :fit-in-name is true then the best fit\n\
+function is added to the end of the dataset name to be displayed in\n\
+the legend."
 
 
 let eval_bubble eval_rec env line operands =
@@ -387,7 +399,7 @@ let eval_num_by_num_plot eval_rec env line operands =
   and y_max = ref None
   and width = ref None
   and height = ref None
-  and sort_legend = ref true
+  and sort_legend = ref None
   and datasets = ref [] in
   let opts = [
     Options.legend eval_rec env legend_loc;
@@ -400,7 +412,7 @@ let eval_num_by_num_plot eval_rec env line operands =
     Options.number_option_ref ":x-max" x_max;
     Options.number_option_ref ":y-min" y_min;
     Options.number_option_ref ":y-max" y_max;
-    Options.bool_ref ":sort-legend" sort_legend;
+    Options.bool_option_ref ":sort-legend" sort_legend;
     ":dataset", Options.Expr
       (fun l e -> match eval_rec env e with
 	 | Num_by_num_dataset ds -> datasets := ds :: !datasets
@@ -412,7 +424,7 @@ let eval_num_by_num_plot eval_rec env line operands =
   in
     Options.handle eval_rec env opts operands;
     let plot = (Num_by_num.plot ?title:!title ?xlabel:!xlabel
-		  ~sort_legend:!sort_legend
+		  ?sort_legend:!sort_legend
 		  ?legend_loc:!legend_loc
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
 		  ?y_min:!y_min ?y_max:!y_max (List.rev !datasets))
