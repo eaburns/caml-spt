@@ -8,6 +8,12 @@ Ethan Burns <http://www.cs.unh.edu/~eaburns>
 Jordan Thayer <http://www.cs.unh.edu/~jtd7>
 
 
+Dependencies
+------------
+* lacaml (which depends on lapack)
+* cairo-ocaml (which depends on Cairo: http://cairographics.org/)
+* lablgtk
+
 
 To build spt-it-out:
 --------------------
