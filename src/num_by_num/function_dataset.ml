@@ -98,18 +98,43 @@ let compute_poly degree coeffs x =
     !vl
 
 
+let term_string coeffs i =
+  (** [term_string coeffs i] gets the string representation of a
+      single term. *)
+  let coeff = coeffs.{i + 1, 1} in
+    if coeff < 1e-4
+    then None
+    else begin
+      let cstr = Printf.sprintf "%g" coeff in
+	if i = 0
+	then Some cstr
+	else begin
+	  let cstr = if cstr = "1" then "" else cstr in
+	    if i = 1
+	    then Some (cstr ^ "x")
+	    else Some (Printf.sprintf "%sx^%d" cstr i)
+	end
+    end
+
+
 let poly_string degree coeffs =
   (** [poly_string degree coeffs] get a string of the polynomial given
       the coefficients. *)
-  let str = ref (Printf.sprintf "%g" coeffs.{1, 1}) in
-    for i = 1 to degree do
-      str := Printf.sprintf "%gx^%d + %s" coeffs.{i + 1, 1} i !str;
+  let terms = ref "" in
+    for i = 0 to degree do
+      match term_string coeffs i with
+	| Some term ->
+	    if !terms = ""
+	    then terms := term
+	    else terms := Printf.sprintf "%s + %s" term !terms
+	| None -> ()
     done;
-    "y = " ^ !str
+    "y = " ^ !terms
 
 
 let bestfit_dataset
-    ~glyph ~dashes ?color ?line_width ?point_radius ?(degree=1) ?name points =
+    ~glyph ~dashes ?color ?line_width ?point_radius ?(degree=1)
+    ?(fit_in_name=true) ?name points =
   let scatter =
     new Scatter_dataset.scatter_dataset
       glyph ?color ?point_radius ?name points in
@@ -122,11 +147,20 @@ let bestfit_dataset
       new function_dataset dashes ?samples ?line_width ?color ?name
 	(compute_poly degree ys)
     in
-      vprintf verb_debug "Bestfit: %s\n" (poly_string degree ys);
+    let name =
+      if fit_in_name
+      then
+	match name with
+	  | None -> Some (Printf.sprintf "(%s)" (poly_string degree ys))
+	  | Some n -> Some (Printf.sprintf "%s (%s)" n (poly_string degree ys))
+      else name
+    in
       new composite_dataset ?name [scatter; poly;]
 
+
 let bestfit_datasets ?(uses_color=false)
-    ?point_radius ?line_width ?degree name_by_point_list_list =
+    ?point_radius ?line_width ?degree ?fit_in_name
+    name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
   let next_dash = Factories.default_dash_factory () in
     if uses_color
@@ -137,12 +171,14 @@ let bestfit_datasets ?(uses_color=false)
 			  ~dashes:(next_dash ())
 			  ~color:(next_color())
 			  ?line_width ?point_radius ?degree
+			  ?fit_in_name
 			  ?name point_list) name_by_point_list_list)
     else
       List.map (fun (name, point_list) ->
 		  bestfit_dataset ~glyph:(next_glyph ())
 		    ~dashes:(next_dash ())
-		    ?line_width ?point_radius ?name point_list)
+		    ?line_width ?point_radius ?degree
+		    ?fit_in_name ?name point_list)
 	name_by_point_list_list
 
 (* EOF *)

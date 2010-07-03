@@ -81,9 +81,8 @@ let number_option_ref opt r =
   opt, Number (fun l n -> set_once r l opt n)
 
 
-let bool_ref opt r =
-  opt, Bool (fun l b -> r := b)
-
+let bool_option_ref opt r =
+  opt, Bool (fun l b -> set_once r l opt b)
 
 
 let length_option_ref eval_rec env opt r =

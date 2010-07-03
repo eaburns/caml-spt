@@ -238,23 +238,27 @@ val bestfit_dataset :
   ?line_width:Length.t ->
   ?point_radius:Length.t ->
   ?degree:int ->
+  ?fit_in_name:bool ->
   ?name:string ->
   Geometry.point array ->
   dataset_type
     (** [bestfit_dataset glyph dashes ?color ?line_width ?point_radius
-	?degree ?name points] creates a scatter plot with a best-fit
-	polynomial of degree [degree] (default 1, a line). *)
+	?degree ?fit_in_name ?name points] creates a scatter plot with
+	a best-fit polynomial of degree [degree] (default 1, a line).
+	If [fit_in_name] is true than the polynomial fit is added to
+	the end of the dataset name in the legend (default true). *)
 
 val bestfit_datasets :
   ?uses_color:bool ->
   ?point_radius:Length.t ->
   ?line_width:Length.t ->
   ?degree:int ->
+  ?fit_in_name:bool ->
   (string option * Geometry.point array) list ->
   dataset_type list
     (** [bestfit_datasets ?uses_color ?point_radius ?line_width
-	?degree point_sets] creates a list of scatter plots with best
-	fit polynomials. *)
+	?degree ?fit_in_name point_sets] creates a list of scatter
+	plots with best fit polynomials. *)
 
 
 val histogram_dataset :
