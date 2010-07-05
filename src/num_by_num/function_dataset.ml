@@ -82,18 +82,17 @@ open Lacaml.Impl.D
 
 let poly_features degree x =
   (** [poly_features degree x] get a polynomial feature array. *)
-  let nterms = degree + 1 in
-    Array.init nterms (function | 0 -> 1. | t -> x ** (float t))
+  Array.init (degree + 1) (fun t -> x ** (float t))
 
 
 let compute_poly degree coeffs x =
   (** [compute_poly degree coeffs x] compute a polynomial in [x] given
       the coefficients in a bigarray. *)
-  let vl = ref coeffs.{1, 1} in
-  let x = ref x in
-    for i = 1 to degree do
-      vl := !vl +. (coeffs.{i + 1, 1} *. !x);
-      x := !x *. !x;
+  let vl = ref 0. and t = ref 1. in
+    for i = 0 to degree do
+      let c = coeffs.{i + 1, 1} in
+	vl := !vl +. c *. !t;
+	t := !t *. x;
     done;
     !vl
 
@@ -102,7 +101,7 @@ let term_string coeffs i =
   (** [term_string coeffs i] gets the string representation of a
       single term. *)
   let coeff = coeffs.{i + 1, 1} in
-    if coeff < 1e-4
+    if (abs_float coeff) < 1e-4
     then None
     else begin
       let cstr = Printf.sprintf "%g" coeff in
