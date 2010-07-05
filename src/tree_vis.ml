@@ -24,6 +24,14 @@ let rec max_depth ?(depth=0) n =
 
 class type plot_type =
 object
+  val mutable height : Length.t
+  val mutable width : Length.t
+  method display : unit
+  method draw : Drawing.context -> unit
+  method height : Length.t
+  method output : string -> unit
+  method set_size : w:Length.t -> h:Length.t -> unit
+  method width : Length.t
   method draw : Drawing.context -> unit
 end
 
