@@ -16,8 +16,8 @@ Dependencies
 
 Getting the dependencies for compilation on Ubuntu (not well tested):
     apt-get install libcairo-ocaml-dev
-    apt-get install libgfortran3
-    apt-get install liblapack-dev # (This may get libgfortran3 as a dep.)
+    apt-get install liblapack-dev
+    apt-get install gfortran
 
     Download and install lacaml from source as per the instructions.
     On a 64-bit system, you will need to copy the libraries to your
