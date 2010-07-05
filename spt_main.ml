@@ -108,18 +108,17 @@ let num_by_num_plot () =
 	Num_by_num.bestfit_dataset
 	  ~dashes:(next_dash ())
 	  ~glyph:(next_glyph ())
-	  ~degree:3
+	  ~degree:2
 	  ~name:"Two"
 	  (Array.init 100 (fun i ->
 			     let x = float i in
-			     let y = x ** 3. in
-			     let err = 5. in
-			     let x_err = (Random.float err) -. (err /. 2.)
-			     and y_err = (Random.float err) -. (err /. 2.) in
-			     let x' = x +. x_err and y' = y +. y_err in
-			       point x' y'));
-	Num_by_num.function_dataset ~name:"y=x^3" (next_dash ())
-	  (fun x -> x ** 3.);
+			     let y = x ** 2. in
+			     let err = 1000. in
+			     let y_err = (Random.float err) -. (err /. 2.) in
+			     let y' = y +. y_err in
+			       point x y'));
+	Num_by_num.function_dataset ~name:"y=x^2" (next_dash ())
+	  (fun x -> x ** 2.);
       ]
 
 let rand_color () =
