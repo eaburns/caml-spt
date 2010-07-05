@@ -8,6 +8,8 @@
 
 * Legend.At uses floats instead of Length.t's.
 
+* Allow Reversible axis orientation (large to small)
+
 ------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
