@@ -17,6 +17,7 @@ let eval_display eval_rec env line operands =
     (fun _ p -> match eval_rec env p with
        | (Num_by_num_plot p) as vl -> p#display; vl
        | (Num_by_nom_plot p) as vl -> p#display; vl
+       | (Tree_plot p) as vl -> p#display; vl
        | x ->
 	   printf "line %d: Expected plot, got %s\n"
 	     (Sexpr.line_number p) (value_name x);
@@ -66,6 +67,7 @@ let rec functions () =
   @ Eval_data.functions
   @ Eval_num_by_num.functions
   @ Eval_num_by_nom.functions
+  @ Eval_tree.functions
 
 and eval_help eval_rec env line = function
   | Sexpr.Ident (lid, id) :: [] ->

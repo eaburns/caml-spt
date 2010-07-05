@@ -1,0 +1,5 @@
+(let* ((root (tree-node :color (color :r 1)
+			:succs ((tree-node :color (color :g 1))
+				(tree-node :color (color :b 1)))))
+       (plot0 (sunburst-tree-plot :tree root)))
+  (display plot0))
