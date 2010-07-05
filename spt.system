@@ -39,6 +39,7 @@ Files:
 "src/spt-it-out/eval_data"
 "src/spt-it-out/eval_num_by_num"
 "src/spt-it-out/eval_num_by_nom"
+"src/spt-it-out/eval_tree"
 "src/spt-it-out/eval_spt_it_out"
 
 Libraries:

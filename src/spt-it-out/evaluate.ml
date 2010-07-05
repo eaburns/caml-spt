@@ -16,10 +16,12 @@ type value =
   | Color of Drawing.color
   | Length of Length.t
   | Legend_loc of Legend.location
+  | Tree_node of Tree_vis.node
   | Num_by_num_dataset of Num_by_num.dataset_type
   | Num_by_num_plot of Num_by_num.plot_type
   | Num_by_nom_dataset of Num_by_nom.dataset_type
   | Num_by_nom_plot of Num_by_nom.plot_type
+  | Tree_plot of Tree_vis.plot_type
 
 
 type environment = {
@@ -58,10 +60,12 @@ let value_name = function
   | Length _ -> "Length"
   | Legend_loc _ -> "Legend_loc"
   | Color _ -> "Color"
+  | Tree_node _ -> "Tree_node"
   | Num_by_num_dataset _ -> "Num_by_num_dataset"
   | Num_by_num_plot _ -> "Num_by_num_plot"
   | Num_by_nom_dataset _ -> "Num_by_nom_dataset"
   | Num_by_nom_plot _ -> "Num_by_nom_plot"
+  | Tree_plot _ -> "Tree_plot"
 
 
 let rec string_of_value = function
@@ -81,10 +85,12 @@ let rec string_of_value = function
       (Array.fold_left
 	 (fun str v -> sprintf "%s %s" str (string_of_value v)) "(" l)
       ^ " )"
+  | Tree_node _ -> "<Tree_node>"
   | Num_by_num_dataset _ -> "<Num_by_num_dataset>"
   | Num_by_num_plot _ -> "<Num_by_num_plot>"
   | Num_by_nom_dataset _ -> "<Num_by_nom_dataset>"
   | Num_by_nom_plot _ -> "<Num_by_nom_plot>"
+  | Tree_plot _ -> "<Tree_plot>"
 
 
 let unit_value = List [||]
