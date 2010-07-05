@@ -61,7 +61,8 @@ let check_lines lines =
 		 (fun min pt ->
 		    if pt.x <= min
 		    then
-		      vprintf verb_normal "Lines are not sorted on x-value\n";
+		      vprintf verb_normal
+			"Lines are not sorted on x-value %f <= %f \n" pt.x min;
 		    pt.x)
 		 neg_infinity line))
     lines
@@ -75,7 +76,7 @@ let mean_line ?(xs=[||]) domain lines =
 				    type t = float
 				    let compare (a:float) b = compare a b
 				  end) in
-    check_lines lines;
+    (*check_lines lines;*)
   let min = domain.min and max = domain.max in
   let init_xset =
       Array.fold_left (fun s x -> assert (x >= min); assert (x <= max);
