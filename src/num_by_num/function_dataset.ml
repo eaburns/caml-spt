@@ -82,7 +82,7 @@ open Lacaml.Impl.D
 
 let poly_features degree x =
   (** [poly_features degree x] get a polynomial feature array. *)
-  Array.init (degree + 1) (fun t -> x ** (float t))
+  Array.init (degree + 1) (fun d -> x ** (float d))
 
 
 let compute_poly degree coeffs x =
@@ -101,18 +101,14 @@ let term_string coeffs i =
   (** [term_string coeffs i] gets the string representation of a
       single term. *)
   let coeff = coeffs.{i + 1, 1} in
-    if (abs_float coeff) < 1e-4
-    then None
+  let cstr = Printf.sprintf "%g" coeff in
+    if i = 0
+    then Some cstr
     else begin
-      let cstr = Printf.sprintf "%g" coeff in
-	if i = 0
-	then Some cstr
-	else begin
-	  let cstr = if cstr = "1" then "" else cstr in
-	    if i = 1
-	    then Some (cstr ^ "x")
-	    else Some (Printf.sprintf "%sx^%d" cstr i)
-	end
+      let cstr = if cstr = "1" then "" else cstr in
+	if i = 1
+	then Some (cstr ^ "x")
+	else Some (Printf.sprintf "%sx^%d" cstr i)
     end
 
 
@@ -140,7 +136,7 @@ let bestfit_dataset
   let xs =
     Mat.of_array (Array.map (fun p -> (poly_features degree p.x)) points) in
   let ys = Mat.of_array (Array.map (fun p -> [| p.y |]) points) in
-    ignore (gelsd ~rcond:1e-4 xs ys);
+    ignore (gelsd ~rcond:1e-20 xs ys);
     let samples = if degree = 1 then Some 2 else None in
     let poly =
       new function_dataset dashes ?samples ?line_width ?color ?name
