@@ -1,0 +1,11 @@
+(let* ((points0 ((0 0) (1 1) (2 2) (3 3)))
+       (points1 ((0 0) (1 1) (2 4) (3 9) (4 15)))
+       (plot0 (num-by-num-plot
+	       :sort-legend false
+	       :dataset (bestfit-dataset
+			 :name "Line" :points points0)
+	       :dataset (bestfit-dataset
+			 :degree 2
+			 :name "Quad" :points points1)
+	       )))
+  (display plot0))

@@ -1,0 +1,99 @@
+* Drawing legends off of the plot.
+
+* Change text size based on plot size
+
+* Scatter plot matrix
+
+* Increase/decrease the number of error bars with the size of the plot?
+
+* Legend.At uses floats instead of Length.t's.
+
+* Allow Reversible axis orientation (large to small)
+
+------------------------------------------------------------
+Datasets
+------------------------------------------------------------
+
+* Label bestfit lines with the polynomial.
+
+* Datasets should somehow 'know' the size of the plot that they are
+  currently being drawn to.
+
+* Line and error bar plots should plot no more than 200 points.
+
+* Make the line_errbar style just be an error bar style.  Maybe errbar
+  datasets should compute the confidence interval (using interpolation)
+  themselves?
+
+* kernel density estimation datasets
+   - make the dataset object
+   - automatic bandwidth selection
+
+* "boxplots with density estimations"
+
+* Boxplots: 'jitter' outliers that overlap
+  (local search to minimize overlap among all outliers?)
+
+* Normal quantile plots
+
+* CDF's need error bars
+
+* Heatmaps - Nominal by Nominal
+
+* Montages: more complex than simple ps-montage style.
+  - Make axis drawing optional.
+  - Make room for non-drawn axes, but then don't draw them.
+
+------------------------------------------------------------
+Documentation
+------------------------------------------------------------
+
+* Write a real README file
+
+* Document all functions
+  - Generate OCaml docs
+
+* How to use within AI group
+
+------------------------------------------------------------
+Usability
+------------------------------------------------------------
+
+* GUI dialog for changing plot sizes could be better
+  (drop-down menu for units, tab cycles fields, fields of the
+  appropriate size).
+
+* Bindings
+  - C/C++
+  - Python
+  - Java?
+
+------------------------------------------------------------
+spt-it-out
+------------------------------------------------------------
+
+* label datasets
+
+* scatter with errbar datasets
+
+* Barchat datasets of various kinds
+
+* Tree plots
+
+* The two kinds of heatmap datasets
+
+* Including other spt-it-out files
+
+* More simple numeric operations (plus, times, etc.)
+
+------------------------------------------------------------
+Plot types
+------------------------------------------------------------
+
+* Nominal by nominal plots
+
+* Numeric by Ordinal (or Ranked) plots
+  Like numeric by nominal except that x-axis is a set of ranked values
+  and the datasets are drawn across both the x and y axes.
+  - Waterfall charts
+  - Run charts
