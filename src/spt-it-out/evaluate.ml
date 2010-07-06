@@ -50,6 +50,9 @@ let lookup_ident env l id =
   with Not_found -> failwith (sprintf "line %d: Unknown identifier: %s" l id)
 
 
+let is_function funcs id = List.exists (fun (n, _, _) -> n = id) funcs
+
+
 let value_name = function
     (** [to_string t] gets the string representation. *)
   | List _ -> "List"
@@ -98,23 +101,18 @@ let evaluate functs eval_rec env = function
 	[functs] is a list of function names followed by their
 	evaluation function.  [eval_rec] is the evaluation function to
 	call when recursive evaluation is required. *)
-  | Sexpr.List (_, (Sexpr.Ident (line, func_name)) :: operands ) ->
-      begin try
-	let _, f, help_str =
-	  List.find (fun (n, _, _) -> n = func_name) functs
-	in
-	  begin
-	    try f eval_rec env line operands
-	    with Invalid_argument line ->
-	      vprintf verb_normal "%s\n" help_str;
-	      failwith (sprintf "line %d: Invalid arguments to %s\n"
-			  line func_name)
-	  end
-      with Not_found ->
-	vprintf verb_optional "Available functions:\n";
-	List.iter (fun (n, _, _) -> vprintf verb_optional "\t%s\n" n) functs;
-	failwith (sprintf "line %d: Unknown function %s" line func_name)
-      end
+  | Sexpr.List (lline, (Sexpr.Ident (line, func_name)) :: operands)
+      when (is_function functs func_name) ->
+      let _, f, help_str =
+	List.find (fun (n, _, _) -> n = func_name) functs
+      in
+	begin
+	  try f eval_rec env line operands
+	  with Invalid_argument line ->
+	    vprintf verb_normal "%s\n" help_str;
+	    failwith (sprintf "line %d: Invalid arguments to %s\n"
+			line func_name)
+	end
   | Sexpr.Number (_, vl) -> Number vl
   | Sexpr.String (_, n) -> String n
   | Sexpr.Ident (l, "true") -> Bool true
