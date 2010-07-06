@@ -666,16 +666,32 @@ let fill_slice ctx center ~r ~t ~dt color =
   Cairo.fill ctx.cairo
 
 
+let sector_path ctx center ~r ~dr ~t ~dt =
+  (** [sector_path ctx center ~r ~dr ~t ~dt] builds the path for a
+      sector of a circle beginning at radius [r] at a width of [dr]
+      beginning at angle [t] for a span of [dt]. *)
+  let cairo = ctx.cairo in
+  let cx = center.x and cy = center.y in
+  let r0 = r and r1 = r +. dr and t0 = t and t1 = t +. dt in
+    Cairo.new_path cairo;
+    Cairo.arc cairo cx cy r0 t0 t1;
+    Cairo.arc_negative cairo cx cy r1 t1 t0;
+    Cairo.close_path cairo
+
+
 let fill_sector ctx center ~r ~dr ~t ~dt color =
   (** [fill_sector ctx center ~r ~dr ~t ~dt color] fills a sector of a
       circle beginning at radius [r] at a width of [dr] beginning at
       angle [t] for a span of [dt]. *)
-  let cairo = ctx.cairo in
-  let cx = center.x and cy = center.y in
-  let r0 = r and r1 = r +. dr and t0 = t and t1 = t +. dt in
-    set_color ctx color;
-    Cairo.new_path cairo;
-    Cairo.arc cairo cx cy r0 t0 t1;
-    Cairo.arc_negative cairo cx cy r1 t1 t0;
-    Cairo.close_path cairo;
-    Cairo.fill cairo
+  set_color ctx color;
+  sector_path ctx center ~r ~dr ~t ~dt;
+  Cairo.fill ctx.cairo
+
+
+let draw_sector ctx center ~r ~dr ~t ~dt color =
+  (** [draw_sector ctx center ~r ~dr ~t ~dt color] draws a sector of a
+      circle beginning at radius [r] at a width of [dr] beginning at
+      angle [t] for a span of [dt]. *)
+  set_color ctx color;
+  sector_path ctx center ~r ~dr ~t ~dt;
+  Cairo.stroke ctx.cairo
