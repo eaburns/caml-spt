@@ -29,15 +29,21 @@ let eval_sunburst_tree_plot eval_rec env line operands =
       sunburst style tree plot. *)
   let module S = Sexpr in
   let title = ref None in
+  let outlined = ref None in
   let tree = ref None in
   let opt_spec = [
     Options.string_option_ref ":title" title;
+    Options.bool_option_ref ":outlined" outlined;
     ":tree", Options.List (fun l lst -> tree := Some (tree_node l (List lst)));
   ] in
     Options.handle eval_rec env opt_spec operands;
     match !tree with
       | Some root ->
-	  Tree_plot (Tree_vis.plot ?title:!title Tree_vis.Sunburst.style root)
+	  let style = match !outlined with
+	    | Some true -> Tree_vis.Sunburst.outlined_style
+	    | _ -> Tree_vis.Sunburst.default_style
+	  in
+	  Tree_plot (Tree_vis.plot ?title:!title style root)
       | _ ->
 	  printf "line %d: expected a tree node" line;
 	  raise (Invalid_argument line)
