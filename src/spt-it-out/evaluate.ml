@@ -162,7 +162,7 @@ the result of <expr>."
 
 let eval_letstar eval_rec env line = function
     (** [eval_letstar eval_rec env line operands] evaluates the
-	operands of a letrec expression. *)
+	operands of a let* expression. *)
   | Sexpr.List (_, bindings) :: (Sexpr.List (_, _) as expr) :: [] ->
       let env' =
 	List.fold_left
@@ -186,7 +186,7 @@ let eval_letstar eval_rec env line = function
 
 
 let help_str_letstar =
-  "(letrec ([(<ident#> <expr#>)]+) (<expr>))\n\
+  "(let* ([(<ident#> <expr#>)]+) (<expr>))\n\
 The same as a let function except that expressions in the binding\n\
 list can refer to previous bindings in the same list."
 
