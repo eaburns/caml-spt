@@ -55,7 +55,8 @@ let plot ?title draw_style root = new plot ?title draw_style root
 
 module Sunburst = struct
 
-  let slice_line_style = { default_line_style with line_width = Length.Pt 1. }
+  let line_style =
+    { default_line_style with line_width = Length.Pt 0.5 }
 
   let rec draw_tree ctx outline center ?(depth=0) ~r ~dr ~t ~dt node =
     (** [draw_tree ctx outline center ?depth ~r ~dr ~t ~dt node] draws
@@ -76,7 +77,8 @@ module Sunburst = struct
       let dr = dr +. (epsilon_float *. dr) in
 	(* extra padding attempts to get rid of space-artifacts
 	   between sectors. *)
-      if outline then draw_sector ctx center ~r ~dr ~t ~dt black;
+      if outline
+      then draw_sector ctx ~style:line_style center ~r ~dr ~t ~dt black;
       fill_sector ctx center ~r ~dr ~t ~dt node.color
 
 

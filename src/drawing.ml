@@ -688,10 +688,11 @@ let fill_sector ctx center ~r ~dr ~t ~dt color =
   Cairo.fill ctx.cairo
 
 
-let draw_sector ctx center ~r ~dr ~t ~dt color =
-  (** [draw_sector ctx center ~r ~dr ~t ~dt color] draws a sector of a
-      circle beginning at radius [r] at a width of [dr] beginning at
-      angle [t] for a span of [dt]. *)
+let draw_sector ctx ?style center ~r ~dr ~t ~dt color =
+  (** [draw_sector ctx ?style center ~r ~dr ~t ~dt color] draws a
+      sector of a circle beginning at radius [r] at a width of [dr]
+      beginning at angle [t] for a span of [dt]. *)
+  set_line_style_option ctx style;
   set_color ctx color;
   sector_path ctx center ~r ~dr ~t ~dt;
   Cairo.stroke ctx.cairo
