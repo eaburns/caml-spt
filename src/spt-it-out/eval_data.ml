@@ -63,7 +63,7 @@ let eval_data_file eval_rec env line = function
 
 
 let help_str_data_file =
-  "(scalars-file <string>)\n\
+  "(data-file <string>)\n\
 Opens the given file and reads in floating point numbers in ASCII\n\
 format."
 
