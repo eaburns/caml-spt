@@ -49,19 +49,20 @@ let font_slant_normal = Cairo.FONT_SLANT_NORMAL
 let font_weight_normal = Cairo.FONT_WEIGHT_NORMAL
 
 let black = { r = 0.; g = 0.; b = 0.; a = 1.; }
-  (** The color black. *)
 
 let white = { r = 1.; g = 1.; b = 1.; a = 1.; }
-  (** The color white. *)
 
 let red = { r = 1.; g = 0.; b = 0.; a = 1.; }
-  (** The color red. *)
+
+let dark_red = { r = 6.; g = 0.; b = 0.; a = 1.; }
 
 let green = { r = 0.; g = 1.; b = 0.; a = 1.; }
-  (** The color green. *)
+
+let dark_green = { r = 0.; g = 6.; b = 0.; a = 1.; }
 
 let blue = { r = 0.; g = 0.; b = 1.; a = 1.; }
-  (** The color blue. *)
+
+let dark_blue = { r = 0.; g = 0.; b = 6.; a = 1.; }
 
 let gray = { r = 0.5; g = 0.5; b = 0.5; a = 1.; }
 
