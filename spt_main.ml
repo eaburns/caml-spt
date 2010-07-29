@@ -144,10 +144,6 @@ let rec rand_tree d max_depth max_br =
     end
 
 
-let tree_plot () =
-  Tree_vis.plot Tree_vis.Sunburst.style (rand_tree 0 10 3)
-
-
 let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
