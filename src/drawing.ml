@@ -54,15 +54,15 @@ let white = { r = 1.; g = 1.; b = 1.; a = 1.; }
 
 let red = { r = 1.; g = 0.; b = 0.; a = 1.; }
 
-let dark_red = { r = 6.; g = 0.; b = 0.; a = 1.; }
+let dark_red = { r = 0.8; g = 0.; b = 0.; a = 1.; }
 
 let green = { r = 0.; g = 1.; b = 0.; a = 1.; }
 
-let dark_green = { r = 0.; g = 6.; b = 0.; a = 1.; }
+let dark_green = { r = 0.; g = 0.6; b = 0.; a = 1.; }
 
 let blue = { r = 0.; g = 0.; b = 1.; a = 1.; }
 
-let dark_blue = { r = 0.; g = 0.; b = 6.; a = 1.; }
+let dark_blue = { r = 0.; g = 0.; b = 0.6; a = 1.; }
 
 let gray = { r = 0.5; g = 0.5; b = 0.5; a = 1.; }
 
