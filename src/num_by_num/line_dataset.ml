@@ -84,23 +84,22 @@ let line_dataset dashes ?line_width ?color ?name points =
   new line_dataset dashes ?line_width ?color ?name points
 
 
-let line_datasets ?(uses_color=false) name_by_points_list =
+let line_datasets ?(color=false) name_by_points_list =
   let next_dash = Factories.default_dash_factory () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name, points) ->
-			line_dataset (next_dash ()) ~color:(next_color())
-			  ?name points) name_by_points_list)
-    else
-      List.map (fun (name, points) ->
-		  line_dataset (next_dash ()) ?name points)
-	name_by_points_list
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> black))
+  in
+    List.map (fun (name, points) ->
+		line_dataset (next_dash ()) ~color:(next_color())
+		  ?name points)
+      name_by_points_list
 
 
-let line_points_datasets ?(uses_color=false) name_by_points_list =
+let line_points_datasets ?(color=false) name_by_points_list =
   let next_dash = Factories.default_dash_factory () in
   let next_glyph = Factories.default_glyph_factory () in
-  let next_color = (if uses_color
+  let next_color = (if color
 		    then Factories.default_color_factory ()
 		    else (fun () -> black))
   in

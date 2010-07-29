@@ -59,15 +59,14 @@ let scatter_dataset glyph ?color ?point_radius ?name point_array =
 
 
 let scatter_datasets
-    ?(uses_color=false) ?point_radius name_by_point_array_list =
+    ?(color=false) ?point_radius name_by_point_array_list =
   let next_glyph = Factories.default_glyph_factory () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name, point_array) -> scatter_dataset (next_glyph())
-			~color:(next_color()) ?point_radius ~name point_array)
-	      name_by_point_array_list)
-    else List.map (fun (name, point_array) -> scatter_dataset (next_glyph())
-		     ?point_radius ~name point_array)
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> black))
+  in
+    List.map (fun (name, point_array) -> scatter_dataset (next_glyph())
+		~color:(next_color()) ?point_radius ~name point_array)
       name_by_point_array_list
 
 
@@ -112,17 +111,16 @@ let scatter_errbar_dataset
     new composite_dataset ?name [ scatter; horiz_err; vert_err; labels; ]
 
 
-let scatter_errbar_datasets ?(uses_color=false) name_by_sets_list =
+let scatter_errbar_datasets ?(color=false) name_by_sets_list =
   let next_glyph = Factories.default_glyph_factory () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name,sets) ->
-			scatter_errbar_dataset (next_glyph())
-			  ~color:(next_color()) ~name sets) name_by_sets_list)
-    else
-      List.map (fun (name,sets) ->
-		  scatter_errbar_dataset (next_glyph()) ~name sets)
-	name_by_sets_list
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> black))
+  in
+    List.map (fun (name,sets) ->
+		scatter_errbar_dataset (next_glyph()) ~color:(next_color())
+		  ~name sets)
+      name_by_sets_list
 
 
 

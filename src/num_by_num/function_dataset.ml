@@ -153,27 +153,23 @@ let bestfit_dataset
       new composite_dataset ?name [scatter; poly;]
 
 
-let bestfit_datasets ?(uses_color=false)
+let bestfit_datasets ?(color=false)
     ?point_radius ?line_width ?degree ?fit_in_name
     name_by_point_list_list =
   let next_glyph = Factories.default_glyph_factory () in
   let next_dash = Factories.default_dash_factory () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name, point_list) ->
-			bestfit_dataset
-			  ~glyph:(next_glyph ())
-			  ~dashes:(next_dash ())
-			  ~color:(next_color())
-			  ?line_width ?point_radius ?degree
-			  ?fit_in_name
-			  ?name point_list) name_by_point_list_list)
-    else
-      List.map (fun (name, point_list) ->
-		  bestfit_dataset ~glyph:(next_glyph ())
-		    ~dashes:(next_dash ())
-		    ?line_width ?point_radius ?degree
-		    ?fit_in_name ?name point_list)
-	name_by_point_list_list
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> black))
+  in
+    List.map (fun (name, point_list) ->
+		bestfit_dataset
+		  ~glyph:(next_glyph ())
+		  ~dashes:(next_dash ())
+		  ~color:(next_color())
+		  ?line_width ?point_radius ?degree
+		  ?fit_in_name
+		  ?name point_list)
+      name_by_point_list_list
 
 (* EOF *)

@@ -67,15 +67,14 @@ val scatter_dataset :
       [points]. *)
 
 val scatter_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   ?point_radius:Length.t ->
   (string * Geometry.point array) list ->
   dataset_type list
-    (** [scatter_datasets ?uses_color ?point_radius named_points]
-	creates a set of scatter plot datasets.  [named_points] is a
-	list of tuples (name : string, points : point array).  If
-	[uses_color=true] then color is used, the default is to not use
-	color. *)
+    (** [scatter_datasets ?color ?point_radius named_points] creates a
+	set of scatter plot datasets.  [named_points] is a list of
+	tuples (name : string, points : point array).  If [color=true]
+	then color is used, the default is to not use color. *)
 
 val scatter_errbar_dataset :
   Drawing.glyph ->
@@ -93,12 +92,12 @@ val scatter_errbar_dataset :
 	added with the name. *)
 
 val scatter_errbar_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   (string * (string option * Geometry.point array) array) list ->
   dataset_type list
-    (** [scatter_errbar_datasets ?uses_color set_list] creates a list
-	of scatter bar plots with error bars.  The [set_list]
-	parameter is a list of sets, each in the form specified in the
+    (** [scatter_errbar_datasets ?color set_list] creates a list of
+	scatter bar plots with error bars.  The [set_list] parameter
+	is a list of sets, each in the form specified in the
 	[scatter_errbar_dataset] function. *)
 
 val line_dataset :
@@ -112,12 +111,12 @@ val line_dataset :
 	a line.  [points] is an array of points. *)
 
 val line_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   (string option * Geometry.point array) list ->
   dataset_type list
-    (** [line_datasets ?uses_color lines] creates a list of lines.
-	[lines] is a list of (name : string option, points : point
-	array) tuples. *)
+    (** [line_datasets ?color lines] creates a list of lines.  [lines]
+	is a list of (name : string option, points : point array)
+	tuples. *)
 
 val line_points_dataset :
   Length.t array ->
@@ -133,12 +132,11 @@ val line_points_dataset :
 	point.  [points] is an array of points. *)
 
 val line_points_datasets :
-  ?uses_color:bool ->
-  (string option * Geometry.point array) list ->
+  ?color:bool -> (string option * Geometry.point array) list ->
   dataset_type list
-    (** [line_points_datasets ?uses_color lines] creates a list of
-	line with a glyph at each point.  [lines] is the same format
-	as the [lines] parameter to the [line_datasets] function. *)
+    (** [line_points_datasets ?color lines] creates a list of line
+	with a glyph at each point.  [lines] is the same format as the
+	[lines] parameter to the [line_datasets] function. *)
 
 val bubble_dataset :
   ?glyph:Drawing.glyph ->
@@ -154,13 +152,13 @@ val bubble_dataset :
 	a 3rd value.  [triples] is an array of triples. *)
 
 val bubble_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   ?min_radius:Length.t ->
   ?max_radius:Length.t ->
   (string option * Geometry.triple array) list ->
   dataset_type list
-    (** [bubble_datasets ?uses_color ?min_radius ?max_radius sets]
-	creates a list of bubble plot datasets. *)
+    (** [bubble_datasets ?color ?min_radius ?max_radius sets] creates
+	a list of bubble plot datasets. *)
 
 type line_errbar_style = {
   (** The style of a line and error bar plot. *)
@@ -192,11 +190,11 @@ val line_errbar_dataset :
 	show 95% confidence intervals on the mean. *)
 
 val line_errbar_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   (string option * Geometry.point array array) list ->
   dataset_type list
-    (** [line_errbar_datasets ?uses_color line_set] creates a list of
-	line and error bar datasets. *)
+    (** [line_errbar_datasets ?color line_set] creates a list of line
+	and error bar datasets. *)
 
 val scatter_errbar_lines_dataset :
   Drawing.glyph ->
@@ -212,11 +210,11 @@ val scatter_errbar_lines_dataset :
 	with error bars and a line connecting the points. *)
 
 val scatter_errbar_lines_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   (string * (Geometry.point array * string option) array) list ->
   dataset_type list
-    (** [scatter_errbar_lines_datasets ?uses_color set_list] creates a
-	list of scatter plots with error bars and lines connecting the
+    (** [scatter_errbar_lines_datasets ?color set_list] creates a list
+	of scatter plots with error bars and lines connecting the
 	points. *)
 
 val function_dataset :
@@ -249,16 +247,16 @@ val bestfit_dataset :
 	the end of the dataset name in the legend (default true). *)
 
 val bestfit_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   ?point_radius:Length.t ->
   ?line_width:Length.t ->
   ?degree:int ->
   ?fit_in_name:bool ->
   (string option * Geometry.point array) list ->
   dataset_type list
-    (** [bestfit_datasets ?uses_color ?point_radius ?line_width
-	?degree ?fit_in_name point_sets] creates a list of scatter
-	plots with best fit polynomials. *)
+    (** [bestfit_datasets ?color ?point_radius ?line_width ?degree
+	?fit_in_name point_sets] creates a list of scatter plots with
+	best fit polynomials. *)
 
 
 val histogram_dataset :
@@ -286,10 +284,10 @@ val cdf_dataset :
 	cumulative density dataset for [values]. *)
 
 val cdf_datasets :
-  ?uses_color:bool ->
+  ?color:bool ->
   (string * float array) list ->
   dataset_type list
-    (** [cdf_datasets ?uses_color value_list] creates a list of CDF
+    (** [cdf_datasets ?color value_list] creates a list of CDF
 	datasets. *)
 
 val countmap_dataset :

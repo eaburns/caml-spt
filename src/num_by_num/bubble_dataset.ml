@@ -92,18 +92,16 @@ let bubble_dataset ?glyph ?color ?min_radius ?max_radius ?name triples =
   new bubble_dataset ?glyph ?color ?min_radius ?max_radius ?name triples
 
 
-let bubble_datasets ?(uses_color = false) ?min_radius ?max_radius
+let bubble_datasets ?(color = false) ?min_radius ?max_radius
     name_by_triples_list =
   let next_glyph = Factories.default_glyph_factory () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name,triples) ->
-			(new bubble_dataset ~color:(next_color())
-			   ~glyph:(next_glyph()) ?min_radius ?max_radius
-			   ?name triples)) name_by_triples_list)
-    else
-      List.map (fun (name,triples) ->
-		  (new bubble_dataset ~glyph:(next_glyph()) ?min_radius
-		     ?max_radius ?name triples)) name_by_triples_list
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> black))
+  in
+    List.map (fun (name,triples) ->
+		(bubble_dataset ~color:(next_color ()) ~glyph:(next_glyph())
+		   ?min_radius ?max_radius ?name triples))
+      name_by_triples_list
 
 (* EOF *)

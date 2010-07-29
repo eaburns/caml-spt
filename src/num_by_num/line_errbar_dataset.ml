@@ -221,18 +221,17 @@ let line_errbar_dataset dashes ?line_width ?color ?name lines =
   new line_errbar_dataset dashes ?line_width ?color ?name lines
 
 
-let line_errbar_datasets ?(uses_color=false) name_by_lines_list =
+let line_errbar_datasets ?(color=false) name_by_lines_list =
   let next_dash = Factories.default_dash_factory () in
   let next_style = line_errbar_factory next_dash () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name, lines) ->
-			line_errbar_dataset (next_style ())
-			  ~color:(next_color()) ?name lines) name_by_lines_list)
-    else
-      List.map (fun (name, lines) ->
-		  line_errbar_dataset (next_style ()) ?name lines)
-	name_by_lines_list
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> Drawing.black))
+  in
+    List.map (fun (name, lines) ->
+		line_errbar_dataset (next_style ())
+		  ~color:(next_color()) ?name lines)
+      name_by_lines_list
 
 
 let default_radius =
@@ -278,18 +277,16 @@ let scatter_errbar_lines_dataset
 
 
 
-let scatter_errbar_lines_datasets ?(uses_color=false) name_by_sets_list =
+let scatter_errbar_lines_datasets ?(color=false) name_by_sets_list =
   let next_glyph = Factories.default_glyph_factory ()
   and next_dash = Factories.default_dash_factory () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name,sets) ->
-			scatter_errbar_lines_dataset (next_glyph())
-			  (next_dash()) ~color:(next_color()) ~name sets)
-	      name_by_sets_list)
-    else
-      List.map (fun (name,sets) ->
-		  scatter_errbar_lines_dataset (next_glyph()) (next_dash())
-		    ~name sets)	name_by_sets_list
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> Drawing.black))
+  in
+    List.map (fun (name,sets) ->
+		scatter_errbar_lines_dataset (next_glyph())
+		  (next_dash()) ~color:(next_color()) ~name sets)
+      name_by_sets_list
 
 (* EOF *)

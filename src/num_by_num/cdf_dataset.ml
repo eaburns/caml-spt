@@ -90,16 +90,15 @@ end
 let cdf_dataset dashes ?line_width ?color ?name points =
   new cdf_dataset dashes ?line_width ?color ?name points
 
-let cdf_datasets ?(uses_color=false) name_by_values_list =
+let cdf_datasets ?(color=false) name_by_values_list =
   let next_dash = Factories.default_dash_factory () in
-    if uses_color
-    then (let next_color = Factories.default_color_factory () in
-	    List.map (fun (name, values) ->
-			cdf_dataset (next_dash ()) ~color:(next_color())
-			  ~name values) name_by_values_list)
-    else
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> black))
+  in
       List.map (fun (name, values) ->
-		  cdf_dataset (next_dash ()) ~name values)
+		  cdf_dataset ~color:(next_color ()) (next_dash ())
+		    ~name values)
 	name_by_values_list
 
 
