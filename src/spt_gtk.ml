@@ -1,5 +1,5 @@
-(** Ml_plot_gtk - Holds all of the gtk display functionality for easy
-    removal - Jordan*)
+(** Holds all of the gtk display functionality for easy removal -
+    Jordan*)
 
 open Verbosity
 
