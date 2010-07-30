@@ -3,10 +3,10 @@
 
 open Verbosity
 
-(* Need to set up gtk for use *)
 let gtk_initialized = ref false
 
 let _ =
+  (* Need to set up gtk for use *)
   try
     ignore (GtkMain.Main.init());
     gtk_initialized := true;
