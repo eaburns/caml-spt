@@ -87,7 +87,7 @@ let bins_of_points ?(normalize=false) bin_width pts =
 	 let bi = bucket ~bin_min ~bin_width v in
 	 let wt = bins.(bi) +. c in
 	   bins.(bi) <- wt;
-	   if c > !max_weight then max_weight := wt)
+	   if wt > !max_weight then max_weight := wt)
       pts;
     if normalize then normalize_bins bins;
     !max_weight, bin_min, bin_max, bin_width, bins
@@ -203,10 +203,10 @@ object(self)
 end
 
 
-let histogram_dataset
+let values_histogram_dataset
     dashes ?normalize ?line_width ?bg_color ?bin_width ?name values =
-  (** [histogram_dataset dashes ?normalize ?line_width ?bg_color
-      ?bin_width ?name values] makes a histogram. *)
+  (** [values_histogram_dataset dashes ?normalize ?line_width
+      ?bg_color ?bin_width ?name values] makes a histogram. *)
   let max_weight, bin_min, bin_max, bin_width, bins =
     make_bins ?normalize bin_width values
   in
@@ -214,9 +214,12 @@ let histogram_dataset
       ?name max_weight bin_min bin_max bin_width bins
 
 
-let histogram_of_points_dataset
+let histogram_dataset = values_histogram_dataset
+
+
+let points_histogram_dataset
     dashes ?normalize ?line_width ?bg_color ?bin_width ?name points =
-  (** [histogram_of_points_dataset dashes ?normalize ?line_width
+  (** [points_histogram_dataset dashes ?normalize ?line_width
       ?bg_color ?bin_width ?name points] makes a histogram given an
       array of points. *)
   let max_weight, bin_min, bin_max, bin_width, bins =

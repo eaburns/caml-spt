@@ -297,13 +297,14 @@ let eval_histogram eval_rec env line operands =
   (** [eval_histogram eval_rec env line operands] evaluates a histogram
       dataset. *)
   let module S = Sexpr in
-  let dashes = ref None
-  and color = ref None
-  and width = ref None
-  and bin_width = ref None
-  and normalize = ref None
-  and name = ref None
-  and data = ref [| |] in
+  let dashes = ref None in
+  let color = ref None in
+  let width = ref None in
+  let bin_width = ref None in
+  let normalize = ref None in
+  let name = ref None in
+  let values = ref [| |] in
+  let points = ref [| |] in
   let opts = [
     Options.string_option_ref ":name" name;
     Options.dashes eval_rec env dashes;
@@ -313,54 +314,28 @@ let eval_histogram eval_rec env line operands =
     Options.bool_option_ref ":normalize" normalize;
     ":values", Options.List (fun l e ->
 			       let s = Eval_data.scalars eval_rec env l e in
-				 data := Array.append !data s)
+				 values := Array.append !values s);
+    ":points", Options.List (fun l e ->
+			       let s = Eval_data.points eval_rec env l e in
+				 points := Array.append !points s);
   ] in
     Options.handle eval_rec env opts operands;
-    Num_by_num_dataset
-      (Num_by_num.histogram_dataset
-	 ?normalize:!normalize
-	 (match !dashes with | Some g -> g | None -> env.next_dash ())
-	 ?line_width:!width ?bg_color:!color ?bin_width:!bin_width
-	 ?name:!name
-	 !data)
+    let points =
+      Array.append !points (Array.map (fun v -> Geometry.point v 1.) !values)
+    in
+      Num_by_num_dataset
+	(Num_by_num.points_histogram_dataset
+	   ?normalize:!normalize
+	   (match !dashes with | Some g -> g | None -> env.next_dash ())
+	   ?line_width:!width ?bg_color:!color ?bin_width:!bin_width
+	   ?name:!name
+	   points)
 
 
 let help_str_histogram =
   "(histogram-dataset [:name <string>] [:line-width <length>]\n\
- [:bin-width <number>] [:values <scalars>]+)\n\
-Creates a histogram of the given values."
-
-
-let eval_histogram_of_points eval_rec env line operands =
-  (** [eval_histogram_of_points eval_rec env line operands] evaluates
-      a histogram dataset. *)
-  let module S = Sexpr in
-  let dashes = ref None
-  and color = ref None
-  and width = ref None
-  and bin_width = ref None
-  and normalize = ref None
-  and name = ref None
-  and data = ref [| |] in
-  let opts = [
-    Options.string_option_ref ":name" name;
-    Options.dashes eval_rec env dashes;
-    Options.color eval_rec env color;
-    Options.length_option_ref eval_rec env ":line-width" width;
-    Options.number_option_ref ":bin-width" bin_width;
-    Options.bool_option_ref ":normalize" normalize;
-    ":points", Options.List (fun l e ->
-			       let p = Eval_data.points eval_rec env l e in
-				 data := Array.append !data p)
-  ] in
-    Options.handle eval_rec env opts operands;
-    Num_by_num_dataset
-      (Num_by_num.histogram_of_points_dataset
-	 ?normalize:!normalize
-	 (match !dashes with | Some g -> g | None -> env.next_dash ())
-	 ?line_width:!width ?bg_color:!color ?bin_width:!bin_width
-	 ?name:!name
-	 !data)
+ [:bin-width <number>] [:values <scalars>]+ [:points <points>]+)\n\
+Creates a histogram of the given values or points."
 
 
 let help_str_histogram_of_points =
@@ -495,9 +470,6 @@ let functions = [
   "line-points-dataset", eval_line_points, help_str_line_points;
   "line-errbar-dataset", eval_line_errbar, help_str_line_errbar;
   "histogram-dataset", eval_histogram, help_str_histogram;
-
-  "histogram-of-points-dataset", eval_histogram_of_points,
-  help_str_histogram_of_points;
 
   "cdf-dataset", eval_cdf, help_str_cdf;
 
