@@ -259,6 +259,20 @@ val bestfit_datasets :
 	best fit polynomials. *)
 
 
+val values_histogram_dataset :
+  Length.t array ->
+  ?normalize:bool ->
+  ?line_width:Length.t ->
+  ?bg_color:Drawing.color ->
+  ?bin_width:float ->
+  ?name:string ->
+  float array ->
+  dataset_type
+    (** [values_histogram_dataset dashes ?normalize ?line_width
+	?bg_color ?bin_width ?name values] creates a histogram dataset
+	showing the counts or density (if normalized) of the given set
+	of [values]. *)
+
 val histogram_dataset :
   Length.t array ->
   ?normalize:bool ->
@@ -273,7 +287,7 @@ val histogram_dataset :
 	the counts or density (if normalized) of the given set of
 	[values]. *)
 
-val histogram_of_points_dataset :
+val points_histogram_dataset :
   Length.t array ->
   ?normalize:bool ->
   ?line_width:Length.t ->
@@ -282,7 +296,7 @@ val histogram_of_points_dataset :
   ?name:string ->
   Geometry.point array ->
   dataset_type
-    (** [histogram_of_counts_dataset dashes ?normalize ?line_width
+    (** [points_histogram_dataset dashes ?normalize ?line_width
 	?bg_color ?bin_width ?name points] creates a histogram dataset
 	showing the points or density (if normalized) of the given set
 	array of points. *)
