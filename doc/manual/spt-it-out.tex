@@ -412,13 +412,14 @@ dash pattern of the line\\
 :color & & The color of the line\\
 :line-width & 1pt & The width of the line\\
 :bin-width &  & The width each bin\\
-:values & & A list of numbers\\
+:values & & A list of values (each represent a weight of 1) \\
+:points & & A list of points (x=value, y=weight)\\
 \end{tabular}
 \end{center}
 
-The default bin width creates 10 bars.  {\tt :line-width} and {\tt
-  :dashes} control the look of the line forming the bars of the
-histogram.
+The default bin-width creates $\sqrt{n}$ bins where $n$ is the number
+of data values.  {\tt :line-width} and {\tt :dashes} control the look
+of the line forming the bars of the histogram.
 
 \subsubsection{\tt cdf-dataset}
 
