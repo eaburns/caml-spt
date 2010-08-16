@@ -1,6 +1,6 @@
 (let* ((line0 ((0 0) (1 1) (2 2)))
        (line1 ((0 2) (1 1) (2 0)))
-       (line-err (line-errbar-dataset :lines (line0 line1))
-       (plot0 (num-by-num-plot :dataset line-err))
+       (hist (histogram-of-points-dataset :points line0 :points line1))
+       (plot0 (num-by-num-plot :dataset hist))
        )
   (display plot0))

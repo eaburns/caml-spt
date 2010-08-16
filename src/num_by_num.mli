@@ -273,6 +273,20 @@ val histogram_dataset :
 	the counts or density (if normalized) of the given set of
 	[values]. *)
 
+val histogram_of_points_dataset :
+  Length.t array ->
+  ?normalize:bool ->
+  ?line_width:Length.t ->
+  ?bg_color:Drawing.color ->
+  ?bin_width:float ->
+  ?name:string ->
+  Geometry.point array ->
+  dataset_type
+    (** [histogram_of_counts_dataset dashes ?normalize ?line_width
+	?bg_color ?bin_width ?name points] creates a histogram dataset
+	showing the points or density (if normalized) of the given set
+	array of points. *)
+
 val cdf_dataset :
   Length.t array ->
   ?line_width:Length.t ->
