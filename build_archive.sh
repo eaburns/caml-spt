@@ -15,7 +15,7 @@ hg archive ${DIR}
 
 echo "* adding file header comments"
 cd ${DIR}
-for FILE in $(find . -name \*.ml)
+for FILE in $(find . -name \*.ml; find . -name \*.mli)
 do
     cat FILE_HEADER ${FILE} > ${FILE}~
     mv ${FILE}~ ${FILE}
