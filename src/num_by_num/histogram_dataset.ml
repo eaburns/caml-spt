@@ -46,7 +46,7 @@ let get_bin_width bin_width ~min_value ~max_value count =
       width to use for each bin. *)
   match bin_width with
     | None ->
-	let nbins = sqrt (float count) in
+	let nbins = sqrt count in
 	  (* This is a common default bin number (used by Excel). *)
 	  (max_value -. min_value) /. nbins
     | Some w -> w
@@ -61,9 +61,42 @@ let normalize_bins bins =
     done
 
 
+let bins_of_points ?(normalize=false) bin_width pts =
+  (** [bins_of_points ?normalize w counts] makes a set of bins given a
+      set of [(value, count)] pairs. *)
+  let count = Array.fold_left (fun s p -> s +. p.y) 0. pts in
+  let min_value, max_value =
+    Array.fold_left (fun (min, max) p ->
+		       let v = p.x in
+		       let min' = if v < min then v else min in
+		       let max' = if v > max then v else max in
+			 min', max')
+      (infinity, neg_infinity) pts
+  in
+  let range = max_value -. min_value in
+  let bin_width = get_bin_width bin_width ~min_value ~max_value count in
+  let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
+  let ave_per_bin = count /. (float bin_count) in
+  let bin_min = min_value -. (bin_width /. ave_per_bin)  in
+  let bin_max = bin_end ~bin_min ~bin_width (bin_count - 1) in
+  let bins = Array.create (bin_count + 1) 0. in
+  let max_weight = ref 0. in
+    Array.iter
+      (fun p ->
+	 let v = p.x and c = p.y in
+	 let bi = bucket ~bin_min ~bin_width v in
+	 let wt = bins.(bi) +. c in
+	   bins.(bi) <- wt;
+	   if c > !max_weight then max_weight := wt)
+      pts;
+    if normalize then normalize_bins bins;
+    !max_weight, bin_min, bin_max, bin_width, bins
+
+
 let make_bins ?(normalize=false) bin_width values =
   (** [make_bins ?normalize bin_width values] creates an array of
       bins. *)
+(*
   let min_value, max_value, count =
     Array.fold_left (fun (min, max, n) v ->
 		       let min' = if v < min then v else min
@@ -88,14 +121,13 @@ let make_bins ?(normalize=false) bin_width values =
       values;
     if normalize then normalize_bins bins;
     !max_weight, bin_min, bin_max, bin_width, bins
+*)
+  bins_of_points ~normalize bin_width (Array.map (fun v -> point v 1.) values)
 
 
 class histogram_dataset
   dashes ?(normalize=false) ?(line_width=Length.Pt 1.) ?(bg_color=gray)
-  ?bin_width ?name values =
-  let max_weight, bin_min, bin_max, bin_width, bins =
-    make_bins ~normalize bin_width values
-  in
+  ?name max_weight bin_min bin_max bin_width bins =
 object(self)
 
   inherit dataset ?name ()
@@ -163,8 +195,8 @@ object(self)
 
   method legend_dimensions ctx =
     (ctx.units line_legend_length),
-      (max ((ctx.units line_legend_length) /. 4.)
-	 (ctx.units line_width))
+  (max ((ctx.units line_legend_length) /. 4.)
+     (ctx.units line_width))
 
 
   method avg_slope = nan
@@ -175,7 +207,22 @@ let histogram_dataset
     dashes ?normalize ?line_width ?bg_color ?bin_width ?name values =
   (** [histogram_dataset dashes ?normalize ?line_width ?bg_color
       ?bin_width ?name values] makes a histogram. *)
-  new histogram_dataset dashes ?normalize ?line_width ?bg_color
-    ?bin_width ?name values
+  let max_weight, bin_min, bin_max, bin_width, bins =
+    make_bins ?normalize bin_width values
+  in
+    new histogram_dataset dashes ?normalize ?line_width ?bg_color
+      ?name max_weight bin_min bin_max bin_width bins
+
+
+let histogram_of_points_dataset
+    dashes ?normalize ?line_width ?bg_color ?bin_width ?name points =
+  (** [histogram_of_points_dataset dashes ?normalize ?line_width
+      ?bg_color ?bin_width ?name points] makes a histogram given an
+      array of points. *)
+  let max_weight, bin_min, bin_max, bin_width, bins =
+    bins_of_points ?normalize bin_width points
+  in
+    new histogram_dataset dashes ?normalize ?line_width ?bg_color
+      ?name max_weight bin_min bin_max bin_width bins
 
 (* EOF *)
