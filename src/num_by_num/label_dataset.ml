@@ -102,7 +102,7 @@ object (self)
 
 end
 
-(* No api constructors.  Again, these are parts of plots, not so much
-   things you'll be generating outside of another plot *)
-
-(* EOF *)
+let label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name lbl_points =
+  (** [label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name
+      lbl_points] makes a new label dataset. *)
+  new label_dataset ?style:text_style ?xloc ?yloc ?xoff ?yoff ?name lbl_points

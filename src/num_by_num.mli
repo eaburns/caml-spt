@@ -68,6 +68,7 @@ val scatter_dataset :
 
 val scatter_datasets :
   ?color:bool ->
+  ?glyph_factory:(unit -> Drawing.glyph) ->
   ?point_radius:Length.t ->
   (string * Geometry.point array) list ->
   dataset_type list
@@ -337,21 +338,44 @@ val valuemap_dataset :
 	creates a heatmap where the 3rd point of the triple desides
 	the color. *)
 
+type label_x_location =
+  | Label_xat
+  | Label_before
+  | Label_after
+
+
+type label_y_location =
+  | Label_yat
+  | Label_above
+  | Label_below
+
+
+val label_dataset :
+  ?text_style:Drawing.text_style ->
+  ?xloc:label_x_location ->
+  ?yloc:label_y_location ->
+  ?xoff:Length.t ->
+  ?yoff:Length.t ->
+  ?name:string ->
+  (Geometry.point * string) array ->
+  dataset_type
+    (** [label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name
+	lbl_points] makes a new label dataset. *)
 
 class type plot_type =
-  object
-    val mutable height : Length.t
-    val src : Geometry.rectangle
-    val mutable width : Length.t
-    method display : unit
-    method draw : Drawing.context -> unit
-    method height : Length.t
-    method output : string -> unit
-    method set_size : w:Length.t -> h:Length.t -> unit
-    method suggest_aspect : float
-    method use_suggested_aspect : unit
-    method width : Length.t
-  end
+object
+  val mutable height : Length.t
+  val src : Geometry.rectangle
+  val mutable width : Length.t
+  method display : unit
+  method draw : Drawing.context -> unit
+  method height : Length.t
+  method output : string -> unit
+  method set_size : w:Length.t -> h:Length.t -> unit
+  method suggest_aspect : float
+  method use_suggested_aspect : unit
+  method width : Length.t
+end
 
 val plot :
   ?label_text_style:Drawing.text_style ->
@@ -368,7 +392,7 @@ val plot :
   ?y_max:float ->
   dataset_type list ->
   plot_type
-(** [plot ?label_text_style ?legend_text_style ?tick_text_style ?title
-    ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
-    ?y_max datasets] creates a numeric by numeric plot. *)
+    (** [plot ?label_text_style ?legend_text_style ?tick_text_style ?title
+	?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
+	?y_max datasets] creates a numeric by numeric plot. *)
 
