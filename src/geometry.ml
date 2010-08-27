@@ -78,6 +78,18 @@ let zero_rectangle = rectangle 0. 0. 0. 0.
   (** A rectangle with no dimensions. *)
 
 
+let sloppy_float_leq ?(slop=epsilon_float) a b =
+  (** [sloppy_float_leq ?slop a b] test if [a] is pretty much less
+      than or equal to [b]. *)
+  a <= (b +. slop)
+
+
+let sloppy_float_less ?(slop=epsilon_float) a b =
+  (** [sloppy_float_less ?slop a b] test if [a] is pretty much less
+      than [b]. *)
+  a < (b +. slop)
+
+
 let rectangle_to_slope r =
   (** Calculates the slope associated with a rectangle *)
   let dx = r.x_max -. r.x_min
@@ -220,7 +232,10 @@ let rectangle_contains box p =
       rectangle. *)
   let box = face_forward box in
   let x = p.x and y = p.y in
-    x >= box.x_min && x <= box.x_max && y >= box.y_min && y <= box.y_max
+    sloppy_float_leq box.x_min x
+    && sloppy_float_leq x box.x_max
+    && sloppy_float_leq box.y_min y
+    && sloppy_float_leq y box.y_max
 
 
 let points_rectangle pts =

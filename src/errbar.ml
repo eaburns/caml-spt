@@ -31,7 +31,11 @@ let residual_vert ctx up ?(cap_size=default_cap_size)
       for the error bar is within the destination rectangle. *)
   let errbar_cap_size = ctx.units cap_size in
   let y1 = if up then y +. mag else y -. mag in
-  let clip = if up then y1 > src_y.max else y1 < src_y.min in
+  let clip =
+    if up
+    then sloppy_float_less src_y.max y1
+    else sloppy_float_less y1 src_y.min
+  in
     if clip
     then zero_rectangle
     else begin
@@ -53,7 +57,11 @@ let residual_horiz ctx left ?(cap_size=default_cap_size)
       for the error bar is within the destination rectangle. *)
   let errbar_cap_size = ctx.units cap_size in
   let x1 = if left then x -. mag else x +. mag in
-  let clip = if left then x1 < src_x.min else x1 > src_x.max in
+  let clip =
+    if left
+    then sloppy_float_less x1 src_x.min
+    else sloppy_float_less src_x.max x1
+  in
     if clip
     then zero_rectangle
     else begin
