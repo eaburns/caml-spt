@@ -78,7 +78,7 @@ let zero_rectangle = rectangle 0. 0. 0. 0.
   (** A rectangle with no dimensions. *)
 
 
-let sloppy_float_leq ?(slop=epsilon_float) a b =
+let sloppy_float_leq ?(slop=(sqrt epsilon_float)) a b =
   (** [sloppy_float_leq ?slop a b] test if [a] is pretty much less
       than or equal to [b]. *)
   a <= (b +. slop)
