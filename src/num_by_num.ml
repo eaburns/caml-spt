@@ -24,8 +24,11 @@ let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
 	rectangle ~x_min:infinity ~x_max:neg_infinity
 	  ~y_min:infinity ~y_max:neg_infinity
   in
+(*
   let x_pad = range_padding ~max:r.x_max ~min:r.x_min 0.01 in
   let y_pad = range_padding ~max:r.y_max ~min:r.y_min 0.01 in
+*)
+  let x_pad = 0. and y_pad = 0. in
   let x_min' = match x_min with None -> (r.x_min -. x_pad) | Some m -> m
   and x_max' = match x_max with None -> (r.x_max +. x_pad) | Some m -> m
   and y_min' = match y_min with None -> (r.y_min -. y_pad) | Some m -> m
