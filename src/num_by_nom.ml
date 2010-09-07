@@ -26,7 +26,7 @@ let data_dimensions ~y_min ~y_max datasets =
 		      in min', max')
       (infinity, neg_infinity) datasets
   in
-  let pad = range_padding ~max ~min 0.01 in
+  let pad = if min = max then range_padding ~max ~min 0.01 else 0. in
   let min = match y_min with None -> (min -. pad) | Some m -> m in
   let max = match y_max with None -> (max +. pad) | Some m -> m in
   let r = range ~min ~max in
