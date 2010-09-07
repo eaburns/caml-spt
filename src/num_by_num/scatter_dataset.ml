@@ -62,7 +62,11 @@ let scatter_datasets
     ?(color=false) ?glyph_factory ?point_radius name_by_point_array_list =
   let next_glyph = match glyph_factory with
     | Some fact -> fact
-    | None -> Factories.default_glyph_factory () in
+    | None ->
+	if color
+	then Factories.default_color_glyph_factory ()
+	else Factories.default_glyph_factory ()
+  in
   let next_color = (if color
 		    then Factories.default_color_factory ()
 		    else (fun () -> black))

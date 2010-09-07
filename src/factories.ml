@@ -36,6 +36,20 @@ let default_glyph_factory =
   in make_glyph_factory glyph_set
 
 
+let default_color_glyph_factory =
+  (** [default_color_glyph_factory] gets the a glyph factory
+      builder that looks good when the glyphs are colored. *)
+  let glyph_set =
+    [|
+      Ring_glyph;
+      Triangle_glyph;
+      Box_glyph;
+      Cross_glyph;
+      Plus_glyph;
+    |]
+  in make_glyph_factory glyph_set
+
+
 let overlapping_glyph_factory =
   (** [overlapping_glyph_factory] gets a glyph factory builder that
       makes glyphs that look good with overlapping data.
