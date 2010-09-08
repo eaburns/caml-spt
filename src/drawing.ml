@@ -35,6 +35,8 @@ let translate ctx x y = Cairo.translate ctx.cairo x y
 
 let scale ctx x y = Cairo.scale ctx.cairo x y
 
+let rotate ctx theta = Cairo.rotate ctx.cairo theta
+
 
 (** {1 Color} ****************************************)
 

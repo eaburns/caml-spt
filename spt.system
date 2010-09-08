@@ -28,6 +28,7 @@ Files:
 "src/num_by_nom"
 "src/tree_vis"
 "src/spt"
+"src/plot_sheet"
 "src/spt_gtk"
 "src/spt_cairo"
 "src/length"

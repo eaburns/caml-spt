@@ -45,6 +45,14 @@ let two_pi = 2. *. pi
   (** Two times pi... *)
 
 
+let rotated_size ~theta ~w ~h =
+  (** [rotated_size ~theta ~w ~h] gets the width and height of the
+      bounding box around a rectangle with width [w] and height [h]
+      when rotated [theta] radians. *)
+  let s = abs_float (sin theta) and c = abs_float (cos theta) in
+    s *. h +. c *. w, s *. w +. c *. h
+
+
 let point ~x ~y = { x = x; y = y }
   (** [point ~x ~y] makes a new point *)
 
