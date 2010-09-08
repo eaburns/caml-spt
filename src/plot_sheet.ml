@@ -7,12 +7,15 @@
 open Drawing
 open Geometry
 
+(*
 class type plot_type =
   object
     method draw : Drawing.context -> unit
     method height : Length.t
     method width : Length.t
+    method set_size : w:Length.t -> h:Length.t -> unit
   end
+*)
 
 
 let plot_size ctx theta plot =
@@ -25,8 +28,7 @@ let plot_size ctx theta plot =
 
 let draw_plot ctx plot ~x ~y ~theta =
   (** [draw_plot ctx plot ~x ~y ~theta] draws the given plot centered
-      at [x],[y].  The return value is the width and height of the
-      bounding box around the given plot.  [theta] is in radians. *)
+      at [x],[y].  [theta] is in radians. *)
   let units = ctx.units in
   let w = units plot#width and h = units plot#height in
     Drawing.save_transforms ctx;
@@ -34,17 +36,40 @@ let draw_plot ctx plot ~x ~y ~theta =
     Drawing.rotate ctx theta;
     Drawing.translate ctx ~-.(w /. 2.) ~-.(h /. 2.);
     plot#draw ctx;
+(*
     Drawing.draw_rectangle ~style:Drawing.default_line_style ctx
       (rectangle 0. w 0. h);
+*)
     Drawing.restore_transforms ctx;
+    ()
+(*
     let w, h = Geometry.rotated_size ~theta ~w ~h in
       Drawing.draw_rectangle ~style:Drawing.default_line_style ctx
 	(rectangle (x -. w /. 2.) (x +. w /. 2.)
-	   (y -. h /. 2.) (y +. h /. 2.));
-      w, h
+	   (y -. h /. 2.) (y +. h /. 2.))
+*)
 
 
-class plot_sheet plot =
+type 'a located_plot =
+  | Centered of float * 'a
+  | Absolute of Length.t * Length.t * float * 'a
+
+
+let draw_located_plot ~w ~h ctx plot =
+  (** [draw_located_plot ~w ~h ctx plot] draws a 'located' plot. *)
+  match plot with
+    | Centered (t, p) ->
+	let cx = w /. 2. and cy = h /. 2. in
+	  draw_plot ctx p ~x:cx ~y:cy ~theta:t
+    | Absolute (x, y, t, p) ->
+	let units = ctx.units in
+	let x = units x and y = units y in
+	  draw_plot ctx p ~x ~y ~theta:t
+
+
+class plot_sheet lplots =
+  (** [plat_sheet lplots] is a simple class that draws plots at a given
+      x,y and theta.  [lplots] is a list of [located_plot]s. *)
 object(self)
 
   inherit Spt.plot None
@@ -52,9 +77,18 @@ object(self)
   val angle = ref Geometry.pi
 
   method draw ctx =
-    let angle = (let a = !angle in angle := a +. 0.1; a) in
-    let width, height = self#size ctx in
-    let cx = width /. 2. and cy = height /. 2. in
-      ignore (draw_plot ctx plot ~x:cx ~y:cy ~theta:angle)
+    let w, h = self#size ctx in
+    List.iter (draw_located_plot ~w ~h ctx) lplots
 
 end
+
+
+let us_letter ?(landscape=false) plot =
+  let plot = Oo.copy plot in
+  let theta = if landscape then 2. *. Geometry.pi else 0. in
+  let sheet = new plot_sheet [ Centered (theta, plot) ] in
+    sheet#set_size ~w:(Length.In 8.5) ~h:(Length.In 11.);
+    if landscape
+    then plot#set_size ~w:(Length.In 10.5) ~h:(Length.In 8.)
+    else plot#set_size ~w:(Length.In 8.) ~h:(Length.In 10.5);
+    sheet

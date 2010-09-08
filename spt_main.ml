@@ -148,10 +148,16 @@ let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
   let plot = num_by_num_plot () in
-    plot#set_size ~w:(Length.In 10.) ~h:(Length.In 7.5);
+  let sheet = Plot_sheet.us_letter ~landscape:true plot in
 (*
-    plot#output "plot.png"
+    plot#set_size ~w:(Length.In 2.) ~h:(Length.In 5.);
 *)
+    sheet#set_size ~w:(Length.In 11.) ~h:(Length.In 8.5);
+    sheet#output "sheet.pdf";
+(*
     plot#display
+*)
+    sheet#display
+
 
 let _ = main ()
