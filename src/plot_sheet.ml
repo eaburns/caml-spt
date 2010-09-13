@@ -7,16 +7,6 @@
 open Drawing
 open Geometry
 
-(*
-class type plot_type =
-  object
-    method draw : Drawing.context -> unit
-    method height : Length.t
-    method width : Length.t
-    method set_size : w:Length.t -> h:Length.t -> unit
-  end
-*)
-
 
 let plot_size ctx theta plot =
   (** [plot_size ctx theta plot] gets the width and height of the plot
@@ -36,35 +26,7 @@ let draw_plot ctx plot ~x ~y ~theta =
     Drawing.rotate ctx theta;
     Drawing.translate ctx ~-.(w /. 2.) ~-.(h /. 2.);
     plot#draw ctx;
-(*
-    Drawing.draw_rectangle ~style:Drawing.default_line_style ctx
-      (rectangle 0. w 0. h);
-*)
-    Drawing.restore_transforms ctx;
-    ()
-(*
-    let w, h = Geometry.rotated_size ~theta ~w ~h in
-      Drawing.draw_rectangle ~style:Drawing.default_line_style ctx
-	(rectangle (x -. w /. 2.) (x +. w /. 2.)
-	   (y -. h /. 2.) (y +. h /. 2.))
-*)
-
-
-type 'a located_plot =
-  | Centered of float * 'a
-  | Absolute of Length.t * Length.t * float * 'a
-
-
-let draw_located_plot ~w ~h ctx plot =
-  (** [draw_located_plot ~w ~h ctx plot] draws a 'located' plot. *)
-  match plot with
-    | Centered (t, p) ->
-	let cx = w /. 2. and cy = h /. 2. in
-	  draw_plot ctx p ~x:cx ~y:cy ~theta:t
-    | Absolute (x, y, t, p) ->
-	let units = ctx.units in
-	let x = units x and y = units y in
-	  draw_plot ctx p ~x ~y ~theta:t
+    Drawing.restore_transforms ctx
 
 
 class plot_sheet lplots =
@@ -77,17 +39,25 @@ object(self)
   val angle = ref Geometry.pi
 
   method draw ctx =
-    let w, h = self#size ctx in
-    List.iter (draw_located_plot ~w ~h ctx) lplots
+    let units = ctx.units in
+      List.iter (fun (xlen, ylen, theta, p) ->
+		   let x = units xlen and y = units ylen in
+		     draw_plot ctx p ~x ~y ~theta)
+	lplots
 
 end
 
 
 let us_letter ?(landscape=false) plot =
+  (** [us_letter ?landscape plot] clone the given plot to a us letter
+      sized sheet. *)
   let plot = Oo.copy plot in
-  let theta = if landscape then 2. *. Geometry.pi else 0. in
-  let sheet = new plot_sheet [ Centered (theta, plot) ] in
-    sheet#set_size ~w:(Length.In 8.5) ~h:(Length.In 11.);
+  let xin = if landscape then 11. /. 2. else 8.5 /. 2. in
+  let yin = if landscape then 8.5 /. 2. else 11. /. 2. in
+  let sheet = new plot_sheet [ (Length.In xin, Length.In yin, 0., plot) ] in
+    if landscape
+    then sheet#set_size ~w:(Length.In 11.) ~h:(Length.In 8.5)
+    else sheet#set_size ~w:(Length.In 8.5) ~h:(Length.In 11.);
     if landscape
     then plot#set_size ~w:(Length.In 10.5) ~h:(Length.In 8.)
     else plot#set_size ~w:(Length.In 8.) ~h:(Length.In 10.5);
