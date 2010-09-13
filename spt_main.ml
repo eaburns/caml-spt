@@ -149,14 +149,7 @@ let main () =
   Verbosity.Verb_level.set Verbosity.verb_debug;
   let plot = num_by_num_plot () in
   let sheet = Plot_sheet.us_letter ~landscape:true plot in
-(*
-    plot#set_size ~w:(Length.In 2.) ~h:(Length.In 5.);
-*)
-    sheet#set_size ~w:(Length.In 11.) ~h:(Length.In 8.5);
     sheet#output "sheet.pdf";
-(*
-    plot#display
-*)
     sheet#display
 
 
