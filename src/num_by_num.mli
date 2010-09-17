@@ -101,6 +101,16 @@ val scatter_errbar_datasets :
 	is a list of sets, each in the form specified in the
 	[scatter_errbar_dataset] function. *)
 
+
+val y_error_bars :
+  Drawing.glyph -> ?color:Drawing.color -> ?point_radius:Length.t ->
+  ?name:string -> Geometry.point array -> dataset_type
+  (** [y_error_bars glyph ?color ?point_radius ?name points] bins the
+      ponits by x value.  Draws a glyph with error bars showing the
+      mean and 95\% confidence for the y values for the given x
+      value. *)
+
+
 val line_dataset :
   Length.t array ->
   ?line_width:Length.t ->
