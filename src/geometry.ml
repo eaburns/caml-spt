@@ -143,6 +143,27 @@ let yrange rect = range rect.y_min rect.y_max
   (** [yrange rect] gets the range of the y values from the rectangle. *)
 
 
+let bin_points pts =
+  (** [bin_points pts] takes a set of points and bins them by x-value.
+      The result is a list of tuples: (x, y array).  The resulting bins
+      are in sorted order by x value. *)
+  let module Fmap = Map.Make(struct
+			       type t = float
+			       let compare a b =
+				 if (a:float) < b then -1
+				 else if a = b then 0 else 1
+			     end)
+  in
+  let by_x =
+    Array.fold_left (fun m p ->
+		       let x = p.x and y = p.y in
+			 (* I hate having a list of floats... *)
+			 try Fmap.add x (y :: (Fmap.find x m)) m
+			 with Not_found -> Fmap.add x [y] m)
+      Fmap.empty pts
+  in Fmap.fold (fun x ys lst -> (x, Array.of_list ys) :: lst) by_x []
+
+
 let point_transform ~src ~dst =
   (** [rectangle_transform ~src ~dst pt] transforms a point drawn on
       the [src] rectangle to a point on the [dst] rectangle. *)
