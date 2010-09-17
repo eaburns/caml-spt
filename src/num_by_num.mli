@@ -102,10 +102,10 @@ val scatter_errbar_datasets :
 	[scatter_errbar_dataset] function. *)
 
 
-val y_error_bars :
+val y_errbar_dataset :
   Drawing.glyph -> ?color:Drawing.color -> ?point_radius:Length.t ->
   ?name:string -> Geometry.point array -> dataset_type
-  (** [y_error_bars glyph ?color ?point_radius ?name points] bins the
+  (** [y_errbar_dataset glyph ?color ?point_radius ?name points] bins the
       ponits by x value.  Draws a glyph with error bars showing the
       mean and 95\% confidence for the y values for the given x
       value. *)
@@ -314,20 +314,47 @@ val points_histogram_dataset :
 
 val cdf_dataset :
   Length.t array ->
+  ?normalize:bool ->
+  ?nsamples:int ->
   ?line_width:Length.t ->
   ?color:Drawing.color ->
   ?name:string ->
   float array ->
   dataset_type
-    (** [cdf_dataset dashes ?line_width ?color ?name values] creates a
-	cumulative density dataset for [values]. *)
+    (** [cdf_dataset dashes ?normalize ?nsamples ?line_width ?color
+	?name values] creates a cumulative density dataset for
+	[values]. *)
 
 val cdf_datasets :
+  ?normalize:bool ->
+  ?nsamples:int ->
   ?color:bool ->
   (string * float array) list ->
   dataset_type list
-    (** [cdf_datasets ?color value_list] creates a list of CDF
-	datasets. *)
+    (** [cdf_datasets ?normalize ?nsamples ?color value_list] creates
+	a list of CDF datasets. *)
+
+val points_cdf_dataset :
+  Length.t array ->
+  ?normalize:bool ->
+  ?nsamples:int ->
+  ?line_width:Length.t ->
+  ?color:Drawing.color ->
+  ?name:string ->
+  Geometry.point array ->
+  dataset_type
+    (** [points_cdf_dataset dashes ?normalize ?nsamples ?line_width
+	?color ?name points] creates a cumulative density dataset for
+	[points]. *)
+
+val points_cdf_datasets :
+  ?normalize:bool ->
+  ?nsamples:int ->
+  ?color:bool ->
+  (string * Geometry.point array) list ->
+  dataset_type list
+    (** [points_cdf_datasets ?normalize ?nsamples ?color point_list]
+	creates a list of CDF datasets. *)
 
 val countmap_dataset :
   ?line_width:Length.t ->
