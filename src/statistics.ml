@@ -60,6 +60,18 @@ let percentile p vls =
       | n -> ranked.(k - 1) +. d *. (ranked.(k) -. ranked.(k - 1))
 
 
+let min_and_max f vls =
+  (** [min_and_max f vls] gets the min and max of the [vls] array of
+      the value of [f vls.(i)] for all [i] in the arary. *)
+  let min = float_ref infinity and max = float_ref neg_infinity in
+    Array.iter (fun p ->
+		  let v = f p in
+		    if v < !!min then min <-- v;
+		    if v > !!max then max <-- v;)
+      vls;
+    !!min, !!max
+
+
 (** {1 Density estimation} ****************************************)
 
 let gaussian_kernel =

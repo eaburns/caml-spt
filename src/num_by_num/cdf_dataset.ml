@@ -7,99 +7,77 @@
 open Num_by_num_dataset
 open Drawing
 open Geometry
-
-let line_legend_length = Length.Cm 0.75
-  (** The length of the line drawn in the legend. *)
-
+open Statistics
 
 let f_compare a b =
-  let v = a -. b in
-    if v < 0. then ~-1 else if v > 0. then 1 else 0
+  if (a:float) < b then -1 else if a = b then 0 else 1
 
 
-class cdf_dataset
-  dashes ?(line_width=Length.Pt 1.) ?(color=black) ?name vals =
-  (** A line plot dataset. *)
-
-  let values = Array.sort f_compare vals; vals in
-
-  let points =
-    (** The points that form the CDF.  This is computed now because we
-	need it to compute the mean_y_value. *)
-    let size = float (Array.length values) in
-      Array.init (truncate size)
-	(fun i -> point values.(i) ((float i) /. size))
+let cdf_of_points nsamples pts =
+  (** [cdf_of_points nsamples pts] computes a set of points for a CDF
+      from the set of 'run-length encoded' data points ([pts]). *)
+  let rec sum_wt sum i x =
+    if i >= (Array.length pts) || pts.(i).x > x
+    then sum
+    else sum_wt (pts.(i).y +. sum) (i + 1) x
   in
-
-object (self)
-
-  inherit points_dataset ?name points
-
-
-  val style =
-    {
-      line_color = color;
-      line_dashes = dashes;
-      line_width = line_width;
-    }
+  let min, max = Statistics.min_and_max (fun p -> p.x) pts in
+  let delta = (max -. min) /. (float (nsamples - 1)) in
+    Array.sort (fun a b -> f_compare a.x b.x) pts;
+    Array.init nsamples (fun i ->
+			   let x = min +. (float i *. delta) in
+			     assert (x <= max);
+			     point x (sum_wt 0. 0 x))
 
 
-  method dimensions =
-    rectangle ~x_min:(values.(0)) ~x_max:(values.((Array.length values) - 1))
-      ~y_min:0. ~y_max:1.
+let points_cdf_dataset dashes ?(normalize=true) ?(nsamples=100)
+    ?line_width ?color ?name pts =
+  let cdf_pts = cdf_of_points nsamples pts in
+    if not normalize
+    then Line_dataset.line_dataset dashes ?color ?line_width ?name cdf_pts
+    else begin
+      let sum = float_ref 0. in
+	Array.iter (fun p -> sum <-- !!sum +. p.y) pts;
+	let cdf_pts' = Array.map (fun p -> point p.x (p.y /. !!sum)) cdf_pts in
+	 Line_dataset.line_dataset dashes ?color ?line_width ?name cdf_pts'
+    end
 
 
-  method draw ctx ~src ~dst =
-    let size = float (Array.length values) in
-    let points = (Array.init (truncate size)
-		    (fun i ->
-		       point values.(i) ((float i) /. size))) in
-    let tr = point_transform ~src ~dst in
-      draw_line ctx ~box:dst ~style
-	(Array.to_list (Array.map tr points))
-
-
-  method draw_legend ctx ~x ~y =
-    let half_length = (ctx.units line_legend_length) /. 2. in
-    let x0 = x -. half_length and x1 = x +. half_length in
-      draw_line ctx ~style [ point x0 y; point x1 y]
-
-
-  method legend_dimensions ctx =
-    (ctx.units line_legend_length), (ctx.units line_width)
-
-  method avg_slope =
-    if Array.length points < 2 then nan
-    else
-      (let accum = ref 0.
-       and count = (Array.length points) - 2 in
-	 for i = 0 to count
-	 do
-	   (let pt1 = points.(i)
-	    and pt2 = points.(i+1) in
-	    let dy = pt2.y -. pt1.y
-	    and dx = pt2.x -. pt1.x in
-	      accum := !accum +. (abs_float (dy /. dx)))
-	 done;
-	 !accum /. (float count))
-
-end
-
-
-
-let cdf_dataset dashes ?line_width ?color ?name points =
-  new cdf_dataset dashes ?line_width ?color ?name points
-
-let cdf_datasets ?(color=false) name_by_values_list =
+let points_cdf_datasets ?normalize ?nsamples ?(color=false)
+    name_by_points_list =
   let next_dash = Factories.default_dash_factory () in
   let next_color = (if color
 		    then Factories.default_color_factory ()
 		    else (fun () -> black))
   in
-      List.map (fun (name, values) ->
-		  cdf_dataset ~color:(next_color ()) (next_dash ())
-		    ~name values)
-	name_by_values_list
+    List.map (fun (name, points) ->
+		points_cdf_dataset ?normalize ?nsamples ~color:(next_color ())
+		  (next_dash ()) ~name points)
+      name_by_points_list
+
+
+let values_cdf_dataset dashes ?normalize ?nsamples ?line_width
+    ?color ?name vls =
+  let pts = Array.map (fun x -> point x 1.) vls in
+    points_cdf_dataset ?normalize ?nsamples dashes ?line_width ?color ?name pts
+
+
+let values_cdf_datasets ?normalize ?nsamples ?(color=false)
+    name_by_values_list =
+  let next_dash = Factories.default_dash_factory () in
+  let next_color = (if color
+		    then Factories.default_color_factory ()
+		    else (fun () -> black))
+  in
+    List.map (fun (name, values) ->
+		values_cdf_dataset ?normalize ?nsamples ~color:(next_color ())
+		  (next_dash ()) ~name values)
+      name_by_values_list
+
+
+let cdf_dataset = values_cdf_dataset
+
+let cdf_datasets = values_cdf_datasets
 
 
 (* EOF *)
