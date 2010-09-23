@@ -218,8 +218,8 @@ let draw_x_tick ctx style ~y scale (vl, t_opt) =
     end
 
 
-let draw_x_axis ctx ~pad ~width ~height ~dst axis =
-  (** [draw_x_axis ctx ~pad ~width ~height ~dst axis] draws an
+let draw_x_axis ctx ~pad ~height ~dst axis =
+  (** [draw_x_axis ctx ~pad ~height ~dst axis] draws an
       x-axis. [scale] is a function that converts an x-value in the
       original data coordinates to the destination x-coordinate
       system. *)
@@ -232,7 +232,7 @@ let draw_x_axis ctx ~pad ~width ~height ~dst axis =
     | None -> 0.
     | Some label ->
 	let h = snd (text_dimensions ctx ~style:axis.label_text_style label) in
-	let x = width /. 2. in
+	let x = (dst.max +. dst.min) /. 2. in
 	  draw_text_centered_above ctx x height label;
 	  h
   in
@@ -280,9 +280,8 @@ let draw_y_tick ctx style ~x tr (vl, t_opt) =
     end
 
 
-let draw_y_axis ctx ~pad ~width ~height ~dst axis =
-  (** [draw_y_axis ctx ~pad ~width ~height ~dst axis] draws a
-  y-axis. *)
+let draw_y_axis ctx ~pad ~dst axis =
+  (** [draw_y_axis ctx ~pad ~dst axis] draws a y-axis. *)
   let tick_length = ctx.units tick_length in
   let tick_text_pad = ctx.units tick_text_pad in
   let tick_text_width =
@@ -292,7 +291,7 @@ let draw_y_axis ctx ~pad ~width ~height ~dst axis =
     | None -> 0.
     | Some label ->
 	let h = snd (text_dimensions ctx ~style:axis.label_text_style label) in
-	let y = height /. 2. in
+	let y = (dst.max +. dst.min) /. 2. in
 	  draw_text ctx ~angle:270. ~x:(h /. 2.) ~y label;
 	  h
   in

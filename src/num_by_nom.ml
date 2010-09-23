@@ -180,9 +180,7 @@ object (self)
 
   method private draw_y_axis ctx ~dst yaxis =
     (** [draw_y_axis ctx ~dst yaxis] draws the y-axis. *)
-    let xsize, ysize = self#size ctx in
-      Numeric_axis.draw_y_axis ctx ~pad:(ctx.units Spt.text_padding)
-	~width:xsize ~height:ysize ~dst yaxis;
+    Numeric_axis.draw_y_axis ctx ~pad:(ctx.units Spt.text_padding) ~dst yaxis
 
 
   method private draw_x_axis ctx ~y ~xrange ~item_width =

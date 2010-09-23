@@ -234,17 +234,15 @@ object (self)
   method private draw_x_axis ctx ~dst xaxis =
     (** [draw_x_axis ctx ~dst xaxis] draws the
 	x-axis. *)
-    let xsize, ysize = self#size ctx in
+    let _, ysize = self#size ctx in
       Numeric_axis.draw_x_axis ctx ~pad:(ctx.units Spt.text_padding)
-	~width:xsize ~height:ysize ~dst:(xrange dst) xaxis
+	~height:ysize ~dst:(xrange dst) xaxis
 
 
   method private draw_y_axis ctx ~dst yaxis =
     (** [draw_y_axis ctx ~dst] draws the y-axis. *)
-    let xsize, ysize = self#size ctx in
-      Numeric_axis.draw_y_axis ctx
-	~pad:(ctx.units Spt.text_padding) ~width:xsize ~height:ysize
-	~dst:(yrange dst) yaxis
+    Numeric_axis.draw_y_axis ctx ~pad:(ctx.units Spt.text_padding)
+      ~dst:(yrange dst) yaxis
 
 
   method draw ctx =
