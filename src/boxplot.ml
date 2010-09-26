@@ -48,28 +48,31 @@ let separate_outliers ~lower ~upper vls =
   in Array.of_list out_lst, lower_extreme, upper_extreme
 
 
-let create
-    ?(color=black) ?(glyph=Ring_glyph) ?(point_radius=Length.Pt 2.) values =
-  (** [create ?color ?glyph ?point_radius values] makes a boxplot for
-      the given values.
+let create ?(outliers=true) ?(color=black) ?(glyph=Ring_glyph)
+    ?(point_radius=Length.Pt 2.) values =
+  (** [create ?outliers ?color ?glyph ?point_radius values] makes a
+      boxplot for the given values.
 
       Computed according to Tukey, "Exploratory Data Analysis" with
       the addition of 95% confidence intervals. *)
   let mean, conf_interval = Statistics.mean_and_interval values in
-  let q1 = Statistics.percentile 25. values
-  and q3 = Statistics.percentile 75. values in
-  let step = 1.5 *. (q3 -. q1) in
-  let upper_fence = q3 +. step and lower_fence = q1 -. step in
-  let outliers, lower_extreme, upper_extreme =
-    separate_outliers ~lower:lower_fence ~upper:upper_fence values
+  let q1 = Statistics.percentile 25. values in
+  let q3 = Statistics.percentile 75. values in
+  let outliers, lower, upper =
+    if outliers then
+      let step = 1.5 *. (q3 -. q1) in
+	separate_outliers ~lower:(q1 -. step) ~upper:(q3 +. step) values
+    else
+      let min, max = Statistics.min_and_max (fun x -> x) values in
+	[||], min, max
   in
     {
       stats = {
 	q1 = q1;
 	q2 = Statistics.percentile 50. values;
 	q3 = q3;
-	upper_extreme = upper_extreme;
-	lower_extreme = lower_extreme;
+	upper_extreme = upper;
+	lower_extreme = lower;
 	mean = mean;
 	conf_upper = mean +. conf_interval;
 	conf_lower = mean -. conf_interval;
