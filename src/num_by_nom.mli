@@ -50,16 +50,18 @@ val dataset_group : string -> dataset_type list -> dataset_type
       them. *)
 
 val boxplot_dataset :
-  ?point_radius:Length.t -> string -> float array -> dataset_type
-  (** [boxplot_dataset ?point_radius name values] creates a boxplot
+  ?outliers:bool -> ?point_radius:Length.t -> string
+  -> float array -> dataset_type
+  (** [boxplot_dataset ?outliers ?point_radius name values] creates a boxplot
       dataset of the given values. *)
 
 val boxplot_datasets :
+  ?outliers:bool ->
   ?point_radius:Length.t ->
   (string * float array) list ->
   dataset_type list
-  (** [boxplot_datasets ?point_radius sets] creates a list of boxplot
-      datasets given a list of name and value tuples. *)
+    (** [boxplot_datasets ?outliers ?point_radius sets] creates a list
+	of boxplot datasets given a list of name and value tuples. *)
 
 val barchart_dataset :
   Drawing.fill_pattern ->
