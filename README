@@ -24,7 +24,7 @@ Getting the dependencies for compilation on Ubuntu (not well tested):
     (http://ocaml.info/home/ocaml_sources.html) from source as per the
     instructions (make ; make install).  On a 64-bit system, you will
     need to copy or link the lacaml directory that is installed to
-    your /usr/lib65/ocaml directory.
+    your /usr/lib64/ocaml directory.
 
 
 To build spt-it-out:
