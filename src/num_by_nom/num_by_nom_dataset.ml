@@ -101,9 +101,7 @@ object(self)
     let overline_height = ctx.units overline_style.line_width in
       overline_height /. 2. +. (ctx.units overline_padding)
       +. (self#dataset_name_height ctx style width)
-(*
-      +. text_height			(* padding *)
-*)
+      +. text_height /. 4.			(* padding *)
       +. (fixed_width_text_height ctx ~style width group_name)
 
 
@@ -124,7 +122,7 @@ object(self)
 	      x +. ds_width +. between_padding)
 	   x datasets);
       draw_fixed_width_text ctx ~x:center
-	~y:(y +. ds_name_height (* +. text_height *))
+	~y:(y +. ds_name_height +. (text_height /. 4.))
 	~style ~width group_name
 
 
