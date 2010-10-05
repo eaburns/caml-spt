@@ -91,6 +91,11 @@ let sloppy_float_leq ?(slop=(sqrt epsilon_float)) a b =
       than or equal to [b]. *)
   a <= (b +. slop)
 
+let sloppy_float_geq ?(slop=(sqrt epsilon_float)) a b =
+  (** [sloppy_float_leq ?slop a b] test if [a] is pretty much greater
+      than or equal to [b]. *)
+  (a +. slop) >= b
+
 
 let sloppy_float_less ?(slop=(sqrt epsilon_float)) a b =
   (** [sloppy_float_less ?slop a b] test if [a] is pretty much less
@@ -101,7 +106,7 @@ let sloppy_float_less ?(slop=(sqrt epsilon_float)) a b =
 let sloppy_float_greater ?(slop=(sqrt epsilon_float)) a b =
   (** [sloppy_float_greater ?slop a b] test if [a] is pretty much
       greater than [b]. *)
-  a > (b -. slop)
+  (a +. slop) > b
 
 
 let rectangle_to_slope r =
