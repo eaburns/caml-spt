@@ -92,7 +92,7 @@ let sloppy_float_leq ?(slop=(sqrt epsilon_float)) a b =
   a <= (b +. slop)
 
 
-let sloppy_float_less ?(slop=epsilon_float) a b =
+let sloppy_float_less ?(slop=(sqrt epsilon_float)) a b =
   (** [sloppy_float_less ?slop a b] test if [a] is pretty much less
       than [b]. *)
   a < (b +. slop)
