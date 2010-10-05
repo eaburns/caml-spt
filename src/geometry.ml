@@ -98,6 +98,12 @@ let sloppy_float_less ?(slop=(sqrt epsilon_float)) a b =
   a < (b +. slop)
 
 
+let sloppy_float_greater ?(slop=(sqrt epsilon_float)) a b =
+  (** [sloppy_float_greater ?slop a b] test if [a] is pretty much
+      greater than [b]. *)
+  a > (b -. slop)
+
+
 let rectangle_to_slope r =
   (** Calculates the slope associated with a rectangle *)
   let dx = r.x_max -. r.x_min
