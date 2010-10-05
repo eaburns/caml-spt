@@ -112,7 +112,7 @@ let draw_down ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
       let y0' = if y > src.max then tr src.max else tr y  in
       let y1' = if y1 < src.min then tr src.min else tr y1 in
 	draw_line ctx ~style [point x y0'; point x y1'];
-	if not (Geometry.sloppy_float_less y1 src.min)
+	if Geometry.sloppy_float_geq y1 src.min
 	then draw_line ctx ~style [ point (x -. errbar_cap_size) y1';
 				    point (x +. errbar_cap_size) y1' ]
     end
@@ -135,7 +135,7 @@ let draw_left ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
       let x0' = if x > src.max then tr src.max else tr x in
       let x1' = if x1 < src.min then tr src.min else tr x1 in
 	draw_line ctx ~style [point x0' y; point x1' y];
-	if not (Geometry.sloppy_float_less x1 src.min)
+	if Geometry.sloppy_float_geq x1 src.min
 	then draw_line ctx ~style [ point x1' (y -. errbar_cap_size);
 				    point x1' (y +. errbar_cap_size) ]
     end
