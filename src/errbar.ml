@@ -34,7 +34,7 @@ let residual_vert ctx up ?(cap_size=default_cap_size)
   let clip =
     if up
     then sloppy_float_less src_y.max y1
-    else sloppy_float_less y1 src_y.min
+    else sloppy_float_leq y1 src_y.min
   in
     if clip
     then zero_rectangle
@@ -59,7 +59,7 @@ let residual_horiz ctx left ?(cap_size=default_cap_size)
   let x1 = if left then x -. mag else x +. mag in
   let clip =
     if left
-    then sloppy_float_less x1 src_x.min
+    then sloppy_float_leq x1 src_x.min
     else sloppy_float_less src_x.max x1
   in
     if clip
