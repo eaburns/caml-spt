@@ -148,7 +148,7 @@ let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
   let plot = num_by_num_plot () in
-  let sheet = Plot_sheet.us_letter ~landscape:true plot in
+  let sheet = Plot_sheet.double_letter ~landscape:true plot in
     sheet#output "sheet.pdf";
     sheet#display
 

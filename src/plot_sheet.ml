@@ -48,17 +48,35 @@ object(self)
 end
 
 
+let centered_on ~w ~h ~pad plot =
+  (** [centered_on ~w ~h ~pad plot] centers [plot] on a sheet of size
+      [w]x[h] with [pad] between the edges of the plot and the ends of the
+      sheet. *)
+  let plot = Oo.copy plot in
+  let wpt = Length.as_pt w and hpt = Length.as_pt h in
+  let ppt = Length.as_pt pad in
+  let sheet =
+    new plot_sheet [ (Length.Pt (wpt /. 2.), Length.Pt (hpt /. 2.), 0., plot) ]
+  in
+    sheet#set_size ~w:(Length.Pt wpt) ~h:(Length.Pt hpt);
+    plot#set_size ~w:(Length.Pt (wpt -. 2. *. ppt))
+      ~h:(Length.Pt (hpt -. 2. *. ppt));
+    sheet
+
+
 let us_letter ?(landscape=false) plot =
   (** [us_letter ?landscape plot] clone the given plot to a us letter
       sized sheet. *)
-  let plot = Oo.copy plot in
-  let xin = if landscape then 11. /. 2. else 8.5 /. 2. in
-  let yin = if landscape then 8.5 /. 2. else 11. /. 2. in
-  let sheet = new plot_sheet [ (Length.In xin, Length.In yin, 0., plot) ] in
-    if landscape
-    then sheet#set_size ~w:(Length.In 11.) ~h:(Length.In 8.5)
-    else sheet#set_size ~w:(Length.In 8.5) ~h:(Length.In 11.);
-    if landscape
-    then plot#set_size ~w:(Length.In 10.5) ~h:(Length.In 8.)
-    else plot#set_size ~w:(Length.In 8.) ~h:(Length.In 10.5);
-    sheet
+  let win = if landscape then 11. else 8.5 in
+  let hin = if landscape then 8.5 else 11. in
+    centered_on ~w:(Length.In win) ~h:(Length.In hin)
+      ~pad:(Length.In 0.25) plot
+
+
+let double_letter ?(landscape=false) plot =
+  (** [us_letter ?landscape plot] clone the given plot to a double us letter
+      sized sheet (11x17). *)
+  let win = if landscape then 17. else 11. in
+  let hin = if landscape then 11. else 17. in
+    centered_on ~w:(Length.In win) ~h:(Length.In hin)
+      ~pad:(Length.In 0.25) plot
