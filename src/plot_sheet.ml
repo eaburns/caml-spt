@@ -47,6 +47,7 @@ object(self)
 
 end
 
+(** {1 Single page plots} ****************************************)
 
 let centered_on ~w ~h ~pad plot =
   (** [centered_on ~w ~h ~pad plot] centers [plot] on a sheet of size
