@@ -147,8 +147,10 @@ let montage ~w ~h ~pad ?nrows ?ncols plots =
   (** [montage ~w ~h ~pad ?nrows ?ncols plots] montage the given set of
       plots across a bunch of pages.  The resulting pages have size
       [w]x[h]. *)
-  let ncols = match ncols with Some c -> c | _ -> 3 in
-  let nrows = match nrows with Some r -> r | _ -> 4 in
+  let nplots = List.length plots in
+  let square_off n = truncate (ceil (sqrt (float n))) in
+  let ncols = match ncols with Some c -> c | _ -> square_off nplots in
+  let nrows = match nrows with Some r -> r | _ -> square_off nplots in
   let pad_pt = Length.as_pt pad in
   let went_pt, hent_pt = entry_size_pt ~pad_pt ~w ~h ~nrows ~ncols in
   let went = Length.Pt went_pt and hent = Length.Pt hent_pt in
