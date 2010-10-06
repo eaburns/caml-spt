@@ -74,8 +74,8 @@ let us_letter ?(landscape=false) plot =
 
 
 let double_letter ?(landscape=false) plot =
-  (** [us_letter ?landscape plot] clone the given plot to a double us letter
-      sized sheet (11x17). *)
+  (** [double_letter ?landscape plot] clone the given plot to a double
+      us letter sized sheet (11x17). *)
   let win = if landscape then 17. else 11. in
   let hin = if landscape then 11. else 17. in
     centered_on ~w:(Length.In win) ~h:(Length.In hin)
