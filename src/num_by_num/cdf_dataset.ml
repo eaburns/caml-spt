@@ -8,6 +8,7 @@ open Num_by_num_dataset
 open Drawing
 open Geometry
 open Statistics
+open Verbosity
 
 let f_compare a b =
   if (a:float) < b then -1 else if a = b then 0 else 1
@@ -32,35 +33,44 @@ let cdf_of_points nsamples pts =
 *)
 
 
+let pts_to_accum normalize pts =
+  (** [pts_to_accum normalize pts] gets the cumulative sums. *)
+  let accum = Array.map (fun p -> p.y) pts in
+  let n = Array.length accum in
+    for i = 1 to n - 1 do
+      accum.(i) <- accum.(i) +. accum.(i - 1);
+    done;
+    let total = accum.(n - 1) in
+      if normalize then
+	for i = 0 to n - 1 do accum.(i) <- accum.(i) /. total done;
+      accum
+
+
 let cdf_samples normalize xmin xmax nsamples pts =
   (** [cdf_samples normalize xmin xmax nsamples pts] computes the
       samples for a CDF given a range of x values.  [pts] is assumed
       to be sorted. *)
-  let rec sample delta pts pt x samples i accum =
-    if i < nsamples
-    then begin
-      if pt >= (Array.length pts)
-      then
-	let p = point x accum in
-	  sample delta pts pt (x +. delta) (p :: samples) (i + 1) accum
-      else begin
-	let p = pts.(pt) in
-	let px = p.x and py = p.y in
-	  if px > x
-	  then
-	    let p = point x accum in
-	      sample delta pts pt (x +. delta) (p :: samples) (i + 1) accum
-	  else sample delta pts (pt + 1) x samples i (accum +. py)
-      end
-    end else samples
-  in
+  let accum = pts_to_accum normalize pts in
+  let n = Array.length accum in
   let delta = (xmax -. xmin) /. (float (nsamples - 1)) in
-  let samples = sample delta pts 0 xmin [] 0 0. in
-    if normalize
-    then match samples with
-      | { y = y } :: _ -> List.map (fun p -> { p with y = p.y /. y }) samples
-      | [] -> []
-    else samples
+  let rec samples i x =
+    assert (i < n);
+    if Geometry.sloppy_float_leq x xmax then
+      let i' = ref i in
+	while !i' < n && Geometry.sloppy_float_leq pts.(!i').x x do
+	  incr i'
+	done;
+	decr i';
+	if !i' < 0 then
+	  (point x 0.) :: samples i (x +. delta)
+	else
+	  (point x accum.(!i')) :: samples !i' (x +. delta)
+    else
+      []
+  in
+  let ss = samples 0 xmin in
+    assert ((List.length ss) = nsamples);
+    ss
 
 
 class cdf_dataset
