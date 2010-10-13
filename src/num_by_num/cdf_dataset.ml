@@ -14,25 +14,6 @@ let f_compare a b =
   if (a:float) < b then -1 else if a = b then 0 else 1
 
 
-(*
-let cdf_of_points nsamples pts =
-  (** [cdf_of_points nsamples pts] computes a set of points for a CDF
-      from the set of 'run-length encoded' data points ([pts]). *)
-  let rec sum_wt sum i x =
-    if i >= (Array.length pts) || pts.(i).x > x
-    then sum
-    else sum_wt (pts.(i).y +. sum) (i + 1) x
-  in
-  let min, max = Statistics.min_and_max (fun p -> p.x) pts in
-  let delta = (max -. min) /. (float (nsamples - 1)) in
-    Array.sort (fun a b -> f_compare a.x b.x) pts;
-    Array.init nsamples (fun i ->
-			   let x = min +. (float i *. delta) in
-			     assert (x <= max);
-			     point x (sum_wt 0. 0 x))
-*)
-
-
 let pts_to_accum normalize pts =
   (** [pts_to_accum normalize pts] gets the cumulative sums. *)
   let accum = Array.map (fun p -> p.y) pts in
@@ -53,22 +34,23 @@ let cdf_samples normalize xmin xmax nsamples pts =
   let accum = pts_to_accum normalize pts in
   let n = Array.length accum in
   let delta = (xmax -. xmin) /. (float (nsamples - 1)) in
-  let rec samples i x =
+  let rec samples i num =
     assert (i < n);
-    if Geometry.sloppy_float_leq x xmax then
-      let i' = ref i in
-	while !i' < n && Geometry.sloppy_float_leq pts.(!i').x x do
-	  incr i'
-	done;
-	decr i';
-	if !i' < 0 then
-	  (point x 0.) :: samples i (x +. delta)
-	else
-	  (point x accum.(!i')) :: samples !i' (x +. delta)
-    else
-      []
+    let x = xmin +. (delta *. num) in
+      if Geometry.sloppy_float_leq x xmax then begin
+	let i' = ref i in
+	  while !i' < n && Geometry.sloppy_float_leq pts.(!i').x x do
+	    incr i'
+	  done;
+	  decr i';
+	  if !i' < 0 then
+	    (point x 0.) :: samples i (num +. 1.)
+	  else
+	    (point x accum.(!i')) :: samples !i' (num +. 1.)
+      end else
+	[]
   in
-  let ss = samples 0 xmin in
+  let ss = samples 0 0. in
     assert ((List.length ss) = nsamples);
     ss
 
