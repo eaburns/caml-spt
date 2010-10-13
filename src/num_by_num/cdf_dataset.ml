@@ -31,15 +31,18 @@ let cdf_samples normalize xmin xmax nsamples pts =
   (** [cdf_samples normalize xmin xmax nsamples pts] computes the
       samples for a CDF given a range of x values.  [pts] is assumed
       to be sorted. *)
+  (* We do sloppy comparisons here to fix floating point rounding
+     issues.  This is OK because these lines will get clipped. *)
+  let slop = (xmax -. xmin) /. 1_000_000_000_000. in
   let accum = pts_to_accum normalize pts in
   let n = Array.length accum in
   let delta = (xmax -. xmin) /. (float (nsamples - 1)) in
   let rec samples i num =
     assert (i < n);
     let x = xmin +. (delta *. num) in
-      if Geometry.sloppy_float_leq x xmax then begin
+      if Geometry.sloppy_float_leq ~slop x xmax then begin
 	let i' = ref i in
-	  while !i' < n && Geometry.sloppy_float_leq pts.(!i').x x do
+	  while !i' < n && Geometry.sloppy_float_leq ~slop pts.(!i').x x do
 	    incr i'
 	  done;
 	  decr i';
