@@ -155,9 +155,32 @@ module Style_cache = Weak.Make(struct
 
 
 
+let filter_lines lines =
+  (** [filter_lines lines] filters out bad lines.  For example, lines
+      with only a single point. *)
+  let n = Array.length lines in
+  let nrem =
+    Array.fold_left
+      (fun s l -> if (Array.length l) < 2 then s + 1 else s)
+      0 lines
+  in
+  let i = ref 0 in
+    vprintf verb_normal
+      "Ignoring %d lines that have fewer than two points, %d lines remaining\n"
+      nrem (n - nrem);
+    Array.init (n - nrem)
+      (fun _ ->
+	 while (Array.length lines.(!i)) < 2 do incr i done;
+	 assert (!i < n);
+	 incr i;
+	 assert (!i > 0);
+	 lines.(!i - 1))
+
+
 class line_errbar_dataset style ?color ?line_width ?name lines =
   (** [line_errbar_dataset style ?color ?line_width ?name lines] makes a
       line and error bar dataset. *)
+  let lines = filter_lines lines in
 object (self)
   inherit dataset ?name ()
 
