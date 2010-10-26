@@ -150,6 +150,8 @@ class type plot_type =
   end
 
 val plot :
+  ?x_axis_padding:Length.t ->
+  ?y_axis_padding:Length.t ->
   ?label_text_style:Drawing.text_style ->
   ?legend_text_style:Drawing.text_style ->
   ?tick_text_style:Drawing.text_style ->
