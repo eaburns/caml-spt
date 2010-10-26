@@ -8,10 +8,10 @@ open Geometry
 open Drawing
 open Verbosity
 
-let y_axis_padding = Length.Pt 10.
+let default_y_axis_padding = Length.Pt 10.
   (** The amount of room to separate the y-axis from the data. *)
 
-let x_axis_padding = Length.Pt 5.
+let default_x_axis_padding = Length.Pt 5.
   (** The amount of room to separate the x-axis from the data. *)
 
 let data_dimensions ~y_min ~y_max datasets =
@@ -104,9 +104,12 @@ let horiz_line_style =
   }
 
 class plot
+  ?(x_axis_padding=default_x_axis_padding)
+  ?(y_axis_padding=default_y_axis_padding)
   ?(label_text_style=Spt.default_label_style)
   ?(legend_text_style=Spt.default_legend_style)
-  ?(tick_text_style=Spt.default_tick_style) ?(horiz_lines=[])
+  ?(tick_text_style=Spt.default_tick_style)
+  ?(horiz_lines=[])
   ?title ?ylabel ?y_min ?y_max (datasets : dataset_type list) =
   (** [plot ?label_style ?legend_style ?tick_style ?horiz_lines ?title
       ?ylabel ?y_min ?y_max datasets] a plot that has a nominal x axis
@@ -233,7 +236,9 @@ object (self)
 	~xrange ~item_width
 end
 
-let plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?horiz_lines ?title ?ylabel ?y_min ?y_max datasets =
-  new plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?horiz_lines ?title ?ylabel ?y_min ?y_max datasets
+let plot ?x_axis_padding ?y_axis_padding ?label_text_style
+    ?legend_text_style ?tick_text_style ?horiz_lines ?title ?ylabel
+    ?y_min ?y_max datasets =
+  new plot ?x_axis_padding ?y_axis_padding ?label_text_style
+    ?legend_text_style ?tick_text_style ?horiz_lines ?title ?ylabel
+    ?y_min ?y_max datasets
