@@ -41,15 +41,18 @@ object(self)
 
   method draw ctx ~src ~dst =
     let tr_pt = point_transform ~src ~dst in
-      Array.iteri
-	(fun index count ->
-	   if count > 0.
-	   then (let y_max = count
-		 and x_min = bin_start ~bin_min ~bin_width index
-		 and x_max = bin_end ~bin_min ~bin_width index in
-		 let outline = [ point x_min y_max; point x_max y_max; ]
-		 in draw_line ctx ~box:src ~tr:tr_pt ~style outline))
-	bins
+    let points = ref [] in
+      for i = 0 to (Array.length bins) - 2
+      do
+	  (let y_max = bins.(i)
+	   and this_min = bin_start ~bin_min ~bin_width i
+	   and this_max = bin_end ~bin_min ~bin_width i
+	   and next_min = bin_start ~bin_min ~bin_width (i+1) in
+	     points := ((point next_min y_max)::
+			  (point this_max y_max)::
+			  (point this_min y_max)::!points))
+      done;
+      draw_line ctx ~box:src ~tr:tr_pt ~style !points
 
 
   method draw_legend ctx ~x ~y =
