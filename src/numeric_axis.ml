@@ -78,15 +78,17 @@ let rec tick_list delta min max =
   (** [tick_list delta min max] gets a list of the tick marks. *)
   let fst = (floor (min /. delta)) *. delta in
   let next = ref fst in
+  let count = ref 0. in
   let lst = ref [] in
-    while !next < max do
+    while !next <= max do
       let n = !next in
 	if n >= min && n <= max
 	then begin
 	  let t = n, Some (sprintf_float n) in
 	    lst := t :: !lst;
 	end;
-	next := delta +. n;
+	count := !count +. 1.;
+	next := min +. (!count *. delta);
     done;
     !lst
 
