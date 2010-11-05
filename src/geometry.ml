@@ -115,6 +115,7 @@ let rectangle_to_slope r =
   and dy = r.y_max -. r.y_min in
     dy /. dx
 
+
 let range_transform ~src ~dst vl =
   (** [range_transform ~src ~dst vl] converts [vl] from the initial scale
       to the new scale. *)
@@ -122,6 +123,15 @@ let range_transform ~src ~dst vl =
   let diff = src.max -. min and diff' = dst.max -. min' in
   let s = diff' /. diff in
     ((vl -. min) *. s) +. min'
+
+
+let find_new_dmax ~src ~dst vl tgt =
+  (** [find_new_dmax ~src ~dst vl tgt] finds a new dst.max so that
+      [vl] maps to [tgt]. *)
+  let dmin = dst.min in
+  let smin = src.min and smax = src.max in
+  let diff = smax -. smin in
+    (tgt +. dmin *. vl /. diff) *. diff /. vl
 
 
 let range_scale ~src ~dst vl =

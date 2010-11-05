@@ -180,7 +180,8 @@ object (self)
 	~pad:(ctx.units Spt.text_padding) ~x_min:axis_padding yaxis in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
-	~y_max:(title_height +. (ctx.units Spt.text_padding)) in
+	~y_max:(title_height +. (ctx.units Spt.text_padding))
+    in
     let residual =
       (* Maximum distance over the edge of the [dst] rectangle that
 	 any dataset may need to draw. *)
