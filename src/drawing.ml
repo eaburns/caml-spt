@@ -330,9 +330,11 @@ let set_line_style_option ctx = function
   | Some style -> set_line_style ctx style
 
 
-let draw_line ctx ?box ?(tr=(fun x -> x)) ?style points =
-  (** [draw_line ctx ?box ?tr ?style points] draws the given line
-      optionally within the given bounding box. *)
+let draw_line ctx ?box ?(tr=(fun x -> x)) ?(close_path=false) ?style points =
+  (** [draw_line ctx ?box ?tr ?close_path ?style points] draws the
+      given line optionally within the given bounding
+      box. [close_path], if set to true, closes the path before
+      drawing the stroke. *)
   set_line_style_option ctx style;
   begin match box with
     | None ->
@@ -345,6 +347,7 @@ let draw_line ctx ?box ?(tr=(fun x -> x)) ?style points =
 		List.iter (fun p ->
 			     let p = tr p in
 			       Cairo.line_to ctx.cairo p.x p.y) tl;
+		if close_path then Cairo.close_path ctx.cairo;
 		Cairo.stroke ctx.cairo;
 	end;
     | Some box ->
@@ -362,6 +365,7 @@ let draw_line ctx ?box ?(tr=(fun x -> x)) ?style points =
 				      let p' = tr p in
 					Cairo.line_to ctx.cairo p'.x p'.y)
 			   ps;
+			 if close_path then Cairo.close_path ctx.cairo;
 			 Cairo.stroke ctx.cairo;)
 		lst;
 	end;
