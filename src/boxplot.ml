@@ -95,19 +95,10 @@ let draw_median_line ctx style src tr ~x0 ~x1 ~median =
 let draw_box ctx style src tr ~x0 ~x1 ~q1 ~q3 =
   (** [draw_box ctx style src ~x0 ~x1 ~q1 ~q3] draws the boxplot box
       with clipping. *)
-  (* let q3' = tr q3 and q1' = tr q1 in let q3_clipped = q3 >
-     src.max || q3 < src.min and q1_clipped = q1 > src.max || q1 <
-     src.min in if not q3_clipped then draw_line ctx ~style [ point x0
-     q3'; point x1 q3']; if not q1_clipped then draw_line ctx ~style [
-     point x0 q1'; point x1 q1']; if q1 <= src.max && q3 >= src.min then
-     begin let y0 = if q1 < src.min then tr src.min else q1' and y1 = if
-     q3 > src.max then tr src.max else q3' in draw_line ctx ~style [
-     point x0 y0; point x0 y1 ]; draw_line ctx ~style [ point x1 y0;
-     point x1 y1 ]; end *)
   let box = rectangle neg_infinity infinity src.min src.max in
   let tr p = point p.x (tr p.y) in
     draw_line ctx ~box ~tr ~style ~close_path:true
-      [ point x0 q3; point x1 q3; point x1 q1; point x0 q1; ]
+      [ point x0 q3; point x1 q3; point x1 q1; point x0 q1; point x0 q3; ]
 
 
 let fill_ci_box ctx color src tr ~x0 ~x1 ~lower ~upper =
