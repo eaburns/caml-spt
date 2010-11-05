@@ -74,8 +74,8 @@ let sprintf_float n =
 *)
 
 
-let rec tick_list delta min max =
-  (** [tick_list delta min max] gets a list of the tick marks. *)
+let rec tick_list ~delta ~min ~max =
+  (** [tick_list ~delta ~min ~max] gets a list of the tick marks. *)
   let fst = (floor (min /. delta)) *. delta in
   let next = ref fst in
   let count = ref 0. in
@@ -88,7 +88,7 @@ let rec tick_list delta min max =
 	    lst := t :: !lst;
 	end;
 	count := !count +. 1.;
-	next := min +. (!count *. delta);
+	next := fst +. (!count *. delta);
     done;
     !lst
 
@@ -116,8 +116,8 @@ let tick_locations ?(suggested_number=2.) rng =
       in float m, f
   in
   let delta = multiple *. tens in
-  let major_ticks = tick_list delta min max in
-  let minor_ticks' = tick_list (delta *. minor_fact) min max in
+  let major_ticks = tick_list ~delta ~min ~max in
+  let minor_ticks' = tick_list ~delta:(delta *. minor_fact) ~min ~max in
   let minor_ticks =
     List.fold_left (fun l (v, s) ->
 		      if List.exists (fun (_, r) -> r = s) major_ticks
