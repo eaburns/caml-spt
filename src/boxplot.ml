@@ -26,7 +26,7 @@ and stats = {
   conf_lower : float;
 }
 
-let box_line_style = { default_line_style with line_width = Length.Pt 1. }
+let box_line_style = { default_line_style with line_width = Length.Pt 0.5 }
 
 let minf a b = if (a:float) < b then a else b
 let maxf a b = if (a:float) > b then a else b
@@ -97,7 +97,7 @@ let draw_box ctx style src tr ~x0 ~x1 ~q1 ~q3 =
       with clipping. *)
   let box = rectangle neg_infinity infinity src.min src.max in
   let tr p = point p.x (tr p.y) in
-    draw_line ctx ~box ~tr ~style ~close_path:true
+    draw_line ctx ~box ~tr ~style
       [ point x0 q3; point x1 q3; point x1 q1; point x0 q1; point x0 q3; ]
 
 
