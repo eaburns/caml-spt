@@ -158,6 +158,14 @@ let max_tick_text_height ctx style ticks =
 
 (** {1 Drawing an x-axis} ****************************************)
 
+
+let max_major_tick ticks =
+  List.fold_left (fun ((vl, _) as max_tick) tick -> match tick with
+		    | (v, Some _) -> if v > vl then tick else max_tick
+		    | (_, None) -> max_tick)
+    (0., None) ticks
+
+
 let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
   (** [resize_for_x_axis ctx ~pad ~y_min ~dst axis] gets the new scale
       after making room for the x-axis tick marks and label.  [pad] is
@@ -182,26 +190,19 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
     -. label_room -. pad
     -. tick_length -. pad -. x_tick_txt_height
   in
-  let over (vl, txt_opt) =
-    match txt_opt with
-      | None -> 0.
-      | Some txt ->
-	  let width, _ = text_dimensions ctx ~style:tick_text_style txt in
-	  let tr = range_transform ~src:axis.src ~dst in
-	  let x = tr vl in
-	  let over = (x +. (width /. 2.)) -. dst.max in
-	    if over > 0. then over else 0.
+  let max_vl, max_txt = max_major_tick axis.ticks in
+  let x_max' =
+    if max_vl > dst.max then
+      let max_txt = match max_txt with
+	| Some t -> t
+	| None -> failwith "No major ticks"
+      in
+      let width, _ = text_dimensions ctx ~style:tick_text_style max_txt in
+      let tgt = dst.max -. width /. 2. in
+	Geometry.find_new_dmax ~src:axis.src ~dst max_vl tgt
+    else dst.max
   in
-  let max_over =
-    (* Check how far each tick text on the x-axis goes over the
-       maximum x-value so that this can be pushed back to fit the
-       text. *)
-    List.fold_left (fun max tick ->
-		      let o = over tick in
-			if o > max then o else max)
-      0. axis.ticks
-  in
-    y_min', dst.max -. max_over
+    y_min', x_max'
 
 
 let draw_x_tick ctx style ~y scale (vl, t_opt) =
