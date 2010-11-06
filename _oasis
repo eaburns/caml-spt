@@ -4,6 +4,7 @@ Version:     0.5
 Synopsis:    A Simple Plotting Tool
 Authors:     Ethan Burns, Jordan Thayer and the UNH AI group
 License:     LGPL-3.0 with OCaml linking exception
+Plugins:     META (0.2)
 
 Library spt
   Path:       src
@@ -15,6 +16,9 @@ Library spt
   FindlibName: spt
   BuildDepends: cairo, cairo.lablgtk2, lacaml, str
   CompiledObject: best
+  XMETAEnable: true
+  XMETADescription: A Simple Plotting Tool for OCaml programs
+  XMETARequires: cairo, cairo,lablgtk2, lacaml, str
   
 Executable "spt-it-out"
   Path:       .
