@@ -14,10 +14,12 @@ Library spt
     Statistics, Tree_vis, Num_by_nom_dataset, Num_by_num_dataset
   FindlibName: spt
   BuildDepends: cairo, cairo.lablgtk2, lacaml, str
+  CompiledObject: best
   
 Executable "spt-it-out"
   Path:       .
   BuildTools: ocamlbuild
   MainIs:     src/spt-it-out/spt_it_out.ml
   BuildDepends: cairo, cairo.lablgtk2, lacaml, str
+  CompiledObject: best
   
