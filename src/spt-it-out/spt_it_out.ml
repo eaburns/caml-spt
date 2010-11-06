@@ -7,9 +7,6 @@
 open Verbosity
 
 
-let version = 0.1
-  (** The version number *)
-
 let verb_string = "Set the verbosity level"
 
 let parse_args () =
@@ -29,7 +26,7 @@ let parse_args () =
 let main () =
   let ichan, verb = parse_args () in
     Verb_level.set verb;
-    vprintf verb_normal "spt-it-out version %3.1f\n" version;
+    vprintf verb_normal "spt-it-out\n";
     if ichan = stdin
     then begin
       try
