@@ -106,7 +106,7 @@ let tick_locations ?(suggested_number=2.) rng =
       let m = match truncate (ntens /. nticks) with
 	| 6 -> 5
 	| 7 -> 8
-	| 9 -> 10
+	| 9 -> 8
 	| x -> x in
       let f = match m with
 	| 3 -> 1. /. 3.
