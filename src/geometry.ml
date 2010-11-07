@@ -128,10 +128,9 @@ let range_transform ~src ~dst vl =
 let find_new_dmax ~src ~dst vl tgt =
   (** [find_new_dmax ~src ~dst vl tgt] finds a new dst.max so that
       [vl] maps to [tgt]. *)
-  let dmin = dst.min in
-  let smin = src.min and smax = src.max in
-  let diff = smax -. smin in
-    (tgt +. dmin *. vl /. diff) *. diff /. vl
+  let dmin = dst.min and smin = src.min and smax = src.max in
+    (tgt +. dmin *. (smin -. vl) /. (smin -. smax) -. dmin)
+    *. (smax -. smin) /. (vl -. smin)
 
 
 let range_scale ~src ~dst vl =
