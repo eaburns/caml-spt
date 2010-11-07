@@ -202,9 +202,6 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
 	  if over > 0. then
 	    let tgt = dst.max -. half_w in
 	    let max' = Geometry.find_new_dmax ~src:axis.src ~dst max_vl tgt in
-	    let tr' =
-	      range_transform ~src:axis.src ~dst:(range dst.min max')
-	    in
 	      max'
 	  else dst.max
   in
