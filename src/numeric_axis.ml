@@ -192,15 +192,18 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
   in
   let max_vl, max_txt = max_major_tick axis.ticks in
   let x_max' =
-    if max_vl > dst.max then
-      let max_txt = match max_txt with
-	| Some t -> t
-	| None -> failwith "No major ticks"
-      in
-      let width, _ = text_dimensions ctx ~style:tick_text_style max_txt in
-      let tgt = dst.max -. width /. 2. in
-	Geometry.find_new_dmax ~src:axis.src ~dst max_vl tgt
-    else dst.max
+    let max_txt = match max_txt with
+      | Some t -> t
+      | None -> failwith "No major ticks"
+    in
+    let width, _ = text_dimensions ctx ~style:tick_text_style max_txt in
+    let half_w = width /. 2. in
+    let tr = range_transform ~src:axis.src ~dst in
+    let over = (tr max_vl) +. half_w in
+      if over > 0. then
+	let tgt = dst.max -. half_w in
+	  Geometry.find_new_dmax ~src:axis.src ~dst max_vl tgt
+      else dst.max
   in
     y_min', x_max'
 
