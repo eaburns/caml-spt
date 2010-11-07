@@ -199,15 +199,12 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
 	let tr = range_transform ~src:axis.src ~dst in
 	let tick_max = (tr max_vl) +. half_w in
 	let over = if tick_max > dst.max then tick_max -. dst.max else 0. in
-	  Printf.printf "max=%g, half_w=%g, over=%g\n%!" dst.max half_w over;
 	  if over > 0. then
 	    let tgt = dst.max -. half_w in
 	    let max' = Geometry.find_new_dmax ~src:axis.src ~dst max_vl tgt in
 	    let tr' =
 	      range_transform ~src:axis.src ~dst:(range dst.min max')
 	    in
-	      Printf.printf "max'=%g, tgt=%g, acutal=%g\n%!"
-		max' tgt (tr' max_vl);
 	      max'
 	  else dst.max
   in
