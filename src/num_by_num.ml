@@ -171,13 +171,13 @@ object (self)
       match title with
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:label_text_style txt) in
-    let y_min', x_max' =
-      Numeric_axis.resize_for_x_axis
-	ctx ~pad:(ctx.units Spt.text_padding) ~y_min:(ysize -. axis_padding)
-	~dst:(range 0. xsize) xaxis in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx
 	~pad:(ctx.units Spt.text_padding) ~x_min:axis_padding yaxis in
+    let y_min', x_max' =
+      Numeric_axis.resize_for_x_axis
+	ctx ~pad:(ctx.units Spt.text_padding) ~y_min:(ysize -. axis_padding)
+	~dst:(range x_min' xsize) xaxis in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
 	~y_max:(title_height +. (ctx.units Spt.text_padding))
