@@ -262,7 +262,12 @@ object (self)
       begin match title with
 	| None -> ()
 	| Some t ->
-	    let x = (fst (self#size ctx)) /. 2. and y = 0. in
+	    (* (* this centers with respect to the whole plot
+	       including the y-axis label. *)
+
+	       let x = (fst (self#size ctx)) /. 2. and y = 0. in
+	    *)
+	    let x = (dst.x_max +. dst.x_min) /. 2. and y = 0. in
 	      draw_text_centered_below ~style:label_text_style ctx x y t
       end;
       self#draw_x_axis ctx ~dst xaxis;
