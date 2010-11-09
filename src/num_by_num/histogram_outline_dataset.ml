@@ -62,14 +62,8 @@ object(self)
     and x_max = x +. half_length
     and y_min = y -. quarter_length
     and y_max = y +. quarter_length in
-    let r = rectangle ~x_min ~x_max ~y_min:0. ~y_max in
-    let outline = [ point x_min y_min;
-		    point x_min y_max;
-		    point x_max y_max;
-		    point x_max y_min;
-		    point x_min y_min;] in
-      fill_rectangle ctx ~color:bg_color r;
-      draw_line ctx ~style outline
+    let mid =  y_min +. ((y_max -. y_min) /. 2.) in
+      draw_line ctx ~style [point x_min mid; point x_max mid]
 
 
   method legend_dimensions ctx =
