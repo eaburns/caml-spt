@@ -48,7 +48,7 @@ let separate_outliers ~lower ~upper vls =
   in Array.of_list out_lst, lower_extreme, upper_extreme
 
 
-let create ?(outliers=true) ?(color=gray) ?(glyph=Ring_glyph)
+let create ?(outliers=true) ?(color=black) ?(glyph=Ring_glyph)
     ?(point_radius=Length.Pt 2.) values =
   (** [create ?outliers ?color ?glyph ?point_radius values] makes a
       boxplot for the given values.
@@ -158,7 +158,7 @@ let draw ctx ~src ~dst ~width ~x box =
 	if y <= src.max && y >= src.min
 	then draw_point ctx ~color radius glyph (point x (tr y));
     done;
-    fill_ci_box ctx color src tr ~x0:(x -. (width /. 16.))
+    fill_ci_box ctx Drawing.gray src tr ~x0:(x -. (width /. 16.))
       ~x1:(x +. (width /. 16.)) ~lower:box.stats.conf_lower
       ~upper:box.stats.conf_upper;
     draw_median_line ctx box_line_style src tr ~x0 ~x1 ~median:box.stats.q2;
