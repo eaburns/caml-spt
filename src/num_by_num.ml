@@ -8,8 +8,8 @@ open Geometry
 open Drawing
 open Verbosity
 
-let axis_padding = Length.Pt 5.
-  (** The padding between the axis and the data. *)
+let default_axis_padding = Length.Pt 5.
+  (** The amount of room to separate the axes from the data. *)
 
 
 let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
@@ -125,6 +125,7 @@ class type plot_type =
   end
 
 class plot
+  ?(axis_padding=default_axis_padding)
   ?(label_text_style=Spt.default_label_style)
   ?(legend_text_style=Spt.default_legend_style)
   ?(tick_text_style=Spt.default_tick_style)
@@ -281,9 +282,9 @@ object (self)
 
 end
 
-let plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc
-    ?x_min ?x_max ?y_min ?y_max datasets =
-  new plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc
-    ?x_min ?x_max ?y_min ?y_max datasets
+let plot ?axis_padding ?label_text_style ?legend_text_style ?tick_text_style
+    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
+    ?y_max datasets =
+  new plot ?axis_padding ?label_text_style ?legend_text_style ?tick_text_style
+    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
+    ?y_max datasets

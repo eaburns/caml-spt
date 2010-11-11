@@ -415,6 +415,7 @@ object
 end
 
 val plot :
+  ?axis_padding:Length.t ->
   ?label_text_style:Drawing.text_style ->
   ?legend_text_style:Drawing.text_style ->
   ?tick_text_style:Drawing.text_style ->
