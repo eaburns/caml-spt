@@ -189,14 +189,8 @@ object (self)
       List.fold_left
 	(fun r ds -> rectangle_max r (ds#residual ctx ~src ~dst))
 	zero_rectangle datasets in
-    let x_max' =
-      if residual.x_max > 0 then
-	find_new_dmax ~src ~dst src.x_max (dst.x_max -. residual.x_max)
-      else
-	dst.x_max
-    in
     let r = (rectangle ~x_min:(dst.x_min +. residual.x_min)
-	       ~x_max:x_max'
+	       ~x_max:(dst.x_max -. residual.x_max)
 	       ~y_min:(dst.y_min -. residual.y_min)
 	       ~y_max:(dst.y_max +. residual.y_max))
     in
