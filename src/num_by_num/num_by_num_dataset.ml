@@ -26,6 +26,8 @@ object
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction in plot-coordinates. *)
 
+  method x_over (_:context) ~(src:rectangle) ~(dst:rectangle) =
+    ([]:(float * float) list)
 
   method virtual draw_legend : context -> x:float -> y:float -> unit
     (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
@@ -129,6 +131,10 @@ object
     List.fold_left (fun r ds ->
 		      rectangle_max r (ds#residual ctx ~src ~dst))
       zero_rectangle datasets
+
+  method x_over ctx ~src ~dst =
+    List.flatten
+      (List.map (fun ds -> ds#x_over ctx ~src ~dst) datasets)
 
   method draw ctx ~src ~dst =
     List.iter (fun ds -> ds#draw ctx ~src ~dst) datasets

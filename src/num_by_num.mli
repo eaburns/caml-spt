@@ -53,6 +53,16 @@ object
     (** [residual ctx ~src ~dst] get a rectangle containing the
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction in plot-coordinates. *)
+
+
+  method x_over :
+    Drawing.context
+    -> src:Geometry.rectangle
+    -> dst:Geometry.rectangle
+    -> (float * float) list
+    (** [x_over ctx ~src ~dst] gets a (vl * over) list where vl is the
+	source value and over is the amount that the given item is drawn
+	over the end of the destination rectangle. *)
 end
 
 val composite_dataset : ?name:string -> dataset_type list -> dataset_type
