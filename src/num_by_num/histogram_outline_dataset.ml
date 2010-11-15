@@ -16,12 +16,13 @@ open Geometry
 
 class histogram_dataset
   dashes ?(normalize=false) ?(line_width=Length.Pt 1.) ?(bg_color=gray)
+  ?(line_color = black)
   ?name max_weight bin_min bin_max bin_width bins =
 object(self)
 
   inherit dataset ?name ()
 
-  val style = { line_color = black;
+  val style = { line_color = line_color;
 		line_dashes = dashes;
 		line_width = line_width; }
 
@@ -76,13 +77,14 @@ object(self)
 end
 
 let values_histogram_dataset
-    dashes ?normalize ?line_width ?bg_color ?bin_width ?name values =
+    dashes ?normalize ?line_width ?bg_color ?line_color
+    ?bin_width ?name values =
   (** [values_histogram_dataset dashes ?normalize ?line_width
       ?bg_color ?bin_width ?name values] makes a histogram. *)
   let max_weight, bin_min, bin_max, bin_width, bins =
     make_bins ?normalize bin_width values
   in
-    new histogram_dataset dashes ?normalize ?line_width ?bg_color
+    new histogram_dataset dashes ?normalize ?line_width ?bg_color ?line_color
       ?name max_weight bin_min bin_max bin_width bins
 
 
@@ -90,14 +92,15 @@ let histogram_dataset = values_histogram_dataset
 
 
 let points_histogram_dataset
-    dashes ?normalize ?line_width ?bg_color ?bin_width ?name points =
+    dashes ?normalize ?line_width ?line_color ?bg_color ?bin_width
+    ?name points =
   (** [points_histogram_dataset dashes ?normalize ?line_width
       ?bg_color ?bin_width ?name points] makes a histogram given an
       array of points. *)
   let max_weight, bin_min, bin_max, bin_width, bins =
     bins_of_points ?normalize bin_width points
   in
-    new histogram_dataset dashes ?normalize ?line_width ?bg_color
+    new histogram_dataset dashes ?normalize ?line_width ?bg_color ?line_color
       ?name max_weight bin_min bin_max bin_width bins
 
 (* EOF *)

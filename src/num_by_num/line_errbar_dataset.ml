@@ -290,9 +290,9 @@ let scatter_errbar_lines_dataset
       ~yloc:Label_dataset.Label_above
       (Array.of_list lbls)
   and horiz_err =
-    new Errbar_dataset.horizontal_errbar_dataset (Array.of_list x_errs)
+    new Errbar_dataset.horizontal_errbar_dataset ?color (Array.of_list x_errs)
   and vert_err =
-    new Errbar_dataset.vertical_errbar_dataset (Array.of_list y_errs)
+    new Errbar_dataset.vertical_errbar_dataset ?color (Array.of_list y_errs)
   and line =
     Line_dataset.line_dataset dash ?color ?name ?line_width (Array.of_list pts)
   in
