@@ -78,8 +78,10 @@ let num_by_nom_plot () =
       (stacked @ layered)
 
 let num_by_num_plot () =
+(*
   let next_dash = Factories.default_dash_factory () in
   let next_glyph = Factories.default_glyph_factory () in
+*)
     Num_by_num.plot
       ~title:"Title text"
       ~xlabel:"X label text"
@@ -105,6 +107,7 @@ let num_by_num_plot () =
 	  ~name:"One"
 	  [| point 0. 0.; point 1. 1.; point 2. 4.; point 3. 9.; |];
 *)
+(*
 	Num_by_num.bestfit_dataset
 	  ~dashes:(next_dash ())
 	  ~glyph:(next_glyph ())
@@ -117,8 +120,12 @@ let num_by_num_plot () =
 			     let y_err = (Random.float err) -. (err /. 2.) in
 			     let y' = y +. y_err in
 			       point x y'));
-	Num_by_num.function_dataset ~name:"y=x^2" (next_dash ())
-	  (fun x -> x ** 2.);
+*)
+	Num_by_num.scatter_errbar_dataset
+	  Drawing.Circle_glyph
+	  [| Some "Some label", [| point 0. 0.; point 0. 0. |];
+	     Some "Some other label", [| point 1. 0.; point 1. 0. |];
+	  |]
       ]
 
 let rand_color () =
@@ -148,9 +155,9 @@ let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
   let plot = num_by_num_plot () in
-  let sheet = Plot_sheet.double_letter ~landscape:true plot in
+  let sheet = Plot_sheet.us_letter ~landscape:true plot in
     sheet#output "sheet.pdf";
-    sheet#display
+    plot#display
 
 
 let _ = main ()

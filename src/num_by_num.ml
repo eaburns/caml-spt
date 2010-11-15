@@ -41,6 +41,22 @@ let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
       r.x_min r.x_max r.y_min r.y_max;
     r
 
+
+let resize_x ctx ~src ~dst datasets =
+  let tgts =
+    List.flatten (List.map (fun ds -> ds#x_over ctx ~src ~dst) datasets)
+  in
+    match tgts with
+      | hd :: tl ->
+	  let vl, tgt =
+	    List.fold_left (fun ((vl, tgt) as max) ((v, t) as cur) ->
+			      if t > tgt then cur else max)
+	      hd tl
+	  in
+	    Geometry.find_new_dmax ~src:(xrange src) ~dst:(xrange dst) vl tgt
+      | [] -> dst.x_max
+
+
 (** {1 Numeric by numeric datasets} ****************************************)
 
 class type dataset_type =
@@ -92,6 +108,16 @@ object
     (** [residual ctx ~src ~dst] get a rectangle containing the
 	maximum amount the dataset will draw off of the destination
 	rectangle in each direction in plot-coordinates. *)
+
+
+  method x_over :
+    Drawing.context
+    -> src:Geometry.rectangle
+    -> dst:Geometry.rectangle
+    -> (float * float) list
+    (** [x_over ctx ~src ~dst] gets a (vl * over) list where vl is the
+	source value and over is the amount that the given item is drawn
+	over the end of the destination rectangle. *)
 end
 
 include Num_by_num_dataset
@@ -188,12 +214,16 @@ object (self)
 	 any dataset may need to draw. *)
       List.fold_left
 	(fun r ds -> rectangle_max r (ds#residual ctx ~src ~dst))
-	zero_rectangle datasets in
-    let r = (rectangle ~x_min:(dst.x_min +. residual.x_min)
-	       ~x_max:(dst.x_max -. residual.x_max)
-	       ~y_min:(dst.y_min -. residual.y_min)
-	       ~y_max:(dst.y_max +. residual.y_max))
+	zero_rectangle datasets
     in
+    let dst' =
+      rectangle ~x_min:(dst.x_min +. residual.x_min)
+	~x_max:(dst.x_max -. residual.x_max)
+	~y_min:(dst.y_min -. residual.y_min)
+	~y_max:(dst.y_max +. residual.y_max)
+    in
+    let x_max' = resize_x ctx ~src ~dst:dst' datasets in
+    let r = { dst' with x_max = x_max' } in
       vprintf verb_debug "plot dimensions: x=[%f, %f], y=[%f, %f]\n"
 	r.x_min r.x_max r.y_min r.y_max;
       r

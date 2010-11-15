@@ -77,20 +77,42 @@ object (self)
 	     let pt' = self#position ctx (tr pt) txt in
 	     let dims = text_rectangle ctx ~style ~pt:pt' txt in
 	     let residue = rectangle_residual dst dims
-	     in rectangle_max r residue
+	     in { (rectangle_max r residue) with x_max = 0. }
 	   end else r)
 	zero_rectangle label_points
+
+
+  method x_over ctx ~src ~dst =
+    let tr = point_transform ~src ~dst in
+      Array.fold_left
+	(fun lst (pt, txt) ->
+	   let pt' = tr pt in
+	   let pos = self#position ctx pt' txt in
+	   let dims = text_rectangle ctx ~style ~pt:pos txt in
+	     if rectangle_contains src pt && dims.x_max > dst.x_max then begin
+	       let w, _ = text_dimensions ctx ~style txt in
+	       let x, tgt =
+		 match xloc with
+		   | Label_xat ->
+		       pt.x, dst.x_max -. w /. 2.
+		   | Label_before ->
+		       pt.x, dst.x_max
+		   | Label_after ->
+		       pt.x, dst.x_max -. w
+	       in
+		 (x, tgt) :: lst
+	     end else
+	       lst)
+	[] label_points
 
 
   method draw ctx ~src ~dst =
     let tr = point_transform ~src ~dst in
       Array.iter
 	(fun (pt, txt) ->
-	   if rectangle_contains src pt
-	   then begin
+	   if rectangle_contains src pt then
 	     let pt' = self#position ctx (tr pt) txt in
-	       draw_text ctx ~style ~x:pt'.x ~y:pt'.y txt
-	   end)
+	       draw_text ctx ~style ~x:pt'.x ~y:pt'.y txt)
 	label_points
 
 
