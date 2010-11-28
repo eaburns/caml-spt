@@ -121,6 +121,12 @@ val y_errbar_dataset :
       value. *)
 
 
+val vert_errbar_dataset :
+  ?color:Drawing.color -> Geometry.triple array -> dataset_type
+  (** [vert_errbar_dataset ?color triples] Draws vertical error
+      bars given a triples (x, low, high). *)
+
+
 val line_dataset :
   Length.t array ->
   ?line_width:Length.t ->

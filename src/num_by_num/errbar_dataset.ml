@@ -157,7 +157,18 @@ object (self)
 
 end
 
-(* no api constructors, since no one would ever want to make these
-   manually, they're always part of something else. *)
+
+let vert_errbar_dataset ?color triples =
+  let ts =
+    Array.map
+      (fun t ->
+	 let x = t.i and low = t.j and high = t.k in
+	 let mag = (high -. low) /. 2. in
+	 let y = mag +. low in
+	   triple x y mag)
+      triples
+  in
+    new vertical_errbar_dataset ?color ts
+
 
 (* EOF *)
