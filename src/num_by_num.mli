@@ -113,12 +113,17 @@ val scatter_errbar_datasets :
 
 
 val y_errbar_dataset :
-  Drawing.glyph -> ?color:Drawing.color -> ?point_radius:Length.t ->
-  ?name:string -> Geometry.point array -> dataset_type
-  (** [y_errbar_dataset glyph ?color ?point_radius ?name points] bins the
-      points by x value.  Draws a glyph with error bars showing the
-      mean and 95\% confidence for the y values for the given x
-      value. *)
+  Length.t array
+  -> Drawing.glyph
+  -> ?color:Drawing.color
+  -> ?point_radius:Length.t
+  -> ?name:string
+  -> Geometry.point array
+  -> dataset_type
+  (** [y_errbar_dataset dashes glyph ?color ?point_radius ?name
+      points] bins the points by x value.  Draws a line with error
+      bars showing the mean and 95\% confidence for the y values for
+      the given x value. *)
 
 
 val vert_errbar_dataset :
@@ -431,6 +436,7 @@ object
 end
 
 val plot :
+  ?text_padding:Length.t ->
   ?axis_padding:Length.t ->
   ?label_text_style:Drawing.text_style ->
   ?legend_text_style:Drawing.text_style ->

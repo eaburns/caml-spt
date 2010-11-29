@@ -151,6 +151,7 @@ class type plot_type =
   end
 
 class plot
+  ?(text_padding=Spt.text_padding)
   ?(axis_padding=default_axis_padding)
   ?(label_text_style=Spt.default_label_style)
   ?(legend_text_style=Spt.default_legend_style)
@@ -200,14 +201,14 @@ object (self)
 	| Some txt -> snd (text_dimensions ctx ~style:label_text_style txt) in
     let x_min' =
       Numeric_axis.resize_for_y_axis ctx
-	~pad:(ctx.units Spt.text_padding) ~x_min:axis_padding yaxis in
+	~pad:(ctx.units text_padding) ~x_min:axis_padding yaxis in
     let y_min', x_max' =
       Numeric_axis.resize_for_x_axis
-	ctx ~pad:(ctx.units Spt.text_padding) ~y_min:(ysize -. axis_padding)
+	ctx ~pad:(ctx.units text_padding) ~y_min:(ysize -. axis_padding)
 	~dst:(range x_min' xsize) xaxis in
     let dst =
       rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min'
-	~y_max:(title_height +. (ctx.units Spt.text_padding))
+	~y_max:(title_height +. (ctx.units text_padding))
     in
     let residual =
       (* Maximum distance over the edge of the [dst] rectangle that
@@ -216,6 +217,8 @@ object (self)
 	(fun r ds -> rectangle_max r (ds#residual ctx ~src ~dst))
 	zero_rectangle datasets
     in
+      vprintf verb_debug "residual: x_min=%g, x_max=%g, y_min=%g, y_max=%g\n"
+	residual.x_min residual.x_max residual.y_min residual.y_max;
     let dst' =
       rectangle ~x_min:(dst.x_min +. residual.x_min)
 	~x_max:(dst.x_max -. residual.x_max)
@@ -267,13 +270,13 @@ object (self)
     (** [draw_x_axis ctx ~dst xaxis] draws the
 	x-axis. *)
     let _, ysize = self#size ctx in
-      Numeric_axis.draw_x_axis ctx ~pad:(ctx.units Spt.text_padding)
+      Numeric_axis.draw_x_axis ctx ~pad:(ctx.units text_padding)
 	~height:ysize ~dst:(xrange dst) xaxis
 
 
   method private draw_y_axis ctx ~dst yaxis =
     (** [draw_y_axis ctx ~dst] draws the y-axis. *)
-    Numeric_axis.draw_y_axis ctx ~pad:(ctx.units Spt.text_padding)
+    Numeric_axis.draw_y_axis ctx ~pad:(ctx.units text_padding)
       ~dst:(yrange dst) yaxis
 
 
@@ -287,7 +290,7 @@ object (self)
       let legend_dst = { dst with
 			   y_min = dst.y_min +. axis_padding;
 			   x_min = (dst.x_min -. axis_padding
-				    +. (ctx.units Spt.text_padding)); }
+				    +. (ctx.units text_padding)); }
       in Legend.locate ctx legend_text_style legend_dst datasets legend_loc
     in
       begin match title with
@@ -312,9 +315,9 @@ object (self)
 
 end
 
-let plot ?axis_padding ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
-    ?y_max datasets =
-  new plot ?axis_padding ?label_text_style ?legend_text_style ?tick_text_style
-    ?title ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
-    ?y_max datasets
+let plot ?text_padding ?axis_padding ?label_text_style ?legend_text_style
+    ?tick_text_style ?title ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min
+    ?x_max ?y_min ?y_max datasets =
+  new plot ?text_padding ?axis_padding ?label_text_style ?legend_text_style
+    ?tick_text_style ?title ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min
+    ?x_max ?y_min ?y_max datasets
