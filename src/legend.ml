@@ -47,11 +47,13 @@ let max_widths ctx style datasets =
     (0., 0.) datasets
 
 
+
 let dimensions style ctx datasets =
   (** [dimensions style ctx datasets] gets the dimensions of a legend
       for the given datasets. *)
   let padding = ctx.units padding in
-  let ndatasets = float (List.length datasets) in
+  let ndatasets =
+    float (List.length (List.filter (fun ds -> ds#name <> None) datasets)) in
   let ent_height = max_height ctx style datasets in
   let text_width, icon_width = max_widths ctx style datasets
   in (text_width +. icon_width +. padding), ent_height *. ndatasets
