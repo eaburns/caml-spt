@@ -219,17 +219,17 @@ object (self)
     in
       vprintf verb_debug "residual: x_min=%g, x_max=%g, y_min=%g, y_max=%g\n"
 	residual.x_min residual.x_max residual.y_min residual.y_max;
-    let dst' =
-      rectangle ~x_min:(dst.x_min +. residual.x_min)
-	~x_max:(dst.x_max -. residual.x_max)
-	~y_min:(dst.y_min -. residual.y_min)
-	~y_max:(dst.y_max +. residual.y_max)
-    in
-    let x_max' = resize_x ctx ~src ~dst:dst' datasets in
-    let r = { dst' with x_max = x_max' } in
-      vprintf verb_debug "plot dimensions: x=[%f, %f], y=[%f, %f]\n"
-	r.x_min r.x_max r.y_min r.y_max;
-      r
+      let dst' =
+	rectangle ~x_min:(dst.x_min +. residual.x_min)
+	  ~x_max:(dst.x_max -. residual.x_max)
+	  ~y_min:(dst.y_min -. residual.y_min)
+	  ~y_max:(dst.y_max +. residual.y_max)
+      in
+      let x_max' = resize_x ctx ~src ~dst:dst' datasets in
+      let r = { dst' with x_max = x_max' } in
+	vprintf verb_debug "plot dimensions: x=[%f, %f], y=[%f, %f]\n"
+	  r.x_min r.x_max r.y_min r.y_max;
+	r
 
 
   method private xaxis =
@@ -283,15 +283,10 @@ object (self)
   method draw ctx =
     vprintf verb_debug "drawing numeric by numeric plot\n";
     self#fill_background ctx;
-    let axis_padding = ctx.units axis_padding in
     let xaxis = self#xaxis and yaxis = self#yaxis in
     let dst = self#dst_rectangle ctx ~xaxis ~yaxis in
     let legend_txt_loc, legend_x, legend_y =
-      let legend_dst = { dst with
-			   y_min = dst.y_min +. axis_padding;
-			   x_min = (dst.x_min -. axis_padding
-				    +. (ctx.units text_padding)); }
-      in Legend.locate ctx legend_text_style legend_dst datasets legend_loc
+      Legend.locate ctx legend_text_style dst datasets legend_loc
     in
       begin match title with
 	| None -> ()
