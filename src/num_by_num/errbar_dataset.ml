@@ -44,8 +44,7 @@ object (self)
 	       Errbar.residual_vert ctx false ?cap_size:None
 		 ~src_y ~dst_x ~x ~y ~mag
 	     in
-	       rectangle_extremes r
-		 (rectangle_extremes up_residue down_residue)
+	       rectangle_max r (rectangle_max up_residue down_residue)
 	   end else r)
 	zero_rectangle triples
 

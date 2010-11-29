@@ -130,28 +130,4 @@ let scatter_errbar_datasets ?(color=false) name_by_sets_list =
 
 
 
-(** {2 Y Error bars} ***********************************)
-
-(* This is like a scatter plot except that all points with the same x
-   value are binned, averaged and drawn with error bars. *)
-
-let y_errbar_dataset glyph ?color ?point_radius ?name pts =
-  let bins = Geometry.bin_points pts in
-  let means, confs =
-    List.fold_left (fun (ms, cs) (x, ys) ->
-		      if (Array.length ys) = 1
-		      then (point x (Statistics.mean ys)) :: ms, cs
-		      else begin
-			let m, c = Statistics.mean_and_interval ys in
-			  (point x m) :: ms, (triple x m c) :: cs
-		      end)
-      ([],[]) bins
-  in
-  let means = Array.of_list means in
-  let scatter = scatter_dataset glyph ?color ?point_radius ?name means in
-  let confs = Array.of_list confs in
-  let bars = new Errbar_dataset.vertical_errbar_dataset confs in
-    new composite_dataset ?name [ scatter; bars; ]
-
-
 (* EOF *)

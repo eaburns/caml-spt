@@ -128,8 +128,8 @@ object
 
 
   method residual ctx ~src ~dst =
-    List.fold_left (fun r ds ->
-		      rectangle_max r (ds#residual ctx ~src ~dst))
+    List.fold_left
+      (fun r ds -> rectangle_max r (ds#residual ctx ~src ~dst))
       zero_rectangle datasets
 
   method x_over ctx ~src ~dst =

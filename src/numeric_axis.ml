@@ -173,6 +173,7 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
       that will have room for the x-axis and the x-tick label text. *)
   let tick_length = ctx.units tick_length in
   let tick_text_style = axis.tick_text_style in
+  let tick_text_pad = ctx.units tick_text_pad in
   let label_room =
     match axis.label with
       | None -> 0.
@@ -188,7 +189,7 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
   let y_min' =
     y_min
     -. label_room -. pad
-    -. tick_length -. pad -. x_tick_txt_height
+    -. tick_length -. tick_text_pad -. x_tick_txt_height
   in
   let max_vl, max_txt = max_major_tick axis.ticks in
   let x_max' = match max_txt with
@@ -256,6 +257,7 @@ let resize_for_y_axis ctx ~pad ~x_min axis =
       and maximum x-values after making room for the y-axis tick marks
       and label.  [pad] is the padding between text. *)
   let tick_length = ctx.units tick_length in
+  let tick_text_pad = ctx.units tick_text_pad in
   let label_room =
     match axis.label with
       | None -> 0.
@@ -267,7 +269,7 @@ let resize_for_y_axis ctx ~pad ~x_min axis =
   in
     x_min
     +. label_room +. pad
-    +. tick_length +. pad +. tick_text_width
+    +. tick_length +. tick_text_pad +. tick_text_width
 
 
 let draw_y_tick ctx style ~x tr (vl, t_opt) =

@@ -32,12 +32,13 @@ let residual_vert ctx up ?(cap_size=default_cap_size)
   let errbar_cap_size = ctx.units cap_size in
   let y1 = if up then y +. mag else y -. mag in
   let clip =
-    if up
-    then sloppy_float_less src_y.max y1
-    else sloppy_float_greater src_y.min y1
+    if up then
+      sloppy_float_less src_y.max y1
+    else
+      sloppy_float_greater src_y.min y1
   in
-    if clip
-    then zero_rectangle
+    if clip then
+      zero_rectangle
     else begin
       let x0 = x -. errbar_cap_size and x1 = x +. errbar_cap_size in
       let res_min = if x0 < dst_x.min then dst_x.min -. x0 else 0.
