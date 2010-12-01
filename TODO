@@ -1,14 +1,16 @@
+* 12x18 sheets
+
 * Drawing legends off of the plot.
 
 * Change text size based on plot size
 
 * Scatter plot matrix
 
-* Increase/decrease the number of error bars with the size of the plot?
+* Montage default grid fix
 
 * Legend.At uses floats instead of Length.t's.
 
-* Allow Reversible axis orientation (large to small)
+* allow reversible axis orientation (large to small)
 
 ------------------------------------------------------------
 Datasets
@@ -18,16 +20,8 @@ Datasets
 
 * legend in sunburst plots
 
-* Label bestfit lines with the polynomial.
-
 * Datasets should somehow 'know' the size of the plot that they are
   currently being drawn to.
-
-* Line and error bar plots should plot no more than 200 points.
-
-* Make the line_errbar style just be an error bar style.  Maybe errbar
-  datasets should compute the confidence interval (using interpolation)
-  themselves?
 
 * kernel density estimation datasets
    - make the dataset object
@@ -35,18 +29,14 @@ Datasets
 
 * "boxplots with density estimations"
 
-* Boxplots: 'jitter' outliers that overlap
+* boxplots: 'jitter' outliers that overlap
   (local search to minimize overlap among all outliers?)
 
-* Normal quantile plots
+* normal quantile plots
 
 * CDF's need error bars
 
-* Heatmaps - Nominal by Nominal
-
-* Montages: more complex than simple ps-montage style.
-  - Make axis drawing optional.
-  - Make room for non-drawn axes, but then don't draw them.
+* heatmaps - Nominal by Nominal
 
 ------------------------------------------------------------
 Documentation
@@ -75,6 +65,8 @@ Usability
 ------------------------------------------------------------
 spt-it-out
 ------------------------------------------------------------
+
+* plot sheets
 
 * label datasets
 
