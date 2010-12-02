@@ -13,6 +13,20 @@
 * allow reversible axis orientation (large to small)
 
 ------------------------------------------------------------
+Website
+------------------------------------------------------------
+
+* Write up a 1 page description to send around to planning-list and
+  caml-list.
+
+* Write up a comparison between SPT and gnuplot, excel, mathplotlib,
+  tikz/pgf, asymptote and S+/R.
+
+* history/changelog
+
+* link to source that generates the sample plots
+
+------------------------------------------------------------
 Datasets
 ------------------------------------------------------------
 
