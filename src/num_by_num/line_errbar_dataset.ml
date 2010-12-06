@@ -165,9 +165,10 @@ let filter_lines lines =
       0 lines
   in
   let i = ref 0 in
-    vprintf verb_normal
-      "Ignoring %d lines that have fewer than two points, %d lines remaining\n"
-      nrem (n - nrem);
+    if !nrem > 0 then
+      vprintf verb_normal
+	"Ignoring %d lines with fewer than two points, %d lines remaining\n"
+	nrem (n - nrem);
     Array.init (n - nrem)
       (fun _ ->
 	 while (Array.length lines.(!i)) < 2 do incr i done;
