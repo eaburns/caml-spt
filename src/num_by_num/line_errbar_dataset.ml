@@ -165,7 +165,7 @@ let filter_lines lines =
       0 lines
   in
   let i = ref 0 in
-    if !nrem > 0 then
+    if nrem > 0 then
       vprintf verb_normal
 	"Ignoring %d lines with fewer than two points, %d lines remaining\n"
 	nrem (n - nrem);
