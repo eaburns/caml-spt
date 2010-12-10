@@ -177,11 +177,25 @@ let filter_lines lines =
 	 assert (!i > 0);
 	 lines.(!i - 1))
 
-
 class line_errbar_dataset style ?color ?line_width ?name lines =
   (** [line_errbar_dataset style ?color ?line_width ?name lines] makes a
       line and error bar dataset. *)
+
   let lines = filter_lines lines in
+
+  let init_name = name in
+
+  let build_components () =
+    (** [build_components ()] builds the line and errbar datasets. *)
+    let count = !(style.count) in
+    let points, bars = mean_line_and_errbars style.number count lines in
+      (new Line_dataset.line_dataset style.dashes
+	 ?color ?line_width ?name points,
+       new Errbar_dataset.vertical_errbar_dataset ?color bars)
+  in
+
+  let line_dataset, errbar_dataset = build_components () in
+
 object (self)
   inherit dataset ?name ()
 
@@ -189,44 +203,43 @@ object (self)
     (** Caches the composite dataset based on the style. *)
 
 
-  method private build_composite =
-    (** [build_composite] builds the composite dataset. *)
-    let points, bars =
-      mean_line_and_errbars style.number !(style.count) lines
-    in
-      new composite_dataset ?name
-	[(new Line_dataset.line_dataset style.dashes
-	    ?color ?line_width ?name points);
-	 (new Errbar_dataset.vertical_errbar_dataset ?color bars)]
+  val mutable computed_count = !(style.count)
+
+  val mutable composite =
+    new composite_dataset ?name:init_name [ line_dataset; errbar_dataset ]
+
+  val mutable line_dataset = line_dataset
+
+  val mutable errbar_dataset = errbar_dataset
+
+  method private consider_update =
+    (** [consider_update] considers updating the line and errbar
+	datasets if the number of lines in this style has changed since
+	they were previously computed. *)
+    let cur_count = !(style.count) in
+      if cur_count <> computed_count then begin
+	let l, e = build_components () in
+	  computed_count <- cur_count;
+	  line_dataset <- l;
+	  errbar_dataset <- e;
+	  composite <-
+	    new composite_dataset ?name [ line_dataset; errbar_dataset ];
+      end
 
 
   method private composite =
     (** [composite] either builds the composite or returns it from the
-	cache. *)
-    let key = cache_key style.number !(style.count) in
-    let entry =
-      try Style_cache.find style_cache key
-      with Not_found ->
-	let comp = self#build_composite in
-	let ent =
-	  { n = style.number; t = !(style.count); comp = Some comp; }
-	in
-	  Style_cache.add style_cache ent;
-	  ent
-    in match entry.comp with
-      | None ->
-	  let comp = self#build_composite in
-	  let ent =
-	    { n = style.number; t = !(style.count); comp = Some comp; }
-	  in
-	    Style_cache.add style_cache ent;
-	    comp
-      | Some comp -> comp
+	fields. *)
+    self#consider_update;
+    composite
 
 
   method dimensions = self#composite#dimensions
 
-  method mean_y_value src = self#composite#mean_y_value src
+
+  method mean_y_value src =
+    self#consider_update;
+    line_dataset#mean_y_value src
 
   method residual ctx ~src ~dst = self#composite#residual ctx ~src ~dst
 
