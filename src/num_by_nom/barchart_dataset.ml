@@ -8,10 +8,10 @@ open Num_by_nom_dataset
 open Drawing
 open Geometry
 
-(** {1 Simple barcharts} ****************************************)
+(** {1 Simple barcharts} *)
 
+(** A simple barchart.  This is one bar with a name and a height. *)
 class barchart_dataset fill_pattern ?(line_width=Length.Pt 1.) name value =
-  (** A simple barchart.  This is one bar with a name and a height. *)
   let min_val = min 0. value
   and max_val = max 0. value in
 object(self)
@@ -44,17 +44,17 @@ object(self)
 end
 
 
+(** [barchart_dataset fill_pattern ?line_width name data] makes a
+    barchart dataset. *)
 let barchart_dataset fill_pattern ?(line_width=Length.Pt 1.) name data =
-  (** [barchart_dataset fill_pattern ?line_width name data] makes a
-      barchart dataset. *)
   new barchart_dataset fill_pattern ~line_width name data
 
 
+(** [barchart_datasets ?use_color ?line_width ?group values] makes a
+    group of bars datasets. *)
 let barchart_datasets
     ?(use_color=false)
     ?(line_width=Length.Pt 1.) ?group values =
-  (** [barchart_datasets ?use_color ?line_width ?group values] makes a
-      group of bars datasets. *)
   let next_fill =
     if use_color
     then Factories.default_color_fill_pattern_factory ()
@@ -69,14 +69,14 @@ let barchart_datasets
       | None -> bars
 
 
-(** {1 Barcharts with error bars} ****************************************)
+(** {1 Barcharts with error bars} *)
 
 
+(** A barchart where the height of the bar is the mean of a set of
+    values and error bars are computed to the 95\% confidence
+    intervals. *)
 class barchart_errbar_dataset
   fill_pattern ?(line_width=Length.Pt 1.) name values =
-  (** A barchart where the height of the bar is the mean of a set of
-      values and error bars are computed to the 95\% confidence
-      intervals. *)
   let mean, conf_interval = Statistics.mean_and_interval values in
   let min_val = min 0. (mean -. conf_interval)
   and max_val = max 0. (mean +. conf_interval) in
@@ -114,17 +114,17 @@ object(self)
 
 end
 
+(** [barchart_errbar_dataset fill_pattern ?line_width name data]
+    makes a barchart dataset where the bar is the mean value with
+    error bars. *)
 let barchart_errbar_dataset fill_pattern ?(line_width=Length.Pt 1.) name data =
-  (** [barchart_errbar_dataset fill_pattern ?line_width name data] makes a
-      barchart dataset where the bar is the mean value with error
-      bars. *)
   new barchart_errbar_dataset fill_pattern ~line_width name data
 
 
+(** [barchart_errbar_datasets ?use_color ?line_width ?gname
+    values] makes a set of barcharts with error bars. *)
 let barchart_errbar_datasets
     ?(use_color=false) ?(line_width=Length.Pt 1.) ?group values =
-  (** [barchart_errbar_datasets ?use_color ?line_width ?gname values] makes
-      a set of barcharts with error bars. *)
   let next_fill =
     if use_color
     then Factories.default_color_fill_pattern_factory ()
@@ -140,7 +140,7 @@ let barchart_errbar_datasets
       | None -> bars
 
 
-(** {1 Stacked barcharts} ****************************************)
+(** {1 Stacked barcharts} *)
 
 
 class stacked_barchart_dataset next_pattern ?name ?(line_width=Length.Pt 1.)
@@ -239,7 +239,7 @@ let stacked_barchart_datasets
       | None -> bars
 
 
-(** {1 Layered barcharts} ****************************************)
+(** {1 Layered barcharts} *)
 
 
 class layered_barchart_dataset next_pattern ?name ?(line_width=Length.Pt 1.)

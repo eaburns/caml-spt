@@ -17,8 +17,8 @@ type axis = {
   tick_text_style : text_style;
 }
 
+(** The line style of a numeric axis. *)
 let axis_style =
-  (** The line style of a numeric axis. *)
   {
     line_color = black;
     line_dashes = [| |];
@@ -26,25 +26,25 @@ let axis_style =
   }
 
 
+(** The length of a tick mark. *)
 let tick_length = Length.Pt 5.
-  (** The length of a tick mark. *)
 
 
+(** The padding between a tick mark and the text labeling it. *)
 let tick_text_pad = Length.Pt ((Length.as_pt tick_length) *. 0.5)
-  (** The padding between a tick mark and the text labeling it. *)
 
 
+(** The line style of a tick mark. *)
 let tick_style =
-  (** The line style of a tick mark. *)
   {
     line_color = black;
     line_dashes = [| |];
     line_width = Length.Pt 0.5;
   }
 
+(** [create ~label_text_style ~tick_text_style ~src ticks label]
+    creates a new axis. *)
 let create ~label_text_style ~tick_text_style ~src ticks label =
-  (** [create ~label_text_style ~tick_text_style ~src ticks label]
-      creates a new axis. *)
   {
     label = label;
     src = src;
@@ -54,14 +54,14 @@ let create ~label_text_style ~tick_text_style ~src ticks label =
   }
 
 
+(** [recommended_ticks length] gets the recommended number of tick
+    marks. *)
 let recommended_ticks length =
-  (** [recommended_ticks length] gets the recommended number of tick
-      marks. *)
   let n = (Length.as_cm length) *. (1. /. 4.) in
     if n < 2. then 2. else n
 
 
-(** {1 Tick marks} ****************************************)
+(** {1 Tick marks} *)
 
 let sprintf_float n =
   sprintf "%g" n
@@ -74,8 +74,8 @@ let sprintf_float n =
 *)
 
 
+(** [tick_list ~delta ~min ~max] gets a list of the tick marks. *)
 let rec tick_list ~delta ~min ~max =
-  (** [tick_list ~delta ~min ~max] gets a list of the tick marks. *)
   let fst = (floor (min /. delta)) *. delta in
   let next = ref fst in
   let count = ref 0. in
@@ -93,27 +93,27 @@ let rec tick_list ~delta ~min ~max =
     !lst
 
 
+(** [tick_locations ?suggested_number rng] computes the location of
+    tick marks on a numeric axis with the given range.
+    [suggested_number] is the suggested number of major tick
+    marks. *)
 let tick_locations ?(suggested_number=2.) rng =
-  (** [tick_locations ?suggested_number rng] computes the location of
-      tick marks on a numeric axis with the given range.
-      [suggested_number] is the suggested number of major tick
-      marks. *)
   let nticks = suggested_number in
   let min = rng.min and max = rng.max in
   let tens = 10. ** (floor (log10 ((max -. min) /. nticks))) in
   let ntens = (max -. min) /. tens in
   let multiple, minor_fact =
-      let m = match truncate (ntens /. nticks) with
-	| 6 -> 5
-	| 7 -> 8
-	| 9 -> 8
-	| x -> x in
-      let f = match m with
-	| 3 -> 1. /. 3.
-	| 5 -> 1. /. 5.
-	| 6 | 7 | 9 -> assert false
-	| x -> 1. /. 2.
-      in float m, f
+    let m = match truncate (ntens /. nticks) with
+      | 6 -> 5
+      | 7 -> 8
+      | 9 -> 8
+      | x -> x in
+    let f = match m with
+      | 3 -> 1. /. 3.
+      | 5 -> 1. /. 5.
+      | 6 | 7 | 9 -> assert false
+      | x -> 1. /. 2.
+    in float m, f
   in
   let delta = multiple *. tens in
   let major_ticks = tick_list ~delta ~min ~max in
@@ -133,9 +133,9 @@ let tick_locations ?(suggested_number=2.) rng =
     major_ticks @ minor_ticks
 
 
+(** [max_tick_text_width ctx style ticks] gets the maximum width of
+    the text for the given ticks. *)
 let max_tick_text_width ctx style ticks =
-  (** [max_tick_text_width ctx style ticks] gets the maximum width of
-      the text for the given ticks. *)
   List.fold_left (fun m (_, txt_opt) ->
 		    match txt_opt with
 		      | None -> m
@@ -144,9 +144,9 @@ let max_tick_text_width ctx style ticks =
 			    if w > m then w else m)
     0. ticks
 
+(** [max_tick_text_height ctx style ticks] gets the maximum height of
+    the text for the given ticks. *)
 let max_tick_text_height ctx style ticks =
-  (** [max_tick_text_height ctx style ticks] gets the maximum height of
-      the text for the given ticks. *)
   List.fold_left (fun m (_, txt_opt) ->
 		    match txt_opt with
 		      | None -> m
@@ -156,7 +156,7 @@ let max_tick_text_height ctx style ticks =
     0. ticks
 
 
-(** {1 Drawing an x-axis} ****************************************)
+(** {1 Drawing an x-axis} *)
 
 
 let max_major_tick ticks =
@@ -166,11 +166,11 @@ let max_major_tick ticks =
     (0., None) ticks
 
 
+(** [resize_for_x_axis ctx ~pad ~y_min ~dst axis] gets the new scale
+    after making room for the x-axis tick marks and label.  [pad] is
+    the padding between text.  The result is a new (y_min * x_max)
+    that will have room for the x-axis and the x-tick label text. *)
 let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
-  (** [resize_for_x_axis ctx ~pad ~y_min ~dst axis] gets the new scale
-      after making room for the x-axis tick marks and label.  [pad] is
-      the padding between text.  The result is a new (y_min * x_max)
-      that will have room for the x-axis and the x-tick label text. *)
   let tick_length = ctx.units tick_length in
   let tick_text_style = axis.tick_text_style in
   let tick_text_pad = ctx.units tick_text_pad in
@@ -209,9 +209,9 @@ let resize_for_x_axis ctx ~pad ~y_min ~dst axis =
     y_min', x_max'
 
 
+(** [draw_x_tick ctx style ~y scale t] draws an x-tick with the top at
+    the given [y] location.. *)
 let draw_x_tick ctx style ~y scale (vl, t_opt) =
-  (** [draw_x_tick ctx style ~y scale t] draws an x-tick with the
-      top at the given [y] location.. *)
   let tick_length = ctx.units tick_length in
   let tick_text_pad = ctx.units tick_text_pad in
   let x = scale vl in
@@ -225,11 +225,10 @@ let draw_x_tick ctx style ~y scale (vl, t_opt) =
     end
 
 
+(** [draw_x_axis ctx ~pad ~height ~dst axis] draws an x-axis. [scale]
+    is a function that converts an x-value in the original data
+    coordinates to the destination x-coordinate system. *)
 let draw_x_axis ctx ~pad ~height ~dst axis =
-  (** [draw_x_axis ctx ~pad ~height ~dst axis] draws an
-      x-axis. [scale] is a function that converts an x-value in the
-      original data coordinates to the destination x-coordinate
-      system. *)
   let tick_length = ctx.units tick_length in
   let tick_text_pad = ctx.units tick_text_pad in
   let tick_text_height =
@@ -250,12 +249,12 @@ let draw_x_axis ctx ~pad ~height ~dst axis =
     draw_line ctx ~style:axis_style [ point dst.min y'; point dst.max y'; ]
 
 
-(** {1 Drawing a y-axis} ****************************************)
+(** {1 Drawing a y-axis} *)
 
+(** [resize_for_y_axis ctx ~pad ~x_min axis] gets the new minimum and
+    maximum x-values after making room for the y-axis tick marks and
+    label.  [pad] is the padding between text. *)
 let resize_for_y_axis ctx ~pad ~x_min axis =
-  (** [resize_for_y_axis ctx ~pad ~x_min axis] gets the new minimum
-      and maximum x-values after making room for the y-axis tick marks
-      and label.  [pad] is the padding between text. *)
   let tick_length = ctx.units tick_length in
   let tick_text_pad = ctx.units tick_text_pad in
   let label_room =
@@ -272,9 +271,9 @@ let resize_for_y_axis ctx ~pad ~x_min axis =
     +. tick_length +. tick_text_pad +. tick_text_width
 
 
+(** [draw_y_tick ctx style ~x tr t] draws a y-tick with the left at
+    the given [x] location.. *)
 let draw_y_tick ctx style ~x tr (vl, t_opt) =
-  (** [draw_y_tick ctx style ~x tr t]
-      draws a y-tick with the left at the given [x] location.. *)
   let tick_length = ctx.units tick_length in
   let tick_text_pad = ctx.units tick_text_pad in
   let y = tr vl in
@@ -288,8 +287,8 @@ let draw_y_tick ctx style ~x tr (vl, t_opt) =
     end
 
 
+(** [draw_y_axis ctx ~pad ~dst axis] draws a y-axis. *)
 let draw_y_axis ctx ~pad ~dst axis =
-  (** [draw_y_axis ctx ~pad ~dst axis] draws a y-axis. *)
   let tick_length = ctx.units tick_length in
   let tick_text_pad = ctx.units tick_text_pad in
   let tick_text_width =

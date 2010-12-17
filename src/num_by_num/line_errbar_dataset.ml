@@ -19,9 +19,9 @@ type line_errbar_style = {
 }
 
 
+(** [line_errbar_factory next_dashes ()] gets a line and errorbar
+    factory.  This helps choosing where the error bars reside. *)
 let line_errbar_factory next_dashes () =
-  (** [line_errbar_factory next_dashes ()] gets a line and errorbar
-      factory.  This helps choosing where the error bars reside. *)
   let count = ref 0 in
     (fun () ->
        incr count;
@@ -32,8 +32,8 @@ let line_errbar_factory next_dashes () =
        })
 
 
+(** [line_domain l] gets the domain of the line. *)
 let line_domain l =
-  (** [line_domain l] gets the domain of the line. *)
   Array.fold_left (fun r pt ->
 		     let min = if pt.x < r.min then pt.x else r.min
 		     and max = if pt.x > r.max then pt.x else r.max
@@ -41,9 +41,9 @@ let line_domain l =
     (range infinity neg_infinity) l
 
 
+(** [common_domain lines] get the domain that the given lines have
+    in common. *)
 let common_domain lines =
-  (** [common_domain lines] get the domain that the given lines have
-      in common. *)
   let domains = Array.map line_domain lines in
     Array.fold_left (fun cur d ->
 		       let min = if d.min < cur.min then cur.min else d.min
@@ -52,9 +52,9 @@ let common_domain lines =
       (range neg_infinity infinity) domains
 
 
+(** [check_lines lines] throws out a nasty warning if the lines are
+    not sorted on the x-value. *)
 let check_lines lines =
-  (** [check_lines lines] throws out a nasty warning if the lines are
-      not sorted on the x-value. *)
   Array.iter
     (fun line ->
        ignore (Array.fold_left
@@ -68,10 +68,10 @@ let check_lines lines =
     lines
 
 
+(** [mean_line ?xs domain lines] get a line that is the mean of all
+    of the given lines.  [xs] is an array of x-values to ensure are
+    on the line.  Each value in [xs] must already be in [domain]. *)
 let mean_line ?(xs=[||]) domain lines =
-  (** [mean_line ?xs domain lines] get a line that is the mean of all
-      of the given lines.  [xs] is an array of x-values to ensure are
-      on the line.  Each value in [xs] must already be in [domain]. *)
   let module Float_set = Set.Make(struct
 				    type t = float
 				    let compare (a:float) b = compare a b
@@ -100,9 +100,9 @@ let mean_line ?(xs=[||]) domain lines =
 		     xs [])
 
 
+(** [errbars ~xrange ~num ~count ~domain lines] get the error
+    bars. *)
 let errbars ~xrange ~num ~count ~domain lines =
-  (** [errbars ~xrange ~num ~count ~domain lines] get the error
-      bars. *)
   let min = domain.min and max = domain.max in
   let x = ref min in
   let ngroups = 4. in
@@ -127,9 +127,9 @@ let errbars ~xrange ~num ~count ~domain lines =
     Array.of_list !intervals
 
 
+(** [mean_line_and_errbars ~num ~count lines] gets the mean line and
+    the error bars. *)
 let mean_line_and_errbars ~num ~count lines =
-  (** [mean_line_and_errbars ~num ~count lines] gets the mean line and
-      the error bars. *)
   let domain = common_domain lines in
   let errbars = errbars ~xrange:domain ~num ~count ~domain lines in
   let mean = mean_line domain lines in
@@ -144,8 +144,8 @@ type style_cache_entry =
     }
 
 
+(** [cache_key ~n ~t] builds a key for the cache. *)
 let cache_key ~n ~t = { n = n; t = t; comp = None }
-  (** [cache_key ~n ~t] builds a key for the cache. *)
 
 module Style_cache = Weak.Make(struct
 				 type t = style_cache_entry
@@ -155,9 +155,9 @@ module Style_cache = Weak.Make(struct
 
 
 
+(** [filter_lines lines] filters out bad lines.  For example, lines
+    with only a single point. *)
 let filter_lines lines =
-  (** [filter_lines lines] filters out bad lines.  For example, lines
-      with only a single point. *)
   let n = Array.length lines in
   let nrem =
     Array.fold_left
@@ -177,16 +177,16 @@ let filter_lines lines =
 	 assert (!i > 0);
 	 lines.(!i - 1))
 
+(** [line_errbar_dataset style ?color ?line_width ?name lines] makes
+    a line and error bar dataset. *)
 class line_errbar_dataset style ?color ?line_width ?name lines =
-  (** [line_errbar_dataset style ?color ?line_width ?name lines] makes a
-      line and error bar dataset. *)
 
   let lines = filter_lines lines in
 
   let init_name = name in
 
+  (** [build_components ()] builds the line and errbar datasets. *)
   let build_components () =
-    (** [build_components ()] builds the line and errbar datasets. *)
     let count = !(style.count) in
     let points, bars = mean_line_and_errbars style.number count lines in
       (new Line_dataset.line_dataset style.dashes
@@ -199,8 +199,8 @@ class line_errbar_dataset style ?color ?line_width ?name lines =
 object (self)
   inherit dataset ?name ()
 
+  (** Caches the composite dataset based on the style. *)
   val style_cache = Style_cache.create 10
-    (** Caches the composite dataset based on the style. *)
 
 
   val mutable computed_count = !(style.count)
@@ -212,10 +212,10 @@ object (self)
 
   val mutable errbar_dataset = errbar_dataset
 
+  (** [consider_update] considers updating the line and errbar
+      datasets if the number of lines in this style has changed
+      since they were previously computed. *)
   method private consider_update =
-    (** [consider_update] considers updating the line and errbar
-	datasets if the number of lines in this style has changed since
-	they were previously computed. *)
     let cur_count = !(style.count) in
       if cur_count <> computed_count then begin
 	let l, e = build_components () in
@@ -227,9 +227,9 @@ object (self)
       end
 
 
+  (** [composite] either builds the composite or returns it from the
+      fields. *)
   method private composite =
-    (** [composite] either builds the composite or returns it from the
-	fields. *)
     self#consider_update;
     composite
 
@@ -285,14 +285,14 @@ let scatter_errbar_lines_dataset
 		       and mu_y, int_y = Statistics.mean_and_interval ys in
 		       let pt = point mu_x mu_y in
 			 Printf.eprintf "%f x %f\n" mu_x mu_y;
-		       let lbls' = match name with
-			 | Some txt -> (pt, txt) :: lbls
-			 | None -> lbls
-		       in
-			 (pt :: pts,
-			  lbls',
-			  triple mu_x mu_y int_x :: x_errs,
-			  triple mu_x mu_y int_y :: y_errs))
+			 let lbls' = match name with
+			   | Some txt -> (pt, txt) :: lbls
+			   | None -> lbls
+			 in
+			   (pt :: pts,
+			    lbls',
+			    triple mu_x mu_y int_x :: x_errs,
+			    triple mu_x mu_y int_y :: y_errs))
       ([], [], [], []) sets in
   let scatter =
     Scatter_dataset.scatter_dataset glyph ?color

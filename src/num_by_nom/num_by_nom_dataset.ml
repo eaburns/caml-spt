@@ -7,66 +7,66 @@
 open Drawing
 open Geometry
 
+(** Padding between each dataset. *)
 let between_padding = Length.Pt 5.
-  (** Padding between each dataset. *)
 
+(** [dataset name] is a dataset that is plottable on a nominal x
+    axis and a numeric y axis. *)
 class virtual dataset name =
-  (** [dataset name] is a dataset that is plottable on a nominal x
-      axis and a numeric y axis. *)
 object
 
+  (** The name of the dataset is what appears on the x-axis. *)
   val name = (name : string)
-    (** The name of the dataset is what appears on the x-axis. *)
 
+  (** [dimensions] gets the min and maximum value from the
+      dataset. *)
   method virtual dimensions : range
-    (** [dimensions] gets the min and maximum value from the
-	dataset. *)
 
 
+  (** [x_label_height context style width] is the height of the
+      label on thesrc/ x-axis. *)
   method x_label_height : context -> text_style -> float -> float =
-    (** [x_label_height context style width] is the height of the
-	label on thesrc/ x-axis. *)
     (fun ctx style width -> fixed_width_text_height ctx ~style width name)
 
 
+  (** [draw_x_label context ~x ~y style ~width] draws the x-axis
+      label to the proper location. *)
   method draw_x_label :
     context -> x:float -> y:float -> text_style -> width:float -> unit =
-    (** [draw_x_label context ~x ~y style ~width] draws the x-axis
-	label to the proper location. *)
     (fun ctx ~x ~y style ~width ->
        let half_width = width /. 2. in
-       draw_fixed_width_text ctx ~x:(x +. half_width) ~y ~style ~width name)
+	 draw_fixed_width_text ctx ~x:(x +. half_width) ~y ~style ~width name)
 
+  (** [residual ctx ~src ~dst width x] get a rectangle containing
+      the maximum amount the dataset will draw off of the
+      destination rectangle in each direction. *)
   method virtual residual :
     context -> src:range -> dst:range -> width:float -> x:float -> range
-    (** [residual ctx ~src ~dst width x] get a rectangle containing
-	the maximum amount the dataset will draw off of the
-	destination rectangle in each direction. *)
 
+  (** [n_items] gets the number of dataset items.  Each item is
+      allocated a fixed width across the plot.  A dataset with more
+      than one item is allocated a proportion of the space that is
+      [n_items] times the size of the single item width. *)
   method n_items = 1		 (* Most things just have one item. *)
-    (** [n_items] gets the number of dataset items.  Each item is
-	allocated a fixed width across the plot.  A dataset with more
-	than one item is allocated a proportion of the space that is
-	[n_items] times the size of the single item width. *)
 
+  (** [draw ctx ~src ~dst width x] draws the dataset to the plot.
+      [x] is the left-hand-side x value. *)
   method virtual draw :
     context -> src:range -> dst:range -> width:float -> x:float ->unit
-    (** [draw ctx ~src ~dst width x] draws the dataset to the
-	plot.  [x] is the left-hand-side x value. *)
 end
 
-(** {6 Grouped datasets} ****************************************)
+(** {6 Grouped datasets} *)
 
+(** The line style of the line showing the group. *)
 let overline_style =
-  (** The line style of the line showing the group. *)
   {
     line_color = black;
     line_dashes = [| |];
     line_width = Length.Pt 1.;
   }
 
+(** Padding between the overline and the x-axis text. *)
 let overline_padding = Length.Pt 4.
-  (** Padding between the overline and the x-axis text. *)
 
 class dataset_group group_name datasets =
 object(self)
@@ -81,9 +81,9 @@ object(self)
       else width
 
 
+  (** [dataset_name_height ctx style width] gets the height of the
+      dataset names on the x-axis. *)
   method private dataset_name_height ctx style width =
-    (** [dataset_name_height ctx style width] gets the height of the
-	dataset names on the x-axis. *)
     let ds_width = self#dataset_width ctx width in
       List.fold_left
 	(fun h ds ->

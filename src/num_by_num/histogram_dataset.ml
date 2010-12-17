@@ -14,36 +14,36 @@ let f_compare a b =
   let v = a -. b in
     if v < 0. then ~-1 else if v > 0. then 1 else 0
 
+(** The length of the line drawn in the legend. *)
 let line_legend_length = Length.Cm 0.75
-  (** The length of the line drawn in the legend. *)
 
 
 let default_line = { default_line_style with line_width = Length.Pt 1. }
 
+(** value at the left edge of bin [i] in [h] *)
 let bin_start ~bin_min ~bin_width index =
-  (** value at the left edge of bin [i] in [h] *)
   bin_min +. (bin_width *. (float index))
 
 
+(** Value at the right edge of bin [i] in [h].  This is not
+    implemented interms of bin_start because (even when inlined) OCaml
+    boxes the return value of bin_start. *)
 let bin_end ~bin_min ~bin_width index =
-  (** Value at the right edge of bin [i] in [h].
-      This is not implemented interms of bin_start because (even when
-      inlined) OCaml boxes the return value of bin_start. *)
   bin_min +. (bin_width *. (float (index + 1)))
 
 
+(** the index of the bin that should contain [value].  Note that any
+    value outside the range of representable integers, such as
+    [infinity], may yield a garbage value, such as 0!  If you might
+    pass such a value, test before calling!  (This routine is intended
+    to be simple and fast.) *)
 let bucket ~bin_min ~bin_width value =
-  (** the index of the bin that should contain [value].  Note that any
-      value outside the range of representable integers, such as
-      [infinity], may yield a garbage value, such as 0!  If you might pass
-      such a value, test before calling!  (This routine is intended to be
-      simple and fast.) *)
   truncate ((value -. bin_min) /. bin_width)
 
 
+(** [get_bin_width bin_width ~min_value ~max_value count] gets the
+    width to use for each bin. *)
 let get_bin_width bin_width ~min_value ~max_value count =
-  (** [get_bin_width bin_width ~min_value ~max_value count] gets the
-      width to use for each bin. *)
   match bin_width with
     | None ->
 	let nbins = sqrt count in
@@ -52,8 +52,8 @@ let get_bin_width bin_width ~min_value ~max_value count =
     | Some w -> w
 
 
+(** [normalize_bins bins] normalizes the bins to sum to 1. *)
 let normalize_bins bins =
-  (** [normalize_bins bins] normalizes the bins to sum to 1. *)
   let sum = Array.fold_left (+.) 0. bins in
   let n = Array.length bins in
     for i = 0 to n - 1 do
@@ -61,9 +61,9 @@ let normalize_bins bins =
     done
 
 
+(** [bins_of_points ?normalize w counts] makes a set of bins given a
+    set of [(value, count)] pairs. *)
 let bins_of_points ?(normalize=false) bin_width pts =
-  (** [bins_of_points ?normalize w counts] makes a set of bins given a
-      set of [(value, count)] pairs. *)
   let count = Array.fold_left (fun s p -> s +. p.y) 0. pts in
   let min_value, max_value =
     Array.fold_left (fun (min, max) p ->
@@ -93,35 +93,35 @@ let bins_of_points ?(normalize=false) bin_width pts =
     !max_weight, bin_min, bin_max, bin_width, bins
 
 
+(** [make_bins ?normalize bin_width values] creates an array of
+    bins. *)
 let make_bins ?(normalize=false) bin_width values =
-  (** [make_bins ?normalize bin_width values] creates an array of
-      bins. *)
-(*
-  let min_value, max_value, count =
+  (*
+    let min_value, max_value, count =
     Array.fold_left (fun (min, max, n) v ->
-		       let min' = if v < min then v else min
-		       and max' = if v > max then v else max
-		       in min', max', n + 1)
-      (infinity, neg_infinity, 0) values
-  in
-  let range = max_value -. min_value in
-  let bin_width = get_bin_width bin_width ~min_value ~max_value count in
-  let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
-  let ave_per_bin = (float count) /. (float bin_count) in
-  let bin_min = min_value -. (bin_width /. ave_per_bin)  in
-  let bin_max = bin_end ~bin_min ~bin_width (bin_count - 1) in
-  let bins = Array.create (bin_count + 1) 0. in
-  let max_weight = ref 0. in
+    let min' = if v < min then v else min
+    and max' = if v > max then v else max
+    in min', max', n + 1)
+    (infinity, neg_infinity, 0) values
+    in
+    let range = max_value -. min_value in
+    let bin_width = get_bin_width bin_width ~min_value ~max_value count in
+    let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
+    let ave_per_bin = (float count) /. (float bin_count) in
+    let bin_min = min_value -. (bin_width /. ave_per_bin)  in
+    let bin_max = bin_end ~bin_min ~bin_width (bin_count - 1) in
+    let bins = Array.create (bin_count + 1) 0. in
+    let max_weight = ref 0. in
     Array.iter
-      (fun v ->
-	 let bi = bucket ~bin_min ~bin_width v in
-	 let c = bins.(bi) +. 1. in
-	   bins.(bi) <- c;
-	   if c > !max_weight then max_weight := c)
-      values;
+    (fun v ->
+    let bi = bucket ~bin_min ~bin_width v in
+    let c = bins.(bi) +. 1. in
+    bins.(bi) <- c;
+    if c > !max_weight then max_weight := c)
+    values;
     if normalize then normalize_bins bins;
     !max_weight, bin_min, bin_max, bin_width, bins
-*)
+  *)
   bins_of_points ~normalize bin_width (Array.map (fun v -> point v 1.) values)
 
 
@@ -203,10 +203,10 @@ object(self)
 end
 
 
+(** [values_histogram_dataset dashes ?normalize ?line_width ?bg_color
+    ?bin_width ?name values] makes a histogram. *)
 let values_histogram_dataset
     dashes ?normalize ?line_width ?bg_color ?bin_width ?name values =
-  (** [values_histogram_dataset dashes ?normalize ?line_width
-      ?bg_color ?bin_width ?name values] makes a histogram. *)
   let max_weight, bin_min, bin_max, bin_width, bins =
     make_bins ?normalize bin_width values
   in
@@ -217,11 +217,11 @@ let values_histogram_dataset
 let histogram_dataset = values_histogram_dataset
 
 
+(** [points_histogram_dataset dashes ?normalize ?line_width ?bg_color
+    ?bin_width ?name points] makes a histogram given an array of
+    points. *)
 let points_histogram_dataset
     dashes ?normalize ?line_width ?bg_color ?bin_width ?name points =
-  (** [points_histogram_dataset dashes ?normalize ?line_width
-      ?bg_color ?bin_width ?name points] makes a histogram given an
-      array of points. *)
   let max_weight, bin_min, bin_max, bin_width, bins =
     bins_of_points ?normalize bin_width points
   in
