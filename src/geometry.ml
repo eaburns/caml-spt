@@ -37,43 +37,44 @@ type range = {
 }
 
 
+(** The constant pi. *)
 let pi = 3.1415926535
-  (** The constant pi. *)
 
 
+(** Two times pi... *)
 let two_pi = 2. *. pi
-  (** Two times pi... *)
 
 
+(** [rotated_size ~theta ~w ~h] gets the width and height of the
+    bounding box around a rectangle with width [w] and height [h]
+    when rotated [theta] radians. *)
 let rotated_size ~theta ~w ~h =
-  (** [rotated_size ~theta ~w ~h] gets the width and height of the
-      bounding box around a rectangle with width [w] and height [h]
-      when rotated [theta] radians. *)
   let s = abs_float (sin theta) and c = abs_float (cos theta) in
     s *. h +. c *. w, s *. w +. c *. h
 
 
+(** [point ~x ~y] makes a new point *)
 let point ~x ~y = { x = x; y = y }
-  (** [point ~x ~y] makes a new point *)
 
 
+(** [triple ~i ~j ~k] makes a 3-dimensional point. *)
 let triple ~i ~j ~k = { i = i; j = j; k = k }
-  (** [triple ~i ~j ~k] makes a 3-dimensional point. *)
 
 
+(** [range ~min ~max] creates a new range. *)
 let range ~min ~max = { min = min; max = max }
-  (** [range ~min ~max] creates a new range. *)
 
 
+(** [range_padding ~min ~max percent] computes [percent] padding for
+    the range or gives a default padding if the range is empty. *)
 let range_padding ~min ~max percent =
-  (** [range_padding ~min ~max percent] computes [percent] padding for
-      the range or gives a default padding if the range is empty. *)
   let diff = max -. min in
     if diff = 0. then 1. else diff *. percent
 
 
+(** [rectangle ~x_min ~x_max ~y_min ~y_max] creates a new
+    rectangle. *)
 let rectangle ~x_min ~x_max ~y_min ~y_max =
-  (** [rectangle ~x_min ~x_max ~y_min ~y_max] creates a new rectangle. *)
   {
     x_min = x_min;
     x_max = x_max;
@@ -82,91 +83,93 @@ let rectangle ~x_min ~x_max ~y_min ~y_max =
   }
 
 
+(** A rectangle with no dimensions. *)
 let zero_rectangle = rectangle 0. 0. 0. 0.
-  (** A rectangle with no dimensions. *)
 
 
+(** [sloppy_float_leq ?slop a b] test if [a] is pretty much less
+    than or equal to [b]. *)
 let sloppy_float_leq ?(slop=(sqrt epsilon_float)) a b =
-  (** [sloppy_float_leq ?slop a b] test if [a] is pretty much less
-      than or equal to [b]. *)
   a <= (b +. slop)
 
+(** [sloppy_float_leq ?slop a b] test if [a] is pretty much greater
+    than or equal to [b]. *)
 let sloppy_float_geq ?(slop=(sqrt epsilon_float)) a b =
-  (** [sloppy_float_leq ?slop a b] test if [a] is pretty much greater
-      than or equal to [b]. *)
   (a +. slop) >= b
 
 
+(** [sloppy_float_less ?slop a b] test if [a] is pretty much less
+    than [b]. *)
 let sloppy_float_less ?(slop=(sqrt epsilon_float)) a b =
-  (** [sloppy_float_less ?slop a b] test if [a] is pretty much less
-      than [b]. *)
   a < (b +. slop)
 
 
+(** [sloppy_float_greater ?slop a b] test if [a] is pretty much
+    greater than [b]. *)
 let sloppy_float_greater ?(slop=(sqrt epsilon_float)) a b =
-  (** [sloppy_float_greater ?slop a b] test if [a] is pretty much
-      greater than [b]. *)
   (a +. slop) > b
 
 
+(** Calculates the slope associated with a rectangle *)
 let rectangle_to_slope r =
-  (** Calculates the slope associated with a rectangle *)
   let dx = r.x_max -. r.x_min
   and dy = r.y_max -. r.y_min in
     dy /. dx
 
 
+(** [range_transform ~src ~dst vl] converts [vl] from the initial
+    scale to the new scale. *)
 let range_transform ~src ~dst vl =
-  (** [range_transform ~src ~dst vl] converts [vl] from the initial scale
-      to the new scale. *)
   let min = src.min and min' = dst.min in
   let diff = src.max -. min and diff' = dst.max -. min' in
   let s = diff' /. diff in
     ((vl -. min) *. s) +. min'
 
 
+(** [find_new_dmax ~src ~dst vl tgt] finds a new dst.max so that
+    [vl] maps to [tgt]. *)
 let find_new_dmax ~src ~dst vl tgt =
-  (** [find_new_dmax ~src ~dst vl tgt] finds a new dst.max so that
-      [vl] maps to [tgt]. *)
   let dmin = dst.min and smin = src.min and smax = src.max in
     (tgt +. dmin *. (smin -. vl) /. (smin -. smax) -. dmin)
     *. (smax -. smin) /. (vl -. smin)
 
 
+(** [range_scale ~src ~dst vl] scales the value to the new range. *)
 let range_scale ~src ~dst vl =
-  (** [range_scale ~src ~dst vl] scales the value to the new range. *)
   let d = abs_float (dst.max -. dst.min)
   and s = abs_float (src.max -. src.min)
   in vl *. (d /. s)
 
 
+(** [range_extremes a b] gets the extremes of the two ranges. *)
 let range_extremes a b =
-  (** [range_extremes a b] gets the extremes of the two ranges. *)
   let max = if a.max > b.max then a.max else b.max in
   let min = if a.min < b.min then a.min else b.min in
     range ~min ~max
 
 
+(** [range_max a b] get a new range with the maximum min and max
+    values over a and b. *)
 let range_max a b =
-  (** [range_max a b] get a new range with the maximum min and max
-      values over a and b. *)
   let min' = if a.min > b.min then a.min else b.min
   and max' = if a.max > b.max then a.max else b.max
   in range min' max'
 
 
+(** [xrange rect] gets the range of the x values from the
+    rectangle. *)
 let xrange rect = range rect.x_min rect.x_max
-  (** [xrange rect] gets the range of the x values from the rectangle. *)
 
 
+(** [yrange rect] gets the range of the y values from the
+    rectangle. *)
 let yrange rect = range rect.y_min rect.y_max
-  (** [yrange rect] gets the range of the y values from the rectangle. *)
 
 
+(** [bin_points pts] takes a set of points and bins them by x-value.
+    The result is a list of tuples: (x, y array).  The resulting
+    bins are in sorted order by x value. *)
 let bin_points pts =
-  (** [bin_points pts] takes a set of points and bins them by x-value.
-      The result is a list of tuples: (x, y array).  The resulting bins
-      are in sorted order by x value. *)
   let module Fmap = Map.Make(struct
 			       type t = float
 			       let compare a b =
@@ -184,9 +187,9 @@ let bin_points pts =
   in Fmap.fold (fun x ys lst -> (x, Array.of_list ys) :: lst) by_x []
 
 
+(** [rectangle_transform ~src ~dst pt] transforms a point drawn on
+    the [src] rectangle to a point on the [dst] rectangle. *)
 let point_transform ~src ~dst =
-  (** [rectangle_transform ~src ~dst pt] transforms a point drawn on
-      the [src] rectangle to a point on the [dst] rectangle. *)
   let src_x_min = src.x_min
   and dst_x_min = dst.x_min
   and src_y_min = src.y_min
@@ -214,9 +217,9 @@ let rectangle_transform ~src ~dst =
 	   ~y_min:nlleft.y ~y_max:nuright.y)
 
 
+(** [face_forward rect] if the rectangle is facing the wrong
+    direction, it is faced forward. *)
 let face_forward rect =
-  (** [face_forward rect] if the rectangle is facing the wrong
-      direction, it is faced forward. *)
   if rect.x_min <= rect.x_max && rect.y_min <= rect.y_max
   then rect
   else
@@ -229,9 +232,9 @@ let face_forward rect =
     in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
+(** [rectangle_extremes r0 r1] get the rectangle that contains both
+    [r0] and [r1]. *)
 let rectangle_extremes r0 r1 =
-  (** [rectangle_extremes r0 r1] get the rectangle that contains both
-      [r0] and [r1]. *)
   let x_min = if r0.x_min < r1.x_min then r0.x_min else r1.x_min
   and x_max = if r0.x_max > r1.x_max then r0.x_max else r1.x_max
   and y_min = if r0.y_min < r1.y_min then r0.y_min else r1.y_min
@@ -239,8 +242,8 @@ let rectangle_extremes r0 r1 =
   in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
+(** [rectangle_max r0 r1] takes the max of each dimension. *)
 let rectangle_max r0 r1 =
-  (** [rectangle_max r0 r1] takes the max of each dimension. *)
   rectangle
     ~x_min:(max r0.x_min r1.x_min)
     ~x_max:(max r0.x_max r1.x_max)
@@ -248,10 +251,10 @@ let rectangle_max r0 r1 =
     ~y_max:(max r0.y_max r1.y_max)
 
 
+(** [clip_rectangle ~box ~r] clips the given rectangle to the given
+    bounding box.  Assumes that [r] is facing forward ([y_max >
+    y_min]). *)
 let clip_rectangle ~box ~r =
-  (** [clip_rectangle ~box ~r] clips the given rectangle to the given
-      bounding box.  Assumes that [r] is facing forward ([y_max >
-      y_min]). *)
   if r.y_max < box.y_min || r.y_min > box.y_max
     || r.x_min > box.x_max || r.x_max < box.x_min
   then None
@@ -264,11 +267,11 @@ let clip_rectangle ~box ~r =
   end
 
 
+(** [rectangle_residual ~dst ~r] gets the residual of [r] on [dst].
+    (how much does [r] go over the extremes of [dst] on each side.
+    (assumes the destination rectangle has a greater y_min than
+    y_max.) *)
 let rectangle_residual ~dst ~r =
-  (** [rectangle_residual ~dst ~r] gets the residual of [r] on [dst].
-      (how much does [r] go over the extremes of [dst] on each side.
-      (assumes the destination rectangle has a greater y_min than
-      y_max.) *)
   let x_min = if r.x_min < dst.x_min then dst.x_min -. r.x_min else 0.
   and x_max = if r.x_max > dst.x_max then r.x_max -. dst.x_max else 0.
   and y_min = if r.y_min > dst.y_min then r.y_min -. dst.y_min else 0.
@@ -276,9 +279,9 @@ let rectangle_residual ~dst ~r =
   in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
+(** [rectangle_contains box p] tests if the given point is within
+    the rectangle. *)
 let rectangle_contains box p =
-  (** [rectangle_contains box p] tests if the given point is within the
-      rectangle. *)
   let box = face_forward box in
   let x = p.x and y = p.y in
     sloppy_float_leq box.x_min x
@@ -287,25 +290,25 @@ let rectangle_contains box p =
     && sloppy_float_leq y box.y_max
 
 
+(** [points_rectangle pts] gets the rectangle enclosing a set of
+    points. *)
 let points_rectangle pts =
-  (** [points_rectangle pts] gets the rectangle enclosing a set of
-      points. *)
   let x_min, x_max, y_min, y_max =
     Array.fold_left (fun (x_min, x_max, y_min, y_max) pt ->
-		      let x = pt.x and y = pt.y in
-		      let x_min' = if x < x_min then x else x_min
-		      and x_max' = if x > x_max then x else x_max
-		      and y_min' = if y < y_min then y else y_min
-		      and y_max' = if y > y_max then y else y_max
-		      in x_min', x_max', y_min', y_max')
+		       let x = pt.x and y = pt.y in
+		       let x_min' = if x < x_min then x else x_min
+		       and x_max' = if x > x_max then x else x_max
+		       and y_min' = if y < y_min then y else y_min
+		       and y_max' = if y > y_max then y else y_max
+		       in x_min', x_max', y_min', y_max')
       (infinity, neg_infinity, infinity, neg_infinity) pts
   in rectangle ~x_min ~x_max ~y_min ~y_max
 
 
+(** [point_residual dst pt radius] gets the amount that the point
+    will draw over the edge of the destination rectangle in each
+    direction. *)
 let point_residual dst pt radius =
-  (** [point_residual dst pt radius] gets the amount that the point
-      will draw over the edge of the destination rectangle in each
-      direction. *)
   let x = pt.x and y = pt.y in
   let x_min = x -. radius and x_max = x +. radius in
   let y_min = y +. radius and y_max = y -. radius in
@@ -316,10 +319,10 @@ let point_residual dst pt radius =
   in rectangle ~x_min:x_min' ~x_max:x_max' ~y_min:y_min' ~y_max:y_max'
 
 
+(** [interpolate line x] interpolates a y-coordinate for the given
+    [x] coordinate on the given line.  [line] is an array of
+    points. *)
 let interpolate line x =
-  (** [interpolate line x] interpolates a y-coordinate for the given
-      [x] coordinate on the given line.  [line] is an array of
-      points. *)
   let rec do_interp line ~n ~x i =
     let pt = line.(i) in
     let pt_x = pt.x in
@@ -346,9 +349,9 @@ let interpolate line x =
     do_interp line ~n ~x 0
 
 
+(** [clip_point_on_line box f f_inv p] clips a point to the box
+    given that it resides on the given line. *)
 let clip_point_on_line box f f_inv p =
-  (** [clip_point_on_line box f f_inv p] clips a point to the box
-      given that it resides on the given line. *)
   let x = p.x and y = p.y in
   let x', y' =
     if x > box.x_max
@@ -367,9 +370,9 @@ let clip_point_on_line box f f_inv p =
   in point x'' y''
 
 
+(** [clip_line_segment box ~p0 ~p1] clips a line segment to the
+    given bounding box. *)
 let clip_line_segment box ~p0 ~p1 =
-  (** [clip_line_segment box ~p0 ~p1] clips a line segment to the
-      given bounding box. *)
   let box = face_forward box in
   let p0_in = rectangle_contains box p0
   and p1_in = rectangle_contains box p1 in
@@ -394,9 +397,9 @@ let clip_line_segment box ~p0 ~p1 =
     end else p0, p1
 
 
+(** [is_clipped_segment box ~p0 ~p1] tests if the segment of line
+    from [p0] to [p1] is completely clypped by the bounding box. *)
 let is_clipped_segment box ~p0 ~p1 =
-  (** [is_clipped_segment box ~p0 ~p1] tests if the segment of line
-      from [p0] to [p1] is completely clypped by the bounding box. *)
   (p0.x < box.x_min && p1.x < box.x_min) (* before x-min *)
   || (p0.x > box.x_max && p1.x > box.x_max) (* after x-max *)
   || (if box.y_min > box.y_max		    (* is the box inverted? *)
@@ -406,10 +409,10 @@ let is_clipped_segment box ~p0 ~p1 =
 	    || (p0.y < box.y_min && p1.y < box.y_min))) (* below *)
 
 
+(** [remove_clipped_prefix box pts] scans through the points until
+    it finds a pair of points belonging to a segment that is not
+    completely clipped. *)
 let rec remove_clipped_prefix box = function
-    (** [remove_clipped_prefix box pts] scans through the points until
-	it finds a pair of points belonging to a segment that is not
-	completely clipped. *)
   | p0 :: (p1 :: _ as tl) as ps ->
       if is_clipped_segment box ~p0 ~p1
       then remove_clipped_prefix box tl
@@ -417,9 +420,9 @@ let rec remove_clipped_prefix box = function
   | _ -> []
 
 
+(** [clip_line box pts] gets a list of line segments (point lists)
+    that are within the bounding box. *)
 let rec clip_line box pts =
-  (** [clip_line box pts] gets a list of line segments (point lists)
-      that are within the bounding box. *)
   let rec do_clip ?(accum=[]) = function
     | p0 :: ((p1 :: rest) as ps) ->
 	let p0', p1' = clip_line_segment box ~p0 ~p1 in
@@ -429,11 +432,11 @@ let rec clip_line box pts =
     | _ :: [] | [] -> List.rev accum, []
   in
   let pts = remove_clipped_prefix box pts in
+    (*** Conversions ***********************************************)
   let line, rest = do_clip pts in
     if rest = [] then [ line ] else line :: clip_line box rest
 
 
-(*** Conversions ***********************************************)
 
 let point_of_tuple (a,b) =
   { x  = a; y = b; }

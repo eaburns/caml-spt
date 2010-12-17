@@ -8,8 +8,8 @@ open Num_by_num_dataset
 open Drawing
 open Geometry
 
+(** The default style for labels. *)
 let default_style =
-  (** The default style for labels. *)
   {
     text_font = "sans-serif";
     text_size = Length.Pt 8.;
@@ -31,15 +31,15 @@ type label_y_location =
   | Label_below
 
 
+(** Add labels where the points are given data-coordinates.  [xoff]
+    and [yoff] are plot-coordinate offsets to apply to the label
+    before drawing it at its given location.  This can be used to
+    place the label outside of the radius of a scatter point. *)
 class label_dataset
   ?(style=default_style)
   ?(xloc=Label_xat) ?(yloc=Label_yat)
   ?(xoff=(Length.Pt 0.)) ?(yoff=(Length.Pt 0.))
   ?name label_points =
-  (** Add labels where the points are given data-coordinates.  [xoff]
-      and [yoff] are plot-coordinate offsets to apply to the label before
-      drawing it at its given location.  This can be used to place the
-      label outside of the radius of a scatter point. *)
 object (self)
 
   inherit dataset ?name ()
@@ -52,9 +52,9 @@ object (self)
   method mean_y_value _ = nan, 0
 
 
+  (** [position ctx pt' txt] position the label in the plot
+      coordinate system. *)
   method private position ctx pt' txt =
-    (** [position ctx pt' txt] position the label in the plot
-	coordinate system. *)
     let x = pt'.x +. (ctx.units xoff) and y = pt'.y +. (ctx.units yoff) in
     let w, h = text_dimensions ctx ~style txt in
     let x' = match xloc with
@@ -124,7 +124,7 @@ object (self)
 
 end
 
+(** [label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name
+    lbl_points] makes a new label dataset. *)
 let label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name lbl_points =
-  (** [label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name
-      lbl_points] makes a new label dataset. *)
   new label_dataset ?style:text_style ?xloc ?yloc ?xoff ?yoff ?name lbl_points

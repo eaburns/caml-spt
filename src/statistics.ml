@@ -12,17 +12,17 @@ let (<--) r v = r.v <- v
 
 let (!!) r = r.v
 
+(** [mean vls] gets the mean of an array of floats. *)
 let mean vls =
-  (** [mean vls] gets the mean of an array of floats. *)
   let n = float (Array.length vls) in
   let sum = float_ref 0. in
     Array.iter (fun v -> sum <-- !!sum +. v) vls;
     !!sum /. n
 
 
+(** [mean_and_stdev vls] gets the mean and standard deviation of an
+    array of floats. *)
 let mean_and_stdev vls =
-  (** [mean_and_stdev vls] gets the mean and standard deviation of an
-      array of floats. *)
   let n = float (Array.length vls) in
   let sum = float_ref 0. in
     Array.iter (fun v -> sum <-- !!sum +. v) vls;
@@ -32,20 +32,20 @@ let mean_and_stdev vls =
       mean, sqrt (!!diffs /. n)
 
 
+(** [mean_and_interval vls] gives the mean and the magnitude of the
+    95% confidence interval on the mean. *)
 let mean_and_interval vls =
-  (** [mean_and_interval vls] gives the mean and the magnitude of the
-      95% confidence interval on the mean. *)
   let mu, sigma = mean_and_stdev vls in
   let n = float (Array.length vls) in
     mu, 1.96 *. sigma /. (sqrt n)
 
 
-let percentile p vls =
-  (** [percentile p vls] computes the [p] percentile of the values
-      [vls] by ranking them.
+(** [percentile p vls] computes the [p] percentile of the values
+    [vls] by ranking them.
 
-      According to wikipedia, this procedure is recommended by the
-      National Institute of Standards and Technology (NIST). *)
+    According to wikipedia, this procedure is recommended by the
+    National Institute of Standards and Technology (NIST). *)
+let percentile p vls =
   if p < 0. || p > 100. then invalid_arg "percentile: out of bounds";
   let cmp (a : float) b = if a < b then ~-1 else if a > b then 1 else 0 in
   let ranked = Array.copy vls in
@@ -60,9 +60,9 @@ let percentile p vls =
       | n -> ranked.(k - 1) +. d *. (ranked.(k) -. ranked.(k - 1))
 
 
+(** [min_and_max f vls] gets the min and max of the [vls] array of
+    the value of [f vls.(i)] for all [i] in the arary. *)
 let min_and_max f vls =
-  (** [min_and_max f vls] gets the min and max of the [vls] array of
-      the value of [f vls.(i)] for all [i] in the arary. *)
   let min = float_ref infinity and max = float_ref neg_infinity in
     Array.iter (fun p ->
 		  let v = f p in
@@ -72,17 +72,17 @@ let min_and_max f vls =
     !!min, !!max
 
 
-(** {1 Density estimation} ****************************************)
+(** {1 Density estimation} *)
 
+(** [gaussian_kernel] makes a gaussian kernel function. *)
 let gaussian_kernel =
-  (** [gaussian_kernel] makes a gaussian kernel function. *)
   let coeff = 1. /. (sqrt (2. *. Geometry.pi)) in
     (fun u -> coeff *. (exp (~-.(u ** 2.) /. 2.)))
 
 
+(** [make_kernel_density_estimator kernel bandwidth data] makes a
+    density estimation function. *)
 let make_kernel_density_estimator kernel bandwidth data =
-  (** [make_kernel_density_estimator kernel bandwidth data] makes a
-      density estimation function. *)
   let n = Array.length data in
   let nf = float n in
     (fun x ->

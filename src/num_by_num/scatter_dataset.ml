@@ -9,20 +9,20 @@ open Geometry
 open Drawing
 
 
+(** The default radius of the scatter points. *)
 let default_radius = Length.Pt 4.
-  (** The default radius of the scatter points. *)
 
 
+(** A scatter plot dataset. *)
 class scatter_dataset
   glyph ?(color=black) ?(point_radius=default_radius) ?name points =
-  (** A scatter plot dataset. *)
 object (self)
   inherit points_dataset ?name points
 
+  (** [residual ctx ~src ~dst] if we were to plot this right now
+      with the given [dst] rectangle, how far out-of-bounds will we
+      go in each direction. *)
   method residual ctx ~src ~dst =
-    (** [residual ctx ~src ~dst] if we were to plot this right now
-	with the given [dst] rectangle, how far out-of-bounds will we
-	go in each direction. *)
     let tr = point_transform ~src ~dst in
       Array.fold_left
 	(fun r pt ->
@@ -76,14 +76,14 @@ let scatter_datasets
       name_by_point_array_list
 
 
-(** {2 Scatter plot with error bars} ****************************************)
+(** {2 Scatter plot with error bars} *)
 
 
+(** [scatter_errbara_dataset glyph ?color ?point_radius ?name sets]
+    creates a new composite dataset that is as scatter plot with
+    error bars and optionally labels on each point. *)
 let scatter_errbar_dataset
     glyph ?color ?(point_radius=default_radius) ?name sets =
-  (** [scatter_errbara_dataset glyph ?color ?point_radius ?name sets]
-      creates a new composite dataset that is as scatter plot with
-      error bars and optionally labels on each point. *)
   let pts, lbls, x_errs, y_errs =
     Array.fold_left (fun (pts, lbls, x_errs, y_errs) (name, vls) ->
 		       let xs = Array.map (fun p -> p.x) vls

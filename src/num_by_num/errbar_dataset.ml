@@ -9,8 +9,8 @@ open Geometry
 open Drawing
 
 
+(** A dataset that consists of a bunch of error bars. *)
 class virtual errbar_dataset triples =
-  (** A dataset that consists of a bunch of error bars. *)
 object
   inherit Num_by_num_dataset.dataset ()
 
@@ -18,10 +18,10 @@ object
     (* point and magnitude. *)
 end
 
-(** {1 Vertical error bars} ****************************************)
+(** {1 Vertical error bars} *)
 
+(** A set of vertical error bars. *)
 class vertical_errbar_dataset ?color triples =
-  (** A set of vertical error bars. *)
   let style = match color with
     | None -> Errbar.errbar_line_style
     | Some color -> { Errbar.errbar_line_style with line_color = color }
@@ -65,8 +65,8 @@ object (self)
   method mean_y_value _ = nan, 0
 
 
+  (** [draw ctx ~src ~dst] draws the data to the plot. *)
   method draw ctx ~src ~dst =
-    (** [draw ctx ~src ~dst] draws the data to the plot. *)
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
       Array.iter (fun t ->
 		    let src = yrange src and dst = yrange dst in
@@ -87,10 +87,10 @@ object (self)
 end
 
 
-(** {1 Horizontal error bars} ****************************************)
+(** {1 Horizontal error bars} *)
 
+(** A set of horizontal error bars. *)
 class horizontal_errbar_dataset ?color triples =
-  (** A set of horizontal error bars. *)
   let style = match color with
     | None -> Errbar.errbar_line_style
     | Some color -> { Errbar.errbar_line_style with line_color = color }
@@ -135,8 +135,8 @@ object (self)
   method mean_y_value _ = nan, 0
 
 
+  (** [draw ctx ~src ~dst] draws the data to the plot. *)
   method draw ctx ~src ~dst =
-    (** [draw ctx ~src ~dst] draws the data to the plot. *)
     let tr = range_transform ~src:(yrange src) ~dst:(yrange dst) in
       Array.iter (fun t ->
 		    let src = xrange src and dst = xrange dst in

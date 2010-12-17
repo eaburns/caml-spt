@@ -9,12 +9,12 @@ open Num_by_num_dataset
 open Geometry
 open Drawing
 
+(** For plotting data with three values: x, y and z.  The result plots
+    points at their x, y location as a scatter plot would however
+    the z values are shown by changing the radius of the point. *)
 class bubble_dataset
   ?(glyph=Circle_glyph) ?(color=gray)
   ?(min_radius=(Length.Pt 10.)) ?(max_radius=(Length.Pt 60.)) ?name triples =
-  (** For plotting data with three values: x, y and z.  The result
-      plots points at their x, y location as a scatter plot would however
-      the z values are shown by changing the radius of the point. *)
 object (self)
   inherit dataset ?name ()
 
@@ -31,9 +31,9 @@ object (self)
     in s /. (float n), n
 
 
+  (** [z_range] is the minimum and maximum z value of all triples.
+      This is used for determining the radius of a point. *)
   method private z_range =
-    (** [z_range] is the minimum and maximum z value of all triples.
-	This is used for determining the radius of a point. *)
     let min, max =
       Array.fold_left (fun (min, max) t ->
 			 let z = t.k in
@@ -44,8 +44,8 @@ object (self)
     in range ~min ~max
 
 
+  (** [compute_radius ctx zrange vl] gets the radius of the point. *)
   method private radius ctx zrange vl =
-    (** [compute_radius ctx zrange vl] gets the radius of the point. *)
     let rrange = range (Length.as_pt min_radius) (Length.as_pt max_radius) in
       Length.Pt (range_transform ~src:zrange ~dst:rrange vl)
 

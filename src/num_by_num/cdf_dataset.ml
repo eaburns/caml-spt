@@ -14,8 +14,8 @@ let f_compare a b =
   if (a:float) < b then -1 else if a = b then 0 else 1
 
 
+(** [pts_to_accum normalize pts] gets the cumulative sums. *)
 let pts_to_accum normalize pts =
-  (** [pts_to_accum normalize pts] gets the cumulative sums. *)
   let accum = Array.map (fun p -> p.y) pts in
   let n = Array.length accum in
     for i = 1 to n - 1 do
@@ -27,10 +27,10 @@ let pts_to_accum normalize pts =
       accum
 
 
+(** [cdf_samples normalize xmin xmax nsamples pts] computes the
+    samples for a CDF given a range of x values.  [pts] is assumed
+    to be sorted. *)
 let cdf_samples normalize xmin xmax nsamples pts =
-  (** [cdf_samples normalize xmin xmax nsamples pts] computes the
-      samples for a CDF given a range of x values.  [pts] is assumed
-      to be sorted. *)
   (* We do sloppy comparisons here to fix floating point rounding
      issues.  This is OK because these lines will get clipped. *)
   let slop = (xmax -. xmin) /. 1_000_000_000_000. in
