@@ -4,6 +4,7 @@
 open Verbosity
 
 let gtk_initialized = ref false
+let dir = ref None
 
 let _ =
   (* Need to set up gtk for use *)
@@ -16,11 +17,12 @@ let init_size = 400 (* default window size *)
 
 let file_dialog ~title ~callback () =
   let sel =
-    GWindow.file_selection ~title ~modal:true (*?filename*) () in
+    GWindow.file_selection ~title ~modal:true ?filename:!dir () in
   ignore (sel#cancel_button#connect#clicked ~callback:sel#destroy);
   ignore (sel#ok_button#connect#clicked ~callback:
 	    begin fun () ->
 	      let name = sel#filename in
+		dir := Some name;
 		sel#destroy ();
 		callback name
 	    end);
