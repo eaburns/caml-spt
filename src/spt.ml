@@ -8,14 +8,14 @@ open Geometry
 open Drawing
 open Verbosity
 
+(** The default font used by SPT plots.  Make sure this font is very
+    common (preferably a postscript or PDF required font). *)
 let default_font = "New Century Schoolbook"
-  (** The default font used by SPT plots.  Make sure this font is very
-      common (preferably a postscript or PDF required font). *)
 
 
+(** The default style for the text associated with tick marks on a
+    numeric axis. *)
 let default_tick_style =
-  (** The default style for the text associated with tick marks on a
-      numeric axis. *)
   {
     text_font = default_font;
     text_size = Length.Pt 8.;
@@ -25,8 +25,8 @@ let default_tick_style =
   }
 
 
+(** The default style for legend text. *)
 let default_legend_style =
-  (** The default style for legend text. *)
   {
     text_font = default_font;
     text_size = Length.Pt 10.;
@@ -35,9 +35,9 @@ let default_legend_style =
     text_color = black;
   }
 
+(** The default style for the x and y axis labels and the title
+    text. *)
 let default_label_style =
-  (** The default style for the x and y axis labels and the title
-      text. *)
   {
     text_font = default_font;
     text_size = Length.Pt 12.;
@@ -47,20 +47,20 @@ let default_label_style =
   }
 
 
+(** Padding around text *)
 let text_padding = Length.Pt 6.
-  (** Padding around text *)
 
 
+(** The default plot width. *)
 let default_width = Length.Pt (4. *. 72.)
-  (** The default plot width. *)
 
 
+(** The default plot height. *)
 let default_height = Length.Pt (4. *. 72.)
-  (** The default plot height. *)
 
 
+(** [plot title] a plot has a method for drawing. *)
 class virtual plot title =
-  (** [plot title] a plot has a method for drawing. *)
 object (self)
 
   val mutable width = default_width
@@ -72,14 +72,14 @@ object (self)
   method height = height
 
 
+  (** [size ctx] gets the size of the plot in the units of the
+      context. *)
   method private size ctx =
-    (** [size ctx] gets the size of the plot in the units of the
-	context. *)
     (ctx.units width), (ctx.units height)
 
 
+  (** [set_size ~w ~h] resizes the plot. *)
   method set_size ~w ~h =
-    (** [set_size ~w ~h] resizes the plot. *)
     vprintf verb_debug "setting size to %s by %s\n"
       (Length.to_string w) (Length.to_string h);
     width <- w;
@@ -91,28 +91,28 @@ object (self)
     | None -> "<no title>"
 
 
+  (** [fill_background ctx] fill the background white. *)
   method private fill_background ctx =
-    (** [fill_background ctx] fill the background white. *)
     Drawing.fill_rectangle ctx ~color:white
       (rectangle 0. (ctx.units width) 0. (ctx.units height))
 
 
+  (** [display] opens a lablgtk window showing the plot. *)
   method display =
-    (** [display] opens a lablgtk window showing the plot. *)
     Spt_gtk.create_display self self#title
 
 
+  (** [output filename] saves the plot to a filename.  The type is
+      pulled from the name, so you must include an extension *)
   method output filename =
-    (** [output filename] saves the plot to a filename.  The type is
-	pulled from the name, so you must include an extension *)
     vprintf verb_normal "outputting to %s\n" filename;
     Spt_cairo.save self filename
 
 
+  (** [draw ctx] displays the plot to the given drawing context with
+      the given aspect ratio.  It is up to the caller to scale this
+      to the appropriate width/height. *)
   method virtual draw : context -> unit
-    (** [draw ctx] displays the plot to the given drawing context with
-	the given aspect ratio.  It is up to the caller to scale this
-	to the appropriate width/height. *)
 end
 
 (* EOF *)

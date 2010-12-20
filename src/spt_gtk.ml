@@ -90,9 +90,9 @@ let draw_plot_to_gtk_area plot area =
 
 open GdkKeysyms
 
+(** [create_display plot title] spawns a window with the given title
+    showing the specified plot *)
 let create_display plot title =
-  (** [create_display plot title] spawns a window with the given title
-      showing the specified plot *)
   if not !gtk_initialized
   then vprintf verb_critical "GTK not initialized\n"
   else begin

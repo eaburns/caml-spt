@@ -31,9 +31,9 @@ let box_line_style = { default_line_style with line_width = Length.Pt 0.5 }
 let minf a b = if (a:float) < b then a else b
 let maxf a b = if (a:float) > b then a else b
 
+(** [separate_outliers ~lower ~upper vls] separates the outliers
+    that are outside the upper and lower fence values. *)
 let separate_outliers ~lower ~upper vls =
-  (** [separate_outliers ~lower ~upper vls] separates the outliers
-      that are outside the upper and lower fence values. *)
   let out_lst, lower_extreme, upper_extreme =
     Array.fold_left
       (fun (os, l, u) v ->
@@ -48,13 +48,13 @@ let separate_outliers ~lower ~upper vls =
   in Array.of_list out_lst, lower_extreme, upper_extreme
 
 
+(** [create ?outliers ?color ?glyph ?point_radius values] makes a
+    boxplot for the given values.
+
+    Computed according to Tukey, "Exploratory Data Analysis" with
+    the addition of 95% confidence intervals. *)
 let create ?(outliers=true) ?(color=black) ?(glyph=Ring_glyph)
     ?(point_radius=Length.Pt 2.) values =
-  (** [create ?outliers ?color ?glyph ?point_radius values] makes a
-      boxplot for the given values.
-
-      Computed according to Tukey, "Exploratory Data Analysis" with
-      the addition of 95% confidence intervals. *)
   let mean, conf_interval = Statistics.mean_and_interval values in
   let q1 = Statistics.percentile 25. values in
   let q3 = Statistics.percentile 75. values in
@@ -84,26 +84,26 @@ let create ?(outliers=true) ?(color=black) ?(glyph=Ring_glyph)
     }
 
 
+(** [draw_median_line cxt style src tr ~x0 ~x1 ~median] draws the
+    median line if it is not clipped.  *)
 let draw_median_line ctx style src tr ~x0 ~x1 ~median =
-  (** [draw_median_line cxt style src tr ~x0 ~x1 ~median] draws the
-      median line if it is not clipped.  *)
   let median' = tr median in
     if median <= src.max && median >= src.min
     then draw_line ctx ~style [ point x0 median'; point x1 median' ]
 
 
+(** [draw_box ctx style src ~x0 ~x1 ~q1 ~q3] draws the boxplot box
+    with clipping. *)
 let draw_box ctx style src tr ~x0 ~x1 ~q1 ~q3 =
-  (** [draw_box ctx style src ~x0 ~x1 ~q1 ~q3] draws the boxplot box
-      with clipping. *)
   let box = rectangle neg_infinity infinity src.min src.max in
   let tr p = point p.x (tr p.y) in
     draw_line ctx ~box ~tr ~style
       [ point x0 q3; point x1 q3; point x1 q1; point x0 q1; point x0 q3; ]
 
 
+(** [fill_ci_box ctx color src tr ~x0 ~x1 ~lower ~upper] fills in
+    the confidence interval box if it is not clipped. *)
 let fill_ci_box ctx color src tr ~x0 ~x1 ~lower ~upper =
-  (** [fill_ci_box ctx color src tr ~x0 ~x1 ~lower ~upper] fills in
-      the confidence interval box if it is not clipped. *)
   if lower <= src.max && upper > src.min
   then begin
     let y_min = if lower < src.min then tr src.min else tr lower in
@@ -113,8 +113,8 @@ let fill_ci_box ctx color src tr ~x0 ~x1 ~lower ~upper =
   end
 
 
+(** [dimensions box] computes the dimensions of the box. *)
 let dimensions box =
-  (** [dimensions box] computes the dimensions of the box. *)
   let vs =
     Array.append
       [| box.stats.upper_extreme; box.stats.lower_extreme; |]
@@ -125,8 +125,8 @@ let dimensions box =
       ~max:(Array.fold_left maxf neg_infinity vs)
 
 
+(** [residual ctx ~src ~dst ~width ~x box] computes the residual. *)
 let residual ctx ~src ~dst ~width ~x box =
-  (** [residual ctx ~src ~dst ~width ~x box] computes the residual. *)
   let r = ctx.units box.point_radius in
   let tr = range_transform ~src ~dst in
     Array.fold_left
@@ -141,10 +141,10 @@ let residual ctx ~src ~dst ~width ~x box =
       (range 0. 0.) box.outliers
 
 
+(** [draw ctx ~src ~dst ~width ~x box] draws the boxplot centered at
+    [x] with the given [width].  [src] and [dst] are the source and
+    destination ranges for the y-axis. *)
 let draw ctx ~src ~dst ~width ~x box =
-  (** [draw ctx ~src ~dst ~width ~x box] draws the boxplot centered at
-      [x] with the given [width].  [src] and [dst] are the source and
-      destination ranges for the y-axis. *)
   let tr = range_transform ~src ~dst in
   let lwidth = ctx.units box_line_style.line_width in
   let x0 = x -. (width /. 2.) +. lwidth

@@ -8,13 +8,13 @@ open Num_by_num_dataset
 open Drawing
 open Geometry
 
+(** The length of the line drawn in the legend. *)
 let line_legend_length = Length.Cm 0.75
-  (** The length of the line drawn in the legend. *)
 
 
+(** A line plot dataset. *)
 class line_dataset
   dashes ?(line_width=Length.Pt 1.) ?(color=black) ?name points =
-  (** A line plot dataset. *)
 
 object (self)
 
@@ -29,12 +29,12 @@ object (self)
 
   method draw ctx ~src ~dst =
     let tr = point_transform ~src ~dst in
-(*
-    let pts = ref [] in
-      for i = (Array.length points) - 1 downto 0 do
+      (*
+	let pts = ref [] in
+	for i = (Array.length points) - 1 downto 0 do
 	pts := (tr points.(i)) :: !pts
-      done;
-*)
+	done;
+      *)
       draw_line ctx ~box:src ~tr ~style (Array.to_list points)
 
 
@@ -69,11 +69,11 @@ let default_radius =
   Length.Pt ((Length.as_pt Scatter_dataset.default_radius) /. 2.)
 
 
+(** [line_points_dataset dashes glyph ?point_radius ?line_width
+    ?color ?name points] makes a dataset that is a line with glyphs
+    at each point. *)
 let line_points_dataset dashes glyph ?(point_radius=default_radius)
     ?line_width ?color ?name points =
-  (** [line_points_dataset dashes glyph ?point_radius ?line_width ?color ?name
-      points] makes a dataset that is a line with glyphs at each
-      point. *)
   new composite_dataset ?name
     [new line_dataset dashes ?line_width ?color ?name points;
      new Scatter_dataset.scatter_dataset glyph ~point_radius
@@ -103,13 +103,13 @@ let line_points_datasets ?(color=false) name_by_points_list =
 		    then Factories.default_color_factory ()
 		    else (fun () -> black))
   in
-  List.map (fun (name, points) ->
-	      line_points_dataset ~color:(next_color ()) (next_dash ())
-		(next_glyph()) ?name points)
-  name_by_points_list
+    List.map (fun (name, points) ->
+		line_points_dataset ~color:(next_color ()) (next_dash ())
+		  (next_glyph()) ?name points)
+      name_by_points_list
 
 
-(** {2 Y Error bars} ***********************************)
+(** {2 Y Error bars} *)
 
 (* This is like a lines points plot except that all points with the
    same x value are binned, averaged and drawn with error bars. *)

@@ -76,11 +76,11 @@ object(self)
   method avg_slope = nan
 end
 
+(** [values_histogram_dataset dashes ?normalize ?line_width ?bg_color
+    ?bin_width ?name values] makes a histogram. *)
 let values_histogram_dataset
     dashes ?normalize ?line_width ?bg_color ?line_color
     ?bin_width ?name values =
-  (** [values_histogram_dataset dashes ?normalize ?line_width
-      ?bg_color ?bin_width ?name values] makes a histogram. *)
   let max_weight, bin_min, bin_max, bin_width, bins =
     make_bins ?normalize bin_width values
   in
@@ -91,12 +91,12 @@ let values_histogram_dataset
 let histogram_dataset = values_histogram_dataset
 
 
+(** [points_histogram_dataset dashes ?normalize ?line_width
+    ?bg_color ?bin_width ?name points] makes a histogram given an
+    array of points. *)
 let points_histogram_dataset
     dashes ?normalize ?line_width ?line_color ?bg_color ?bin_width
     ?name points =
-  (** [points_histogram_dataset dashes ?normalize ?line_width
-      ?bg_color ?bin_width ?name points] makes a histogram given an
-      array of points. *)
   let max_weight, bin_min, bin_max, bin_width, bins =
     bins_of_points ?normalize bin_width points
   in

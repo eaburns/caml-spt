@@ -8,17 +8,17 @@ open Drawing
 open Geometry
 open Verbosity
 
+(** [plot_size ctx theta plot] gets the width and height of the plot
+    when rotated at the given angle. *)
 let plot_size ctx theta plot =
-  (** [plot_size ctx theta plot] gets the width and height of the plot
-      when rotated at the given angle. *)
   let units = ctx.units in
   let w = units plot#width and h = units plot#height in
     Geometry.rotated_size ~theta ~w ~h
 
 
+(** [draw_plot ctx plot ~x ~y ~theta] draws the given plot centered
+    at [x],[y].  [theta] is in radians. *)
 let draw_plot ctx plot ~x ~y ~theta =
-  (** [draw_plot ctx plot ~x ~y ~theta] draws the given plot centered
-      at [x],[y].  [theta] is in radians. *)
   let units = ctx.units in
   let w = units plot#width and h = units plot#height in
     Drawing.save_transforms ctx;
@@ -29,9 +29,9 @@ let draw_plot ctx plot ~x ~y ~theta =
     Drawing.restore_transforms ctx
 
 
+(** [plat_sheet lplots] is a simple class that draws plots at a
+    given x,y and theta.  [lplots] is a list of [located_plot]s. *)
 class plot_sheet lplots =
-  (** [plat_sheet lplots] is a simple class that draws plots at a given
-      x,y and theta.  [lplots] is a list of [located_plot]s. *)
 object(self)
 
   inherit Spt.plot None
@@ -47,12 +47,12 @@ object(self)
 
 end
 
-(** {1 Single page plots} ****************************************)
+(** {1 Single page plots} *)
 
+(** [centered_on ~w ~h ~pad plot] centers [plot] on a sheet of size
+    [w]x[h] with [pad] between the edges of the plot and the ends of
+    the sheet. *)
 let centered_on ~w ~h ~pad plot =
-  (** [centered_on ~w ~h ~pad plot] centers [plot] on a sheet of size
-      [w]x[h] with [pad] between the edges of the plot and the ends of the
-      sheet. *)
   let plot = Oo.copy plot in
   let wpt = Length.as_pt w and hpt = Length.as_pt h in
   let ppt = Length.as_pt pad in
@@ -65,29 +65,29 @@ let centered_on ~w ~h ~pad plot =
     sheet
 
 
+(** [us_letter ?landscape plot] clone the given plot to a us letter
+    sized sheet. *)
 let us_letter ?(landscape=false) plot =
-  (** [us_letter ?landscape plot] clone the given plot to a us letter
-      sized sheet. *)
   let win = if landscape then 11. else 8.5 in
   let hin = if landscape then 8.5 else 11. in
     centered_on ~w:(Length.In win) ~h:(Length.In hin)
       ~pad:(Length.In 0.25) plot
 
 
+(** [double_letter ?landscape plot] clone the given plot to a double
+    us letter sized sheet (11x17). *)
 let double_letter ?(landscape=false) plot =
-  (** [double_letter ?landscape plot] clone the given plot to a double
-      us letter sized sheet (11x17). *)
   let win = if landscape then 17. else 11. in
   let hin = if landscape then 11. else 17. in
     centered_on ~w:(Length.In win) ~h:(Length.In hin)
       ~pad:(Length.In 0.25) plot
 
 
-(** {1 Montages} ****************************************)
+(** {1 Montages} *)
 
 
+(** [take_n n ?accum ps] take the first [n] elements from [ps]. *)
 let rec take_n n ?(accum=[]) ps =
-  (** [take_n n ?accum ps] take the first [n] elements from [ps]. *)
   if (List.length accum) = n then
     List.rev accum, ps
   else
@@ -96,15 +96,15 @@ let rec take_n n ?(accum=[]) ps =
       | _ -> List.rev accum, []
 
 
+(** [group n ?accum ps] gets groups of size [n]. *)
 let rec group n ?(accum=[]) ps =
-  (** [group n ?accum ps] gets groups of size [n]. *)
   let line, rest = take_n n ps in
     if line = [] then List.rev accum else group n ~accum:(line :: accum) rest
 
 
+(** [entry_size_pt ~pad_pt ~w ~h ~nrows ~ncols] computes the size of
+    each entry. *)
 let entry_size_pt ~pad_pt ~w ~h ~nrows ~ncols =
-  (** [entry_size_pt ~pad_pt ~w ~h ~nrows ~ncols] computes the size of
-      each entry. *)
   let ncolsf = float ncols and nrowsf = float nrows in
   let total_col_pad = pad_pt *. (ncolsf +. 1.) in
   let total_row_pad = pad_pt *. (nrowsf +. 1.) in
@@ -114,10 +114,10 @@ let entry_size_pt ~pad_pt ~w ~h ~nrows ~ncols =
 
 
 
+(** [layout_page ~w ~h ~went ~hent ~pad ~ncols plots] lays out the
+    plots on a single page.  The result is a new plot sheet for the
+    given page. *)
 let layout_page ~w ~h ~went ~hent ~pad ~ncols plots =
-  (** [layout_page ~w ~h ~went ~hent ~pad ~ncols plots] lays out the
-      plots on a single page.  The result is a new plot sheet for the
-      given page. *)
   let pad_pt = Length.as_pt pad in
   let went_pt = Length.as_pt went in
   let hent_pt = Length.as_pt hent in
@@ -144,10 +144,10 @@ let layout_page ~w ~h ~went ~hent ~pad ~ncols plots =
       page
 
 
+(** [montage ~w ~h ~pad ?nrows ?ncols plots] montage the given set
+    of plots across a bunch of pages.  The resulting pages have size
+    [w]x[h]. *)
 let montage ~w ~h ~pad ?nrows ?ncols plots =
-  (** [montage ~w ~h ~pad ?nrows ?ncols plots] montage the given set of
-      plots across a bunch of pages.  The resulting pages have size
-      [w]x[h]. *)
   let nplots = List.length plots in
   let square_off n = truncate (ceil (sqrt (float n))) in
   let ncols = match ncols with Some c -> c | _ -> square_off nplots in
@@ -164,18 +164,18 @@ let montage ~w ~h ~pad ?nrows ?ncols plots =
     List.map (layout_page ~w ~h ~went ~hent ~pad ~ncols) pages
 
 
+(** [us_letter_montage ?landscape ?nrows ?ncols plots] montages
+    [plots] across us letter sized pages. *)
 let us_letter_montage ?(landscape=false) ?nrows ?ncols plots =
-  (** [us_letter_montage ?landscape ?nrows ?ncols plots] montages
-      [plots] across us letter sized pages. *)
   let win = if landscape then 11. else 8.5 in
   let hin = if landscape then 8.5 else 11. in
     montage ~w:(Length.In win) ~h:(Length.In hin) ~pad:(Length.In 0.25)
       ?nrows ?ncols plots
 
 
+(** [double_letter_montage ?landscape ?nrows ?ncols plots] montages
+    [plots] across 11x17in pages. *)
 let double_letter_montage ?(landscape=false) ?nrows ?ncols plots =
-  (** [double_letter_montage ?landscape ?nrows ?ncols plots] montages
-      [plots] across 11x17in pages. *)
   let win = if landscape then 17. else 11. in
   let hin = if landscape then 11. else 17. in
     montage ~w:(Length.In win) ~h:(Length.In hin) ~pad:(Length.In 0.25)

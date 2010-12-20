@@ -9,36 +9,36 @@
 
 open Printf
 
+(** The verbosity level for debugging.
+
+    Convension:  The following things are [verb_optional]:
+
+    - Things that no one really cares about seeing unless there is a
+    bug.
+*)
 let verb_debug = 3
-  (** The verbosity level for debugging.
 
-      Convension:  The following things are [verb_optional]:
+(** The verbosity level for optional text.  This is turned on
+    automatically when running from the top level.
 
-      - Things that no one really cares about seeing unless there is a
-        bug.
-  *)
+    Convension:  The following things are [verb_optional]:
 
+    - short messages that contain numbers in plot coordinates.
+    - information about output formats.
+*)
 let verb_optional = 2
-  (** The verbosity level for optional text.  This is turned on
-      automatically when running from the top level.
 
-      Convension:  The following things are [verb_optional]:
+(** The verbosity level for normal printing.
 
-      - short messages that contain numbers in plot coordinates.
-      - information about output formats.
-  *)
+    Convension: The following things are [verb_normal]:
 
+    - short messages that contain data coordinates.
+    - other short and useful messages to the user.
+*)
 let verb_normal = 1
-  (** The verbosity level for normal printing.
 
-      Convension: The following things are [verb_normal]:
-
-      - short messages that contain data coordinates.
-      - other short and useful messages to the user.
-  *)
-
+(** This will *always* print. *)
 let verb_critical = 0
-  (** This will *always* print. *)
 
 
 module Verb_level : sig
@@ -48,8 +48,8 @@ end = struct
   (* This module exists to hide [verb_level] from the user so that
      they must set it through the [set] function. *)
 
+  (** The current verbosity level. *)
   let verb_level =
-    (** The current verbosity level. *)
     ref (if !Sys.interactive then verb_optional else verb_normal)
 
   let set l =
@@ -62,13 +62,13 @@ end = struct
   let get () = !verb_level
 end
 
+(** [vprintf lvl fmt] for verbosity printing *)
 let vprintf lvl fmt =
-  (** [vprintf lvl fmt] for verbosity printing *)
   let dp s =
     if Verb_level.get () >= lvl then output_string stderr s; flush stderr
   in kprintf dp fmt
 
 
+(** [verb_eval lvl f] evaluates the unit function [f] if the level is
+    sufficient. *)
 let verb_eval lvl f = if Verb_level.get () >= lvl then f ()
-  (** [verb_eval lvl f] evaluates the unit function [f] if the level
-      is sufficient. *)

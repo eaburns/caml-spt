@@ -15,9 +15,9 @@ type context = {
   height : Length.t;
 }
 
+(** [drawing_context cairo units ~w ~h] creates a new drawing
+    context.  [cairo] is the Cairo.t context. *)
 let drawing_context cairo units ~w ~h =
-  (** [drawing_context cairo units ~w ~h] creates a new drawing
-      context.  [cairo] is the Cairo.t context. *)
   {
     cairo = cairo;
     units = units;
@@ -25,7 +25,7 @@ let drawing_context cairo units ~w ~h =
     height = h;
   }
 
-(** {1 Transforms} ****************************************)
+(** {1 Transforms} *)
 
 let save_transforms ctx = Cairo.save ctx.cairo
 
@@ -38,7 +38,7 @@ let scale ctx x y = Cairo.scale ctx.cairo x y
 let rotate ctx theta = Cairo.rotate ctx.cairo theta
 
 
-(** {1 Color} ****************************************)
+(** {1 Color} *)
 
 type color = { r : float; g : float; b : float; a : float}
 
@@ -76,16 +76,16 @@ let fuchsia = { r = 0.8; g = 0.; b = 1.; a = 1.; }
 
 let mustard = {r = 0.8; g = 0.8; b = 0.2; a = 1.; }
 
+(** [color ?a ~r ~g ~b] makes a new color. *)
 let color ?(a=1.0) ~r ~g ~b = { r = r; g = g; b = b; a = a }
-  (** [color ?a ~r ~g ~b] makes a new color. *)
 
 
+(** [set_color ctx color] sets the current color. *)
 let set_color ctx color =
-  (** [set_color ctx color] sets the current color. *)
   Cairo.set_source_rgba ctx.cairo color.r color.g color.b color.a
 
 
-(** {1 Text} ****************************************)
+(** {1 Text} *)
 
 type text_style = {
   text_font : string;
@@ -95,24 +95,24 @@ type text_style = {
   text_color : color;
 }
 
+(** [set_text_stlye ctx style] sets the text style. *)
 let set_text_style ctx style =
-  (** [set_text_stlye ctx style] sets the text style. *)
   set_color ctx style.text_color;
   Cairo.select_font_face ctx.cairo
     style.text_font style.text_slant style.text_weight;
   Cairo.set_font_size ctx.cairo (ctx.units style.text_size)
 
 
+(** [set_text_style_option ctx style] sets the style if there was
+    one specified. *)
 let set_text_style_option ctx = function
-    (** [set_text_style_option ctx style] sets the style if there was
-	one specified. *)
   | None -> ()
   | Some style -> set_text_style ctx style
 
 
+(** [draw_text ctx ?style ?angle ~x ~y str] displays the text at the
+    given center point. *)
 let draw_text ctx ?style ?(angle=0.) ~x ~y str =
-  (** [draw_text ctx ?style ?angle ~x ~y str] displays
-      the text at the given center point. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
   let w = te.Cairo.text_width and h = te.Cairo.text_height in
@@ -126,27 +126,27 @@ let draw_text ctx ?style ?(angle=0.) ~x ~y str =
     Cairo.restore ctx.cairo
 
 
+(** [text_dimensions ctx ?style str] gets the dimensions of the
+    text.  *)
 let text_dimensions ctx ?style str =
-  (** [text_dimensions ctx ?style str] gets the dimensions of the
-      text.  *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
     te.Cairo.text_width, te.Cairo.text_height
 
 
+(** [font_suggested_line_height ?style ctx] gets the suggested line
+    height for the given font.  This is useful when adding multiple
+    lines of text.  If the text dimensions are used instead the
+    spacing between different lines may not be uniform. *)
 let font_suggested_line_height ?style ctx =
-  (** [font_suggested_line_height ?style ctx] gets the suggested line
-      height for the given font.  This is useful when adding multiple
-      lines of text.  If the text dimensions are used instead the
-      spacing between different lines may not be uniform. *)
   set_text_style_option ctx style;
   let fe = Cairo.font_extents ctx.cairo in
     fe.Cairo.font_height
 
 
+(** [text_rectangle ctx ~style ?pt txt] gets the bounding box around
+    the given text optionally given its location. *)
 let text_rectangle ctx ~style ?(pt=point 0. 0.) txt =
-  (** [text_rectangle ctx ~style ?pt txt] gets the bounding box around
-      the given text optionally given its location. *)
   let w, h = text_dimensions ctx ~style txt in
   let half_w = w /. 2. and half_h = h /. 2. in
   let x = pt.x and y = pt.y in
@@ -157,61 +157,61 @@ let text_rectangle ctx ~style ?(pt=point 0. 0.) txt =
     rectangle ~x_min ~x_max ~y_min ~y_max
 
 
+(** [draw_text_centered_below ctx ?style ?angle x y str] draws the
+    given string centered below the given location. *)
 let draw_text_centered_below ctx ?style ?(angle=0.) x y str =
-  (** [draw_text_centered_below ctx ?style ?angle x y str] draws the
-      given string centered below the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle ~x ~y:(y +. te.Cairo.text_height /. 2.) str
 
 
+(** [draw_text_centered_above ctx ?style ?angle x y str] draws the
+    given string centered above the given location. *)
 let draw_text_centered_above ctx ?style ?(angle=0.) x y str =
-  (** [draw_text_centered_above ctx ?style ?angle x y str] draws the
-      given string centered above the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle ~x ~y:(y -. te.Cairo.text_height /. 2.) str
 
 
+(** [draw_text_centered_before ctx ?style ?angle x y str] draws the
+    given string centered before the given location. *)
 let draw_text_centered_before ctx ?style ?(angle=0.) x y str =
-  (** [draw_text_centered_before ctx ?style ?angle x y str] draws the
-      given string centered before the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle ~x:(x -. te.Cairo.text_width /. 2.) ~y str
 
 
+(** [draw_text_centered_after ctx ?style ?angle x y str] draws the
+    given string centered after the given location. *)
 let draw_text_centered_after ctx ?style ?(angle=0.) x y str =
-  (** [draw_text_centered_after ctx ?style ?angle x y str] draws the
-      given string centered after the given location. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
     draw_text ctx ~angle ~x:(x +. te.Cairo.text_width /. 2.) ~y str
 
 
-(** {2 Formatted text} ****************************************)
+(** {2 Formatted text} *)
 
+(** [drawf ctx ?style ?angle x y fmt] displays the formatted text at
+    the given center point. *)
 let drawf ctx ?style ?(angle=0.) x y fmt =
-  (** [drawf ctx ?style ?angle x y fmt] displays the formatted text at
-      the given center point. *)
-    Printf.kprintf (draw_text ctx ?style ~angle ~x:x ~y:y) fmt
+  Printf.kprintf (draw_text ctx ?style ~angle ~x:x ~y:y) fmt
 
 
+(** [dimensionsf ctx ?style fmt] gets the dimensions of the
+    formatted text and returns the string.  *)
 let dimensionsf ctx ?style fmt =
-  (** [dimensionsf ctx ?style fmt] gets the dimensions of the
-      formatted text and returns the string.  *)
   let str_and_dims str =
     let w, h = text_dimensions ctx ?style str in
       str, w, h
   in Printf.kprintf str_and_dims fmt
 
 
-(** {2 Fixed width text} ****************************************)
+(** {2 Fixed width text} *)
 
 
+(** [hypenate_word ctx width word] hyphenates a word that is too
+    long to fit across the given width. *)
 let hypenate_word ctx width word =
-  (** [hypenate_word ctx width word] hyphenates a word that is
-      too long to fit across the given width. *)
   let partition word i =
     let fst = String.sub word 0 (i + 1) in
     let snd = String.sub word (i + 1) ((String.length word) - i - 1) in
@@ -232,10 +232,10 @@ let hypenate_word ctx width word =
   in do_hyphenate 1
 
 
+(** [fixed_width_lines ctx width string] gets a list of lines that
+    that will display within the given width.  Assumes the given
+    style has already been set. *)
 let fixed_width_lines ctx width string =
-  (** [fixed_width_lines ctx width string] gets a list of lines that
-      that will display within the given width.  Assumes the given
-      style has already been set. *)
   let rec get_line accum cur_line = function
     | [] -> List.rev (cur_line :: accum)
     | hd :: tl when cur_line = "" ->
@@ -256,9 +256,9 @@ let fixed_width_lines ctx width string =
     get_line [] "" words
 
 
+(** [fixed_width_text_height ctx ?style width string] gets the
+    height of the fixed width text.  *)
 let fixed_width_text_height ctx ?style width string =
-  (** [fixed_width_text_height ctx ?style width string] gets
-      the height of the fixed width text.  *)
   set_text_style_option ctx style;
   let line_height = font_suggested_line_height ctx in
   let lines = fixed_width_lines ctx width string in
@@ -267,12 +267,12 @@ let fixed_width_text_height ctx ?style width string =
 
 type text_alignment = Centered_text | Left_aligned_text | Right_aligned_text
 
+(** [draw_text_line ctx ?style ~center ~top string] draws a line of
+    text.  This function makes lines of text look better than the
+    general draw_text_centered_XXX routines because this function
+    does vertical alignment based on the font instead of the text
+    string. *)
 let draw_text_line ctx ?style ~center ~top string =
-  (** [draw_text_line ctx ?style ~center ~top string] draws a line of
-      text.  This function makes lines of text look better than the
-      general draw_text_centered_XXX routines because this function
-      does vertical alignment based on the font instead of the text
-      string. *)
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo string in
   let fe = Cairo.font_extents ctx.cairo in
@@ -285,10 +285,10 @@ let draw_text_line ctx ?style ~center ~top string =
 
 
 
+(** [draw_fixed_width_text ctx ?style ~x ~y ~width string] displays
+    the given fixed-width text where [x], [y] is the location of the
+    top center. *)
 let draw_fixed_width_text ctx ?style ~x ~y ~width string =
-  (** [draw_fixed_width_text ctx ?style ~x ~y ~width
-      string] displays the given fixed-width text where [x], [y] is
-      the location of the top center. *)
   set_text_style_option ctx style;
   let line_height = font_suggested_line_height ctx in
   let lines = fixed_width_lines ctx width string in
@@ -297,7 +297,7 @@ let draw_fixed_width_text ctx ?style ~x ~y ~width string =
 			      y +. line_height)
 	      y lines)
 
-(** {1 Lines} ****************************************)
+(** {1 Lines} *)
 
 
 type line_style = {
@@ -306,8 +306,8 @@ type line_style = {
   line_width : Length.t;
 }
 
+(** The default line style. *)
 let default_line_style =
-  (** The default line style. *)
   {
     line_color = black;
     line_width = Length.Pt 1.;
@@ -315,26 +315,26 @@ let default_line_style =
   }
 
 
+(** [set_line_style ctx style] sets the line style. *)
 let set_line_style ctx style =
-  (** [set_line_style ctx style] sets the line style. *)
   let dashes = Array.map ctx.units style.line_dashes in
     set_color ctx style.line_color;
     Cairo.set_dash ctx.cairo dashes 0.;
     Cairo.set_line_width ctx.cairo (ctx.units style.line_width)
 
 
+(** [set_line_style_option ctx style] sets the line style if there
+    is one *)
 let set_line_style_option ctx = function
-    (** [set_line_style_option ctx style] sets the line style if there
-	is one *)
   | None -> ()
   | Some style -> set_line_style ctx style
 
 
+(** [draw_line ctx ?box ?tr ?close_path ?style points] draws the
+    given line optionally within the given bounding
+    box. [close_path], if set to true, closes the path before
+    drawing the stroke. *)
 let draw_line ctx ?box ?(tr=(fun x -> x)) ?(close_path=false) ?style points =
-  (** [draw_line ctx ?box ?tr ?close_path ?style points] draws the
-      given line optionally within the given bounding
-      box. [close_path], if set to true, closes the path before
-      drawing the stroke. *)
   set_line_style_option ctx style;
   begin match box with
     | None ->
@@ -373,7 +373,7 @@ let draw_line ctx ?box ?(tr=(fun x -> x)) ?(close_path=false) ?style points =
   Cairo.set_dash ctx.cairo [| |] 0.
 
 
-(** {1 Points} ****************************************)
+(** {1 Points} *)
 
 type glyph =
   | Circle_glyph
@@ -386,8 +386,8 @@ type glyph =
   | Char_glyph of char
 
 
+(** The default line width when drawing glyphs. *)
 let default_glyph_line_width = Length.Pt 0.5
-  (** The default line width when drawing glyphs. *)
 
 
 let glyph_of_string = function
@@ -402,11 +402,11 @@ let glyph_of_string = function
   | s -> failwith (Printf.sprintf "Invalid glyph name %s" s)
 
 
+(** [make_draw_glyph ctx radius glyph] makes a function draws the
+    given glyph.  Assumes that the text width and line width won't
+    change between creating the draw_glyph function and its
+    use. *)
 let make_draw_glyph ctx radius = function
-    (** [make_draw_glyph ctx radius glyph] makes a function draws the given
-	glyph.  Assumes that the text width and line width won't
-	change between creating the draw_glyph function and its
-	use. *)
   | Circle_glyph ->
       Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->
@@ -477,8 +477,8 @@ let make_draw_glyph ctx radius = function
 	(fun pt -> draw_text ctx pt.x pt.y str)
 
 
+(** [draw_point ctx ?color radius glyph pt] draws a single point. *)
 let draw_point ctx ?color radius glyph pt =
-  (** [draw_point ctx ?color radius glyph pt] draws a single point. *)
   begin match color with
     | None -> ()
     | Some color -> set_color ctx color
@@ -486,10 +486,10 @@ let draw_point ctx ?color radius glyph pt =
   make_draw_glyph ctx (ctx.units radius) glyph pt
 
 
+(** [draw_points ctx ?color radius glyph points] draws a set of
+    points.  This is a slightly faster way of drawing points that
+    all have the same radius. *)
 let draw_points ctx ?color radius glyph points =
-  (** [draw_points ctx ?color radius glyph points] draws a set of
-      points.  This is a slightly faster way of drawing points that
-      all have the same radius. *)
   begin match color with
     | None -> ()
     | Some color -> set_color ctx color;
@@ -497,7 +497,7 @@ let draw_points ctx ?color radius glyph points =
   let draw_pt = make_draw_glyph ctx (ctx.units radius) glyph in
     List.iter draw_pt points
 
-(** {1 Rectangles} ****************************************)
+(** {1 Rectangles} *)
 
 type fill_pattern =
   | No_fill
@@ -510,17 +510,17 @@ type fill_pattern =
   | Dotted_fill of color * Length.t * Length.t
 
 
+(** [draw_solid_fill ctx r color] draws a solid fill *)
 let draw_solid_fill ctx r color =
-  (** [draw_solid_fill ctx r color] draws a solid fill *)
   set_color ctx color;
   Cairo.rectangle ctx.cairo
     r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
   Cairo.fill ctx.cairo
 
 
+(** [draw_vertical_fill ctx r style delta] draws a fill of vertical
+    bars. *)
 let draw_vertical_fill ctx r style delta =
-  (** [draw_vertical_fill ctx r style delta] draws a fill of vertical
-      bars. *)
   set_line_style ctx style;
   let delta = ctx.units delta in
   let x = ref (r.x_min +. delta) in
@@ -530,9 +530,9 @@ let draw_vertical_fill ctx r style delta =
     done
 
 
+(** [draw_horizontal_fill ctx r style delta] draws a fill of
+    horizontal bars. *)
 let draw_horizontal_fill ctx r style delta =
-  (** [draw_horizontal_fill ctx r style delta] draws a fill of
-      horizontal bars. *)
   set_line_style ctx style;
   let y_min, y_max =
     if r.y_min < r.y_max then r.y_min, r.y_max else r.y_max, r.y_min
@@ -545,9 +545,9 @@ let draw_horizontal_fill ctx r style delta =
     done
 
 
+(** [draw_diagonal_fill ctx r style slope delta] draws a fill of
+    diagonal lines. *)
 let draw_diagonal_fill ctx r style slope delta =
-  (** [draw_diagonal_fill ctx r style slope delta] draws a fill of
-      diagonal lines. *)
   set_line_style ctx style;
   let delta = ctx.units delta in
   let slope = ctx.units slope in
@@ -567,8 +567,9 @@ let draw_diagonal_fill ctx r style slope delta =
     done
 
 
+(** [draw_dotted_fill ctx r color radius delta] draws a fill of
+    dots. *)
 let draw_dotted_fill ctx r color radius delta =
-  (** [draw_dotted_fill ctx r color radius delta] draws a fill of dots. *)
   set_color ctx color;
   let radius = ctx.units radius in
   let delta = ctx.units delta in
@@ -588,9 +589,9 @@ let draw_dotted_fill ctx r color radius delta =
     done
 
 
+(** [draw_fill_pattern ctx r] draws the given fill pattern in the
+    rectangle. *)
 let rec draw_fill_pattern ctx r = function
-    (** [draw_fill_pattern ctx r] draws the given fill pattern in the
-	rectangle. *)
   | No_fill -> ()
   | Solid_fill c -> draw_solid_fill ctx r c
   | Vertical_fill (style, delta) -> draw_vertical_fill ctx r style delta
@@ -607,32 +608,32 @@ let rec draw_fill_pattern ctx r = function
       match pattern with
 	| Patterned_solid_fill (_, _) | Solid_fill _ ->
 	    invalid_arg ("Patterned_solid_fill: pattern cannot be one of: "
-			   ^ "Patterned_solid_fill or Solid_fill")
+			 ^ "Patterned_solid_fill or Solid_fill")
 	| x ->
 	    draw_solid_fill ctx r color;
 	    draw_fill_pattern ctx r pattern
 
 
+(** [draw_rectangle ctx ?style r] draws the given rectangle. *)
 let draw_rectangle ctx ?style r =
-  (** [draw_rectangle ctx ?style r] draws the given rectangle. *)
-    set_line_style_option ctx style;
-    Cairo.rectangle ctx.cairo
-      r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
-    Cairo.stroke ctx.cairo
+  set_line_style_option ctx style;
+  Cairo.rectangle ctx.cairo
+    r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
+  Cairo.stroke ctx.cairo
 
 
+(** [draw_rectangle ctx color r] draws the given rectangle. *)
 let fill_rectangle ctx ?(color=black) r =
-  (** [draw_rectangle ctx color r] draws the given rectangle. *)
   set_color ctx color;
   Cairo.rectangle ctx.cairo
     r.x_min r.y_min (r.x_max -. r.x_min) (r.y_max -. r.y_min);
   Cairo.fill ctx.cairo
 
 
-(** {6 Circles} ****************************************)
+(** {6 Circles} *)
 
+(** [fill_circle ctx center r color] draws a filled in circle. *)
 let fill_circle ctx center r color =
-  (** [fill_circle ctx center r color] draws a filled in circle. *)
   let cairo = ctx.cairo in
   let cx = center.x and cy = center.y in
     set_color ctx color;
@@ -641,9 +642,9 @@ let fill_circle ctx center r color =
     Cairo.fill cairo
 
 
+(** [slice_path ctx center ~r ~t ~dt ] makes the path for a slice.
+    (see [draw_silce] and [fill_slice]. *)
 let slice_path ctx center ~r ~t ~dt =
-  (** [slice_path ctx center ~r ~t ~dt ] makes the path for a slice.
-      (see [draw_silce] and [fill_slice]. *)
   let cairo = ctx.cairo in
   let cx = center.x and cy = center.y in
     Cairo.new_path cairo;
@@ -653,30 +654,30 @@ let slice_path ctx center ~r ~t ~dt =
     Cairo.close_path cairo
 
 
+(** [draw_sector ctx ?style center ~r ~t ~dt color] draws an outline
+    around a pie-slice centered at [center] with a radius [r]
+    beginning at angle [t] (in radians) and continuing for [dt]
+    radians. *)
 let draw_slice ctx ?style center ~r ~t ~dt color =
-  (** [draw_sector ctx ?style center ~r ~t ~dt color] draws an outline
-      around a pie-slice centered at [center] with a radius [r]
-      beginning at angle [t] (in radians) and continuing for [dt]
-      radians. *)
   set_line_style_option ctx style;
   set_color ctx color;
   slice_path ctx center ~r ~t ~dt;
   Cairo.stroke ctx.cairo
 
 
+(** [fill_sector ctx center ~r ~t ~d color] fills in a pie-slice
+    centered at [center] with a radius [r] beginning at angle [t]
+    (in radians) and continuing for [dt] radians. *)
 let fill_slice ctx center ~r ~t ~dt color =
-  (** [fill_sector ctx center ~r ~t ~d color] fills in a pie-slice
-      centered at [center] with a radius [r] beginning at angle
-      [t] (in radians) and continuing for [dt] radians. *)
   set_color ctx color;
   slice_path ctx center ~r ~t ~dt;
   Cairo.fill ctx.cairo
 
 
+(** [sector_path ctx center ~r ~dr ~t ~dt] builds the path for a
+    sector of a circle beginning at radius [r] at a width of [dr]
+    beginning at angle [t] for a span of [dt]. *)
 let sector_path ctx center ~r ~dr ~t ~dt =
-  (** [sector_path ctx center ~r ~dr ~t ~dt] builds the path for a
-      sector of a circle beginning at radius [r] at a width of [dr]
-      beginning at angle [t] for a span of [dt]. *)
   let cairo = ctx.cairo in
   let cx = center.x and cy = center.y in
   let r0 = r and r1 = r +. dr and t0 = t and t1 = t +. dt in
@@ -686,19 +687,19 @@ let sector_path ctx center ~r ~dr ~t ~dt =
     Cairo.close_path cairo
 
 
+(** [fill_sector ctx center ~r ~dr ~t ~dt color] fills a sector of a
+    circle beginning at radius [r] at a width of [dr] beginning at
+    angle [t] for a span of [dt]. *)
 let fill_sector ctx center ~r ~dr ~t ~dt color =
-  (** [fill_sector ctx center ~r ~dr ~t ~dt color] fills a sector of a
-      circle beginning at radius [r] at a width of [dr] beginning at
-      angle [t] for a span of [dt]. *)
   set_color ctx color;
   sector_path ctx center ~r ~dr ~t ~dt;
   Cairo.fill ctx.cairo
 
 
+(** [draw_sector ctx ?style center ~r ~dr ~t ~dt color] draws a sector
+    of a circle beginning at radius [r] at a width of [dr] beginning
+    at angle [t] for a span of [dt]. *)
 let draw_sector ctx ?style center ~r ~dr ~t ~dt color =
-  (** [draw_sector ctx ?style center ~r ~dr ~t ~dt color] draws a
-      sector of a circle beginning at radius [r] at a width of [dr]
-      beginning at angle [t] for a span of [dt]. *)
   set_line_style_option ctx style;
   set_color ctx color;
   sector_path ctx center ~r ~dr ~t ~dt;

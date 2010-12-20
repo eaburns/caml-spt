@@ -21,12 +21,12 @@ type location =
   | Lower_right
 
 
+(** Padding between legend text and the icons. *)
 let padding = Length.Pt 4.
-  (** Padding between legend text and the icons. *)
 
 
+(** [max_height ctx style datasets] gets the max entry height. *)
 let max_height ctx style datasets =
-  (** [max_height ctx style datasets] gets the max entry height. *)
   let text_height = font_suggested_line_height ~style ctx in
     List.fold_left
       (fun h ds ->
@@ -35,8 +35,8 @@ let max_height ctx style datasets =
       0. datasets
 
 
+(** [max_widths ctx style datasets] gets the max entry height. *)
 let max_widths ctx style datasets =
-  (** [max_widths ctx style datasets] gets the max entry height. *)
   List.fold_left
     (fun ((tw, iw) as dims) ds -> match ds#name with
        | None -> dims
@@ -48,9 +48,9 @@ let max_widths ctx style datasets =
 
 
 
+(** [dimensions style ctx datasets] gets the dimensions of a legend
+    for the given datasets. *)
 let dimensions style ctx datasets =
-  (** [dimensions style ctx datasets] gets the dimensions of a legend
-      for the given datasets. *)
   let padding = ctx.units padding in
   let ndatasets =
     float (List.length (List.filter (fun ds -> ds#name <> None) datasets)) in
@@ -59,9 +59,9 @@ let dimensions style ctx datasets =
   in (text_width +. icon_width +. padding), ent_height *. ndatasets
 
 
+(** [locate ctx style dst datasest legend_loc] gets the location
+    for drawing the plot legend of the given datasets. *)
 let locate ctx style dst datasets = function
-    (** [locate ctx style dst datasest legend_loc] gets the location
-	for drawing the plot legend of the given datasets. *)
   | At (txt_loc, x, y) ->
       vprintf verb_debug "legend location: text %s icons (%f, %f)\n"
 	(match txt_loc with Text_after -> "after" | _ -> "before")
@@ -85,8 +85,8 @@ let locate ctx style dst datasets = function
 	txt_loc, x_loc, y_loc
 
 
+(** [sort_cmp a b] comparison function used to sort the legends. *)
 let sort_cmp src a b =
-  (** [sort_cmp a b] comparison function used to sort the legends. *)
   let ay, _ = a#mean_y_value src
   and by, _ = b#mean_y_value src in
     match classify_float ay, classify_float by with
@@ -98,9 +98,9 @@ let sort_cmp src a b =
 
 
 
+(** [draw_legend ctx sort src text_loc style datasets] draws the
+    legend into the upper right corner of the unit square. *)
 let draw ctx sort src text_loc style datasets =
-  (** [draw_legend ctx sort src text_loc style datasets] draws the
-      legend into the upper right corner of the unit square. *)
   let datasets =
     (* Possibly sort the datasets in descending order. *)
     if sort then List.sort (sort_cmp src) datasets else datasets

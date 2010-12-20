@@ -9,9 +9,9 @@
 
 open Drawing
 
+(** [make_glyph_factory glyph_set ()] makes a glyph factory which
+    returns a new glyph at each call. *)
 let make_glyph_factory glyph_set () =
-  (** [make_glyph_factory glyph_set ()] makes a glyph factory which
-      returns a new glyph at each call. *)
   let next = ref 0 in
   let n = Array.length glyph_set in
     (fun () ->
@@ -20,9 +20,9 @@ let make_glyph_factory glyph_set () =
 	 g)
 
 
+(** [default_glyph_factory] gets the default glyph factory
+    builder. *)
 let default_glyph_factory =
-  (** [default_glyph_factory] gets the default glyph factory
-      builder. *)
   let glyph_set =
     [|
       Ring_glyph;
@@ -36,9 +36,9 @@ let default_glyph_factory =
   in make_glyph_factory glyph_set
 
 
+(** [default_color_glyph_factory] gets the a glyph factory builder
+    that looks good when the glyphs are colored. *)
 let default_color_glyph_factory =
-  (** [default_color_glyph_factory] gets the a glyph factory
-      builder that looks good when the glyphs are colored. *)
   let glyph_set =
     [|
       Ring_glyph;
@@ -50,12 +50,12 @@ let default_color_glyph_factory =
   in make_glyph_factory glyph_set
 
 
-let overlapping_glyph_factory =
-  (** [overlapping_glyph_factory] gets a glyph factory builder that
-      makes glyphs that look good with overlapping data.
+(** [overlapping_glyph_factory] gets a glyph factory builder that
+    makes glyphs that look good with overlapping data.
 
-      This set is similar to the set recommended in ps_plot for
-      overlapping data. *)
+    This set is similar to the set recommended in ps_plot for
+    overlapping data. *)
+let overlapping_glyph_factory =
   let glyph_set =
     [|
       Plus_glyph;
@@ -67,9 +67,9 @@ let overlapping_glyph_factory =
   in make_glyph_factory glyph_set
 
 
+(** [numbered_glyph_factory] gets a glyph factory builder that
+    returns numbers as the glyphs. *)
 let numbered_glyph_factory =
-  (** [numbered_glyph_factory] gets a glyph factory builder that
-      returns numbers as the glyphs. *)
   let glyph_set =
     [| Char_glyph '0';
        Char_glyph '1';
@@ -85,8 +85,8 @@ let numbered_glyph_factory =
   in make_glyph_factory glyph_set
 
 
+(** [make_dash_factory dash_set ()] makes a dash pattern factory. *)
 let make_dash_factory dash_set () =
-  (** [make_dash_factory dash_set ()] makes a dash pattern factory. *)
   let next = ref 0 in
   let n = Array.length dash_set in
     (fun () ->
@@ -94,8 +94,8 @@ let make_dash_factory dash_set () =
 	 next := (!next + 1) mod n;
 	 d)
 
+(** [default_dash_factory] gets the default dash factory builder. *)
 let default_dash_factory =
-  (** [default_dash_factory] gets the default dash factory builder. *)
   let default_dash_set =
     [|
       [| |];
@@ -130,9 +130,9 @@ let default_color_factory () =
       fuchsia; lavender; mustard ]
 
 
+(** [make_fill_pattern_factory fill_set] makes a factory for getting
+    fill patterns. *)
 let make_fill_pattern_factory fill_set =
-  (** [make_fill_pattern_factory fill_set] makes a factory for getting
-      fill patterns. *)
   let next = ref 0 in
   let n = Array.length fill_set in
     (fun () ->
@@ -140,9 +140,9 @@ let make_fill_pattern_factory fill_set =
 	 next := (!next + 1) mod n;
 	 d)
 
+(** [default_fill_pattern_factory ?color ()] makes the default fill
+    pattern factory. *)
 let default_fill_pattern_factory ?(color=black) () =
-  (** [default_fill_pattern_factory ?color ()] makes the default
-      fill pattern factory. *)
   let line_style = { default_line_style with line_color = color } in
     make_fill_pattern_factory
       [|
@@ -157,9 +157,9 @@ let default_fill_pattern_factory ?(color=black) () =
       |]
 
 
+(** [default_color_fill_pattern_factory ?patterned ()] makes a
+    factory that returns different colored fills. *)
 let default_color_fill_pattern_factory ?(patterned=true) () =
-  (** [default_color_fill_pattern_factory ?patterned ()] makes a
-      factory that returns different colored fills. *)
   let line_style = { default_line_style with line_color = black } in
   let next_color = default_color_factory () in
   let next_pattern =
