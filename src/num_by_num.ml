@@ -8,13 +8,13 @@ open Geometry
 open Drawing
 open Verbosity
 
+(** The amount of room to separate the axes from the data. *)
 let default_axis_padding = Length.Pt 5.
-  (** The amount of room to separate the axes from the data. *)
 
 
+(** [data_dimensions ~x_min ~x_max ~y_min ~y_max datasets] computes
+    the range of the x and y axes for the given datasets. *)
 let data_dimensions ~x_min ~x_max ~y_min ~y_max datasets =
-  (** [data_dimensions ~x_min ~x_max ~y_min ~y_max datasets] computes
-      the range of the x and y axes for the given datasets. *)
   let r = match datasets with
     | d :: [] -> d#dimensions
     | d :: ds ->
@@ -57,67 +57,67 @@ let resize_x ctx ~src ~dst datasets =
       | [] -> dst.x_max
 
 
-(** {1 Numeric by numeric datasets} ****************************************)
+(** {1 Numeric by numeric datasets} *)
 
+(** The type of a numeric by numeric dataset. *)
 class type dataset_type =
 object
-  (** The type of a numeric by numeric dataset. *)
 
+  (** The name of the dataset.  If there is no name then the dataset
+      doesn't appear in the legend. *)
   val name : string option
-    (** The name of the dataset.  If there is no name then the dataset
-	doesn't appear in the legend. *)
 
+  (** [name] gets the (optional) name of the dataset. *)
   method name : string option
-    (** [name] gets the (optional) name of the dataset. *)
 
+  (** [avg_slope} returns the average rate of change across an entire
+      num by num dataset.  Used for setting default axis skew (avg
+      45 slope for all elements of the plot) *)
   method avg_slope : float
-    (** [avg_slope} returns the average rate of change across an
-	entire num by num dataset.  Used for setting default axis skew
-	(avg 45 slope for all elements of the plot) *)
 
 
+  (** [dimensions] gets the dimensions of this dataset in
+      data-coordinates. *)
   method dimensions : Geometry.rectangle
-    (** [dimensions] gets the dimensions of this dataset in
-	data-coordinates. *)
 
+  (** [draw ctx ~src ~dst] draws the data to the plot. *)
   method draw :
     Drawing.context ->
     src:Geometry.rectangle -> dst:Geometry.rectangle -> unit
-    (** [draw ctx ~src ~dst] draws the data to the plot. *)
 
+  (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
+      given location. *)
   method draw_legend :
     Drawing.context -> x:float -> y:float -> unit
-    (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
-	given location. *)
 
+  (** [legend_dimensions ctx] gets the dimensions of the legend icon
+      in plot-coordinates. *)
   method legend_dimensions : Drawing.context -> float * float
-    (** [legend_dimensions ctx] gets the dimensions of the legend
-	icon in plot-coordinates. *)
 
+  (** [mean_y_value src] gets the mean y-value and the number of
+      values this mean is over in the source coordinate system.
+      This is used for sorting the legend.  If a dataset will not
+      contribute to the competition over the legend locations then
+      this should result in (nan, 0) .*)
   method mean_y_value : Geometry.rectangle -> float * int
-    (** [mean_y_value src] gets the mean y-value and the number of
-	values this mean is over in the source coordinate system.
-	This is used for sorting the legend.  If a dataset will not
-	contribute to the competition over the legend locations then
-	this should result in (nan, 0) .*)
 
 
+  (** [residual ctx ~src ~dst] get a rectangle containing the maximum
+      amount the dataset will draw off of the destination rectangle
+      in each direction in plot-coordinates. *)
   method residual :
     Drawing.context ->
     src:Geometry.rectangle -> dst:Geometry.rectangle -> Geometry.rectangle
-    (** [residual ctx ~src ~dst] get a rectangle containing the
-	maximum amount the dataset will draw off of the destination
-	rectangle in each direction in plot-coordinates. *)
 
 
+  (** [x_over ctx ~src ~dst] gets a (vl * over) list where vl is the
+      source value and over is the amount that the given item is
+      drawn over the end of the destination rectangle. *)
   method x_over :
     Drawing.context
     -> src:Geometry.rectangle
     -> dst:Geometry.rectangle
     -> (float * float) list
-    (** [x_over ctx ~src ~dst] gets a (vl * over) list where vl is the
-	source value and over is the amount that the given item is drawn
-	over the end of the destination rectangle. *)
 end
 
 include Num_by_num_dataset
@@ -133,7 +133,7 @@ include Cdf_dataset
 include Num_heatmap_dataset
 
 
-(** {1 Numeric by numeric plot} ****************************************)
+(** {1 Numeric by numeric plot} *)
 
 class type plot_type =
   object
@@ -150,6 +150,9 @@ class type plot_type =
     method width : Length.t
   end
 
+(** [plot ?label_style ?legend_style ?tick_style ?title ?xlabel
+    ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min ?y_max
+    datasets] a plot that has a numeric x and y axis. *)
 class plot
   ?(text_padding=Spt.text_padding)
   ?(axis_padding=default_axis_padding)
@@ -160,15 +163,12 @@ class plot
   ?(sort_legend=true) ?(legend_loc=Legend.Upper_right)
   ?x_min ?x_max ?y_min ?y_max
   (datasets : dataset_type list) =
-  (** [plot ?label_style ?legend_style ?tick_style ?title ?xlabel
-      ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min ?y_max
-      datasets] a plot that has a numeric x and y axis. *)
   let _ = vprintf verb_optional "creating a numeric by numeric plot\n" in
 object (self)
   inherit Spt.plot title
 
+  (** The dimensions of the axes in the data coordinate system. *)
   val src = data_dimensions ~x_min ~x_max ~y_min ~y_max datasets
-    (** The dimensions of the axes in the data coordinate system. *)
 
 
   method suggest_aspect =
@@ -232,8 +232,8 @@ object (self)
 	r
 
 
+  (** [xaxis] creates the x-axis for the plot. *)
   method private xaxis =
-    (** [xaxis] creates the x-axis for the plot. *)
     let src = xrange src in
     let nticks = Numeric_axis.recommended_ticks width in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
@@ -249,8 +249,8 @@ object (self)
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks xlabel
 
 
+  (** [yaxis] creates the y-axis for the plot. *)
   method private yaxis =
-    (** [yaxis] creates the y-axis for the plot. *)
     let src = yrange src in
     let nticks = Numeric_axis.recommended_ticks height in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
@@ -266,16 +266,15 @@ object (self)
       Numeric_axis.create ~label_text_style ~tick_text_style ~src ticks ylabel
 
 
+  (** [draw_x_axis ctx ~dst xaxis] draws the x-axis. *)
   method private draw_x_axis ctx ~dst xaxis =
-    (** [draw_x_axis ctx ~dst xaxis] draws the
-	x-axis. *)
     let _, ysize = self#size ctx in
       Numeric_axis.draw_x_axis ctx ~pad:(ctx.units text_padding)
 	~height:ysize ~dst:(xrange dst) xaxis
 
 
+  (** [draw_y_axis ctx ~dst] draws the y-axis. *)
   method private draw_y_axis ctx ~dst yaxis =
-    (** [draw_y_axis ctx ~dst] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx ~pad:(ctx.units text_padding)
       ~dst:(yrange dst) yaxis
 

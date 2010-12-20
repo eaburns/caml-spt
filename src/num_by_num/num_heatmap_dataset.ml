@@ -13,22 +13,22 @@ open Geometry
 let default_bins = 10.
 
 
+(** the index of the bin that should contain [value].  Note that any
+    value outside the range of representable integers, such as
+    [infinity], may yield a garbage value, such as 0!  If you might
+    pass such a value, test before calling!  (This routine is
+    intended to be simple and fast.) *)
 let bucket ~min ~bin_size value =
-  (** the index of the bin that should contain [value].  Note that any
-      value outside the range of representable integers, such as
-      [infinity], may yield a garbage value, such as 0!  If you might pass
-      such a value, test before calling!  (This routine is intended to be
-      simple and fast.) *)
   truncate ((value -. min) /. bin_size)
 
 
 let make_default_gradient min max =
   let range = max -. min in
-  (fun value ->
-     let src = (value /. range) *. 3. in
-       if src < 1. then { r = src; g = 0.; b= 0.; a = 1.; }
-       else if src < 2. then { r = 1.; g = src -. 1.; b = 0.; a = 1.}
-       else {r = 1.; g = 1.; b = src -. 2.; a = 1.})
+    (fun value ->
+       let src = (value /. range) *. 3. in
+	 if src < 1. then { r = src; g = 0.; b= 0.; a = 1.; }
+	 else if src < 2. then { r = 1.; g = src -. 1.; b = 0.; a = 1.}
+	 else {r = 1.; g = 1.; b = src -. 2.; a = 1.})
 
 
 class countmap_dataset ?(line_width=Length.Pt 1.) ?bin_size ?gradient points =

@@ -10,9 +10,9 @@ open Geometry
 open Verbosity
 
 
+(** A line plot dataset. *)
 class function_dataset
   dashes ?(samples=200) ?(line_width=Length.Pt 1.) ?(color=black) ?name f =
-  (** A line plot dataset. *)
 object (self)
   inherit Num_by_num_dataset.dataset ?name ()
 
@@ -24,8 +24,8 @@ object (self)
     }
 
 
+  (** [points src] computes the points *)
   method private points src =
-    (** [points src] computes the points *)
     let dx = (src.x_max -. src.x_min) /. (float samples) in
     let x = ref src.x_min in
     let pts = ref [] in
@@ -37,10 +37,10 @@ object (self)
       List.rev !pts
 
 
+  (** [dimensions] gets the dimensions.  Return an 'inverse rectangle'
+      so that this *should* have no effect on the dimensions of the
+      plot. *)
   method dimensions =
-    (** [dimensions] gets the dimensions.  Return an 'inverse
-	rectangle' so that this *should* have no effect on the
-	dimensions of the plot. *)
     rectangle ~x_min:infinity ~x_max:neg_infinity
       ~y_min:infinity ~y_max:neg_infinity
 

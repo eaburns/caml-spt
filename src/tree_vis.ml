@@ -13,14 +13,14 @@ type node = {
   succs : node array;
 }
 
+(** [max_depth ?depth n] gets the max depth of the tree. *)
 let rec max_depth ?(depth=0) n =
-  (** [max_depth ?depth n] gets the max depth of the tree. *)
   (Array.fold_left
      (fun m n' -> max (max_depth ~depth:(depth+1) n') m)
      0 n.succs) + 1
 
 
-(** {1 Tree vis plot} ****************************************)
+(** {1 Tree vis plot} *)
 
 class type plot_type =
 object
@@ -46,25 +46,25 @@ object
 
 end
 
+(** [plot ?title draw_style tree] creates a new tree visualization
+    plot with the given tree dataset. *)
 let plot ?title draw_style root = new plot ?title draw_style root
-  (** [plot ?title draw_style tree] creates a new tree visualization
-      plot with the given tree dataset. *)
 
 
-(** {1 Drawing sunbursts} ****************************************)
+(** {1 Drawing sunbursts} *)
 
 module Sunburst = struct
 
   let line_style =
     { default_line_style with line_width = Length.Pt 0.5 }
 
+  (** [draw_tree ctx outline center ?depth ~r ~dr ~t ~dt node] draws
+      a subtree in the pi-wedge between angles [t] and [t + dt].
+      The root node ends at radius [r] and subsequent nodes are [dr]
+      wider than the root.  This draws "pie-slices" and uses the
+      painter's algorithm to make each node appear as a sector of a
+      circle. *)
   let rec draw_tree ctx outline center ?(depth=0) ~r ~dr ~t ~dt node =
-    (** [draw_tree ctx outline center ?depth ~r ~dr ~t ~dt node] draws
-	a subtree in the pi-wedge between angles [t] and [t + dt].
-	The root node ends at radius [r] and subsequent nodes are [dr]
-	wider than the root.  This draws "pie-slices" and uses the
-	painter's algorithm to make each node appear as a sector of a
-	circle. *)
     let nsuccs = float (Array.length node.succs) in
     let dt' = dt /. nsuccs and r' = r +. dr and depth' = depth + 1 in
       ignore (Array.fold_left
@@ -90,14 +90,14 @@ module Sunburst = struct
       draw_tree ctx outline center ~r:0. ~dr ~t:0. ~dt:two_pi root
 
 
+  (** [default_style ctx ~width ~height root] the default sunburst
+      tree style. *)
   let default_style ctx ~width ~height root =
-    (** [default_style ctx ~width ~height root] the default sunburst
-	tree style. *)
     make_style false ctx ~width ~height root
 
+  (** [outlined_style ctx ~width ~height root] a sunburst tree style
+      where each node is outlined in black. *)
   let outlined_style ctx ~width ~height root =
-    (** [outlined_style ctx ~width ~height root] a sunburst tree style
-	where each node is outlined in black. *)
     make_style true ctx ~width ~height root
 
 end

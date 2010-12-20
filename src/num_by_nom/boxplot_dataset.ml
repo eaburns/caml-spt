@@ -29,15 +29,15 @@ object(self)
 
 end
 
+(** [boxplot_dataset ?outliers ?point_radius name values] makes a
+    boxplot dataset. *)
 let boxplot_dataset ?outliers ?point_radius name values =
-  (** [boxplot_dataset ?outliers ?point_radius name values] makes a
-      boxplot dataset. *)
   new boxplot_dataset ?outliers ?point_radius name values
 
 
+(** [boxplot_datasets ?outliers ?point_radius name_vl_list] makes a
+    set of boxplot datasets. *)
 let boxplot_datasets ?outliers ?point_radius name_vl_list =
-  (** [boxplot_datasets ?outliers ?point_radius name_vl_list] makes a
-      set of boxplot datasets. *)
   List.map
     (fun (name, values) ->
        new boxplot_dataset ?outliers ?point_radius name values)

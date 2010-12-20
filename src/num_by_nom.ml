@@ -8,15 +8,15 @@ open Geometry
 open Drawing
 open Verbosity
 
+(** The amount of room to separate the y-axis from the data. *)
 let default_y_axis_padding = Length.Pt 10.
-  (** The amount of room to separate the y-axis from the data. *)
 
+(** The amount of room to separate the x-axis from the data. *)
 let default_x_axis_padding = Length.Pt 5.
-  (** The amount of room to separate the x-axis from the data. *)
 
+(** [data_dimensions ~y_min ~y_max datasets] computes the dimension
+    of the y-axis. *)
 let data_dimensions ~y_min ~y_max datasets =
-  (** [data_dimensions ~y_min ~y_max datasets] computes the dimension
-      of the y-axis. *)
   let min, max =
     List.fold_left (fun (min, max) ds ->
 		      let r = ds#dimensions in
@@ -34,7 +34,7 @@ let data_dimensions ~y_min ~y_max datasets =
     r
 
 
-(** {1 Numeric by nomeric datasets} ****************************************)
+(** {1 Numeric by nomeric datasets} *)
 
 class type dataset_type =
   object
@@ -60,9 +60,9 @@ include Num_by_nom_dataset
 include Boxplot_dataset
 include Barchart_dataset
 
+(** [fold_datasets ctx init f datasets] folds [f] over each dataset
+    with the before padding, number of items and the dataset. *)
 let fold_datasets ctx init f datasets =
-  (** [fold_datasets ctx init f datasets] folds [f] over each dataset
-      with the before padding, number of items and the dataset. *)
   let padding = ctx.units Num_by_nom_dataset.between_padding in
   let _, _, vl =
     (List.fold_left
@@ -80,7 +80,7 @@ let fold_datasets ctx init f datasets =
   in vl
 
 
-(** {1 Numeric by nomeric plot} ****************************************)
+(** {1 Numeric by nomeric plot} *)
 
 class type plot_type =
   object
@@ -95,14 +95,17 @@ class type plot_type =
     method width : Length.t
   end
 
+(** The line style of a horizontal line. *)
 let horiz_line_style =
-  (** The line style of a horizontal line. *)
   {
     line_color = gray;
     line_dashes = [| |];
     line_width = Length.Pt 1.;
   }
 
+(** [plot ?label_style ?legend_style ?tick_style ?horiz_lines ?title
+    ?ylabel ?y_min ?y_max datasets] a plot that has a nominal x axis
+    and a numeric y axis. *)
 class plot
   ?(x_axis_padding=default_x_axis_padding)
   ?(y_axis_padding=default_y_axis_padding)
@@ -111,18 +114,15 @@ class plot
   ?(tick_text_style=Spt.default_tick_style)
   ?(horiz_lines=[])
   ?title ?ylabel ?y_min ?y_max (datasets : dataset_type list) =
-  (** [plot ?label_style ?legend_style ?tick_style ?horiz_lines ?title
-      ?ylabel ?y_min ?y_max datasets] a plot that has a nominal x axis
-      and a numeric y axis. *)
   let _ = vprintf verb_optional "creating a numeric by nominal plot\n" in
 object (self)
   inherit Spt.plot title
 
+  (** The dimensions of the y-axis in data coordinates. *)
   val src = data_dimensions ~y_min ~y_max datasets
-    (** The dimensions of the y-axis in data coordinates. *)
 
+  (** [yaxis] creates a y-axis. *)
   method private yaxis =
-    (** [yaxis] creates a y-axis. *)
     let nticks = Numeric_axis.recommended_ticks height in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
       verb_eval verb_debug
@@ -136,10 +136,10 @@ object (self)
 	~src ticks ylabel
 
 
+  (** [x_axis_dimensions ctx] computes the x_min, x_max and
+      item_width for each dataset to display its name on the
+      x-axis. *)
   method private x_axis_dimensions ctx yaxis =
-    (** [x_axis_dimensions ctx] computes the x_min, x_max and
-	item_width for each dataset to display its name on the
-	x-axis. *)
     let x_max, _ = self#size ctx in
     let x_min =
       Numeric_axis.resize_for_y_axis ctx
@@ -158,10 +158,10 @@ object (self)
       range x_min x_max, item_width
 
 
+  (** [dst_y_range ctx ~y_min ~y_max ~item_width] get the range on
+      the y-axis.  [item_width] is the amount of width afforded to a
+      single item for each dataset. *)
   method private dst_y_range ctx ~y_min ~y_max ~item_width =
-    (** [dst_y_range ctx ~y_min ~y_max ~item_width] get the range on
-	the y-axis.  [item_width] is the amount of width afforded to a
-	single item for each dataset. *)
     let title_height =
       match title with
 	| None -> 0.
@@ -181,13 +181,13 @@ object (self)
 
 
 
+  (** [draw_y_axis ctx ~dst yaxis] draws the y-axis. *)
   method private draw_y_axis ctx ~dst yaxis =
-    (** [draw_y_axis ctx ~dst yaxis] draws the y-axis. *)
     Numeric_axis.draw_y_axis ctx ~pad:(ctx.units Spt.text_padding) ~dst yaxis
 
 
+  (** [draw_x_axis ctx ~y ~xrange ~item_width] draws the x-axis. *)
   method private draw_x_axis ctx ~y ~xrange ~item_width =
-    (** [draw_x_axis ctx ~y ~xrange ~item_width] draws the x-axis. *)
     ignore
       (fold_datasets ctx xrange.min
 	 (fun x pad nitems ds ->

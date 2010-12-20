@@ -8,76 +8,77 @@ open Geometry
 open Drawing
 open Verbosity
 
+(** [dataset name] is a dataset that is plottable on a numeric x and
+    y axis. *)
 class virtual dataset ?name () =
-  (** [dataset name] is a dataset that is plottable on a numeric x and
-      y axis. *)
 object
+
+  (** The name of the dataset.  If there is no name then the dataset
+      doesn't appear in the legend. *)
   val name = (name : string option)
-    (** The name of the dataset.  If there is no name then the dataset
-	doesn't appear in the legend. *)
 
+  (** [name] gets the (optional) name of the dataset. *)
   method name = name
-    (** [name] gets the (optional) name of the dataset. *)
 
 
+  (** [residual ctx ~src ~dst] get a rectangle containing the
+      maximum amount the dataset will draw off of the destination
+      rectangle in each direction in plot-coordinates. *)
   method residual
     (_:context) ~(src:rectangle) ~(dst:rectangle) = zero_rectangle
-    (** [residual ctx ~src ~dst] get a rectangle containing the
-	maximum amount the dataset will draw off of the destination
-	rectangle in each direction in plot-coordinates. *)
 
   method x_over (_:context) ~(src:rectangle) ~(dst:rectangle) =
     ([]:(float * float) list)
 
+  (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
+      given location. *)
   method virtual draw_legend : context -> x:float -> y:float -> unit
-    (** [draw_legend ctx ~x ~y] draws the legend entry centered at the
-	given location. *)
 
 
+  (** [legend_dimensions ctx] gets the dimensions of the legend icon
+      in plot-coordinates. *)
   method virtual legend_dimensions : context -> float * float
-    (** [legend_dimensions ctx] gets the dimensions of the legend
-	icon in plot-coordinates. *)
 
 
+  (** [draw ctx ~src ~dst] draws the data to the plot. *)
   method virtual draw :
     context -> src:rectangle -> dst:rectangle -> unit
-    (** [draw ctx ~src ~dst] draws the data to the plot. *)
 
 
+  (** [dimensions] gets the dimensions of this dataset in
+      data-coordinates. *)
   method virtual dimensions : rectangle
-    (** [dimensions] gets the dimensions of this dataset in
-	data-coordinates. *)
 
 
+  (** [mean_y_value src] gets the mean y-value and the number of
+      values this mean is over in the source coordinate system.
+      This is used for sorting the legend.  If a dataset will not
+      contribute to the competition over the legend locations then
+      this should result in (nan, 0) .*)
   method virtual mean_y_value : rectangle -> float * int
-    (** [mean_y_value src] gets the mean y-value and the number of
-	values this mean is over in the source coordinate system.
-	This is used for sorting the legend.  If a dataset will not
-	contribute to the competition over the legend locations then
-	this should result in (nan, 0) .*)
 
 
+  (** [avg_slope} returns the average rate of change across an
+      entire num by num dataset.  Used for setting default axis skew
+      (avg 45 slope for all elements of the plot) *)
   method virtual avg_slope : float
-    (** [avg_slope} returns the average rate of change across an
-	entire num by num dataset.  Used for setting default axis skew
-	(avg 45 slope for all elements of the plot) *)
 
 end
 
 
-(** {1 Points datasets} ****************************************)
+(** {1 Points datasets} *)
 
 
+(** A dataset composed of a set of points. *)
 class virtual points_dataset ?name points =
-  (** A dataset composed of a set of points. *)
 object
   inherit dataset ?name ()
 
+  (** The list of points. *)
   val points = (points : point array)
-    (** The list of points. *)
 
+  (** [dimensions] gets the rectangle around the points. *)
   method dimensions = points_rectangle points
-    (** [dimensions] gets the rectangle around the points. *)
 
   method mean_y_value _ =
     let s, n =
@@ -97,11 +98,11 @@ object
       points
 end
 
-(** {1 Composite datasets} ****************************************)
+(** {1 Composite datasets} *)
 
 
+(** A dataset composed of a set of datasets. *)
 class composite_dataset ?name datasets =
-  (** A dataset composed of a set of datasets. *)
 object
 
   inherit dataset ?name ()
