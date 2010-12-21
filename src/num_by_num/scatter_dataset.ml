@@ -79,11 +79,13 @@ let scatter_datasets
 (** {2 Scatter plot with error bars} *)
 
 
-(** [scatter_errbara_dataset glyph ?color ?point_radius ?name sets]
-    creates a new composite dataset that is as scatter plot with
-    error bars and optionally labels on each point. *)
+(** Creates a new composite dataset that is as scatter plot with error
+    bars and optionally labels on each point. *)
 let scatter_errbar_dataset
-    glyph ?color ?(point_radius=default_radius) ?name sets =
+    glyph ?color ?(point_radius=default_radius)
+    ?(xloc=Label_dataset.Label_after)
+    ?(yloc=Label_dataset.Label_above)
+    ?name sets =
   let pts, lbls, x_errs, y_errs =
     Array.fold_left (fun (pts, lbls, x_errs, y_errs) (name, vls) ->
 		       let xs = Array.map (fun p -> p.x) vls
@@ -106,9 +108,7 @@ let scatter_errbar_dataset
   and labels =
     new Label_dataset.label_dataset
       ~yoff:(Length.Pt ~-.(Length.as_pt point_radius)) ~xoff:point_radius
-      ~xloc:Label_dataset.Label_after
-      ~yloc:Label_dataset.Label_above
-      (Array.of_list lbls)
+      ~xloc ~yloc (Array.of_list lbls)
   and horiz_err =
     new Errbar_dataset.horizontal_errbar_dataset ?color (Array.of_list x_errs)
   and vert_err =

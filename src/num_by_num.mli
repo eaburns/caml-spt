@@ -4,6 +4,31 @@
     @since 2010-06-09
 *)
 
+type label_x_location =
+  | Label_xat
+  | Label_before
+  | Label_after
+
+
+type label_y_location =
+  | Label_yat
+  | Label_above
+  | Label_below
+
+
+type line_errbar_style = {
+  (** The style of a line and error bar plot. *)
+
+  dashes : Length.t array;
+  (* The dash pattern for the line. *)
+  number : int;
+  (* The number of the current line_errbar_dataset. *)
+  count : int ref;
+  (* A reference that counts the total number of associated
+     line_errbar_datasets. *)
+}
+
+
 class type dataset_type =
 object
   (** The type of a numeric by numeric dataset. *)
@@ -91,6 +116,8 @@ val scatter_errbar_dataset :
   Drawing.glyph ->
   ?color:Drawing.color ->
   ?point_radius:Length.t ->
+  ?xloc:label_x_location ->
+  ?yloc:label_y_location ->
   ?name:string ->
   (string option * Geometry.point array) array ->
   dataset_type
@@ -191,17 +218,6 @@ val bubble_datasets :
   dataset_type list
     (** [bubble_datasets ?color ?min_radius ?max_radius sets] creates
 	a list of bubble plot datasets. *)
-
-type line_errbar_style = {
-  (** The style of a line and error bar plot. *)
-  dashes : Length.t array;
-  (* The dash pattern for the line. *)
-  number : int;
-  (* The number of the current line_errbar_dataset. *)
-  count : int ref;
-  (* A reference that counts the total number of associated
-     line_errbar_datasets. *)
-}
 
 val line_errbar_factory :
   (unit -> Length.t array) -> unit -> unit -> line_errbar_style
@@ -395,18 +411,6 @@ val valuemap_dataset :
     (** [value_dataset ?line_width ?bin_size ?gradient triples]
 	creates a heatmap where the 3rd point of the triple desides
 	the color. *)
-
-type label_x_location =
-  | Label_xat
-  | Label_before
-  | Label_after
-
-
-type label_y_location =
-  | Label_yat
-  | Label_above
-  | Label_below
-
 
 val label_dataset :
   ?text_style:Drawing.text_style ->
