@@ -58,6 +58,30 @@ let default_width = Length.In 3.
 (** The default plot height. *)
 let default_height = Length.In 3.
 
+class type plot_type =
+object
+
+  method width : Length.t
+
+  method height : Length.t
+
+
+  (** [set_size ~w ~h] resizes the plot. *)
+  method set_size : w:Length.t -> h:Length.t -> unit
+
+  (** [display] opens a lablgtk window showing the plot. *)
+  method display : unit
+
+
+  method output : string -> unit
+
+  (** [draw ctx] displays the plot to the given drawing context with
+      the given aspect ratio.  It is up to the caller to scale this
+      to the appropriate width/height. *)
+  method draw : context -> unit
+end
+
+(* EOF *)
 
 (** [plot title] a plot has a method for drawing. *)
 class virtual plot title =
