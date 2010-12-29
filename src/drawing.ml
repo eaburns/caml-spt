@@ -68,13 +68,19 @@ let dark_blue = { r = 0.; g = 0.; b = 0.6; a = 1.; }
 
 let gray = { r = 0.5; g = 0.5; b = 0.5; a = 1.; }
 
-let purple = { r = 0.4; g = 0.; b = 0.4; a = 1.; }
+let purple = { r = 0.5; g = 0.; b = 0.5; a = 1.; }
 
-let lavender = {r = 0.4; g = 0.; b = 1.; a = 1.; }
+let lavender = {r = 0.9; g = 0.9; b = 0.98; a = 1.; }
 
-let fuchsia = { r = 0.8; g = 0.; b = 1.; a = 1.; }
+let fuchsia = { r = 1.0; g = 0.; b = 1.; a = 1.; }
 
 let mustard = {r = 0.8; g = 0.8; b = 0.2; a = 1.; }
+
+let dark_orange = {r = 1.0; g = 0.54; b = 0.; a = 1.; }
+
+let dark_slate_blue = { r = 0.28; g = 0.24; b = 0.55; a = 1. }
+
+let olive_drab = { r = 0.42; g = 0.56; b = 0.14; a = 1. }
 
 (** [color ?a ~r ~g ~b] makes a new color. *)
 let color ?(a=1.0) ~r ~g ~b = { r = r; g = g; b = b; a = a }
