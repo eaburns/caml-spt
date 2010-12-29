@@ -14,7 +14,7 @@ let line_legend_length = Length.Cm 0.75
 
 (** A line plot dataset. *)
 class line_dataset
-  dashes ?(line_width=Length.Pt 1.) ?(color=black) ?name points =
+  dashes ?(line_width=Length.Pt 0.5) ?(color=black) ?name points =
 
 object (self)
 

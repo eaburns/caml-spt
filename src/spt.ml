@@ -18,7 +18,7 @@ let default_font = "New Century Schoolbook"
 let default_tick_style =
   {
     text_font = default_font;
-    text_size = Length.Pt 8.;
+    text_size = Length.Pt 7.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -29,7 +29,7 @@ let default_tick_style =
 let default_legend_style =
   {
     text_font = default_font;
-    text_size = Length.Pt 10.;
+    text_size = Length.Pt 8.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -40,7 +40,7 @@ let default_legend_style =
 let default_label_style =
   {
     text_font = default_font;
-    text_size = Length.Pt 12.;
+    text_size = Length.Pt 8.;
     text_slant = font_slant_normal;
     text_weight = font_weight_normal;
     text_color = black;
@@ -48,15 +48,15 @@ let default_label_style =
 
 
 (** Padding around text *)
-let text_padding = Length.Pt 6.
+let text_padding = Length.Pt 2.
 
 
 (** The default plot width. *)
-let default_width = Length.Pt (4. *. 72.)
+let default_width = Length.In 3.
 
 
 (** The default plot height. *)
-let default_height = Length.Pt (4. *. 72.)
+let default_height = Length.In 3.
 
 
 (** [plot title] a plot has a method for drawing. *)

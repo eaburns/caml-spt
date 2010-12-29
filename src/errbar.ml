@@ -12,7 +12,7 @@ open Drawing
 let errbar_line_style =
   {
     line_color = black;
-    line_width = Length.Pt 0.75;
+    line_width = Length.Pt 0.5;
     line_dashes = [| |];
   }
 
