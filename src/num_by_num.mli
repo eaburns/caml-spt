@@ -460,3 +460,6 @@ val plot :
 	?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min ?x_max ?y_min
 	?y_max datasets] creates a numeric by numeric plot. *)
 
+val standalone_legend :
+  ?text_style:Drawing.text_style -> ?vertical:bool
+  -> dataset_type list -> Spt.plot_type

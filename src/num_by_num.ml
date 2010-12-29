@@ -315,3 +315,27 @@ let plot ?text_padding ?axis_padding ?label_text_style ?legend_text_style
   new plot ?text_padding ?axis_padding ?label_text_style ?legend_text_style
     ?tick_text_style ?title ?xlabel ?ylabel ?sort_legend ?legend_loc ?x_min
     ?x_max ?y_min ?y_max datasets
+
+(************************************************************)
+(** {1 Standalone legend} *)
+
+class standalone_legend
+  ?(text_style = Spt.default_legend_style)
+  ?(vertical = true)
+  (dss : dataset_type list) =
+  let text_loc = Legend.Text_before in
+object (self)
+
+  inherit Spt.plot None
+
+  method draw ctx =
+    self#fill_background ctx;
+    if vertical then
+      Legend.do_draw_vertical ctx text_loc text_style dss
+    else
+      Legend.do_draw_horizontal ctx text_loc text_style dss
+end
+
+
+let standalone_legend ?text_style ?vertical dss =
+  new standalone_legend ?text_style ?vertical dss

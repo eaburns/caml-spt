@@ -37,15 +37,18 @@ let max_height ctx style datasets =
 
 (** [max_widths ctx style datasets] gets the max entry height. *)
 let max_widths ctx style datasets =
-  List.fold_left
-    (fun ((tw, iw) as dims) ds -> match ds#name with
-       | None -> dims
-       | Some txt ->
-	   let txt_w, _ = text_dimensions ctx ~style txt in
-	   let ico_w, _ = ds#legend_dimensions ctx in
-	     max tw txt_w, max iw ico_w)
-    (0., 0.) datasets
-
+  let rec max_width tw iw = function
+    | [] -> tw, iw
+    | ds :: dss ->
+	begin match ds#name with
+	  | None -> max_width tw iw dss
+	  | Some txt ->
+	      let txt_w, _ = text_dimensions ctx ~style txt in
+	      let ico_w, _ = ds#legend_dimensions ctx in
+		max_width (max tw txt_w) (max iw ico_w) dss
+	end
+  in
+    max_width 0. 0. datasets
 
 
 (** [dimensions style ctx datasets] gets the dimensions of a legend
@@ -97,14 +100,7 @@ let sort_cmp src a b =
 	  if ay > by then ~-1 else if ay < by then 1 else 0
 
 
-
-(** [draw_legend ctx sort src text_loc style datasets] draws the
-    legend into the upper right corner of the unit square. *)
-let draw ctx sort src text_loc style datasets =
-  let datasets =
-    (* Possibly sort the datasets in descending order. *)
-    if sort then List.sort (sort_cmp src) datasets else datasets
-  in
+let do_draw_vertical ctx text_loc style datasets =
   let padding = ctx.units padding in
   let text_width, icon_width = max_widths ctx style datasets in
   let width = text_width +. icon_width +. padding in
@@ -129,3 +125,42 @@ let draw ctx sort src text_loc style datasets =
 	       y_top +. entry_height)
       0. datasets in
     ()
+
+
+(** [draw_legend ctx sort src text_loc style datasets] draws the
+    legend into the upper right corner of the unit square. *)
+let draw ctx sort src text_loc style datasets =
+  let datasets =
+    (* Possibly sort the datasets in descending order. *)
+    if sort then List.sort (sort_cmp src) datasets else datasets
+  in
+    do_draw_vertical ctx text_loc style datasets
+
+
+let do_draw_horizontal ctx text_loc style datasets =
+  let padding = ctx.units padding in
+  let text_width, icon_width = max_widths ctx style datasets in
+  let width = text_width +. icon_width +. padding in
+  let entry_height = max_height ctx style datasets in
+  let _ (* height *) =
+    List.fold_left
+      (fun x_start ds -> match ds#name with
+	 | None -> x_start
+	 | Some txt ->
+	     let tw, _ = text_dimensions ctx ~style txt in
+	     let iw, _ = ds#legend_dimensions ctx in
+	     let y = entry_height /. 2. in
+	     let tx, ix = match text_loc with
+	       | Text_before ->
+		   x_start +. tw /. 2.,
+		   x_start +. tw +. padding +. iw /. 2.
+	       | Text_after ->
+		   x_start +. iw +. padding +. tw /. 2.,
+		   x_start +. iw /. 2.
+	     in
+	       draw_text_line ctx ~style ~center:tx ~top:0. txt;
+	       ds#draw_legend ctx ~x:ix ~y;
+	       x_start +. tw +. iw +. 2. *. padding)
+      0. datasets in
+    ()
+
