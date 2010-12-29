@@ -461,5 +461,5 @@ val plot :
 	?y_max datasets] creates a numeric by numeric plot. *)
 
 val standalone_legend :
-  ?text_style:Drawing.text_style -> ?vertical:bool
+  ?text_style:Drawing.text_style -> ?text_before:bool -> ?vertical:bool
   -> dataset_type list -> Spt.plot_type

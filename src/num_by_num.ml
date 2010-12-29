@@ -321,9 +321,15 @@ let plot ?text_padding ?axis_padding ?label_text_style ?legend_text_style
 
 class standalone_legend
   ?(text_style = Spt.default_legend_style)
+  ?(text_before = true)
   ?(vertical = true)
   (dss : dataset_type list) =
-  let text_loc = Legend.Text_before in
+  let text_loc =
+    if text_before then
+      Legend.Text_before
+    else
+      Legend.Text_after
+  in
 object (self)
 
   inherit Spt.plot None
@@ -337,5 +343,5 @@ object (self)
 end
 
 
-let standalone_legend ?text_style ?vertical dss =
-  new standalone_legend ?text_style ?vertical dss
+let standalone_legend ?text_style ?text_before ?vertical dss =
+  new standalone_legend ?text_style ?text_before ?vertical dss
