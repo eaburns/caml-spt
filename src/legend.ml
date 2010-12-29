@@ -160,7 +160,7 @@ let do_draw_horizontal ctx text_loc style datasets =
 	     in
 	       draw_text_line ctx ~style ~center:tx ~top:0. txt;
 	       ds#draw_legend ctx ~x:ix ~y;
-	       x_start +. tw +. iw +. 2. *. padding)
+	       x_start +. tw +. iw +. 4. *. padding)
       0. datasets in
     ()
 
