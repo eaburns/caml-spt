@@ -17,7 +17,7 @@ let errbar_line_style =
   }
 
 (** The size of the cap on an error bar. *)
-let default_cap_size = Length.Pt 3.
+let default_cap_size = Length.Pt 2.
 
 
 (** [residual_vert ctx up ?cap_size ~src_y ~dst_x ~x ~y ~mag]
