@@ -140,7 +140,6 @@ let draw ctx sort src text_loc style datasets =
 let do_draw_horizontal ctx text_loc style datasets =
   let padding = ctx.units padding in
   let text_width, icon_width = max_widths ctx style datasets in
-  let width = text_width +. icon_width +. padding in
   let entry_height = max_height ctx style datasets in
   let _ (* height *) =
     List.fold_left
