@@ -82,6 +82,12 @@ let dark_slate_blue = { r = 0.28; g = 0.24; b = 0.55; a = 1. }
 
 let olive_drab = { r = 0.42; g = 0.56; b = 0.14; a = 1. }
 
+let pink = { r = 1.; g = 0.; b = 0.4; a = 1.; }
+
+let limeish = { r = 0.25; g = 1.; b = 0.25; a = 1.; }
+
+let skyish = { r = 0.25; g = 0.8; b = 0.8; a = 1. }
+
 (** [color ?a ~r ~g ~b] makes a new color. *)
 let color ?(a=1.0) ~r ~g ~b = { r = r; g = g; b = b; a = a }
 
