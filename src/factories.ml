@@ -126,9 +126,8 @@ let make_color_factory color_list =
 
 let default_color_factory () =
   make_color_factory
-    [ dark_red; dark_green; dark_blue; purple;
-      dark_orange; dark_slate_blue; olive_drab;
-      mustard; lavender; gray; fuchsia; ]
+    [ dark_red; dark_green; dark_blue; purple; dark_orange; gray;
+      olive_drab; dark_slate_blue; mustard; lavender; fuchsia; ]
 
 
 (** [make_fill_pattern_factory fill_set] makes a factory for getting
