@@ -154,15 +154,17 @@ let rec rand_tree d max_depth max_br =
 let main () =
   Random.self_init ();
   Verbosity.Verb_level.set Verbosity.verb_debug;
-  let sheet =
+  let matrix =
     Plot_sheet.scatter_plot_matrix
-      ~w:(Length.In 8.5)
-      ~h:(Length.In 11.)
+      ~w:(Length.In 8.)
+      ~h:(Length.In 8.)
       [| "dataset a", Array.init 20 (fun _ -> Random.float 50.);
 	 "dataset b", Array.init 20 (fun _ -> Random.float 50.);
 	 "dataset c", Array.init 20 (fun _ -> Random.float 50.);
+	 "dataset d", Array.init 20 (fun _ -> Random.float 50.);
       |]
   in
+  let sheet = Plot_sheet.us_letter (matrix :> Plot_sheet.sheetable_plot) in
     sheet#output "sheet.pdf";
     sheet#display
 
