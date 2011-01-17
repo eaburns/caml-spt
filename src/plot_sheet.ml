@@ -11,20 +11,12 @@ open Drawing
 open Geometry
 open Verbosity
 
-(** The type of a plot that can be put on a plot sheet. *)
-class type sheetable_plot = object
-  method draw : Drawing.context -> unit
-  method set_size : w:Length.t -> h:Length.t -> unit
-  method height : Length.t
-  method width : Length.t
-end
-
 (** A located plot. *)
-type lplot = {
+type 'a lplot = {
   xlen : Length.t;
   ylen : Length.t;
   theta : float;
-  plot : sheetable_plot;
+  plot : 'a;
 }
 
 (** [plot_size ctx theta plot] gets the width and height of the plot
@@ -269,7 +261,7 @@ let matrix_entry ~label_text_style ~tick_text_style ~legend_text_style
 	  ?color ?point_radius y_equals_x xs ys
     in
     let lplot = { xlen = Length.Pt x; ylen = Length.Pt y; theta = 0.;
-		  plot = (plot :> sheetable_plot); }
+		  plot = plot; }
     in
       plot#set_size ~w:(Length.Pt ent_w) ~h:(Length.Pt ent_h);
       lplot
