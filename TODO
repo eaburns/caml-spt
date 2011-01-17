@@ -4,13 +4,13 @@
 
 * Change text size based on plot size
 
-* Scatter plot matrix
-
 * Montage default grid fix
 
 * Legend.At uses floats instead of Length.t's.
 
 * allow reversible axis orientation (large to small)
+
+* Diagonal plots in scatter plot matrix
 
 ------------------------------------------------------------
 Website
