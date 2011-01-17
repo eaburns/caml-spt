@@ -214,47 +214,61 @@ let double_letter_montage ?(landscape=false) ?nrows ?ncols plots =
 (** {1 Scatter-plot matrix } *)
 
 
+(** Get the minimum and maximum value of an array of floats. *)
+let min_and_max vals =
+  let n = Array.length vals in
+  let min = ref infinity and max = ref neg_infinity in
+    for i = 0 to n - 1 do
+      let v = vals.(i) in
+	if v < !min then min := v;
+	if v > !max then max := v;
+    done;
+    !min, !max
+
+
+(** Create a diagonal plot. *)
+let diag_plot legend_text_style i data =
+  let name, vals = data.(i) in
+  let min, max = min_and_max vals in
+  let center = (max +. min) /. 2. in
+  let label =
+    Num_by_num.label_dataset ~text_style:legend_text_style
+      [| point center center, name |]
+  in
+    Num_by_num.plot ~x_min:min ~x_max:max ~y_min:min ~y_max:max [label]
+
+
 (** Creates the scatter plot to use in the entry of the matrix. *)
-let scatter_plot_entry ~label_text_style ~tick_text_style glyph ?color
-    ?point_radius y_equals_x ?xlabel ?ylabel xs ys =
+let entry_plot ~label_text_style ~tick_text_style glyph ?color
+    ?point_radius y_equals_x xs ys =
   assert ((Array.length xs) = (Array.length ys));
   let npts = Array.length xs in
   let pts = Array.init npts (fun i -> point xs.(i) ys.(i)) in
-  let r = points_rectangle pts in
   let y_x =
     if y_equals_x then
       [ Num_by_num.function_dataset [| |] (fun x -> x) ]
     else
       []
   in
-  let min, max =
-    if y_equals_x then
-      Some (min r.x_min r.y_min), Some (max r.x_max r.y_max)
-    else
-      None, None
-  in
   let scatter = Num_by_num.scatter_dataset glyph ?color ?point_radius pts in
-    Num_by_num.plot ?label_text_style ?tick_text_style ?xlabel ?ylabel
-      ?x_min:min ?x_max:max ?y_min:min ?y_max:max (scatter :: y_x)
+    Num_by_num.plot ?label_text_style ?tick_text_style (scatter :: y_x)
 
 
 (** Creates an entry of the matrix. *)
-let matrix_entry ~label_text_style ~tick_text_style glyph ?color
-    ?point_radius y_equals_x ~n ~r ~c ~xoff ~yoff
-    ~ent_w ~ent_h data =
+let matrix_entry ~label_text_style ~tick_text_style ~legend_text_style
+    glyph ?color ?point_radius y_equals_x ~n ~r ~c ~x ~y ~ent_w ~ent_h data =
   let xname, xs = data.(c) and yname, ys = data.(r) in
-  let xlabel = if r = n - 1 then Some xname else None in
-  let ylabel = if c = 0 then Some yname else None in
     if (Array.length xs) <> (Array.length ys) then
       invalid_arg (sprintf "Differing number of points for %s and %s"
 		     xname yname);
     let plot =
-      scatter_plot_entry ~label_text_style ~tick_text_style glyph
-	?color ?point_radius y_equals_x ?xlabel ?ylabel xs ys
+      if r = c then
+	diag_plot legend_text_style r data
+      else
+	entry_plot ~label_text_style ~tick_text_style glyph
+	  ?color ?point_radius y_equals_x xs ys
     in
-    let xlen = Length.Pt (float c *. ent_w +. xoff) in
-    let ylen = Length.Pt (float r *. ent_h +. yoff) in
-    let lplot = { xlen = xlen; ylen = ylen; theta = 0.;
+    let lplot = { xlen = Length.Pt x; ylen = Length.Pt y; theta = 0.;
 		  plot = (plot :> sheetable_plot); }
     in
       plot#set_size ~w:(Length.Pt ent_w) ~h:(Length.Pt ent_h);
@@ -263,22 +277,31 @@ let matrix_entry ~label_text_style ~tick_text_style glyph ?color
 
 (** Creates a scatter-plot matrix. *)
 let scatter_plot_matrix ?(glyph=Drawing.Ring_glyph) ?color ?point_radius
-    ?label_text_style ?tick_text_style ?(y_equals_x=false) ~w ~h data =
-  let pad = (* Length.as_pt (Length.In 0.5) *) 0. in
+    ?label_text_style ?tick_text_style
+    ?(legend_text_style=Spt.default_legend_style)
+    ?(y_equals_x=false) ~w ~h data =
+  let pad = Length.as_pt (Length.Pt 5.) in
   let n = Array.length data in
   let nf = float n in
-  let ent_w = ((Length.as_pt w) -. 2. *. pad) /. nf in
-  let ent_h = ((Length.as_pt h) -. 2. *. pad) /. nf in
-  let xoff = ent_w /. 2. +. pad and yoff = ent_h /. 2. +. pad in
+  let wf = Length.as_pt w and hf = Length.as_pt h in
+  let total_pad = (nf -. 1.) *. pad in
+  let ent_w = (wf -. total_pad) /. nf in
+  let ent_h = (hf -. total_pad) /. nf in
+  let dx = ent_w +. pad and dy = ent_h +. pad in
+  let x = ref (ent_w /. 2.) and y = ref (ent_h /. 2.) in
   let lplots = ref [] in
     for r = 0 to n - 1 do
+      x := ent_w /. 2.;
       for c = 0 to n - 1 do
 	let lplot =
-	  matrix_entry ~label_text_style ~tick_text_style glyph ?color
-	    ?point_radius y_equals_x ~n ~r ~c ~xoff ~yoff ~ent_w ~ent_h data
+	  matrix_entry ~label_text_style ~tick_text_style ~legend_text_style
+	    glyph ?color ?point_radius y_equals_x ~n ~r ~c ~x:!x ~y:!y
+	    ~ent_w ~ent_h data
 	in
+	  x := !x +. dx;
 	  lplots := lplot :: !lplots
-      done
+      done;
+      y := !y +. dy;
     done;
     let page = new plot_sheet !lplots in
       page#set_size ~w ~h;
