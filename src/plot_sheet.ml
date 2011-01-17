@@ -213,20 +213,34 @@ let double_letter_montage ?(landscape=false) ?nrows ?ncols plots =
 (************************************************************)
 (** {1 Scatter-plot matrix } *)
 
+
 (** Creates the scatter plot to use in the entry of the matrix. *)
-let scatter_plot_entry label_text_style tick_text_style glyph ?color
-    ?point_radius ?xlabel ?ylabel xs ys =
+let scatter_plot_entry ~label_text_style ~tick_text_style glyph ?color
+    ?point_radius y_equals_x ?xlabel ?ylabel xs ys =
   assert ((Array.length xs) = (Array.length ys));
   let npts = Array.length xs in
   let pts = Array.init npts (fun i -> point xs.(i) ys.(i)) in
+  let r = points_rectangle pts in
+  let y_x =
+    if y_equals_x then
+      [ Num_by_num.function_dataset [| |] (fun x -> x) ]
+    else
+      []
+  in
+  let min, max =
+    if y_equals_x then
+      Some (min r.x_min r.y_min), Some (max r.x_max r.y_max)
+    else
+      None, None
+  in
   let scatter = Num_by_num.scatter_dataset glyph ?color ?point_radius pts in
     Num_by_num.plot ?label_text_style ?tick_text_style ?xlabel ?ylabel
-      [scatter]
+      ?x_min:min ?x_max:max ?y_min:min ?y_max:max (scatter :: y_x)
 
 
 (** Creates an entry of the matrix. *)
-let matrix_entry label_text_style tick_text_style glyph ?color
-    ?point_radius ~n ~r ~c ~xoff ~yoff
+let matrix_entry ~label_text_style ~tick_text_style glyph ?color
+    ?point_radius y_equals_x ~n ~r ~c ~xoff ~yoff
     ~ent_w ~ent_h data =
   let xname, xs = data.(c) and yname, ys = data.(r) in
   let xlabel = if r = n - 1 then Some xname else None in
@@ -235,8 +249,8 @@ let matrix_entry label_text_style tick_text_style glyph ?color
       invalid_arg (sprintf "Differing number of points for %s and %s"
 		     xname yname);
     let plot =
-      scatter_plot_entry label_text_style tick_text_style glyph ?color
-	?point_radius ?xlabel ?ylabel xs ys
+      scatter_plot_entry ~label_text_style ~tick_text_style glyph
+	?color ?point_radius y_equals_x ?xlabel ?ylabel xs ys
     in
     let xlen = Length.Pt (float c *. ent_w +. xoff) in
     let ylen = Length.Pt (float r *. ent_h +. yoff) in
@@ -249,8 +263,8 @@ let matrix_entry label_text_style tick_text_style glyph ?color
 
 (** Creates a scatter-plot matrix. *)
 let scatter_plot_matrix ?(glyph=Drawing.Ring_glyph) ?color ?point_radius
-    ?label_text_style ?tick_text_style ~w ~h data =
-  let pad = Length.as_pt (Length.In 0.5) in
+    ?label_text_style ?tick_text_style ?(y_equals_x=false) ~w ~h data =
+  let pad = (* Length.as_pt (Length.In 0.5) *) 0. in
   let n = Array.length data in
   let nf = float n in
   let ent_w = ((Length.as_pt w) -. 2. *. pad) /. nf in
@@ -260,8 +274,8 @@ let scatter_plot_matrix ?(glyph=Drawing.Ring_glyph) ?color ?point_radius
     for r = 0 to n - 1 do
       for c = 0 to n - 1 do
 	let lplot =
-	  matrix_entry label_text_style tick_text_style glyph ?color
-	    ?point_radius ~n ~r ~c ~xoff ~yoff ~ent_w ~ent_h data
+	  matrix_entry ~label_text_style ~tick_text_style glyph ?color
+	    ?point_radius y_equals_x ~n ~r ~c ~xoff ~yoff ~ent_w ~ent_h data
 	in
 	  lplots := lplot :: !lplots
       done
