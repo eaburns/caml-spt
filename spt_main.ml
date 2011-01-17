@@ -164,7 +164,7 @@ let main () =
 	 "dataset d", Array.init 20 (fun _ -> Random.float 50.);
       |]
   in
-  let sheet = Plot_sheet.us_letter (matrix :> Plot_sheet.sheetable_plot) in
+  let sheet = Plot_sheet.us_letter matrix in
     sheet#output "sheet.pdf";
     sheet#display
 
