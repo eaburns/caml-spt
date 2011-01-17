@@ -1,12 +1,31 @@
 (** A sheet of plots.
 
+    TODO: Change located plots to use a record instead of a 4-tuple
+
     @author eaburns
     @since 2010-09-08
 *)
 
+open Printf
 open Drawing
 open Geometry
 open Verbosity
+
+(** The type of a plot that can be put on a plot sheet. *)
+class type sheetable_plot = object
+  method draw : Drawing.context -> unit
+  method set_size : w:Length.t -> h:Length.t -> unit
+  method height : Length.t
+  method width : Length.t
+end
+
+(** A located plot. *)
+type lplot = {
+  xlen : Length.t;
+  ylen : Length.t;
+  theta : float;
+  plot : sheetable_plot;
+}
 
 (** [plot_size ctx theta plot] gets the width and height of the plot
     when rotated at the given angle. *)
@@ -40,9 +59,10 @@ object(self)
 
   method draw ctx =
     let units = ctx.units in
-      List.iter (fun (xlen, ylen, theta, p) ->
-		   let x = units xlen and y = units ylen in
-		     draw_plot ctx p ~x ~y ~theta)
+      List.iter
+	(fun { xlen = xlen; ylen = ylen; theta = theta; plot = plot } ->
+	   let x = units xlen and y = units ylen in
+	     draw_plot ctx plot ~x ~y ~theta)
 	lplots
 
 end
@@ -57,7 +77,10 @@ let centered_on ~w ~h ~pad plot =
   let wpt = Length.as_pt w and hpt = Length.as_pt h in
   let ppt = Length.as_pt pad in
   let sheet =
-    new plot_sheet [ (Length.Pt (wpt /. 2.), Length.Pt (hpt /. 2.), 0., plot) ]
+    new plot_sheet [ { xlen = Length.Pt (wpt /. 2.);
+		       ylen = Length.Pt (hpt /. 2.);
+		       theta = 0.;
+		       plot = plot } ]
   in
     sheet#set_size ~w:(Length.Pt wpt) ~h:(Length.Pt hpt);
     plot#set_size ~w:(Length.Pt (wpt -. 2. *. ppt))
@@ -83,6 +106,7 @@ let double_letter ?(landscape=false) plot =
       ~pad:(Length.In 0.25) plot
 
 
+(************************************************************)
 (** {1 Montages} *)
 
 
@@ -131,7 +155,11 @@ let layout_page ~w ~h ~went ~hent ~pad ~ncols plots =
 		  let x = (float !c) *. dx_pt +. xoff_pt in
 		  let y = (float !r) *. dy_pt +. yoff_pt in
 		  let p = Oo.copy p in
-		  let lp = Length.Pt x, Length.Pt y, 0., p in
+		  let lp = { xlen = Length.Pt x;
+			     ylen = Length.Pt y;
+			     theta = 0.;
+			     plot = p }
+		  in
 		    vprintf verb_debug "c=%d, r=%d, x=%f, y=%f\n" !c !r x y;
 		    p#set_size ~w:went ~h:hent;
 		    if !c = ncols - 1 then r := (!r + 1);
@@ -180,3 +208,64 @@ let double_letter_montage ?(landscape=false) ?nrows ?ncols plots =
   let hin = if landscape then 11. else 17. in
     montage ~w:(Length.In win) ~h:(Length.In hin) ~pad:(Length.In 0.25)
       ?nrows ?ncols plots
+
+
+(************************************************************)
+(** {1 Scatter-plot matrix } *)
+
+(** Creates the scatter plot to use in the entry of the matrix. *)
+let scatter_plot_entry label_text_style tick_text_style glyph ?color
+    ?point_radius ?xlabel ?ylabel xs ys =
+  assert ((Array.length xs) = (Array.length ys));
+  let npts = Array.length xs in
+  let pts = Array.init npts (fun i -> point xs.(i) ys.(i)) in
+  let scatter = Num_by_num.scatter_dataset glyph ?color ?point_radius pts in
+    Num_by_num.plot ?label_text_style ?tick_text_style ?xlabel ?ylabel
+      [scatter]
+
+
+(** Creates an entry of the matrix. *)
+let matrix_entry label_text_style tick_text_style glyph ?color
+    ?point_radius ~n ~r ~c ~xoff ~yoff
+    ~ent_w ~ent_h data =
+  let xname, xs = data.(c) and yname, ys = data.(r) in
+  let xlabel = if r = n - 1 then Some xname else None in
+  let ylabel = if c = 0 then Some yname else None in
+    if (Array.length xs) <> (Array.length ys) then
+      invalid_arg (sprintf "Differing number of points for %s and %s"
+		     xname yname);
+    let plot =
+      scatter_plot_entry label_text_style tick_text_style glyph ?color
+	?point_radius ?xlabel ?ylabel xs ys
+    in
+    let xlen = Length.Pt (float c *. ent_w +. xoff) in
+    let ylen = Length.Pt (float r *. ent_h +. yoff) in
+    let lplot = { xlen = xlen; ylen = ylen; theta = 0.;
+		  plot = (plot :> sheetable_plot); }
+    in
+      plot#set_size ~w:(Length.Pt ent_w) ~h:(Length.Pt ent_h);
+      lplot
+
+
+(** Creates a scatter-plot matrix. *)
+let scatter_plot_matrix ?(glyph=Drawing.Ring_glyph) ?color ?point_radius
+    ?label_text_style ?tick_text_style ~w ~h data =
+  let pad = Length.as_pt (Length.In 0.5) in
+  let n = Array.length data in
+  let nf = float n in
+  let ent_w = ((Length.as_pt w) -. 2. *. pad) /. nf in
+  let ent_h = ((Length.as_pt h) -. 2. *. pad) /. nf in
+  let xoff = ent_w /. 2. +. pad and yoff = ent_h /. 2. +. pad in
+  let lplots = ref [] in
+    for r = 0 to n - 1 do
+      for c = 0 to n - 1 do
+	let lplot =
+	  matrix_entry label_text_style tick_text_style glyph ?color
+	    ?point_radius ~n ~r ~c ~xoff ~yoff ~ent_w ~ent_h data
+	in
+	  lplots := lplot :: !lplots
+      done
+    done;
+    let page = new plot_sheet !lplots in
+      page#set_size ~w ~h;
+      page
