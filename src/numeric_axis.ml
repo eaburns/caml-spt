@@ -105,13 +105,13 @@ let tick_locations ?(suggested_number=2.) rng =
   let multiple, minor_fact =
     let m = match truncate (ntens /. nticks) with
       | 6 -> 5
-      | 7 -> 8
+      | 7 -> 6
       | 9 -> 8
       | x -> x in
     let f = match m with
-      | 3 -> 1. /. 3.
+      | 3 | 6 -> 1. /. 3.
       | 5 -> 1. /. 5.
-      | 6 | 7 | 9 -> assert false
+      | 7 | 9 -> assert false
       | x -> 1. /. 2.
     in float m, f
   in
@@ -125,10 +125,11 @@ let tick_locations ?(suggested_number=2.) rng =
 		      else (v, None) :: l)
       [] minor_ticks'
   in
-    vprintf verb_debug "suggested=%f, nmajor=%d, nminor=%d\n"
+    vprintf verb_debug "\n\nmin=%g, max=%g\n" min max;
+    vprintf verb_debug "suggested=%g, nmajor=%d, nminor=%d\n"
       suggested_number (List.length major_ticks) (List.length minor_ticks);
-    vprintf verb_debug "multiple=%f, minor_fact=%f\n" multiple minor_fact;
-    vprintf verb_debug "delta=%f, minor_delta=%f\n"
+    vprintf verb_debug "multiple=%g, minor_fact=%g\n" multiple minor_fact;
+    vprintf verb_debug "delta=%g, minor_delta=%g\n"
       delta (delta *. minor_fact);
     major_ticks @ minor_ticks
 
