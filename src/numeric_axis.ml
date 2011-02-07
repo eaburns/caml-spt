@@ -104,7 +104,6 @@ let tick_locations ?(suggested_number=2.) rng =
   let ntens = (max -. min) /. tens in
   let multiple, minor_fact =
     let m = match truncate (ntens /. nticks) with
-      | 6 -> 5
       | 7 -> 6
       | 9 -> 8
       | x -> x in
