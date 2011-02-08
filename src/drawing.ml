@@ -80,6 +80,8 @@ let dark_orange = {r = 1.0; g = 0.54; b = 0.; a = 1.; }
 
 let dark_slate_blue = { r = 0.28; g = 0.24; b = 0.55; a = 1. }
 
+let slate_blue = { r = 0.0; g = 0.5; b = 1.0; a = 1. }
+
 let olive_drab = { r = 0.42; g = 0.56; b = 0.14; a = 1. }
 
 let pink = { r = 1.; g = 0.; b = 0.4; a = 1.; }
