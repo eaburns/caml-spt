@@ -26,10 +26,10 @@ object (self)
 
   (** [points src] computes the points *)
   method private points src =
-    let dx = (src.x_max -. src.x_min) /. (float samples) in
+    let dx = (src.x_max -. src.x_min) /. (float (samples - 1)) in
     let x = ref src.x_min in
     let pts = ref [] in
-      while !x <= src.x_max do
+      while Geometry.sloppy_float_leq !x src.x_max do
 	let y = f !x in
 	  pts := (point ~x:!x ~y) :: !pts;
 	  x := !x +. dx;
