@@ -7,3 +7,4 @@ unix_unknown*
 spt-debug
 use.ml
 *.annot
+_ocm

@@ -286,6 +286,32 @@ default list of glyphs.
 Note: if more than one {\tt :points} options are specified the
 behavior is to concatenate the points into one single list of points.
 
+\subsubsection{\tt scatter-errbar-dataset}
+
+Makes a dataset that displays a glyph at the median of a cluster of
+points along with a 90\% confidence interval on both the x and y
+values.
+
+\begin{center}
+\begin{tabular}{lll}
+Option & Default & Notes \\
+\hline
+:name & & The name, if not specified the dataset doesn't show in
+the legend\\
+:glyph & & ``circle'', ``ring'', ``cross'', ``plus'', ``square'',
+``box'', ``triangle'' or string of len1\\
+:color & & The color of the glyphs\\
+:point-radius & 4pt & The radius of the glyphs\\
+:cluster & & A list of points optionally preceded by a string.
+\end{tabular}
+\end{center}
+
+If {\tt :glyph} is not specified then the next glyph is used in a
+default list of glyphs.
+
+Note: if more than one {\tt :points} options are specified the
+behavior is to concatenate the points into one single list of points.
+
 \subsubsection{\tt bestfit-dataset}
 
 Makes a dataset that displays a glyph at each of the given points with

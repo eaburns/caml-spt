@@ -84,8 +84,6 @@ spt-it-out
 
 * label datasets
 
-* scatter with errbar datasets
-
 * Barchat datasets of various kinds
 
 * The two kinds of heatmap datasets
@@ -95,6 +93,9 @@ spt-it-out
 * More simple numeric operations (plus, times, etc.)
 
 * Document sunburst tree plots in the manual
+
+* Change help strings to use Format.sprintf (see some examples in the
+   num-by-num code.
 
 ------------------------------------------------------------
 Plot types

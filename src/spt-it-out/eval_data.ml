@@ -46,6 +46,16 @@ let rec triples eval_rec env line lst =
     lst
 
 
+let labeled eval_data eval_rec env line lst =
+  let label, data = match lst with
+    | [| String s; List data; |] -> Some s, data
+    | data -> begin match data.(0) with
+	| String s -> Some s, Array.sub data 1 ((Array.length data) - 1)
+	| _ -> None, data
+      end
+  in
+    label, eval_data eval_rec env line data
+
 (** {1 Functions} ****************************************)
 
 
