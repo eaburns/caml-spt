@@ -33,13 +33,14 @@ let eval_legend_location eval_rec env line = function
 
 
 let help_str_legend_location =
-  "(legend-location <legend-loc>)\n\
-Creates a legend location, one of:\n\
-\t:upper-right\n\
-\t:upper-left\n\
-\t:lower-right\n\
-\t:lower-left\n\
-\t(legend-at [:text-before|:text-after] <number> <number>)"
+  Format.sprintf
+  "@[(@[legend-location@ <legend-loc>@])@ \
+Creates@ a@ legend@ location,@ one@ of:@\n\
+@ :upper-right@\n\
+@ :upper-left@\n\
+@ :lower-right@\n\
+@ :lower-left@\n\
+@ (@[legend-at@ [:text-before|:text-after]@ <number>@ <number>@])@."
 
 
 let eval_scatter eval_rec env line operands =
@@ -68,11 +69,50 @@ let eval_scatter eval_rec env line operands =
 
 
 let help_str_scatter =
-  "(scatter-dataset [:name <string>] [:glyph <string>] [:color <color>]\n\
- [:point-radius <length>] [:points <points>]+)\n\
-Creates a scatter plot datatset of the sets of points.  All points\n\
-in the dataset use the same glyph.  If specified :point-radius\n\
-selects the size of the glyphs."
+  Format.sprintf
+  "@[(@[scatter-dataset@ [:name <string>]@ [:glyph <string>]@ \
+[:color <color>]@ [:point-radius <length>]@ [:points <points>]+@])@ \
+Creates@ a@ scatter@ plot@ datatset@ of@ the@ sets@ of@ points.@  All@ \
+points@ in@ the@ dataset@ use@ the@ same@ glyph.@  If@ specified@ \
+:point-radius@ selects@ the@ size@ of@ the@ glyphs.@."
+
+
+let eval_scatter_errbar eval_rec env line operands =
+  let module S = Sexpr in
+  let glyph = ref None in
+  let color = ref None in
+  let radius = ref None in
+  let name = ref None in
+  let data = ref [| |] in
+  let cluster loc expr =
+    let p = Eval_data.labeled Eval_data.points eval_rec env loc expr in
+      data := Array.append !data [| p |];
+  in
+  let opts = [
+    Options.string_option_ref ":name" name;
+    Options.glyph glyph;
+    Options.color eval_rec env color;
+    Options.length_option_ref eval_rec env ":point-radius" radius;
+    ":cluster", Options.List cluster;]
+  in
+    Options.handle eval_rec env opts operands;
+    Num_by_num_dataset
+      (Num_by_num.scatter_errbar_dataset
+	 (match !glyph with | Some g -> g | None -> env.next_glyph ())
+	 ?color:!color
+	 ?point_radius:!radius
+	 ?name:!name
+	 !data)
+
+
+let help_str_scatter_errbar =
+  Format.sprintf
+    "@[(@[scatter-dataset@ [:name <string>]@ [:glyph <string>]@ \
+[:color <color>]@ [:point-radius <length>]@ [:points <points>]+@])@ \
+Creates@ a@ scatter@ plot@ datatset@ with@ the@ means@ of@ each@ \
+cluster@ of@ points@ along@ with@ 95%%@ confidence@ internals.@  All@ \
+points@ in@ the@ dataset@ use@ the@ same@ glyph.@  If@ specified@ \
+:point-radius@ selects@ the@ size@ of@ the@ glyphs@."
 
 
 let eval_bestfit eval_rec env line operands =
@@ -115,16 +155,17 @@ let eval_bestfit eval_rec env line operands =
 
 
 let help_str_bestfit =
-  "(bestfit-dataset [:name <string>] [:glyph <string>] [:dashes <dashes>]
- [:color <color>] [:point-radius <length>] [:degree <int>]\n\
- [fit-in-name <bool>] [:points <points>]+)\n\
-Creates a scatter plot datatset with a bestfit line.  All points\n\
-in the dataset use the same glyph.  The :dashes option sets the dash\n\
-pattern for the bestfit line.  If specified :point-radius selects\n\
-the size of the glyphs. :degree specifies the degree of the polynomial\n\
-(default is 1, linear).  If :fit-in-name is true then the best fit\n\
-function is added to the end of the dataset name to be displayed in\n\
-the legend."
+  Format.sprintf
+  "@[(@[bestfit-dataset@ [:name <string>]@ [:glyph <string>]@ \
+[:dashes <dashes>]@ [:color <color>]@ [:point-radius <length>]@ \
+[:degree <int>]@ [fit-in-name <bool>]@ [:points <points>]+@])@ \
+Creates@ a@ scatter@ plot@ datatset@ with@ a@ bestfit@ line.@  All@ \
+points@ in@ the@ dataset@ use@ the@ same@ glyph.@  The@ :dashes@ option@ \
+sets@ the@ dash@ pattern@ for@ the@ bestfit@ line.@ If@ specified@ \
+:point-radius@ selects@ the@ size@ of@ the@ glyphs.@ :degree@ specifies@ \
+the@ degree@ of@ the@ polynomial@ (default@ is@ 1,@ linear).@ If@ \
+:fit-in-name@ is@ true@ then@ the@ best@ fit@ function@ is@ added@ to@ \
+the@ end@ of@ the@ dataset@ name@ to@ be@ displayed@ in@ the@ legend.@."
 
 
 let eval_bubble eval_rec env line operands =
@@ -158,12 +199,12 @@ let eval_bubble eval_rec env line operands =
 	 !data)
 
 let help_str_bubble =
-  "(bubble-dataset [:name <string>] [:glyph <string>] [:color <color>]\n\
- [:min-radius <length>] [:max-radius <length>] [:triples <triples>]+)\n\
-Creates a bubble plot datatset of the sets of points.  A bubble\n\
-plot is like a scatter plot except that each point is given a size\n\
-between :min-radius and :max-radius based on the third value in\n\
-each triple."
+  "@[(@[bubble-dataset@ [:name <string>]@ [:glyph <string>]@ \
+[:color <color>]@ [:min-radius <length>]@ [:max-radius <length>]@ \
+[:triples <triples>]+@])@ Creates@ a@ bubble@ plot@ datatset@ of@ the@ \
+sets@ of@ points.@ @ A@ bubble@ plot@ is@ like@ a@ scatter@ plot@ except@ \
+that@ each@ point@ is@ given@ a@ size@ between@ :min-radius@ and@ \
+:max-radius@ based@ on@ the@ third@ value@ in@ each@ triple.@."
 
 
 let eval_line eval_rec env line operands =
@@ -464,6 +505,7 @@ Creates a plot with numeric x and y axes."
 let functions = [
   "legend-location", eval_legend_location, help_str_legend_location;
   "scatter-dataset", eval_scatter, help_str_scatter;
+  "scatter-errbar-dataset", eval_scatter_errbar, help_str_scatter_errbar;
   "bestfit-dataset", eval_bestfit, help_str_bestfit;
   "bubble-dataset", eval_bubble, help_str_bubble;
   "line-dataset", eval_line, help_str_line;
