@@ -253,11 +253,11 @@ class layered_barchart_dataset next_pattern ?name ?(line_width=Length.Pt 1.)
   and neg = List.sort neg_compare (List.filter (fun (_,_,v) -> v < 0.) values)
   in
   let min_val =
-    List.fold_left (fun m (_,_,v) -> if v < m then v else m)
-      infinity values in
+    min (List.fold_left (fun m (_,_,v) -> if v < m then v else m)
+	   infinity values) 0. in
   let max_val =
-    List.fold_left (fun m (_,_,v) -> if v > m then v else m)
-      neg_infinity values in
+    max (List.fold_left (fun m (_,_,v) -> if v > m then v else m)
+	   neg_infinity values) 0. in
   let minor = (List.fold_left (fun accum (_,nm,_) -> nm ^ "," ^ accum) ""
 		 (List.rev (neg @ pos)))
   and pos = List.map (fun (pt,nm,value) -> value, pt) pos
