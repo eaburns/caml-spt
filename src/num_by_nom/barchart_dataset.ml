@@ -246,15 +246,18 @@ class layered_barchart_dataset next_pattern ?name ?(line_width=Length.Pt 1.)
   values =
 
   let values = List.map (fun (nm,value) ->
-			   next_pattern(), nm,value) (Array.to_list values)
+    next_pattern(), nm,value) (Array.to_list values)
   and neg_compare (_,_,v1) (_,_,v2) = compare v1 v2
   and pos_compare (_,_,v1) (_,_,v2) = compare v2 v1 in
   let pos = List.sort pos_compare (List.filter (fun (_,_,v) -> v >= 0.) values)
   and neg = List.sort neg_compare (List.filter (fun (_,_,v) -> v < 0.) values)
   in
-  let min_val = List.fold_left (fun accum (_,_,value) -> accum +. value) 0. neg
-  and max_val = List.fold_left (fun accum (_,_,value) -> accum +. value) 0. pos
-  in
+  let min_val =
+    List.fold_left (fun m (_,_,v) -> if v < m then v else m)
+      infinity values in
+  let max_val =
+    List.fold_left (fun m (_,_,v) -> if v > m then v else m)
+      neg_infinity values in
   let minor = (List.fold_left (fun accum (_,nm,_) -> nm ^ "," ^ accum) ""
 		 (List.rev (neg @ pos)))
   and pos = List.map (fun (pt,nm,value) -> value, pt) pos
@@ -274,18 +277,18 @@ object(self)
     match major_name with
       |	None -> fixed_width_text_height ctx ~style width minor
       | Some major -> ((fixed_width_text_height ctx ~style width minor) +.
-			 (fixed_width_text_height ctx ~style width major))
+			  (fixed_width_text_height ctx ~style width major))
 
   method draw_x_label ctx ~x ~y style ~width =
     let half_width = width /. 2. in
-      match major_name with
-	| None -> (draw_fixed_width_text
-		     ctx ~x:(x +. half_width) ~y ~style ~width minor)
-	| Some major ->(let height = self#x_label_height ctx style width in
-			  draw_fixed_width_text ctx ~x:(x +. half_width)
-			    ~y ~style ~width minor;
-			  draw_fixed_width_text ctx ~x:(x +. half_width)
-			    ~y:(y +. height /. 2.) ~style ~width major)
+    match major_name with
+      | None -> (draw_fixed_width_text
+		   ctx ~x:(x +. half_width) ~y ~style ~width minor)
+      | Some major ->(let height = self#x_label_height ctx style width in
+		      draw_fixed_width_text ctx ~x:(x +. half_width)
+			~y ~style ~width minor;
+		      draw_fixed_width_text ctx ~x:(x +. half_width)
+			~y:(y +. height /. 2.) ~style ~width major)
 
 
   method dimensions =
@@ -306,15 +309,15 @@ object(self)
       and y_max = tr value
       and y_min = tr 0. in
       let r = rectangle ~x_min ~x_max ~y_min ~y_max in
-	draw_fill_pattern ctx r fill;
-	draw_line ctx ~style [point x_min y_min;
-			      point x_min y_max;
-			      point x_max y_max;
-			      point x_max y_min;
-			      point x_min y_min;];
-	x_min +. offset in
-      ignore (List.fold_left d x pos);
-      ignore (List.fold_left d x neg)
+      draw_fill_pattern ctx r fill;
+      draw_line ctx ~style [point x_min y_min;
+			    point x_min y_max;
+			    point x_max y_max;
+			    point x_max y_min;
+			    point x_min y_min;];
+      x_min +. offset in
+    ignore (List.fold_left d x pos);
+    ignore (List.fold_left d x neg)
 
 end
 
