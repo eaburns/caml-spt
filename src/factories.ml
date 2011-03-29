@@ -144,17 +144,19 @@ let make_fill_pattern_factory fill_set =
     pattern factory. *)
 let default_fill_pattern_factory ?(color=black) () =
   let line_style = { default_line_style with line_color = color } in
-    make_fill_pattern_factory
-      [|
-	No_fill;
-	Horizontal_fill (line_style, Length.Pt 4.);
-	Diagonal_fill (line_style, Length.Pt 1., Length.Pt 10.);
-	Diagonal_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
-	Hash_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
-	Dotted_fill (color, Length.Pt 1., Length.Pt 4.);
-	Vertical_fill (line_style, Length.Pt 4.);
-	Solid_fill color;
-      |]
+  make_fill_pattern_factory
+    (Array.map
+       (fun p -> Patterned_solid_fill (white, p))
+       [|
+	 No_fill;
+	 Horizontal_fill (line_style, Length.Pt 4.);
+	 Diagonal_fill (line_style, Length.Pt 1., Length.Pt 10.);
+	 Diagonal_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
+	 Hash_fill (line_style, Length.Pt ~-.1., Length.Pt 10.);
+	 Dotted_fill (color, Length.Pt 1., Length.Pt 4.);
+	 Vertical_fill (line_style, Length.Pt 4.);
+	 Solid_fill color;
+       |])
 
 
 (** [default_color_fill_pattern_factory ?patterned ()] makes a
