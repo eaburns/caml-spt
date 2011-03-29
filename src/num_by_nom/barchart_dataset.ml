@@ -8,6 +8,10 @@ open Num_by_nom_dataset
 open Drawing
 open Geometry
 
+let fcmp a b = if (a:float) < b then ~-1 else if a > b then 1 else 0
+let fmin a b = if (a:float) < b then a else b
+let fmax a b = if (a:float) > b then a else b
+
 (** {1 Simple barcharts} *)
 
 (** A simple barchart.  This is one bar with a name and a height. *)
@@ -242,46 +246,36 @@ let stacked_barchart_datasets
 (** {1 Layered barcharts} *)
 
 
-class layered_barchart_dataset next_pattern ?name ?(line_width=Length.Pt 1.)
-  values =
-
-  let values = List.map (fun (nm,value) ->
-    next_pattern(), nm,value) (Array.to_list values)
-  and neg_compare (_,_,v1) (_,_,v2) = compare v1 v2
-  and pos_compare (_,_,v1) (_,_,v2) = compare v2 v1 in
-  let pos = List.sort pos_compare (List.filter (fun (_,_,v) -> v >= 0.) values)
-  and neg = List.sort neg_compare (List.filter (fun (_,_,v) -> v < 0.) values)
-  in
-  let min_val =
-    min (List.fold_left (fun m (_,_,v) -> if v < m then v else m)
-	   infinity values) 0. in
-  let max_val =
-    max (List.fold_left (fun m (_,_,v) -> if v > m then v else m)
-	   neg_infinity values) 0. in
-  let minor = (List.fold_left (fun accum (_,nm,_) -> nm ^ "," ^ accum) ""
-		 (List.rev (neg @ pos)))
-  and pos = List.map (fun (pt,nm,value) -> value, pt) pos
-  and neg = List.map (fun (pt,nm,value) -> value, pt) neg in
-  let minor = String.sub minor 0 ((String.length minor - 1)) in
-  let major_name = name in
+class layered_barchart_dataset next_pattern ?(sort=true) ?name
+  ?(line_width=Length.Pt 1.) values =
+  let vls =
+    let n = next_pattern in
+    let cmp (_,_,a) (_,_,b) = fcmp (abs_float b) (abs_float a) in
+    let vls = List.map (fun (nm,v) -> n (), nm, v) (Array.to_list values) in
+    if sort then List.sort cmp vls else List.rev vls in
+  let min_vl = List.fold_left (fun m (_,_,v) -> fmin v m) 0. vls in
+  let max_vl = List.fold_left (fun m (_,_,v) -> fmax v m) 0. vls in
+  let minor =
+    let s = List.fold_left (fun s (_,nm,_) -> nm^","^s) "" (List.rev vls) in
+    String.sub s 0 (String.length s - 1) in
+  let vls = List.map (fun (pat,_,vl) -> vl, pat) vls in
+  let major = name in
 object(self)
 
   inherit Num_by_nom_dataset.dataset
-    (match major_name with None -> "" | Some n -> n)
-
+    (match major with None -> "" | Some n -> n)
 
   val style = { default_line_style with line_width = line_width; }
 
-
   method x_label_height ctx style width =
-    match major_name with
+    match major with
       |	None -> fixed_width_text_height ctx ~style width minor
       | Some major -> ((fixed_width_text_height ctx ~style width minor) +.
 			  (fixed_width_text_height ctx ~style width major))
 
   method draw_x_label ctx ~x ~y style ~width =
     let half_width = width /. 2. in
-    match major_name with
+    match major with
       | None -> (draw_fixed_width_text
 		   ctx ~x:(x +. half_width) ~y ~style ~width minor)
       | Some major ->(let height = self#x_label_height ctx style width in
@@ -290,19 +284,16 @@ object(self)
 		      draw_fixed_width_text ctx ~x:(x +. half_width)
 			~y:(y +. height /. 2.) ~style ~width major)
 
-
   method dimensions =
-    { min = min_val; max = max_val}
-
+    { min = min_vl; max = max_vl }
 
   method residual ctx ~src ~dst ~width ~x =
     { min = 0.; max = 0.; }
 
-
   method draw ctx ~src ~dst ~width ~x =
     let offset = (width /. 10.) in
-    let tr = range_transform ~src ~dst
-    and max_offset = max (List.length pos) (List.length neg) in
+    let tr = range_transform ~src ~dst in
+    let max_offset = List.length vls in
     let width = width -. ((float max_offset) *. offset) in
     let d x_min (value,fill) =
       let x_max = x_min +. width
@@ -316,33 +307,34 @@ object(self)
 			    point x_max y_min;
 			    point x_min y_min;];
       x_min +. offset in
-    ignore (List.fold_left d x pos);
-    ignore (List.fold_left d x neg)
+    ignore (List.fold_left d x vls)
 
 end
 
 
 let layered_barchart_dataset
-    ?(line_width=Length.Pt 1.) ?name ?fill_factory nm_data_array =
+    ?(line_width=Length.Pt 1.) ?name ?sort ?fill_factory nm_data_array =
   let fill_factory = match fill_factory with
     | None -> Factories.default_fill_pattern_factory ()
     | Some f -> f
-  in new layered_barchart_dataset fill_factory ?name ~line_width nm_data_array
+  in new layered_barchart_dataset fill_factory ?name ?sort
+  ~line_width nm_data_array
 
 
 let layered_barchart_datasets
-    ?(line_width=Length.Pt 1.) ?group ?fill_factory nm_data_array_list =
+    ?(line_width=Length.Pt 1.) ?group ?sort ?fill_factory nm_data_array_list =
   let fill_factory = match fill_factory with
     | None -> Factories.default_fill_pattern_factory ()
     | Some f -> f in
-  let bars = List.map
-    (fun (name,nm_data_array) ->
-       new layered_barchart_dataset fill_factory ?name
-	 ~line_width nm_data_array)
-    nm_data_array_list in
-    match group with
-      | Some name -> [ new Num_by_nom_dataset.dataset_group name bars ]
-      | None -> bars
+  let bars =
+    List.map
+      (fun (name,nm_data_array) ->
+	new layered_barchart_dataset fill_factory ?name ?sort
+	  ~line_width nm_data_array)
+      nm_data_array_list in
+  match group with
+    | Some name -> [ new Num_by_nom_dataset.dataset_group name bars ]
+    | None -> bars
 
 
 (* EOF *)

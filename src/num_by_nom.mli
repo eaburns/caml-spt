@@ -120,34 +120,36 @@ val stacked_barchart_datasets :
 val layered_barchart_dataset :
   ?line_width:Length.t ->
   ?name:string ->
+  ?sort:bool ->
   ?fill_factory:(unit -> Drawing.fill_pattern) ->
   (string * float) array ->
   dataset_type
-    (** [layered_barchart_dataset ?line_width ?name ?fill_factory
-	bars] creates a fan of bars.  [name] is the group name and
-	each bar has a minor name too. *)
+(** [layered_barchart_dataset ?line_width ?name ?sort
+    ?fill_factory bars] creates a fan of bars.  [name] is the
+    group name and each bar has a minor name too. *)
 
 val layered_barchart_datasets :
   ?line_width:Length.t ->
   ?group:string ->
+  ?sort:bool ->
   ?fill_factory:(unit -> Drawing.fill_pattern) ->
   (string option * (string * float) array) list ->
   dataset_type list
-    (** [layered_barchart_datasets ?line_width ?group ?fill_factory
-	bars] creatse a list of layered barchart datasets. *)
+(** [layered_barchart_datasets ?line_width ?group ?sort ?fill_factory
+    bars] creatse a list of layered barchart datasets. *)
 
 class type plot_type =
-  object
-    val mutable height : Length.t
-    val src : Geometry.range
-    val mutable width : Length.t
-    method display : unit
-    method draw : Drawing.context -> unit
-    method height : Length.t
-    method output : string -> unit
-    method set_size : w:Length.t -> h:Length.t -> unit
-    method width : Length.t
-  end
+object
+  val mutable height : Length.t
+  val src : Geometry.range
+  val mutable width : Length.t
+  method display : unit
+  method draw : Drawing.context -> unit
+  method height : Length.t
+  method output : string -> unit
+  method set_size : w:Length.t -> h:Length.t -> unit
+  method width : Length.t
+end
 
 val plot :
   ?x_axis_padding:Length.t ->
@@ -162,6 +164,6 @@ val plot :
   ?y_max:float ->
   dataset_type list ->
   plot_type
-    (** [plot ?label_text_style ?legend_text_style ?tick_text_style
-	?horiz_lines ?title ?ylabel ?y_min ?y_max datasets] creates an
-	numeric by nominal plot. *)
+(** [plot ?label_text_style ?legend_text_style ?tick_text_style
+    ?horiz_lines ?title ?ylabel ?y_min ?y_max datasets] creates an
+    numeric by nominal plot. *)
