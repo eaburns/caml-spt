@@ -252,7 +252,7 @@ class layered_barchart_dataset next_pattern ?(sort=true) ?name
     let n = next_pattern in
     let cmp (_,_,a) (_,_,b) = fcmp (abs_float b) (abs_float a) in
     let vls = List.map (fun (nm,v) -> n (), nm, v) (Array.to_list values) in
-    if sort then List.sort cmp vls else List.rev vls in
+    if sort then List.sort cmp vls else vls in
   let min_vl = List.fold_left (fun m (_,_,v) -> fmin v m) 0. vls in
   let max_vl = List.fold_left (fun m (_,_,v) -> fmax v m) 0. vls in
   let minor =
