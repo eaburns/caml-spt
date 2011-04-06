@@ -78,7 +78,7 @@ let bins_of_points ?(normalize=false) bin_width pts =
   let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
   let ave_per_bin = count /. (float bin_count) in
   let bin_min = min_value -. (bin_width /. ave_per_bin)  in
-  let bin_max = bin_end ~bin_min ~bin_width (bin_count - 1) in
+  let bin_max = bin_end ~bin_min ~bin_width bin_count in
   let bins = Array.create (bin_count + 1) 0. in
   let max_weight = ref 0. in
     Array.iter
@@ -96,34 +96,7 @@ let bins_of_points ?(normalize=false) bin_width pts =
 (** [make_bins ?normalize bin_width values] creates an array of
     bins. *)
 let make_bins ?(normalize=false) bin_width values =
-  (*
-    let min_value, max_value, count =
-    Array.fold_left (fun (min, max, n) v ->
-    let min' = if v < min then v else min
-    and max' = if v > max then v else max
-    in min', max', n + 1)
-    (infinity, neg_infinity, 0) values
-    in
-    let range = max_value -. min_value in
-    let bin_width = get_bin_width bin_width ~min_value ~max_value count in
-    let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
-    let ave_per_bin = (float count) /. (float bin_count) in
-    let bin_min = min_value -. (bin_width /. ave_per_bin)  in
-    let bin_max = bin_end ~bin_min ~bin_width (bin_count - 1) in
-    let bins = Array.create (bin_count + 1) 0. in
-    let max_weight = ref 0. in
-    Array.iter
-    (fun v ->
-    let bi = bucket ~bin_min ~bin_width v in
-    let c = bins.(bi) +. 1. in
-    bins.(bi) <- c;
-    if c > !max_weight then max_weight := c)
-    values;
-    if normalize then normalize_bins bins;
-    !max_weight, bin_min, bin_max, bin_width, bins
-  *)
   bins_of_points ~normalize bin_width (Array.map (fun v -> point v 1.) values)
-
 
 class histogram_dataset
   dashes ?(normalize=false) ?(line_width=Length.Pt 1.) ?(bg_color=gray)
