@@ -58,6 +58,10 @@ let default_width = Length.In 3.
 (** The default plot height. *)
 let default_height = Length.In 3.
 
+
+let set_label_size lbl_sty text_size =
+  { lbl_sty with text_size = text_size }
+
 class type plot_type =
 object
 

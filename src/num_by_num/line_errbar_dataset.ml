@@ -258,7 +258,7 @@ let line_errbar_dataset dashes ?line_width ?color ?name lines =
   new line_errbar_dataset dashes ?line_width ?color ?name lines
 
 
-let line_errbar_datasets ?(color=false) name_by_lines_list =
+let line_errbar_datasets ?(color=false) ?line_width name_by_lines_list =
   let next_dash = Factories.default_dash_factory () in
   let next_style = line_errbar_factory next_dash () in
   let next_color = (if color
@@ -266,7 +266,7 @@ let line_errbar_datasets ?(color=false) name_by_lines_list =
 		    else (fun () -> Drawing.black))
   in
     List.map (fun (name, lines) ->
-		line_errbar_dataset (next_style ())
+		line_errbar_dataset (next_style ()) ?line_width
 		  ~color:(next_color()) ?name lines)
       name_by_lines_list
 
