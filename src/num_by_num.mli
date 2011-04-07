@@ -239,6 +239,7 @@ val line_errbar_dataset :
 
 val line_errbar_datasets :
   ?color:bool ->
+  ?line_width:Length.t ->
   (string option * Geometry.point array array) list ->
   dataset_type list
     (** [line_errbar_datasets ?color line_set] creates a list of line
