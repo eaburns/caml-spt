@@ -34,7 +34,7 @@ let make_default_gradient min max =
 let make_default_gradient_rg min max =
   let range = max -. min in
     (fun value ->
-       let src = (value /. range)  in
+       let src = ((value -. min) /. range)  in
 	 { r = src; g = (1.0 -. src); b = 0.; a = 1.; })
 
 
@@ -152,7 +152,11 @@ class valuemap_dataset
 		b) in
 
   let gradient = (match gradient with
-		      None -> make_default_gradient_rg 0.
+		      None -> make_default_gradient_rg 
+			(Array.fold_left
+			   (fun accum ar ->
+			      min accum (Array.fold_left min infinity ar))
+			   infinity bins)
 			(Array.fold_left
 			   (fun accum ar ->
 			      max accum (Array.fold_left max neg_infinity ar))
