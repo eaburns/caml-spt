@@ -31,6 +31,14 @@ let make_default_gradient min max =
 	 else {r = 1.; g = 1.; b = src -. 2.; a = 1.})
 
 
+let make_default_gradient_rg min max =
+  let range = max -. min in
+    (fun value ->
+       let src = (value /. range)  in
+	 { r = src; g = (1.0 -. src); b = 0.; a = 1.; })
+
+
+
 class countmap_dataset ?(line_width=Length.Pt 1.) ?bin_size ?gradient points =
 
   let x_min, y_min, x_max, y_max =
@@ -144,7 +152,7 @@ class valuemap_dataset
 		b) in
 
   let gradient = (match gradient with
-		      None -> make_default_gradient 0.
+		      None -> make_default_gradient_rg 0.
 			(Array.fold_left
 			   (fun accum ar ->
 			      max accum (Array.fold_left max neg_infinity ar))
