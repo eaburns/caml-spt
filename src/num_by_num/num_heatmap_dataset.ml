@@ -128,14 +128,17 @@ class valuemap_dataset
 
   let bins = (let xcnt = truncate (ceil ((x_max -. x_min) /. bin_width))
 	      and ycnt = truncate (ceil ((y_max -. y_min) /. bin_height)) in
-	      let b = Array.create_matrix xcnt ycnt 0. in
+	      let b = Array.create_matrix (xcnt+1) (ycnt+1) 0. in
 
 		Array.iter
 		  (fun trp ->
 		     let xi = bucket ~min:x_min ~bin_size:bin_width trp.i
 		     and yi = bucket ~min:y_min ~bin_size:bin_height trp.j in
-		     let xi = min xi (xcnt - 1)
-		     and yi = min yi (ycnt - 1) in
+		     let xi = min xi (xcnt)
+		     and yi = min yi (ycnt) in
+		       Printf.fprintf stderr "%d %d gets %f %f %f\n%!"
+			 xi yi trp.i trp.j trp.k;
+
 		       b.(xi).(yi) <- b.(xi).(yi) +. trp.k) triples;
 		Printf.eprintf "Done\n%!";
 		b) in
