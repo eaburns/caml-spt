@@ -111,6 +111,7 @@ let countmap_dataset ?(line_width = Length.Pt 1.) ?bin_size ?gradient points =
 class valuemap_dataset
   ?(line_width=Length.Pt 1.) ?bin_size ?gradient ?name triples=
 
+
   let x_min, y_min, x_max, y_max =
     Array.fold_left
       (fun (a_xmin,a_ymin,a_xmax, a_ymax) t ->
@@ -128,10 +129,11 @@ class valuemap_dataset
   let bins = (let xcnt = truncate (ceil ((x_max -. x_min) /. bin_width))
 	      and ycnt = truncate (ceil ((y_max -. y_min) /. bin_height)) in
 	      let b = Array.create_matrix xcnt ycnt 0. in
+
 		Array.iter
 		  (fun trp ->
 		     let xi = bucket ~min:x_min ~bin_size:bin_width trp.i
-		     and yi = bucket ~min:x_min ~bin_size:bin_height trp.j in
+		     and yi = bucket ~min:y_min ~bin_size:bin_height trp.j in
 		     let xi = min xi (xcnt - 1)
 		     and yi = min yi (ycnt - 1) in
 		       b.(xi).(yi) <- b.(xi).(yi) +. trp.k) triples;
