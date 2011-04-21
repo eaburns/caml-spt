@@ -112,7 +112,7 @@ class plot
   ?(label_text_style=Spt.default_label_style)
   ?(legend_text_style=Spt.default_legend_style)
   ?(tick_text_style=Spt.default_tick_style)
-  ?(horiz_lines=[])
+  ?(horiz_lines=[]) ?(seps=false)
   ?title ?ylabel ?y_min ?y_max (datasets : dataset_type list) =
   let _ = vprintf verb_optional "creating a numeric by nominal plot\n" in
 object (self)
@@ -125,15 +125,15 @@ object (self)
   method private yaxis =
     let nticks = Numeric_axis.recommended_ticks height in
     let ticks = Numeric_axis.tick_locations ~suggested_number:nticks src in
-      verb_eval verb_debug
-	(fun () ->
-	   vprintf verb_debug "y-ticks:\n";
-	   List.iter (fun (vl, name) -> match name with
-			| None -> vprintf verb_debug "\tminor: %f\n" vl
-			| Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
-	     ticks);
-      Numeric_axis.create ~label_text_style ~tick_text_style
-	~src ticks ylabel
+    verb_eval verb_debug
+      (fun () ->
+	vprintf verb_debug "y-ticks:\n";
+	List.iter (fun (vl, name) -> match name with
+	  | None -> vprintf verb_debug "\tminor: %f\n" vl
+	  | Some _ -> vprintf verb_debug "\tmajor: %f\n" vl)
+	  ticks);
+    Numeric_axis.create ~label_text_style ~tick_text_style
+      ~src ticks ylabel
 
 
   (** [x_axis_dimensions ctx] computes the x_min, x_max and
@@ -155,7 +155,7 @@ object (self)
       then ((x_max -. x_min) -. total_padding) /. n
       else (x_max -. x_min)
     in
-      range x_min x_max, item_width
+    range x_min x_max, item_width
 
 
   (** [dst_y_range ctx ~y_min ~y_max ~item_width] get the range on
@@ -169,15 +169,15 @@ object (self)
     let data_label_height =
       fold_datasets ctx 0.
 	(fun m _ nitems ds ->
-	   let width = item_width *. (float nitems) in
-	   let h = ds#x_label_height ctx legend_text_style width
-	   in if h > m then h else m)
+	  let width = item_width *. (float nitems) in
+	  let h = ds#x_label_height ctx legend_text_style width
+	  in if h > m then h else m)
 	datasets
     in
-      range
-	~min:((snd (self#size ctx)) -. data_label_height
-	      -. (ctx.units x_axis_padding))
-	~max:(title_height +. (2. *. (ctx.units Spt.text_padding)))
+    range
+      ~min:((snd (self#size ctx)) -. data_label_height
+	    -. (ctx.units x_axis_padding))
+      ~max:(title_height +. (2. *. (ctx.units Spt.text_padding)))
 
 
 
@@ -191,10 +191,10 @@ object (self)
     ignore
       (fold_datasets ctx xrange.min
 	 (fun x pad nitems ds ->
-	    let x = x +. pad in
-	    let width = item_width *. (float nitems) in
-	      ds#draw_x_label ctx ~x ~y legend_text_style ~width;
-	      x +. width)
+	   let x = x +. pad in
+	   let width = item_width *. (float nitems) in
+	   ds#draw_x_label ctx ~x ~y legend_text_style ~width;
+	   x +. width)
 	 datasets)
 
 
@@ -205,45 +205,50 @@ object (self)
     let xrange, item_width = self#x_axis_dimensions ctx yaxis in
     let dst = self#dst_y_range ctx ~y_min ~y_max ~item_width in
     let tr = range_transform ~src ~dst in
-      vprintf verb_debug
-	"plot dimensions: x=[%f, %f], y=[%f, %f]\ntext width=%f\n"
-	xrange.min xrange.max dst.min dst.max item_width;
-      begin match title with
-	| None -> ()
-	| Some t ->
-	    (* (* this centers with respect to the whole plot
-	       including the y-axis label. *)
+    vprintf verb_debug
+      "plot dimensions: x=[%f, %f], y=[%f, %f]\ntext width=%f\n"
+      xrange.min xrange.max dst.min dst.max item_width;
+    begin match title with
+      | None -> ()
+      | Some t ->
+	(* (* this centers with respect to the whole plot
+	   including the y-axis label. *)
 
-	       let x = (fst (self#size ctx)) /. 2. and y = 0. in
-	    *)
-	    let x = (xrange.max +. xrange.min) /. 2. and y = 0. in
-	      draw_text_centered_below ~style:label_text_style ctx x y t
-      end;
-      ignore (List.iter (fun v ->
-			   if v >= src.min && v <= src.max
-			   then (draw_line ctx ~style:horiz_line_style
-				   [ point xrange.min (tr v);
-				     point xrange.max (tr v); ]))
-		horiz_lines);
-      ignore (fold_datasets ctx xrange.min
-		(fun x pad nitems ds ->
-		   let width = item_width *. (float nitems) in
-		   let x = x +. pad in
-		     (*
-		       draw_rectangle ctx (rectangle x (x +. width)
-		       dst.min dst.max);
-		     *)
-		     ds#draw ctx ~src ~dst ~width ~x;
-		     x +. width)
-		datasets);
-      self#draw_y_axis ctx ~dst yaxis;
-      self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding))
-	~xrange ~item_width
+	   let x = (fst (self#size ctx)) /. 2. and y = 0. in
+	*)
+	let x = (xrange.max +. xrange.min) /. 2. and y = 0. in
+	draw_text_centered_below ~style:label_text_style ctx x y t
+    end;
+    ignore (List.iter (fun v ->
+      if v >= src.min && v <= src.max
+      then (draw_line ctx ~style:horiz_line_style
+	      [ point xrange.min (tr v);
+		point xrange.max (tr v); ]))
+	      horiz_lines);
+    ignore (fold_datasets ctx xrange.min
+	      (fun x pad nitems ds ->
+		let width = item_width *. (float nitems) in
+		let x = x +. pad in
+		(*
+		  draw_rectangle ctx (rectangle x (x +. width)
+		  dst.min dst.max);
+		*)
+		ds#draw ctx ~src ~dst ~width ~x;
+		let sep_x = x -. pad /. 2. in
+		if seps && sep_x > xrange.min then
+		  draw_line ctx ~style:horiz_line_style
+		    [ point sep_x dst.min;
+		      point sep_x dst.max ];
+		x +. width;)
+	      datasets);
+    self#draw_y_axis ctx ~dst yaxis;
+    self#draw_x_axis ctx ~y:(dst.min +. (ctx.units x_axis_padding))
+      ~xrange ~item_width
 end
 
 let plot ?x_axis_padding ?y_axis_padding ?label_text_style
-    ?legend_text_style ?tick_text_style ?horiz_lines ?title ?ylabel
+    ?legend_text_style ?tick_text_style ?horiz_lines ?seps ?title ?ylabel
     ?y_min ?y_max datasets =
   new plot ?x_axis_padding ?y_axis_padding ?label_text_style
-    ?legend_text_style ?tick_text_style ?horiz_lines ?title ?ylabel
+    ?legend_text_style ?tick_text_style ?horiz_lines ?seps ?title ?ylabel
     ?y_min ?y_max datasets

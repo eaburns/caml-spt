@@ -158,6 +158,7 @@ val plot :
   ?legend_text_style:Drawing.text_style ->
   ?tick_text_style:Drawing.text_style ->
   ?horiz_lines:float list ->
+  ?seps:bool ->
   ?title:string ->
   ?ylabel:string ->
   ?y_min:float ->
@@ -165,5 +166,8 @@ val plot :
   dataset_type list ->
   plot_type
 (** [plot ?label_text_style ?legend_text_style ?tick_text_style
-    ?horiz_lines ?title ?ylabel ?y_min ?y_max datasets] creates an
-    numeric by nominal plot. *)
+    ?horiz_lines ?seps ?title ?ylabel ?y_min ?y_max datasets] creates
+    an numeric by nominal plot.
+
+    @param seps, if true draws vertical separator lines between the
+    datasets.  The default is false. *)
