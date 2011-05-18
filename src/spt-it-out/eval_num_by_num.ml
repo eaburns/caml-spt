@@ -199,6 +199,7 @@ let eval_bubble eval_rec env line operands =
 	 !data)
 
 let help_str_bubble =
+  Format.sprintf
   "@[(@[bubble-dataset@ [:name <string>]@ [:glyph <string>]@ \
 [:color <color>]@ [:min-radius <length>]@ [:max-radius <length>]@ \
 [:triples <triples>]+@])@ Creates@ a@ bubble@ plot@ datatset@ of@ the@ \
@@ -501,6 +502,38 @@ let help_str_num_by_num_plot =
  [:dataset <num-by-num-dataset>]+)\n\
 Creates a plot with numeric x and y axes."
 
+let eval_heatmap eval_rec env line operands =
+  let module S = Sexpr in
+  let binsize = ref None in
+  let data = ref [| |] in
+  let opts = [
+    ":bin-size",
+    Options.List
+      (fun l e ->
+	let t = Eval_data.scalars eval_rec env l e in
+	if Array.length t > 2 then begin
+	  printf "line %d: Expected a point\n" l;
+	  raise (Invalid_argument l);
+	end;
+	if !binsize <> None then begin
+	  printf "line %d: bin-size specified multiple times\n" l;
+	  raise (Invalid_argument l);
+	end;
+	binsize := Some (Geometry.point t.(0) t.(1)));
+    ":triples",
+    Options.List
+      (fun l e ->
+	let t = Eval_data.triples eval_rec env l e in
+	data := Array.append !data t);
+  ] in
+  Options.handle eval_rec env opts operands;
+  Num_by_num_dataset (Num_by_num.heatmap_dataset ?bin_size:!binsize !data)
+
+let help_str_heatmap =
+  Format.sprintf
+    "@[(@[heatmap-dataset@ [:bin-size <point>]@ [:triples <triples>]+@])@ \
+Creates@ a@ heatmap@ datatset.@ @ The@ third@ value@ in@ each@ data@ \
+point@ is@ accumulated@ to@ produce@ the@ color@ of@ the@ respective@ cell.@."
 
 let functions = [
   "legend-location", eval_legend_location, help_str_legend_location;
@@ -512,6 +545,7 @@ let functions = [
   "line-points-dataset", eval_line_points, help_str_line_points;
   "line-errbar-dataset", eval_line_errbar, help_str_line_errbar;
   "histogram-dataset", eval_histogram, help_str_histogram;
+  "heatmap-dataset", eval_heatmap, help_str_heatmap;
 
   "cdf-dataset", eval_cdf, help_str_cdf;
 

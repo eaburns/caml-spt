@@ -158,7 +158,7 @@ class valuemap_dataset
 		b) in
 
   let gradient = (match gradient with
-		      None -> make_default_gradient_bw 
+		      None -> make_default_gradient_bw
 			(Array.fold_left
 			   (fun accum ar ->
 			      min accum (Array.fold_left min infinity ar))
@@ -205,5 +205,7 @@ end
 
 let valuemap_dataset ?(line_width = Length.Pt 1.) ?bin_size ?gradient triples=
   new valuemap_dataset ~line_width ?bin_size ?gradient triples
+
+let heatmap_dataset = valuemap_dataset
 
 (* EOF *)

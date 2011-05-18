@@ -416,6 +416,14 @@ val valuemap_dataset :
     multiple points fall within a cell, the 3rd points are summed
     together. *)
 
+val heatmap_dataset :
+  ?line_width:Length.t ->
+  ?bin_size:Geometry.point ->
+  ?gradient:(float -> Drawing.color) ->
+  Geometry.triple array ->
+  dataset_type
+(** Alias for valuemap. *)
+
 val label_dataset :
   ?text_style:Drawing.text_style ->
   ?xloc:label_x_location ->

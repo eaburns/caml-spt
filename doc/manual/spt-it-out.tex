@@ -453,6 +453,20 @@ A histogram shows a cumulative distribution of values.
 The options are the same as for a histogram except that there is no
 {\tt :bin-width} option.
 
+\subsubsection{\tt heatmap-dataset}
+
+A heatmap is a grid of colored x, y cells.  The z values that fall
+within each cell are summed to compute the color.
+
+\begin{center}
+\begin{tabular}{lll}
+Option & Default & Notes \\
+\hline
+:bin-size & & An (x, y) point specifying the size of each cell.\\
+:triples & & A list of triples (x, y, z)\\
+\end{tabular}
+\end{center}
+
 \subsubsection{\tt num-by-num-composite}
 
 New datasets can be created by putting other datasets together.  For
@@ -555,7 +569,7 @@ Option & Default & Notes \\
 \end{tabular}
 \end{center}
 
-\subsubsection{\tt num-by-num-group}
+\subsubsection{\tt num-by-nom-group}
 
 Groups a set of numeric by nominal datasets.  This will draw an
 over-bar above the names of the datasets in the group and an optional
