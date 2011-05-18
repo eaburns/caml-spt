@@ -71,7 +71,6 @@ class countmap_dataset ?(line_width=Length.Pt 1.) ?bin_size ?gradient points =
 		     let xi = min xi (xcnt - 1)
 		     and yi = min yi (ycnt - 1) in
 		       b.(xi).(yi) <- b.(xi).(yi) +. 1.) points;
-		Printf.eprintf "Done\n%!";
 		b) in
 
   let gradient = (match gradient with
@@ -150,11 +149,7 @@ class valuemap_dataset
 		     and yi = bucket ~min:y_min ~bin_size:bin_height trp.j in
 		     let xi = min xi (xcnt)
 		     and yi = min yi (ycnt) in
-		       Printf.fprintf stderr "%d %d gets %f %f %f\n%!"
-			 xi yi trp.i trp.j trp.k;
-
 		       b.(xi).(yi) <- b.(xi).(yi) +. trp.k) triples;
-		Printf.eprintf "Done\n%!";
 		b) in
 
   let gradient = (match gradient with
