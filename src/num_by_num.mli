@@ -400,8 +400,10 @@ val countmap_dataset :
   ?gradient:(float -> Drawing.color) ->
   Geometry.point array ->
   dataset_type
-    (** [countmap_dataset ?line_width ?bin_size ?gradient points]
-	creates a 2d histogram which is displayed as a heat map. *)
+(** [countmap_dataset ?line_width ?bin_size ?gradient points]
+    creates a 2d histogram which is displayed as a heat map.  The
+    color of each cell is based on the number of x, y points that
+    fall within that cell. *)
 
 val valuemap_dataset :
   ?line_width:Length.t ->
@@ -409,9 +411,10 @@ val valuemap_dataset :
   ?gradient:(float -> Drawing.color) ->
   Geometry.triple array ->
   dataset_type
-    (** [value_dataset ?line_width ?bin_size ?gradient triples]
-	creates a heatmap where the 3rd point of the triple desides
-	the color. *)
+(** [value_dataset ?line_width ?bin_size ?gradient triples] creates a
+    heatmap where the 3rd point of the triple desides the color.  If
+    multiple points fall within a cell, the 3rd points are summed
+    together. *)
 
 val label_dataset :
   ?text_style:Drawing.text_style ->
@@ -422,8 +425,8 @@ val label_dataset :
   ?name:string ->
   (Geometry.point * string) array ->
   dataset_type
-    (** [label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name
-	lbl_points] makes a new label dataset. *)
+(** [label_dataset ?text_style ?xloc ?yloc ?xoff ?yoff ?name
+    lbl_points] makes a new label dataset. *)
 
 class type plot_type =
 object
