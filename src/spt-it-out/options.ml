@@ -89,9 +89,16 @@ let length_option_ref eval_rec env opt r =
   opt, Expr (fun l e -> match eval_rec env e with
 	       | Length length -> set_once r l opt length
 	       | x ->
-		   printf "line %d: Expected length, get %s\n"
+		   printf "line %d: Expected length, got %s\n"
 		     (Sexpr.line_number e) (value_name x);
 		   raise (Invalid_argument (Sexpr.line_number e));)
+
+let font_option_ref eval_rec env opt r =
+    opt, Expr (fun l e -> match eval_rec env e with
+          | Font f -> set_once r l opt f
+          | x -> printf "line %d: Expected font, got %s\n"
+              (Sexpr.line_number e) (value_name x);
+              raise (Invalid_argument (Sexpr.line_number e));)
 
 
 let dashes eval_rec env r =
@@ -174,6 +181,24 @@ let eval_pt eval_rec env line args =
 let eval_px eval_rec env line args =
   eval_length (fun x -> Length.Px (truncate x)) eval_rec env line args
 
+let eval_font eval_rec env line args =
+  let name = ref Spt.default_font in
+  let size = ref None in
+  let opts = [
+    ":name", String (fun _ n -> name := n);
+    length_option_ref eval_rec env ":size" size;
+  ]
+  in
+    handle eval_rec env opts args;
+  let sz = match !size with
+    | Some s -> s
+    | None -> Length.Pt 7. in
+    Font { Spt.default_label_style with
+            Drawing.text_font = !name;
+            Drawing.text_size = sz; }
+
+let help_str_font =
+  "(font [:name <string>] [:size <length>])"
 
 let functions = [
   "in", eval_in, "(in <number>)\nMakes an inches length";
@@ -185,4 +210,6 @@ let functions = [
   "px", eval_px, "(px <number>)\nMakes an pixels length";
 
   "color", eval_color, help_str_color;
+
+  "font", eval_font, help_str_font;
 ]

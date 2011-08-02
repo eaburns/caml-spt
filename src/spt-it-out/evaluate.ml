@@ -14,6 +14,7 @@ type value =
   | Number of float
   | String of string
   | Color of Drawing.color
+  | Font of Drawing.text_style
   | Length of Length.t
   | Legend_loc of Legend.location
   | Num_by_num_dataset of Num_by_num.dataset_type
@@ -62,6 +63,7 @@ let value_name = function
   | Length _ -> "Length"
   | Legend_loc _ -> "Legend_loc"
   | Color _ -> "Color"
+  | Font _ -> "Font"
   | Num_by_num_dataset _ -> "Num_by_num_dataset"
   | Num_by_num_plot _ -> "Num_by_num_plot"
   | Num_by_nom_dataset _ -> "Num_by_nom_dataset"
@@ -82,6 +84,7 @@ let rec string_of_value = function
       | Legend.Lower_right -> ":lower-right"
     end
   | Color c -> Drawing.string_of_color c
+  | Font f -> f.Drawing.text_font
   | List l ->
       (Array.fold_left
 	 (fun str v -> sprintf "%s %s" str (string_of_value v)) "(" l)
