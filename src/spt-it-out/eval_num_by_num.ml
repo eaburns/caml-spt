@@ -459,6 +459,9 @@ let eval_num_by_num_plot eval_rec env line operands =
   and width = ref None
   and height = ref None
   and sort_legend = ref None
+  and legend_text_style = ref None
+  and tick_text_style = ref None
+  and label_text_style = ref None
   and datasets = ref [] in
   let opts = [
     Options.legend eval_rec env legend_loc;
@@ -471,6 +474,9 @@ let eval_num_by_num_plot eval_rec env line operands =
     Options.number_option_ref ":x-max" x_max;
     Options.number_option_ref ":y-min" y_min;
     Options.number_option_ref ":y-max" y_max;
+    Options.font_option_ref eval_rec env ":label-text" label_text_style;
+    Options.font_option_ref eval_rec env ":tick-text" tick_text_style;
+    Options.font_option_ref eval_rec env ":legend-text" legend_text_style;
     Options.bool_option_ref ":sort-legend" sort_legend;
     ":dataset", Options.Expr
       (fun l e -> match eval_rec env e with
@@ -485,12 +491,15 @@ let eval_num_by_num_plot eval_rec env line operands =
     let plot = (Num_by_num.plot ?title:!title ?xlabel:!xlabel
 		  ?sort_legend:!sort_legend
 		  ?legend_loc:!legend_loc
+      ?label_text_style:!label_text_style
+      ?legend_text_style:!legend_text_style
+      ?tick_text_style:!tick_text_style
 		  ?ylabel:!ylabel ?x_min:!x_min ?x_max:!x_max
 		  ?y_min:!y_min ?y_max:!y_max (List.rev !datasets))
     in
     let width = match !width with None -> plot#width | Some w -> w in
     let height = match !height with None -> plot#height | Some h -> h in
-      plot#set_size ~w:width ~h:height;
+    plot#set_size ~w:width ~h:height;
       Num_by_num_plot plot
 
 
@@ -499,6 +508,7 @@ let help_str_num_by_num_plot =
  [:y-label <string>] [:width <length>] [:height <length>]\n\
  [:x-min <number>] [:x-max <number>] [:y-min <number>] [:y-max <number>]\n\
  [:sort-legend <bool>] [:legend <legend location>]\n\
+ [:legend-text <font>] [:label-text <font>] [:tick-text <font>]\n\
  [:dataset <num-by-num-dataset>]+)\n\
 Creates a plot with numeric x and y axes."
 
