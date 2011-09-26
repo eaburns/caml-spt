@@ -50,18 +50,21 @@ val dataset_group : string -> dataset_type list -> dataset_type
       them. *)
 
 val boxplot_dataset :
-  ?outliers:bool -> ?point_radius:Length.t -> string
+  ?interval:bool -> ?outliers:bool -> ?point_radius:Length.t -> string
   -> float array -> dataset_type
-  (** [boxplot_dataset ?outliers ?point_radius name values] creates a boxplot
-      dataset of the given values. *)
+  (** [boxplot_dataset ?interval ?outliers ?point_radius name values]
+	creates a boxplot dataset of the given values.  If [interval] is
+	true (the default) then the confidence interval is drawn. *)
 
 val boxplot_datasets :
+  ?interval:bool ->
   ?outliers:bool ->
   ?point_radius:Length.t ->
   (string * float array) list ->
   dataset_type list
-    (** [boxplot_datasets ?outliers ?point_radius sets] creates a list
-	of boxplot datasets given a list of name and value tuples. *)
+    (** [boxplot_datasets ?interval ?outliers ?point_radius sets]
+	creates a list of boxplot datasets given a list of name
+	and value tuples. *)
 
 val barchart_dataset :
   Drawing.fill_pattern ->

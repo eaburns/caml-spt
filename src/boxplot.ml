@@ -141,10 +141,10 @@ let residual ctx ~src ~dst ~width ~x box =
       (range 0. 0.) box.outliers
 
 
-(** [draw ctx ~src ~dst ~width ~x box] draws the boxplot centered at
-    [x] with the given [width].  [src] and [dst] are the source and
-    destination ranges for the y-axis. *)
-let draw ctx ~src ~dst ~width ~x box =
+(** [draw ctx ?interval ~src ~dst ~width ~x box] draws the boxplot
+	centered at [x] with the given [width].  [src] and [dst] are the
+	source and destination ranges for the y-axis. *)
+let draw ctx ?(interval=true) ~src ~dst ~width ~x box =
   let tr = range_transform ~src ~dst in
   let lwidth = ctx.units box_line_style.line_width in
   let x0 = x -. (width /. 2.) +. lwidth
@@ -158,9 +158,11 @@ let draw ctx ~src ~dst ~width ~x box =
 	if y <= src.max && y >= src.min
 	then draw_point ctx ~color radius glyph (point x (tr y));
     done;
-    fill_ci_box ctx Drawing.gray src tr ~x0:(x -. (width /. 16.))
-      ~x1:(x +. (width /. 16.)) ~lower:box.stats.conf_lower
-      ~upper:box.stats.conf_upper;
+    if interval then begin
+      fill_ci_box ctx Drawing.gray src tr ~x0:(x -. (width /. 16.))
+        ~x1:(x +. (width /. 16.)) ~lower:box.stats.conf_lower
+        ~upper:box.stats.conf_upper
+    end;
     draw_median_line ctx box_line_style src tr ~x0 ~x1 ~median:box.stats.q2;
     draw_box ctx box_line_style src tr ~x0 ~x1
       ~q1:box.stats.q1 ~q3:box.stats.q3;
