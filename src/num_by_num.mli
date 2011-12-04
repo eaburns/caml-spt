@@ -171,6 +171,7 @@ val line_dataset :
 
 val line_datasets :
   ?color:bool ->
+  ?line_width:Length.t ->
   (string option * Geometry.point array) list ->
   dataset_type list
     (** [line_datasets ?color lines] creates a list of lines.  [lines]

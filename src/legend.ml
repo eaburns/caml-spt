@@ -1,4 +1,4 @@
-(** Dealing with plot legends.
+(** Defaualing with plot legends.
 
     @author eaburns
     @since 2010-05-03

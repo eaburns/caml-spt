@@ -84,14 +84,14 @@ let line_dataset dashes ?line_width ?color ?name points =
   new line_dataset dashes ?line_width ?color ?name points
 
 
-let line_datasets ?(color=false) name_by_points_list =
+let line_datasets ?(color=false) ?line_width name_by_points_list =
   let next_dash = Factories.default_dash_factory () in
   let next_color = (if color
 		    then Factories.default_color_factory ()
 		    else (fun () -> black))
   in
     List.map (fun (name, points) ->
-		line_dataset (next_dash ()) ~color:(next_color())
+		line_dataset (next_dash ()) ?line_width ~color:(next_color())
 		  ?name points)
       name_by_points_list
 
