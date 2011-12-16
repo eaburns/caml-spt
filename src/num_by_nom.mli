@@ -43,7 +43,9 @@ object
 end
 
 
-val dataset_group : string -> dataset_type list -> dataset_type
+val dataset_group :
+	string -> ?between_padding:Length.t ->
+	dataset_type list -> dataset_type
   (** [dataset_group group_name datasets] bundles a list of datasets
       into a group that is displayed as one dataset.  The names of
       each individual dataset is shown with the group name beneath
@@ -157,6 +159,7 @@ end
 val plot :
   ?x_axis_padding:Length.t ->
   ?y_axis_padding:Length.t ->
+  ?between_padding:Length.t ->
   ?label_text_style:Drawing.text_style ->
   ?legend_text_style:Drawing.text_style ->
   ?tick_text_style:Drawing.text_style ->
