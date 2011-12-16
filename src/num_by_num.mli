@@ -246,6 +246,8 @@ val line_errbar_datasets :
 	and error bar datasets. *)
 
 val scatter_errbar_lines_dataset :
+  ?xloc:label_x_location ->
+  ?yloc:label_y_location ->
   Drawing.glyph ->
   Length.t array ->
   ?color:Drawing.color ->
