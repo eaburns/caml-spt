@@ -114,7 +114,7 @@ let line_points_datasets ?(color=false) name_by_points_list =
 (* This is like a lines points plot except that all points with the
    same x value are binned, averaged and drawn with error bars. *)
 
-let y_errbar_dataset dashes glyph ?color ?point_radius ?name pts =
+let y_errbar_dataset dashes glyph ?color ?line_width ?point_radius ?name pts =
   let bins = Geometry.bin_points pts in
   let means, confs =
     List.fold_left (fun (ms, cs) (x, ys) ->
@@ -128,7 +128,7 @@ let y_errbar_dataset dashes glyph ?color ?point_radius ?name pts =
   in
   let means = Array.of_list means in
   let line =
-    line_points_dataset dashes glyph ?color ?point_radius ?name means in
+    line_points_dataset dashes glyph ?color ?line_width ?point_radius ?name means in
   let confs = Array.of_list confs in
   let bars = new Errbar_dataset.vertical_errbar_dataset ?color confs in
     new composite_dataset ?name [ line; bars; ]
