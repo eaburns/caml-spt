@@ -143,11 +143,12 @@ val y_errbar_dataset :
   Length.t array
   -> Drawing.glyph
   -> ?color:Drawing.color
+  -> ?line_width:Length.t
   -> ?point_radius:Length.t
   -> ?name:string
   -> Geometry.point array
   -> dataset_type
-  (** [y_errbar_dataset dashes glyph ?color ?point_radius ?name
+  (** [y_errbar_dataset dashes glyph ?color ?line_width ?point_radius ?name
       points] bins the points by x value.  Draws a line with error
       bars showing the mean and 95\% confidence for the y values for
       the given x value. *)
