@@ -62,8 +62,8 @@ include Barchart_dataset
 
 (** [fold_datasets ctx init f datasets] folds [f] over each dataset
     with the before padding, number of items and the dataset. *)
-let fold_datasets ctx init f datasets =
-  let padding = ctx.units Num_by_nom_dataset.between_padding in
+let fold_datasets ctx between_padding init f datasets =
+  let padding = ctx.units between_padding in
   let _, _, vl =
     (List.fold_left
        (fun (first, pgroup, vl) ds ->
@@ -109,6 +109,7 @@ let horiz_line_style =
 class plot
   ?(x_axis_padding=default_x_axis_padding)
   ?(y_axis_padding=default_y_axis_padding)
+  ?(between_padding=between_padding)
   ?(label_text_style=Spt.default_label_style)
   ?(legend_text_style=Spt.default_legend_style)
   ?(tick_text_style=Spt.default_tick_style)
@@ -148,7 +149,7 @@ object (self)
     in
     let n = float (List.fold_left (fun s ds -> s + ds#n_items) 0 datasets) in
     let total_padding =
-      fold_datasets ctx 0. (fun s pad _ _ -> pad +. s) datasets
+      fold_datasets ctx between_padding 0. (fun s pad _ _ -> pad +. s) datasets
     in
     let item_width =
       if n > 1.
@@ -167,7 +168,7 @@ object (self)
 	| None -> 0.
 	| Some txt -> snd (text_dimensions ctx ~style:tick_text_style txt) in
     let data_label_height =
-      fold_datasets ctx 0.
+      fold_datasets ctx between_padding 0.
 	(fun m _ nitems ds ->
 	  let width = item_width *. (float nitems) in
 	  let h = ds#x_label_height ctx legend_text_style width
@@ -189,7 +190,7 @@ object (self)
   (** [draw_x_axis ctx ~y ~xrange ~item_width] draws the x-axis. *)
   method private draw_x_axis ctx ~y ~xrange ~item_width =
     ignore
-      (fold_datasets ctx xrange.min
+      (fold_datasets ctx between_padding xrange.min
 	 (fun x pad nitems ds ->
 	   let x = x +. pad in
 	   let width = item_width *. (float nitems) in
@@ -225,7 +226,7 @@ object (self)
 	      [ point xrange.min (tr v);
 		point xrange.max (tr v); ]))
 	      horiz_lines);
-    ignore (fold_datasets ctx xrange.min
+    ignore (fold_datasets ctx between_padding xrange.min
 	      (fun x pad nitems ds ->
 		let width = item_width *. (float nitems) in
 		let x = x +. pad in
@@ -246,9 +247,11 @@ object (self)
       ~xrange ~item_width
 end
 
-let plot ?x_axis_padding ?y_axis_padding ?label_text_style
+let plot ?x_axis_padding ?y_axis_padding
+    ?between_padding ?label_text_style
     ?legend_text_style ?tick_text_style ?horiz_lines ?seps ?title ?ylabel
     ?y_min ?y_max datasets =
-  new plot ?x_axis_padding ?y_axis_padding ?label_text_style
+  new plot ?x_axis_padding ?y_axis_padding 
+    ?between_padding ?label_text_style
     ?legend_text_style ?tick_text_style ?horiz_lines ?seps ?title ?ylabel
     ?y_min ?y_max datasets

@@ -46,6 +46,7 @@ let mean_and_interval vls =
     According to wikipedia, this procedure is recommended by the
     National Institute of Standards and Technology (NIST). *)
 let percentile p vls =
+  if Array.length vls = 0 then invalid_arg "percentile: no values";
   if p < 0. || p > 100. then invalid_arg "percentile: out of bounds";
   let cmp (a : float) b = if a < b then ~-1 else if a > b then 1 else 0 in
   let ranked = Array.copy vls in

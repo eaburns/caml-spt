@@ -68,7 +68,7 @@ let overline_style =
 (** Padding between the overline and the x-axis text. *)
 let overline_padding = Length.Pt 4.
 
-class dataset_group group_name datasets =
+class dataset_group group_name ?(between_padding=between_padding) datasets =
 object(self)
 
   inherit dataset group_name
@@ -155,4 +155,5 @@ object(self)
 		x datasets)
 end
 
-let dataset_group name datasets = new dataset_group name datasets
+let dataset_group name ?between_padding datasets =
+	new dataset_group name ?between_padding datasets
