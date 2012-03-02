@@ -69,12 +69,15 @@ object (self)
   method draw ctx ~src ~dst =
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
       Array.iter (fun t ->
+		    let xrng = xrange dst in
 		    let src = yrange src and dst = yrange dst in
 		    let x = tr t.i and y = t.j and mag = t.k in
-		      Errbar.draw_up ctx ~style ?cap_size:None
-			~src ~dst ~x ~y ~mag;
-		      Errbar.draw_down ctx ~style ?cap_size:None
-			~src ~dst ~x ~y ~mag;)
+                      if x <= xrng.max && x >= xrng.min then begin
+		      	Errbar.draw_up ctx ~style ?cap_size:None
+				~src ~dst ~x ~y ~mag;
+		     	 Errbar.draw_down ctx ~style ?cap_size:None
+				~src ~dst ~x ~y ~mag
+                       end)
 	triples
 
 
