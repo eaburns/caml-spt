@@ -398,6 +398,7 @@ type glyph =
   | Box_glyph
   | Triangle_glyph
   | Char_glyph of char
+  | Point_glyph
 
 
 (** The default line width when drawing glyphs. *)
@@ -421,6 +422,14 @@ let glyph_of_string = function
     change between creating the draw_glyph function and its
     use. *)
 let make_draw_glyph ctx radius = function
+  | Point_glyph ->
+      Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
+      (fun pt ->
+	 let radius = 0.5 in
+	 Cairo.new_path ctx.cairo;
+	 Cairo.arc ctx.cairo pt.x pt.y radius 0. (2. *. pi);
+	 Cairo.fill ctx.cairo)
+
   | Circle_glyph ->
       Cairo.set_line_width ctx.cairo (ctx.units default_glyph_line_width);
       (fun pt ->

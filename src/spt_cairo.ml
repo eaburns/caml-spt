@@ -45,8 +45,7 @@ let as_pdf width height plot filename =
 		   ~width_in_points:width_pt ~height_in_points:height_pt) in
   let ctx =
     Drawing.drawing_context (Cairo.create surface)
-      Length.as_pt ~w:width ~h:height
-  in
+      Length.as_pt ~w:width ~h:height in
     plot#set_size ~w:width ~h:height;
     plot#draw ctx;
     Cairo.surface_finish surface;

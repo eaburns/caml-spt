@@ -31,7 +31,7 @@ let default_glyph_factory =
       Box_glyph;
       Square_glyph;
       Cross_glyph;
-      Plus_glyph;
+      (*Plus_glyph;*)
     |]
   in make_glyph_factory glyph_set
 
@@ -43,9 +43,13 @@ let default_color_glyph_factory =
     [|
       Ring_glyph;
       Triangle_glyph;
+      Char_glyph 'S';
+      Char_glyph 'H';
+      Char_glyph '#';
       Box_glyph;
+      (*Square_glyph;
+	Circle_glyph;*)
       Cross_glyph;
-      Plus_glyph;
     |]
   in make_glyph_factory glyph_set
 

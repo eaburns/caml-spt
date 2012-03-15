@@ -133,7 +133,7 @@ let mean_line_and_errbars ~num ~count lines =
   let domain = common_domain lines in
   let errbars = errbars ~xrange:domain ~num ~count ~domain lines in
   let mean = mean_line domain lines in
-    mean, errbars
+    mean, errbars  (*[||]*)
 
 
 type style_cache_entry =
@@ -206,7 +206,7 @@ object (self)
   val mutable computed_count = !(style.count)
 
   val mutable composite =
-    new composite_dataset ?name:init_name [ line_dataset; errbar_dataset ]
+    new composite_dataset ?name:init_name [ line_dataset ; errbar_dataset ]
 
   val mutable line_dataset = line_dataset
 
