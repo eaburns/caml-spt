@@ -1,0 +1,10 @@
+syntax: glob
+_build*
+bytecode*
+depends*
+unix_unknown*
+*.cmi
+spt-debug
+use.ml
+*.annot
+_ocm
