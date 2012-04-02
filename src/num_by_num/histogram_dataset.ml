@@ -8,7 +8,7 @@
 open Num_by_num_dataset
 open Drawing
 open Geometry
-
+open Verbosity
 
 let f_compare a b =
   let v = a -. b in
@@ -64,7 +64,6 @@ let normalize_bins bins =
 (** [bins_of_points ?normalize w counts] makes a set of bins given a
     set of [(value, count)] pairs. *)
 let bins_of_points ?(normalize=false) bin_width pts =
-  let count = Array.fold_left (fun s p -> s +. p.y) 0. pts in
   let min_value, max_value =
     Array.fold_left (fun (min, max) p ->
 		       let v = p.x in
@@ -74,17 +73,22 @@ let bins_of_points ?(normalize=false) bin_width pts =
       (infinity, neg_infinity) pts
   in
   let range = max_value -. min_value in
-  let bin_width = get_bin_width bin_width ~min_value ~max_value count in
+  let npts = Array.length pts in
+  let bin_width =
+	get_bin_width bin_width ~min_value ~max_value (float npts) in
   let bin_count = max (truncate (ceil (range /. bin_width))) 1 in
-  let ave_per_bin = count /. (float bin_count) in
-  let bin_min = min_value -. (bin_width /. ave_per_bin)  in
+  let bin_min = min_value -. (bin_width /. 2.) in
   let bin_max = bin_end ~bin_min ~bin_width bin_count in
+  vprintf verb_debug "max=%g, min=%g, range=%g, width=%g, count=%d\n"
+	max_value min_value range bin_width bin_count;
+  vprintf verb_debug "bin_min=%g, bin_max=%g\n" bin_min bin_max;
   let bins = Array.create (bin_count + 1) 0. in
   let max_weight = ref 0. in
     Array.iter
       (fun p ->
 	 let v = p.x and c = p.y in
 	 let bi = bucket ~bin_min ~bin_width v in
+          vprintf verb_debug "v=%g, bucket=%d\n" v bi;
 	 let wt = bins.(bi) +. c in
 	   bins.(bi) <- wt;
 	   if wt > !max_weight then max_weight := wt)
