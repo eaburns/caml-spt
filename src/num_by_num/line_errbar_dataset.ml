@@ -286,7 +286,6 @@ let scatter_errbar_lines_dataset
 		       let mu_x, int_x = Statistics.mean_and_interval xs
 		       and mu_y, int_y = Statistics.mean_and_interval ys in
 		       let pt = point mu_x mu_y in
-			 Printf.eprintf "%f x %f\n" mu_x mu_y;
 			 let lbls' = match name with
 			   | Some txt -> (pt, txt) :: lbls
 			   | None -> lbls

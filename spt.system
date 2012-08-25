@@ -58,6 +58,6 @@ CLibraries:
 "gfortran"
 
 Result: "spt-debug" bytedebug "spt_main"
-Result: "spt-it-out" native "src/spt-it-out/spt_it_out"
+Result: "spt-it-out" bytedebug "src/spt-it-out/spt_it_out"
 Result: "spt" native "spt_main"
 

@@ -334,7 +334,6 @@ drawn by this dataset is the interpolated mean line for the given\n\
 lines.  Error bars are drawn to show the 95% confidence intervals."
 
 
-
 let eval_histogram eval_rec env line operands =
   (** [eval_histogram eval_rec env line operands] evaluates a histogram
       dataset. *)
