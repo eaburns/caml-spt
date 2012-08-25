@@ -35,14 +35,17 @@ let rec handle eval_rec env opt_spec exprs =
     match exprs with
       | [] -> ()
       | Sexpr.Ident(line, opt) :: exp :: tl ->
-	  begin match List.assoc opt opt_spec, eval_rec env exp with
-	    | Number f, Evaluate.Number n -> f (Sexpr.line_number exp) n
-	    | String f, Evaluate.String s -> f (Sexpr.line_number exp) s
-	    | List f, Evaluate.List lst -> f (Sexpr.line_number exp) lst
-	    | Bool f, Evaluate.Bool b -> f (Sexpr.line_number exp) b
-	    | Expr f, _ -> f (Sexpr.line_number exp) exp
-	    | x, _ -> option_error line opt x
-	  end;
+           begin match List.assoc opt opt_spec with
+             | Expr f -> f (Sexpr.line_number exp) exp
+             | assoc ->
+                	  begin match assoc, eval_rec env exp with
+                	    | Number f, Evaluate.Number n -> f (Sexpr.line_number exp) n
+                	    | String f, Evaluate.String s -> f (Sexpr.line_number exp) s
+                	    | List f, Evaluate.List lst -> f (Sexpr.line_number exp) lst
+                	    | Bool f, Evaluate.Bool b -> f (Sexpr.line_number exp) b
+                	    | x, _ -> option_error line opt x
+                	  end;
+           end;
 	  handle eval_rec env opt_spec tl
       | Sexpr.Ident(line, opt) :: tl ->
 	  printf "line %d: Unknown option %s\n" line opt;
