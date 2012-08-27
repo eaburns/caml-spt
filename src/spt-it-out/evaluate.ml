@@ -36,14 +36,7 @@ type environment = {
 exception Invalid_argument of int
 
 let init_environment =
-  let next_dash =
-	let d = Factories.default_dash_factory () in
-	let n = ref 0 in
-	(fun () ->
-		if !n = 1 then
-			failwith "foo bar";
-		incr n;
-		d()) in
+  let next_dash = Factories.default_dash_factory () in
     {
       bindings = [];
       next_glyph = Factories.default_glyph_factory ();
