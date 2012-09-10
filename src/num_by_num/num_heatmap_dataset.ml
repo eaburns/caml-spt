@@ -12,7 +12,6 @@ open Geometry
 
 let default_bins = 10.
 
-
 (** the index of the bin that should contain [value].  Note that any
     value outside the range of representable integers, such as
     [infinity], may yield a garbage value, such as 0!  If you might
@@ -99,8 +98,11 @@ object (self)
 	   and y_min = y_min +. (float y) *. bin_height
 	   and x_max = x_min +. (float (x+1)) *. bin_width
 	   and y_max = y_min +. (float (y+1)) *. bin_height in
-	     fill_rectangle ctx ~color:(gradient bins.(x).(y))
-	       (tr_rect (rectangle ~x_min ~x_max ~y_min ~y_max)))
+            let r = rectangle ~x_min ~x_max ~y_min ~y_max in
+            match clip_rectangle ~box:src ~r with
+		| Some r ->
+			fill_rectangle ctx ~color:(gradient bins.(x).(y))  (tr_rect r)
+		| None -> ())
 	done
       done
 
@@ -182,8 +184,11 @@ object (self)
 	   and y_min = y_min +. (float y) *. bin_height
 	   and x_max = x_min +. (float (x+1)) *. bin_width
 	   and y_max = y_min +. (float (y+1)) *. bin_height in
-	     fill_rectangle ctx ~color:(gradient bins.(x).(y))
-	       (tr_rect (rectangle ~x_min ~x_max ~y_min ~y_max)))
+            let r = rectangle ~x_min ~x_max ~y_min ~y_max in
+            match clip_rectangle ~box:src ~r with
+		| Some r ->
+			fill_rectangle ctx ~color:(gradient bins.(x).(y)) (tr_rect r)
+		| None -> ())
 	done
       done
 
