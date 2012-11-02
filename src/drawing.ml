@@ -176,7 +176,7 @@ let text_rectangle ctx ~style ?(pt=point 0. 0.) txt =
 let draw_text_centered_below ctx ?style ?(angle=0.) x y str =
   set_text_style_option ctx style;
   let te = Cairo.text_extents ctx.cairo str in
-    draw_text ctx ~angle ~x ~y:(y +. te.Cairo.text_height /. 2.) str
+    draw_text ctx ~angle ~x ~y:(y -. te.Cairo.y_bearing) str
 
 
 (** [draw_text_centered_above ctx ?style ?angle x y str] draws the

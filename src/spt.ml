@@ -48,7 +48,7 @@ let default_label_style =
 
 
 (** Padding around text *)
-let text_padding = Length.Pt 2.
+let text_padding = Length.Pt 4.
 
 
 (** The default plot width. *)
