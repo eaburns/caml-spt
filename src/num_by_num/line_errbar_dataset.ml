@@ -295,8 +295,9 @@ let scatter_errbar_lines_dataset
 			    triple mu_x mu_y int_x :: x_errs,
 			    triple mu_x mu_y int_y :: y_errs))
       ([], [], [], []) sets in
+  let ptsary = Array.of_list pts in
   let scatter =
-    Scatter_dataset.scatter_dataset glyph ?color ~point_radius (Array.of_list pts) in
+    Scatter_dataset.scatter_dataset glyph ?color ~point_radius ptsary in
   let labels =
     new Label_dataset.label_dataset
       ~yoff:(Length.Pt ~-.(Length.as_pt point_radius)) ~xoff:point_radius
@@ -306,7 +307,7 @@ let scatter_errbar_lines_dataset
   and vert_err =
     new Errbar_dataset.vertical_errbar_dataset ?color (Array.of_list y_errs)
   and line =
-    Line_dataset.line_dataset dash ?color ?name ?line_width (Array.of_list pts)
+    Line_dataset.line_dataset dash ?color ?name ?line_width ptsary
   in
     new composite_dataset ?name [scatter; line; horiz_err; vert_err; labels;]
 
