@@ -69,6 +69,7 @@ object (self)
   method draw ctx ~src ~dst =
     let tr = range_transform ~src:(xrange src) ~dst:(xrange dst) in
       Array.iter (fun t ->
+		if rectangle_contains src (point t.i t.j) then begin
 		    let xrng = xrange dst in
 		    let src = yrange src and dst = yrange dst in
 		    let x = tr t.i and y = t.j and mag = t.k in
@@ -77,7 +78,8 @@ object (self)
 				~src ~dst ~x ~y ~mag;
 		     	 Errbar.draw_down ctx ~style ?cap_size:None
 				~src ~dst ~x ~y ~mag
-                       end)
+                       end
+		end)
 	triples
 
 
