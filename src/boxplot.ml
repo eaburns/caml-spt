@@ -166,7 +166,7 @@ let draw ctx ?(interval=true) ~src ~dst ~width ~x box =
     draw_median_line ctx box_line_style src tr ~x0 ~x1 ~median:box.stats.q2;
     draw_box ctx box_line_style src tr ~x0 ~x1
       ~q1:box.stats.q1 ~q3:box.stats.q3;
-    Errbar.draw_up ctx ~style:box_line_style ?cap_size:None
+    Errbar.draw_up_sz ctx ~style:box_line_style (width /. 3.)
       ~src ~dst ~x ~y:q3 ~mag:(upper -. q3);
-    Errbar.draw_down ctx ~style:box_line_style ?cap_size:None
+    Errbar.draw_down_sz ctx ~style:box_line_style (width /. 3.)
       ~src ~dst ~x ~y:q1 ~mag:(q1 -. lower)

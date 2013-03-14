@@ -95,6 +95,21 @@ let draw_up ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
 				    point (x +. errbar_cap_size) y1' ]
     end
 
+(** Same as draw_up, but accepts a cap_size in pixels. *)
+let draw_up_sz ctx ?(style=errbar_line_style) cap_size
+    ~src ~dst ~x ~y ~mag =
+  let errbar_cap_size = cap_size in
+  let tr = range_transform ~src ~dst in
+  let y1 = y +. mag in
+    if y <= src.max && y1 >= src.min
+    then begin
+      let y0' = if y < src.min then tr src.min else tr y in
+      let y1' = if y1 > src.max then tr src.max else tr y1 in
+	draw_line ctx ~style [point x y0'; point x y1'];
+	if Geometry.sloppy_float_leq y1 src.max
+	then draw_line ctx ~style [ point (x -. errbar_cap_size) y1';
+				    point (x +. errbar_cap_size) y1' ]
+    end
 
 (** [draw_down ctx ?style ?cap_size ~src ~dst ~x ~y ~mag] draws the
     bottom half of a vertical error bar.  The [x] coordinate is in
@@ -118,6 +133,21 @@ let draw_down ctx ?(style=errbar_line_style) ?(cap_size=default_cap_size)
 				    point (x +. errbar_cap_size) y1' ]
     end
 
+(** Same asa draw_down but accepts the cap size in pixels. *)
+let draw_down_sz ctx ?(style=errbar_line_style) cap_size
+    ~src ~dst ~x ~y ~mag =
+  let errbar_cap_size = cap_size in
+  let tr = range_transform ~src ~dst in
+  let y1 = y -. mag in
+    if y >= src.min && y1 < src.max
+    then begin
+      let y0' = if y > src.max then tr src.max else tr y  in
+      let y1' = if y1 < src.min then tr src.min else tr y1 in
+	draw_line ctx ~style [point x y0'; point x y1'];
+	if Geometry.sloppy_float_geq y1 src.min
+	then draw_line ctx ~style [ point (x -. errbar_cap_size) y1';
+				    point (x +. errbar_cap_size) y1' ]
+    end
 
 (** [draw_left ctx ?style ?cap_size ~src ~dst ~x ~y ~mag] draws the
     top half of a vertical error bar.  The [y] coordinate is in the
