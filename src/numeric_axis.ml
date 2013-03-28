@@ -58,7 +58,7 @@ let create ~label_text_style ~tick_text_style ~src ticks label =
     marks. *)
 let recommended_ticks length =
   let n = (Length.as_cm length) *. (1. /. 4.) in
-    if n < 2. then 2. else n
+    if n < 3. then 3. else n
 
 
 (** {1 Tick marks} *)
